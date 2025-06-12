@@ -1,0 +1,235 @@
+<%- include("../partials/admin/sidebar") %>
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h2 class="mb-0" style="font-family: 'Times New Roman', Times, serif;">Dashboard</h2>
+                </div>
+                <div class="col-md-6">
+                    <div class="search-container ms-auto">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Search">
+                            <button class="btn btn-search" type="button">🔍</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Dashboard Content -->
+        <div class="container-fluid px-0">
+            <!-- Stats Cards -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="icon">👥</div>
+                    <div class="stat-label">Total Users</div>
+                    <div class="stat-number">10,583</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon">🚚</div>
+                    <div class="stat-label">Total Orders</div>
+                    <div class="stat-number">8,538</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon">💰</div>
+                    <div class="stat-label">Total Sales</div>
+                    <div class="stat-number">₹65,805</div>
+                </div>
+                <div class="stat-card">
+                    <div class="icon">⏰</div>
+                    <div class="stat-label">Total Pending</div>
+                    <div class="stat-number">3,552</div>
+                </div>
+            </div>
+
+            <!-- Sales Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3 class="chart-title">Sales Details</h3>
+                    <select class="chart-dropdown">
+                        <option>October</option>
+                        <option>November</option>
+                        <option>December</option>
+                    </select>
+                </div>
+                <div class="chart-canvas">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const navItems = document.querySelectorAll('.nav-item[data-route]');
+            const mobileToggle = document.getElementById('mobileToggle');
+            const sidebar = document.getElementById('sidebar');
+
+            // Set Dashboard as active by default
+            document.querySelector('[data-route="dashboard"]')?.classList.add('active');
+
+            // Handle sidebar navigation clicks
+            navItems.forEach(item => {
+                item.addEventListener('click', function (e) {
+
+
+                    // Remove active class from all nav items
+                    navItems.forEach(nav => nav.classList.remove('active'));
+
+                    // Add active class to clicked item
+                    this.classList.add('active');
+
+                    // Close mobile sidebar
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('show');
+                    }
+                });
+            });
+
+            // Mobile toggle functionality
+            mobileToggle.addEventListener('click', function () {
+                sidebar.classList.toggle('show');
+            });
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function (e) {
+                if (window.innerWidth <= 768) {
+                    if (!sidebar.contains(e.target) && !mobileToggle.contains(e.target)) {
+                        sidebar.classList.remove('show');
+                    }
+                }
+            });
+
+            // Initialize Sales Chart
+            const ctx = document.getElementById('salesChart').getContext('2d');
+
+            // Sample data similar to the screenshot
+            const salesData = [
+                { x: '5k', y: 20 },
+                { x: '10k', y: 35 },
+                { x: '15k', y: 45 },
+                { x: '20k', y: 30 },
+                { x: '25k', y: 52 },
+                { x: '30k', y: 48 },
+                { x: '35k', y: 58 },
+                { x: '40k', y: 25 },
+                { x: '45k', y: 42 },
+                { x: '50k', y: 38 },
+                { x: '55k', y: 45 },
+                { x: '60k', y: 50 }
+            ];
+
+            const peakPoint = { x: '22k', y: 85, value: '64,3564.77' }; // Peak point like in screenshot
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: salesData.map(d => d.x),
+                    datasets: [{
+                        label: 'Sales',
+                        data: salesData.map(d => d.y),
+                        borderColor: '#4CAF50',
+                        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#4CAF50',
+                        pointBorderColor: '#4CAF50',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: '#4CAF50',
+                            titleColor: 'white',
+                            bodyColor: 'white',
+                            borderColor: '#4CAF50',
+                            borderWidth: 1,
+                            displayColors: false,
+                            callbacks: {
+                                label: function (context) {
+                                    if (context.dataIndex === 4) { // Peak point
+                                        return '64,3564.77';
+                                    }
+                                    return context.parsed.y + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            border: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#666',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)',
+                                borderDash: [5, 5]
+                            },
+                            border: {
+                                display: false
+                            },
+                            ticks: {
+                                stepSize: 20,
+                                callback: function (value) {
+                                    return value + '%';
+                                },
+                                color: '#666',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+
+            // Logout functionality
+            document.getElementById('logoutBtn').addEventListener('click', function (e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes',
+                    cancelButtonText: 'No'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '/admin-logout';
+                    }
+                });
+            });
+        });
+    </script>
+    </body>
+
+    </html>

@@ -1,0 +1,356 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/admin/customer-listing.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>Customer Management</title>
+</head>
+<body>
+    <%- include("../partials/admin/sidebar") %>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Breadcrumbs -->
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/admin-dashboard">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Customer Management</li>
+            </ol>
+        </nav>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Customer Management</h1>
+            <p class="page-subtitle">Manage and view all registered customers</p>
+        </div>
+
+        <!-- Customer Table Container -->
+        <div class="customer-table-container">
+            <!-- Table Controls -->
+            <div class="table-controls">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="form-control" id="customerSearch" placeholder="Search customers..." value="<%= searchTerm %>">
+                </div>
+                <div class="filter-controls">
+                    <select class="form-select" id="statusFilter" style="width: auto;">
+                        <option value="" <%= statusFilter === '' ? 'selected' : '' %>>All Status</option>
+                        <option value="active" <%= statusFilter === 'active' ? 'selected' : '' %>>Active</option>
+                        <option value="blocked" <%= statusFilter === 'blocked' ? 'selected' : '' %>>Blocked</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Customers Table -->
+            <div class="table-responsive">
+                <table class="customers-table">
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Join Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customersTableBody">
+                        <% users.forEach(user => { %>
+                            <tr>
+                                <td>
+                                    <div class="customer-info">
+                                        <div class="customer-avatar">
+                                            <%= user.fullName ? user.fullName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase() %>
+                                        </div>
+                                        <div class="customer-details">
+                                            <%= user.fullName || 'Unnamed User' %>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><%= user.email %></td>
+                                <td><%= user.phone || 'N/A' %></td>
+                                <td><%= new Date(user.createdAt).toLocaleDateString() %></td>
+                                <td>
+                                    <span class="status-badge status-<%= user.isBlocked ? 'blocked' : 'active' %>">
+                                        <%= user.isBlocked ? 'blocked' : 'active' %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-action btn-toggle <%= user.isBlocked ? 'blocked' : '' %>" onclick="toggleCustomerStatus('<%= user._id %>', <%= user.isBlocked %>)">
+                                            <%= user.isBlocked ? 'Activate' : 'Block' %>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Showing <span id="showingStart"><%= startIdx + 1 %></span> to <span id="showingEnd"><%= endIdx %></span> of <span id="totalCustomers"><%= totalUsers %></span> customers
+                </div>
+                <nav aria-label="Customer pagination">
+                    <ul class="pagination pagination-sm mb-0" id="pagination">
+                        <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>" id="prevPage">
+                            <a class="page-link" href="#" aria-label="Previous">
+                                <span aria-hidden="true">«</span>
+                            </a>
+                        </li>
+                        <% for(let i = 1; i <= totalPages; i++) { %>
+                            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                <a class="page-link" href="#" onclick="goToPage(<%= i %>)"><%= i %></a>
+                            </li>
+                        <% } %>
+                        <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>" id="nextPage">
+                            <a class="page-link" href="#" aria-label="Next">
+                                <span aria-hidden="true">»</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = <%= currentPage %>;
+        const customersPerPage = 10;
+        let totalPages = <%= totalPages %>;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const customerSearch = document.getElementById('customerSearch');
+            const statusFilter = document.getElementById('statusFilter');
+            const prevPage = document.getElementById('prevPage');
+            const nextPage = document.getElementById('nextPage');
+
+            // Search functionality
+            customerSearch.addEventListener('input', debounce(function() {
+                currentPage = 1;
+                fetchUsers();
+            }, 300));
+
+            // Status filter functionality
+            statusFilter.addEventListener('change', function() {
+                currentPage = 1;
+                fetchUsers();
+            });
+
+            // Pagination controls
+            prevPage.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (currentPage > 1) {
+                    currentPage--;
+                    fetchUsers();
+                }
+            });
+
+            nextPage.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    fetchUsers();
+                }
+            });
+
+            // Initial fetch to ensure correct data
+            fetchUsers();
+        });
+
+        // Debounce function
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        // Navigate to page
+        function goToPage(page) {
+            currentPage = page;
+            fetchUsers();
+        }
+
+        // Fetch users dynamically
+        async function fetchUsers() {
+            const searchTerm = document.getElementById('customerSearch').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            try {
+                const query = new URLSearchParams({
+                    search: searchTerm,
+                    page: currentPage,
+                    status: statusFilter
+                }).toString();
+
+                const response = await fetch(`/get-users?${query}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch users: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Fetched users response:', JSON.stringify(data, null, 2));
+                if (data.users.length > customersPerPage) {
+                    console.warn(`Received ${data.users.length} users, expected up to ${customersPerPage}`);
+                }
+                renderCustomersTable(data.users, data);
+            } catch (error) {
+                console.error('Error fetching users:', error.message);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Failed to load customers. Please try again.',
+                    icon: 'error',
+                    confirmButtonColor: '#000000'
+                });
+            }
+        }
+
+        // Render customers table
+        function renderCustomersTable(users, paginationData) {
+            const tableBody = document.getElementById('customersTableBody');
+            tableBody.innerHTML = '';
+
+            if (users.length > 0) {
+                console.log('Sample user data:', users[0]);
+                users.forEach((user, index) => {
+                    console.log(`User ${index + 1} - fullName: ${user.fullName}, email: ${user.email}`);
+                });
+            } else {
+                console.warn('No users received in renderCustomersTable');
+            }
+
+            users.forEach(user => {
+                const displayName = user.fullName && user.fullName.trim() !== '' ? user.fullName : 'Unnamed User';
+                const avatarChar = displayName.charAt(0).toUpperCase();
+
+                if (!user.fullName || user.fullName.trim() === '') {
+                    console.warn(`Missing or empty fullName for user ID: ${user._id}, email: ${user.email}`);
+                }
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div class="customer-info">
+                            <div class="customer-avatar">
+                                ${avatarChar}
+                            </div>
+                            <div class="customer-details">
+                                <h6>${displayName}</h6>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${user.email}</td>
+                    <td>${user.phone || 'N/A'}</td>
+                    <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+                    <td>
+                        <span class="status-badge status-${user.isBlocked ? 'blocked' : 'active'}">
+                            ${user.isBlocked ? 'blocked' : 'active'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-toggle ${user.isBlocked ? 'blocked' : ''}" onclick="toggleCustomerStatus('${user._id}', ${user.isBlocked})">
+                                ${user.isBlocked ? 'Activate' : 'Block'}
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            document.getElementById('showingStart').textContent = paginationData.startIdx + 1 || 0;
+            document.getElementById('showingEnd').textContent = paginationData.endIdx || 0;
+            document.getElementById('totalCustomers').textContent = paginationData.totalUsers || 0;
+            totalPages = paginationData.totalPages || 1;
+
+            updatePagination();
+        }
+
+        // Update pagination links
+        function updatePagination() {
+            const pagination = document.getElementById('pagination');
+            const pageLinks = pagination.querySelectorAll('.page-item:not(#prevPage):not(#nextPage)');
+            pageLinks.forEach(link => link.remove());
+
+            for (let i = 1; i <= totalPages; i++) {
+                const li = document.createElement('li');
+                li.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                li.innerHTML = `<a class="page-link" href="#" onclick="goToPage(${i})">${i}</a>`;
+                pagination.insertBefore(li, document.getElementById('nextPage'));
+            }
+
+            document.getElementById('prevPage').classList.toggle('disabled', currentPage === 1);
+            document.getElementById('nextPage').classList.toggle('disabled', currentPage === totalPages);
+        }
+
+        // Toggle customer status
+        async function toggleCustomerStatus(userId, isBlocked) {
+            const action = isBlocked ? 'unblock' : 'block';
+            const actionText = isBlocked ? 'activate' : 'block';
+
+            Swal.fire({
+                title: 'Confirm Status Change',
+                text: `Are you sure you want to ${actionText} this customer?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#000000',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: `Yes, ${actionText.charAt(0).toUpperCase() + actionText.slice(1)}`,
+                cancelButtonText: 'Cancel'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch(`/get-users/${userId}/${action}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`Failed to ${action} user: ${response.status}`);
+                        }
+
+                        const data = await response.json();
+                        if (data.success) {
+                            Swal.fire({
+                                title: 'Success!',
+                                text: `Customer has been ${actionText}ed.`,
+                                icon: 'success',
+                                confirmButtonColor: '#000000'
+                            });
+                            fetchUsers();
+                        } else {
+                            throw new Error(data.message);
+                        }
+                    } catch (error) {
+                        console.error(`Error ${action}ing user:`, error.message);
+                        Swal.fire({
+                            title: 'Error',
+                            text: `Failed to ${actionText} customer. Please try again.`,
+                            icon: 'error',
+                            confirmButtonColor: '#000000'
+                        });
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+```
