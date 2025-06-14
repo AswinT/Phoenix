@@ -17,7 +17,7 @@ const isAdminAuthenticated = async (req, res, next) => {
     }
 
     // Not authenticated or invalid session
-    return res.redirect('/admin-login');
+    return res.redirect('/admin/login');
   } catch (error) {
     console.error('Admin Auth Middleware Error:', error);
     return res.status(500).render('error', { message: 'Authentication error' });

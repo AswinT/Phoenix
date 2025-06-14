@@ -8,13 +8,10 @@ const { uploadDir } = require("../../config/multer-config");
 // Helper function to save base64 image
 const saveBase64Image = async (base64Data, filename) => {
   try {
-    // Remove data URL prefix if present
     const base64Image = base64Data.replace(/^data:image\/[a-z]+;base64,/, "");
     const imageBuffer = Buffer.from(base64Image, "base64");
-
     const outputPath = path.join(uploadDir, filename);
 
-    // Process and save image with Sharp
     await sharp(imageBuffer)
       .resize(800, 800, {
         fit: "cover",
@@ -42,90 +39,145 @@ const deleteImageFile = (filename) => {
   }
 };
 
-// Render product listing page
+// Helper function to build search query
+const buildSearchQuery = (search, selectedCategory) => {
+  const searchQuery = { isDeleted: false };
+
+  if (search) {
+    searchQuery.$or = [
+      { productName: { $regex: search, $options: "i" } },
+      { brand: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  if (selectedCategory) {
+    searchQuery.category = selectedCategory;
+  }
+
+  return searchQuery;
+};
+
+// Helper function to calculate pagination data
+const calculatePagination = (page, totalProducts, limit) => {
+  const totalPages = Math.ceil(totalProducts / limit);
+  const hasNextPage = page < totalPages;
+  const hasPrevPage = page > 1;
+  const nextPage = hasNextPage ? page + 1 : null;
+  const prevPage = hasPrevPage ? page - 1 : null;
+  const skip = (page - 1) * limit;
+
+  // Calculate page range for pagination display
+  const startPage = Math.max(1, page - 2);
+  const endPage = Math.min(totalPages, page + 2);
+  const pageNumbers = [];
+  for (let i = startPage; i <= endPage; i++) {
+    pageNumbers.push(i);
+  }
+
+  // Calculate result range
+  const startResult = totalProducts > 0 ? skip + 1 : 0;
+  const endResult = Math.min(skip + limit, totalProducts);
+
+  return {
+    totalPages,
+    hasNextPage,
+    hasPrevPage,
+    nextPage,
+    prevPage,
+    pageNumbers,
+    startResult,
+    endResult,
+    skip,
+  };
+};
+
+// Helper function to process product images
+const processProductImages = async (imageData, mainImageIndex) => {
+  if (imageData.length < 3) {
+    throw new Error("Minimum 3 images are required");
+  }
+
+  const processedImages = [];
+  for (let i = 0; i < imageData.length; i++) {
+    const timestamp = Date.now();
+    const filename = `product-${timestamp}-${i + 1}.jpg`;
+
+    try {
+      await saveBase64Image(imageData[i], filename);
+      processedImages.push(filename);
+    } catch (error) {
+      // Clean up any already saved images
+      processedImages.forEach(deleteImageFile);
+      throw new Error(`Failed to process image ${i + 1}`);
+    }
+  }
+
+  // Determine main image based on mainImageIndex
+  const selectedMainIndex = parseInt(mainImageIndex) || 0;
+  const validMainIndex = selectedMainIndex < processedImages.length ? selectedMainIndex : 0;
+
+  // Arrange images with main image first
+  const mainImageFile = processedImages[validMainIndex];
+  const subImageFiles = processedImages.filter((_, index) => index !== validMainIndex);
+
+  return { mainImageFile, subImageFiles };
+};
+
+// Helper function to validate product data
+const validateProductData = (data) => {
+  const { productName, description, brand, category, regularPrice, salePrice, features } = data;
+  
+  if (!productName || !description || !brand || !category || !regularPrice || !salePrice || !features) {
+    throw new Error("All required fields must be filled");
+  }
+};
+
+// Page Rendering Controllers
 const getProducts = async (req, res) => {
   try {
-    // Pagination parameters
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10; // Products per page
-    const skip = (page - 1) * limit;
-
-    // Search and filter parameters
+    const limit = parseInt(req.query.limit) || 10;
     const search = req.query.search || "";
     const selectedCategory = req.query.category || "";
 
-    // Build search query
-    const searchQuery = { isDeleted: false };
-
-    // Add search functionality
-    if (search) {
-      searchQuery.$or = [
-        { productName: { $regex: search, $options: "i" } },
-        { brand: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-      ];
-    }
-
-    // Add category filter
-    if (selectedCategory) {
-      searchQuery.category = selectedCategory;
-    }
+    const searchQuery = buildSearchQuery(search, selectedCategory);
 
     // Fetch products and categories in parallel
     const [products, totalProducts, categories] = await Promise.all([
       Product.find(searchQuery)
         .populate("category", "name")
         .sort({ createdAt: -1 })
-        .skip(skip)
+        .skip((page - 1) * limit)
         .limit(limit),
       Product.countDocuments(searchQuery),
       Category.find({ isListed: true }).sort({ name: 1 }),
     ]);
 
-    // Calculate pagination data
-    const totalPages = Math.ceil(totalProducts / limit);
-    const hasNextPage = page < totalPages;
-    const hasPrevPage = page > 1;
-    const nextPage = hasNextPage ? page + 1 : null;
-    const prevPage = hasPrevPage ? page - 1 : null;
-
-    // Calculate page range for pagination display
-    const startPage = Math.max(1, page - 2);
-    const endPage = Math.min(totalPages, page + 2);
-    const pageNumbers = [];
-    for (let i = startPage; i <= endPage; i++) {
-      pageNumbers.push(i);
-    }
-
-    // Calculate result range
-    const startResult = totalProducts > 0 ? skip + 1 : 0;
-    const endResult = Math.min(skip + limit, totalProducts);
+    const pagination = calculatePagination(page, totalProducts, limit);
 
     // Build query string for pagination links
     const queryParams = new URLSearchParams();
     if (search) queryParams.set("search", search);
     if (selectedCategory) queryParams.set("category", selectedCategory);
-    if (req.query.limit && req.query.limit !== "10")
-      queryParams.set("limit", req.query.limit);
+    if (req.query.limit && req.query.limit !== "10") queryParams.set("limit", req.query.limit);
     const baseQuery = queryParams.toString();
 
     res.render("product", {
       products,
       categories,
-      // Pagination data
       currentPage: page,
-      totalPages,
+      totalPages: pagination.totalPages,
       totalProducts,
-      hasNextPage,
-      hasPrevPage,
-      nextPage,
-      prevPage,
-      pageNumbers,
-      startResult,
-      endResult,
+      hasNextPage: pagination.hasNextPage,
+      hasPrevPage: pagination.hasPrevPage,
+      nextPage: pagination.nextPage,
+      prevPage: pagination.prevPage,
+      pageNumbers: pagination.pageNumbers,
+      startResult: pagination.startResult,
+      endResult: pagination.endResult,
       limit,
       baseQuery,
-      // Filter data
       search,
       selectedCategory,
     });
@@ -153,7 +205,6 @@ const getProducts = async (req, res) => {
   }
 };
 
-// Render add product page
 const getAddProduct = async (req, res) => {
   try {
     const categories = await Category.find({ isListed: true });
@@ -164,7 +215,6 @@ const getAddProduct = async (req, res) => {
   }
 };
 
-// Render edit product page
 const getEditProduct = async (req, res) => {
   try {
     const productId = req.params.id;
@@ -182,7 +232,7 @@ const getEditProduct = async (req, res) => {
   }
 };
 
-// Add new product
+// Product CRUD API Controllers
 const addProduct = async (req, res) => {
   try {
     const {
@@ -199,23 +249,10 @@ const addProduct = async (req, res) => {
       mainImageIndex,
     } = req.body;
 
-    // Validation
-    if (
-      !productName ||
-      !description ||
-      !brand ||
-      !category ||
-      !regularPrice ||
-      !salePrice ||
-      !features
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "All required fields must be filled",
-      });
-    }
+    // Validate product data
+    validateProductData(req.body);
 
-    // Parse cropped images
+    // Parse and validate images
     let imageData = [];
     try {
       imageData = JSON.parse(croppedImages || "[]");
@@ -226,43 +263,8 @@ const addProduct = async (req, res) => {
       });
     }
 
-    if (imageData.length < 3) {
-      return res.status(400).json({
-        success: false,
-        message: "Minimum 3 images are required",
-      });
-    }
-
-    // Process and save cropped images
-    const processedImages = [];
-    for (let i = 0; i < imageData.length; i++) {
-      const timestamp = Date.now();
-      const filename = `product-${timestamp}-${i + 1}.jpg`;
-
-      try {
-        await saveBase64Image(imageData[i], filename);
-        processedImages.push(filename);
-      } catch (error) {
-        // Clean up any already saved images
-        processedImages.forEach(deleteImageFile);
-        throw new Error(`Failed to process image ${i + 1}`);
-      }
-    }
-
-    // Determine main image based on mainImageIndex
-    const selectedMainIndex = parseInt(mainImageIndex) || 0;
-    const validMainIndex =
-      selectedMainIndex < processedImages.length ? selectedMainIndex : 0;
-
-    console.log(`Main image index received: ${mainImageIndex}`);
-    console.log(`Using main image index: ${validMainIndex}`);
-    console.log(`Main image file: ${processedImages[validMainIndex]}`);
-
-    // Arrange images with main image first
-    const mainImageFile = processedImages[validMainIndex];
-    const subImageFiles = processedImages.filter(
-      (_, index) => index !== validMainIndex
-    );
+    // Process images
+    const { mainImageFile, subImageFiles } = await processProductImages(imageData, mainImageIndex);
 
     // Create product
     const newProduct = new Product({
@@ -284,15 +286,6 @@ const addProduct = async (req, res) => {
 
     const savedProduct = await newProduct.save();
 
-    console.log("Product created successfully:", {
-      id: savedProduct._id,
-      name: savedProduct.productName,
-      createdAt: savedProduct.createdAt,
-      isListed: savedProduct.isListed,
-      isBlocked: savedProduct.isBlocked,
-      isDeleted: savedProduct.isDeleted,
-    });
-
     res.status(201).json({
       success: true,
       message: "Product added successfully",
@@ -307,7 +300,6 @@ const addProduct = async (req, res) => {
   }
 };
 
-// Get product by ID for editing
 const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id).populate("category");
@@ -327,7 +319,6 @@ const getProductById = async (req, res) => {
   }
 };
 
-// Update product
 const updateProduct = async (req, res) => {
   try {
     const productId = req.params.id;
@@ -369,10 +360,7 @@ const updateProduct = async (req, res) => {
     };
 
     // Handle image updates
-    let currentImages = [
-      existingProduct.mainImage,
-      ...existingProduct.subImages,
-    ];
+    let currentImages = [existingProduct.mainImage, ...existingProduct.subImages];
 
     // Remove deleted images
     if (removedImages) {
@@ -411,22 +399,15 @@ const updateProduct = async (req, res) => {
 
     // Handle main image selection
     let selectedMainImage;
-
     if (mainImage) {
-      console.log("Main image selection received:", mainImage);
-
-      // Check if mainImage is a number (index for new images)
       if (!isNaN(mainImage)) {
         const newImageIndex = parseInt(mainImage);
         if (newImageIndex >= 0 && newImageIndex < newImageFilenames.length) {
           selectedMainImage = newImageFilenames[newImageIndex];
-          console.log("Selected new image as main:", selectedMainImage);
         }
       } else {
-        // It's an existing image filename
         if (currentImages.includes(mainImage)) {
           selectedMainImage = mainImage;
-          console.log("Selected existing image as main:", selectedMainImage);
         }
       }
     }
@@ -434,7 +415,6 @@ const updateProduct = async (req, res) => {
     // If no valid main image selected, use the first image
     if (!selectedMainImage) {
       selectedMainImage = currentImages[0];
-      console.log("Using first image as main (fallback):", selectedMainImage);
     }
 
     // Arrange images with selected main image first
@@ -444,15 +424,10 @@ const updateProduct = async (req, res) => {
     updateData.mainImage = selectedMainImage;
     updateData.subImages = subImages;
 
-    console.log("Final image arrangement:");
-    console.log("Main image:", updateData.mainImage);
-    console.log("Sub images:", updateData.subImages);
-
-    const updatedProduct = await Product.findByIdAndUpdate(
-      productId,
-      updateData,
-      { new: true, runValidators: true }
-    );
+    const updatedProduct = await Product.findByIdAndUpdate(productId, updateData, {
+      new: true,
+      runValidators: true,
+    });
 
     res.json({
       success: true,
@@ -468,7 +443,7 @@ const updateProduct = async (req, res) => {
   }
 };
 
-// Soft delete product
+// Product Management Controllers
 const deleteProduct = async (req, res) => {
   try {
     const productId = req.params.id;
@@ -502,7 +477,6 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-// Toggle product status (block/unblock)
 const toggleProductStatus = async (req, res) => {
   try {
     const productId = req.params.id;
@@ -521,9 +495,7 @@ const toggleProductStatus = async (req, res) => {
 
     res.json({
       success: true,
-      message: `Product ${
-        product.isBlocked ? "blocked" : "unblocked"
-      } successfully`,
+      message: `Product ${product.isBlocked ? "blocked" : "unblocked"} successfully`,
       isBlocked: product.isBlocked,
     });
   } catch (error) {
@@ -535,7 +507,7 @@ const toggleProductStatus = async (req, res) => {
   }
 };
 
-// Get products for user dashboard
+// User-facing API Controller
 const getProductsForUser = async (req, res) => {
   try {
     const products = await Product.find({
@@ -553,9 +525,7 @@ const getProductsForUser = async (req, res) => {
       .lean();
 
     // Filter out products with unlisted categories
-    const filteredProducts = products.filter(
-      (product) => product.category !== null
-    );
+    const filteredProducts = products.filter((product) => product.category !== null);
 
     res.json({ success: true, products: filteredProducts });
   } catch (error) {

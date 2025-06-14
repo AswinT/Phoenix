@@ -4,460 +4,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Add Product - Admin Dashboard</title>
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-      rel="stylesheet"
-    />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.5/sweetalert2.all.min.js"></script>
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.css"
-    />
+    <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.css" />
+    <link rel="stylesheet" href="/styles/admin/add-new-product.css" />
     <%- include("../partials/admin/sidebar") %>
-    <style>
-      .main-content {
-        margin-left: 250px;
-        padding: 2rem;
-        background-color: #f8f9fa;
-        min-height: 100vh;
-      }
-
-      .form-container {
-        background: white;
-        border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-      }
-
-      .form-header {
-        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-        color: white;
-        padding: 2rem;
-        text-align: center;
-      }
-
-      .form-body {
-        padding: 2rem;
-      }
-
-      .form-section {
-        margin-bottom: 2rem;
-        padding: 1.5rem;
-        border: 1px solid #e9ecef;
-        border-radius: 10px;
-        background: #f8f9fa;
-      }
-
-      .section-title {
-        color: #2c3e50;
-        margin-bottom: 1rem;
-        font-size: 1.2rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        margin-bottom: 1rem;
-      }
-
-      .form-group {
-        margin-bottom: 1rem;
-      }
-
-      .form-label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-        color: #2c3e50;
-      }
-
-      .required {
-        color: #e74c3c;
-      }
-
-      .form-control,
-      .form-select,
-      .form-textarea {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        transition: border-color 0.3s ease, box-shadow 0.3s ease;
-      }
-
-      .form-control:focus,
-      .form-select:focus,
-      .form-textarea:focus {
-        outline: none;
-        border-color: #2c3e50;
-        box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.1);
-      }
-
-      .error-message {
-        color: #e74c3c;
-        font-size: 0.8rem;
-        display: none;
-        margin-top: 0.25rem;
-      }
-
-      .error .error-message {
-        display: block;
-      }
-
-      .error .form-control,
-      .error .form-select,
-      .error .form-textarea {
-        border-color: #e74c3c;
-      }
-
-      .images-section {
-        background: white;
-        border: 2px dashed #ddd;
-        border-radius: 10px;
-        padding: 2rem;
-        text-align: center;
-        transition: border-color 0.3s ease;
-      }
-
-      .images-section:hover {
-        border-color: #2c3e50;
-      }
-
-      .images-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 1rem;
-        margin-top: 1rem;
-      }
-
-      .image-preview {
-        position: relative;
-        border: 2px solid #e3f2fd;
-        border-radius: 10px;
-        overflow: hidden;
-        background: white;
-        aspect-ratio: 1;
-      }
-
-      .image-preview img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-      }
-
-      .image-controls {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-      }
-
-      .image-btn {
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 32px;
-        height: 32px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.9rem;
-        transition: all 0.3s ease;
-        backdrop-filter: blur(10px);
-      }
-
-      .image-btn:hover {
-        background: rgba(0, 0, 0, 0.9);
-        transform: scale(1.1);
-      }
-
-      .image-btn.main-btn {
-        background: #ffc107;
-        color: #000;
-        border: 2px solid #fff;
-        box-shadow: 0 2px 8px rgba(255, 193, 7, 0.4);
-      }
-
-      .image-btn.main-btn:hover {
-        background: #ffca2c;
-        color: #000;
-        transform: scale(1.2);
-        box-shadow: 0 4px 12px rgba(255, 193, 7, 0.6);
-      }
-
-      .image-btn.main-btn.active {
-        background: #ff6b35;
-        color: #fff;
-        border: 2px solid #fff;
-        box-shadow: 0 4px 15px rgba(255, 107, 53, 0.6);
-        animation: pulse 2s infinite;
-      }
-
-      @keyframes pulse {
-        0% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.1);
-        }
-        100% {
-          transform: scale(1);
-        }
-      }
-
-      .image-btn.remove-btn {
-        background: #e74c3c;
-      }
-
-      .image-btn.remove-btn:hover {
-        background: #c82333;
-      }
-
-      .image-label {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
-        color: white;
-        padding: 0.75rem 0.5rem 0.5rem;
-        text-align: center;
-        font-size: 0.85rem;
-        font-weight: 500;
-      }
-
-      /* Enhanced styles for main image functionality */
-      .images-grid {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 1.5rem;
-        margin-top: 1.5rem;
-      }
-
-      .image-preview {
-        border: 3px solid #e3f2fd;
-        border-radius: 15px;
-        cursor: move;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      }
-
-      .image-preview:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-      }
-
-      .image-preview.main-image {
-        border-color: #28a745;
-        box-shadow: 0 0 20px rgba(40, 167, 69, 0.3);
-      }
-
-      .image-preview.dragging {
-        opacity: 0.5;
-        transform: rotate(5deg);
-      }
-
-      .image-preview img {
-        transition: transform 0.3s ease;
-      }
-
-      .image-preview:hover img {
-        transform: scale(1.05);
-      }
-
-      .main-image-badge {
-        position: absolute;
-        top: 8px;
-        left: 8px;
-        background: #28a745;
-        color: white;
-        padding: 4px 8px;
-        border-radius: 12px;
-        font-size: 0.7rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-
-      .image-order {
-        position: absolute;
-        top: 8px;
-        left: 8px;
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.8rem;
-        font-weight: 600;
-      }
-
-      .main-image .image-order {
-        background: #28a745;
-      }
-
-      .drag-over {
-        border-color: #007bff;
-        background-color: rgba(0, 123, 255, 0.1);
-      }
-
-      .form-actions {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-        padding-top: 2rem;
-        border-top: 1px solid #e9ecef;
-        margin-top: 2rem;
-      }
-
-      .btn {
-        padding: 0.75rem 2rem;
-        border: none;
-        border-radius: 8px;
-        font-weight: 500;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-
-      .btn-primary {
-        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-        color: white;
-      }
-
-      .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(44, 62, 80, 0.4);
-        color: white;
-      }
-
-      .btn-secondary {
-        background: #6c757d;
-        color: white;
-      }
-
-      .btn-secondary:hover {
-        background: #5a6268;
-      }
-
-      .cropper-container {
-        max-width: 100%;
-        max-height: 400px;
-        margin: 0 auto;
-      }
-
-      #cropModal .modal-dialog {
-        max-width: 600px;
-      }
-
-      #cropModal .modal-body {
-        padding: 2rem;
-      }
-
-      #cropModal .modal-header {
-        border-bottom: none;
-      }
-
-      #cropModal .modal-footer {
-        border-top: none;
-        padding-top: 0;
-      }
-
-      /* Auto-calculated field styling */
-      .form-control[readonly] {
-        background-color: #f8f9fa !important;
-        cursor: not-allowed;
-        border-style: dashed;
-        border-color: #6c757d;
-      }
-
-      .form-group.calculated .form-control {
-        border-color: #28a745 !important;
-        background: linear-gradient(
-          135deg,
-          #d4edda 0%,
-          #c3e6cb 100%
-        ) !important;
-        color: #155724 !important;
-        font-weight: 600;
-      }
-
-      .form-group.calculated .form-label::after {
-        content: " ✓";
-        color: #28a745;
-        font-weight: bold;
-        margin-left: 0.25rem;
-      }
-
-      /* Price calculation info styling */
-      .form-text {
-        font-size: 0.875rem;
-        color: #6c757d;
-        margin-top: 0.25rem;
-        font-style: italic;
-      }
-
-      /* Savings indicator animation */
-      .form-control.savings-highlight {
-        animation: savingsGlow 0.5s ease-in-out;
-      }
-
-      @keyframes savingsGlow {
-        0% {
-          box-shadow: 0 0 5px rgba(40, 167, 69, 0.3);
-        }
-        50% {
-          box-shadow: 0 0 20px rgba(40, 167, 69, 0.6);
-        }
-        100% {
-          box-shadow: 0 0 5px rgba(40, 167, 69, 0.3);
-        }
-      }
-
-      @media (max-width: 768px) {
-        .main-content {
-          margin-left: 0;
-          padding: 1rem;
-        }
-
-        .form-row {
-          grid-template-columns: 1fr;
-        }
-
-        .form-actions {
-          flex-direction: column;
-        }
-      }
-    </style>
   </head>
   <body>
     <div class="main-content">
       <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
           <li class="breadcrumb-item">
-            <a href="/admin-dashboard"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="/admin/dashboard"><i class="fas fa-home"></i> Dashboard</a>
           </li>
-          <li class="breadcrumb-item"><a href="/get-product">Products</a></li>
+          <li class="breadcrumb-item"><a href="/admin/products">Products</a></li>
           <li class="breadcrumb-item active" aria-current="page">
             Add Product
           </li>
@@ -646,71 +207,40 @@
               </div>
             </div>
 
-            <!-- Product Images -->
-            <div class="form-section">
-              <h3 class="section-title">
-                <i class="fas fa-images"></i> Product Images (Minimum 3
-                required)
-              </h3>
+              <!-- Product Images -->
+              <div class="form-section">
+                <h3 class="section-title">
+                  <i class="fas fa-images"></i> Product Images (Minimum 3 required)
+                </h3>
 
-              <div class="alert alert-info mb-3">
-                <h6>
-                  <i class="fas fa-info-circle"></i> Image Management
-                  Instructions:
-                </h6>
-                <ul class="mb-0">
-                  <li>
-                    <i class="fas fa-star text-warning"></i>
-                    <strong>Click the star icon</strong> to set an image as the
-                    main product image
-                  </li>
-                  <li>
-                    <i class="fas fa-arrows-alt text-primary"></i>
-                    <strong>Drag and drop</strong> images to reorder them
-                  </li>
-                  <li>
-                    <i class="fas fa-crop text-info"></i> Each image will be
-                    <strong>cropped individually</strong> for consistency
-                  </li>
-                  <li>
-                    <i class="fas fa-times text-danger"></i> Click the
-                    <strong>X icon</strong> to remove an image
-                  </li>
-                </ul>
-              </div>
-
-              <div class="images-section">
-                <div class="form-group">
-                  <label for="productImages" class="form-label"
-                    >Upload Images <span class="required">*</span></label
-                  >
-                  <input
-                    type="file"
-                    id="productImages"
-                    name="productImages"
-                    class="form-control"
-                    accept="image/*"
-                    multiple
-                    required
-                  />
-                  <div class="error-message" id="imagesError">
-                    Please upload at least 3 images
+                <div class="images-section">
+                  <div class="form-group">
+                    <label for="productImages" class="form-label"
+                      >Upload Images <span class="required">*</span></label
+                    >
+                    <input
+                      type="file"
+                      id="productImages"
+                      name="productImages"
+                      class="form-control"
+                      accept="image/*"
+                      multiple
+                      required
+                    />
+                    <div class="error-message" id="imagesError">
+                      Please upload at least 3 images
+                    </div>
                   </div>
-                  <small class="form-text text-muted"
-                    >Select multiple images. Each image will be cropped
-                    individually.</small
-                  >
+                  <div id="imagePreviews" class="images-grid"></div>
                 </div>
-                <div id="imagePreviews" class="images-grid"></div>
               </div>
-            </div>
 
             <!-- Form Actions -->
             <div class="form-actions">
-              <a href="/get-product" class="btn btn-secondary">
+              <a href="/admin/products" class="btn btn-secondary" data-tooltip="Discard changes">
                 <i class="fas fa-times"></i> Cancel
               </a>
-              <button type="submit" class="btn btn-dark">
+              <button type="submit" class="btn btn-primary" data-tooltip="Save product details">
                 <i class="fas fa-save"></i> Save Product
               </button>
             </div>
@@ -844,7 +374,7 @@
       async function fetchCategories() {
         try {
           console.log("Fetching categories...");
-          const response = await fetch("/get-categories");
+          const response = await fetch("/admin/categories/api");
           console.log("Categories response status:", response.status);
 
           if (!response.ok) throw new Error("Failed to fetch categories");
@@ -935,10 +465,6 @@
       // Handle file selection
       function handleFileSelection(e) {
         const files = Array.from(e.target.files);
-        console.log(
-          `Selected ${files.length} files:`,
-          files.map((f) => f.name)
-        );
 
         if (files.length < 3) {
           Swal.fire({
@@ -960,8 +486,6 @@
         selectedFiles = files;
         currentFileIndex = 0;
 
-        console.log("Starting image processing sequence...");
-
         // Show info message
         Swal.fire({
           title: "Image Cropping",
@@ -975,12 +499,7 @@
 
       // Process images one by one
       function processImageSequentially(files, index) {
-        console.log(`Processing image ${index + 1} of ${files.length}`);
-
         if (index >= files.length) {
-          console.log("All images processed!");
-          console.log("Final cropped images array:", croppedImages);
-
           // Show completion message
           Swal.fire({
             title: "All Images Cropped!",
@@ -992,11 +511,9 @@
         }
 
         const file = files[index];
-        console.log(`Initializing cropper for file: ${file.name}`);
 
         // Validate file type
         if (!file.type.startsWith("image/")) {
-          console.error(`File ${file.name} is not an image`);
           Swal.fire(
             "Error!",
             `File "${file.name}" is not a valid image`,
@@ -1006,23 +523,14 @@
         }
 
         initializeCropper(file, index, () => {
-          console.log(
-            `Finished cropping image ${index + 1}, moving to next...`
-          );
           processImageSequentially(files, index + 1);
         });
       }
 
       // Initialize cropper for a file
       function initializeCropper(file, index, callback) {
-        console.log(
-          `Initializing cropper for image ${index + 1}: ${file.name}`
-        );
-
         const reader = new FileReader();
         reader.onload = function (e) {
-          console.log(`File loaded for cropping: ${file.name}`);
-
           const img = document.getElementById("cropperImage");
           if (!img) {
             console.error("Cropper image element not found!");
@@ -1033,29 +541,17 @@
 
           // Destroy existing cropper if any
           if (currentCropper) {
-            console.log("Destroying existing cropper");
             currentCropper.destroy();
             currentCropper = null;
           }
 
           // Wait for image to load before initializing cropper
           img.onload = function () {
-            console.log("Image loaded, initializing Cropper.js");
-            console.log(
-              "Image dimensions:",
-              img.naturalWidth,
-              "x",
-              img.naturalHeight
-            );
-            console.log("Image src length:", img.src.length);
-
             try {
               // Check if Cropper is available
               if (typeof Cropper === "undefined") {
                 throw new Error("Cropper.js is not available");
               }
-
-              console.log("Creating new Cropper instance...");
 
               // Try to create cropper with error handling
               try {
@@ -1071,14 +567,6 @@
                   cropBoxMovable: true,
                   cropBoxResizable: true,
                   toggleDragModeOnDblclick: false,
-                  ready: function () {
-                    console.log(
-                      "Cropper is ready and initialized successfully"
-                    );
-                  },
-                  error: function (event) {
-                    console.error("Cropper error event:", event);
-                  },
                 });
               } catch (cropperError) {
                 console.error(
@@ -1090,8 +578,6 @@
                 return;
               }
 
-              console.log("Cropper instance created:", currentCropper);
-
               // Update modal title
               document.querySelector(
                 "#cropModal .modal-title"
@@ -1100,7 +586,6 @@
               }`;
 
               // Show modal
-              console.log("Showing crop modal");
               cropModal.show();
 
               currentFileIndex = index;
@@ -1132,16 +617,12 @@
 
       // Handle crop confirmation
       function handleCropConfirm() {
-        console.log("Crop confirm clicked");
-
         if (!currentCropper) {
-          console.error("No cropper instance found");
           Swal.fire("Error!", "No cropper instance found", "error");
           return;
         }
 
         try {
-          console.log("Getting cropped canvas...");
           const canvas = currentCropper.getCroppedCanvas({
             width: 800,
             height: 800,
@@ -1155,18 +636,12 @@
 
           // Convert canvas to base64
           const croppedImageData = canvas.toDataURL("image/jpeg", 0.9);
-          console.log(
-            `Created cropped image ${currentFileIndex + 1}, size: ${
-              croppedImageData.length
-            } characters`
-          );
 
           // Create enhanced preview with star button
           createImagePreview(croppedImageData, currentFileIndex);
 
           // Store cropped image data
           croppedImages[currentFileIndex] = croppedImageData;
-          console.log(`Stored cropped image ${currentFileIndex + 1}`);
 
           // Clean up
           currentCropper.destroy();
@@ -1210,8 +685,6 @@
 
       // Remove image
       function removeImage(index) {
-        console.log(`Removing image at index ${index}`);
-
         // Remove from arrays
         croppedImages.splice(index, 1);
         selectedFiles.splice(index, 1);
@@ -1236,8 +709,6 @@
         } else {
           document.getElementById("imagesError").style.display = "none";
         }
-
-        console.log(`Remaining images: ${validImages.length}`);
       }
 
       // Calculate sale price based on regular price and discount
@@ -1365,16 +836,12 @@
             if (field) {
               field.closest(".form-group").classList.add("error");
             }
-            console.log(`Validation failed for field: ${fieldName}`);
             isValid = false;
           }
         });
 
         // Check images
         const validCroppedImages = croppedImages.filter((img) => img);
-        console.log(
-          `Validation: Found ${validCroppedImages.length} cropped images`
-        );
 
         if (validCroppedImages.length < 3) {
           document.getElementById(
@@ -1415,7 +882,6 @@
           isValid = false;
         }
 
-        console.log(`Form validation result: ${isValid}`);
         return isValid;
       }
 
@@ -1431,12 +897,6 @@
           );
           return;
         }
-
-        console.log("Submitting form...");
-        console.log(
-          "Cropped images:",
-          croppedImages.filter((img) => img)
-        );
 
         Swal.fire({
           title: "Saving Product...",
@@ -1460,14 +920,7 @@
             mainImageIndex: mainImageIndex !== null ? mainImageIndex : 0,
           };
 
-          console.log("Form data:", formData);
-          console.log("Main image index being sent:", formData.mainImageIndex);
-          console.log(
-            "Total images being sent:",
-            croppedImages.filter((img) => img).length
-          );
-
-          const response = await fetch("/api/products", {
+          const response = await fetch("/admin/api/products", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -1496,7 +949,7 @@
                 text: "Product has been added successfully!",
                 icon: "success",
                 confirmButtonText: "Go to Products",
-              }).then(() => (window.location.href = "/get-product"));
+              }).then(() => (window.location.href = "/admin/products"));
             } else {
               throw new Error(result.message || "Failed to save product");
             }

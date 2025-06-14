@@ -3,352 +3,378 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Arvenclaire Admin Panel</title>
+    <title>Phoenix Admin Dashboard</title>
+
+    <!-- Modern Font Imports -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+
+    <!-- Modern Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
 
-      body {
-        background-color: #f8f9fa;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          sans-serif;
-      }
-
-      /* Sidebar Styles */
-      .sidebar {
-        width: 250px;
-        background-color: #ffffff;
-        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-        padding: 20px 0;
-        position: fixed;
-        height: 100vh;
-        left: 0;
-        top: 0;
-        overflow-y: auto;
-        z-index: 1000;
-        transition: all 0.3s ease;
-      }
-
-      .logo {
-        text-align: center;
-        padding: 20px;
-        border-bottom: 1px solid #e9ecef;
-        margin-bottom: 20px;
-      }
-
-      .logo h2 {
-        font-family: "Times New Roman", Times, serif;
-        color: #333;
-        margin: 0;
-        font-size: 24px;
-        font-weight: bold;
-      }
-
-      .logo p {
-        font-size: 10px;
-        margin-top: 5px;
-        font-family: "Times New Roman", Times, serif;
-        color: #666;
-      }
-
-      .nav-item {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 15px 20px;
-        color: #666;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        font-weight: 500;
-        font-size: 14px;
-        cursor: pointer;
-        border: none;
-        background: none;
-        width: 100%;
-      }
-
-      .nav-item:hover {
-        background-color: #f0f0f0;
-        color: #333;
-        text-decoration: none;
-      }
-
-      .nav-item.active {
-        background-color: #000000;
-        color: #ffffff;
-      }
-
-      .nav-item.active:hover {
-        background-color: #333333;
-        color: #ffffff;
-      }
-
-      #logoutBtn {
-        background-color: #dc3545;
-        color: #fff;
-        padding: 12px 20px;
-        border: none;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: bold;
-        cursor: pointer;
-        width: 90%;
-        max-width: 200px;
-        margin: 20px auto;
-        display: block;
-        transition: all 0.3s ease;
-        text-align: center;
-        text-decoration: none;
-      }
-
-      #logoutBtn:hover {
-        background-color: #c82333;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
-        text-decoration: none;
-        color: #fff;
-      }
-
-      /* Main Content Area */
-      .main-content {
-        margin-left: 250px;
-        min-height: 100vh;
-        padding: 20px;
-      }
-
-      .header {
-        background-color: white;
-        border-bottom: 1px solid #e9ecef;
-        padding: 1rem 2rem;
-        margin: -20px -20px 20px -20px;
-        border-radius: 8px 8px 0 0;
-      }
-
-      .search-container {
-        max-width: 400px;
-      }
-
-      .btn-search {
-        background-color: #000000;
-        border-color: #000000;
-        color: white;
-      }
-
-      .btn-search:hover {
-        background-color: #333333;
-        border-color: #333333;
-      }
-
-      .btn-clear {
-        background-color: #dc3545;
-        border-color: #dc3545;
-        color: white;
-      }
-
-      .btn-clear:hover {
-        background-color: #c82333;
-        border-color: #bd2130;
-      }
-
-      /* Content Cards */
-      .stats-row {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-      }
-
-      .stat-card {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-        text-align: center;
-        position: relative;
-        border: 1px solid #e9ecef;
-      }
-
-      .stat-card .icon {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        font-size: 24px;
-        color: #666;
-      }
-
-      .stat-number {
-        font-size: 2.2rem;
-        font-weight: bold;
-        color: #333;
-        margin-bottom: 0.5rem;
-        margin-top: 10px;
-      }
-
-      .stat-label {
-        color: #666;
-        font-size: 0.95rem;
-        font-weight: 500;
-      }
-
-      /* Chart Container */
-      .chart-container {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        border: 1px solid #e9ecef;
-      }
-
-      .chart-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-      }
-
-      .chart-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #333;
-      }
-
-      .chart-dropdown {
-        background: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 6px;
-        padding: 6px 12px;
-        font-size: 0.875rem;
-        color: #495057;
-      }
-
-      .chart-canvas {
-        position: relative;
-        height: 300px;
-        width: 100%;
-      }
-
-      /* Mobile Hamburger */
-      .mobile-toggle {
-        display: none;
-        position: fixed;
-        top: 15px;
-        left: 15px;
-        z-index: 1001;
-        background: #000;
-        color: white;
-        border: none;
-        padding: 8px 12px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 18px;
-      }
-
-      /* Responsive Design */
-      @media (max-width: 768px) {
-        .sidebar {
-          transform: translateX(-100%);
-        }
-
-        .sidebar.show {
-          transform: translateX(0);
-        }
-
-        .main-content {
-          margin-left: 0;
-          padding: 60px 15px 15px;
-        }
-
-        .mobile-toggle {
-          display: block;
-        }
-
-        .header {
-          margin: -60px -15px 20px -15px;
-          padding: 1rem;
-        }
-
-        .search-container {
-          max-width: 100%;
-          margin-top: 1rem;
-        }
-
-        .stats-row {
-          grid-template-columns: 1fr;
-          gap: 1rem;
-        }
-
-        .chart-header {
-          flex-direction: column;
-          gap: 1rem;
-          align-items: flex-start;
-        }
-
-        .chart-canvas {
-          height: 250px;
-        }
-      }
-
-      @media (max-width: 576px) {
-        .header {
-          padding: 0.5rem;
-        }
-
-        .stat-card {
-          padding: 1rem;
-        }
-
-        .stat-number {
-          font-size: 1.8rem;
-        }
-
-        .chart-container {
-          padding: 1rem;
-        }
-      }
-    </style>
+    <!-- Modern Admin Design System -->
+    <link rel="stylesheet" href="/styles/admin/modern-admin-system.css" />
   </head>
 
   <body>
-    <!-- Mobile Toggle Button -->
-    <button class="mobile-toggle" id="mobileToggle">☰</button>
+    <div class="admin-layout">
+      <!-- Mobile Toggle Button -->
+      <button class="mobile-toggle" id="mobileToggle" style="display: none;">
+        <i class="fas fa-bars"></i>
+      </button>
 
-    <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-      <div class="logo">
-        <h2>PHOENIX</h2>
-        <h6 style="font-family: 'Times New Roman', Times, serif">
-          Superior Sound
-        </h6>
-      </div>
+      <!-- Ultra-Modern Sidebar -->
+      <aside class="modern-sidebar" id="sidebar">
+        <!-- Sidebar Header -->
+        <div class="sidebar-header">
+          <a href="/admin/dashboard" class="sidebar-logo">
+            <div class="logo-icon">
+              <i class="fas fa-headphones"></i>
+            </div>
+            <div class="logo-text">
+              <h2>PHOENIX</h2>
+              <h6>Superior Sound</h6>
+            </div>
+          </a>
+        </div>
 
-      <a href="/admin-dashboard" class="nav-item" data-route="dashboard"
-        >Dashboard</a
-      >
-      <a href="/get-product" class="nav-item" data-route="products">Products</a>
-      <a href="#" class="nav-item" data-route="orders">Order Lists</a>
-      <a href="/get-user" class="nav-item" data-route="users">Users</a>
-      <a href="#" class="nav-item" data-route="sales">Sales</a>
-      <a href="#" class="nav-item" data-route="coupons">Coupons</a>
-      <a href="/get-category" class="nav-item" data-route="categories"
-        >Category</a
-      >
-      <a href="#" class="nav-item" data-route="banner">Banner</a>
-      <a href="#" class="nav-item" data-route="offers">Offer</a>
+        <!-- Modern Navigation -->
+        <nav class="sidebar-nav">
+          <!-- Main Section -->
+          <div class="nav-section">
+            <div class="nav-section-title">Main</div>
+            <a href="/admin/dashboard" class="nav-item" data-route="dashboard">
+              <div class="nav-icon">
+                <i class="fas fa-chart-line"></i>
+              </div>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </div>
 
-      <a href="/admin-logout" id="logoutBtn">Logout</a>
-    </div>
+          <!-- Management Section -->
+          <div class="nav-section">
+            <div class="nav-section-title">Management</div>
+            <a href="/admin/users" class="nav-item" data-route="users">
+              <div class="nav-icon">
+                <i class="fas fa-users"></i>
+              </div>
+              <span class="nav-text">Users</span>
+              <span class="nav-badge">5</span>
+            </a>
+            <a href="/admin/products" class="nav-item" data-route="products">
+              <div class="nav-icon">
+                <i class="fas fa-headphones"></i>
+              </div>
+              <span class="nav-text">Products</span>
+              <span class="nav-badge">20</span>
+            </a>
+            <a href="/admin/categories" class="nav-item" data-route="categories">
+              <div class="nav-icon">
+                <i class="fas fa-tags"></i>
+              </div>
+              <span class="nav-text">Categories</span>
+              <span class="nav-badge">4</span>
+            </a>
+          </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+          <!-- Sales Section -->
+          <div class="nav-section">
+            <div class="nav-section-title">Sales</div>
+            <a href="#" class="nav-item" data-route="orders">
+              <div class="nav-icon">
+                <i class="fas fa-shopping-cart"></i>
+              </div>
+              <span class="nav-text">Orders</span>
+            </a>
+            <a href="#" class="nav-item" data-route="sales">
+              <div class="nav-icon">
+                <i class="fas fa-chart-bar"></i>
+              </div>
+              <span class="nav-text">Sales Analytics</span>
+            </a>
+          </div>
+
+          <!-- Marketing Section -->
+          <div class="nav-section">
+            <div class="nav-section-title">Marketing</div>
+            <a href="#" class="nav-item" data-route="coupons">
+              <div class="nav-icon">
+                <i class="fas fa-ticket-alt"></i>
+              </div>
+              <span class="nav-text">Coupons</span>
+            </a>
+            <a href="#" class="nav-item" data-route="banner">
+              <div class="nav-icon">
+                <i class="fas fa-image"></i>
+              </div>
+              <span class="nav-text">Banners</span>
+            </a>
+            <a href="#" class="nav-item" data-route="offers">
+              <div class="nav-icon">
+                <i class="fas fa-percent"></i>
+              </div>
+              <span class="nav-text">Special Offers</span>
+            </a>
+          </div>
+        </nav>
+
+        <!-- Sidebar Footer -->
+        <div class="sidebar-footer">
+          <a href="/admin/logout" class="logout-btn" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+          </a>
+        </div>
+      </aside>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const navItems = document.querySelectorAll(".nav-item[data-route]");
+        const mobileToggle = document.getElementById("mobileToggle");
+        const sidebar = document.getElementById("sidebar");
+
+        // Handle sidebar navigation clicks
+        navItems.forEach((item) => {
+          item.addEventListener("click", function (e) {
+            // Don't prevent default - let the link navigate
+
+            // Remove active class from all nav items
+            navItems.forEach((nav) => nav.classList.remove("active"));
+
+            // Add active class to clicked item
+            this.classList.add("active");
+
+            // Close mobile sidebar
+            if (window.innerWidth <= 768) {
+              sidebar.classList.remove("show");
+            }
+          });
+        });
+
+        // Mobile toggle functionality
+        if (mobileToggle && sidebar) {
+          mobileToggle.addEventListener("click", function () {
+            sidebar.classList.toggle("show");
+          });
+
+          // Close sidebar when clicking outside on mobile
+          document.addEventListener("click", function (e) {
+            if (window.innerWidth <= 768) {
+              if (
+                !sidebar.contains(e.target) &&
+                !mobileToggle.contains(e.target)
+              ) {
+                sidebar.classList.remove("show");
+              }
+            }
+          });
+        }
+
+        // Initialize Sales Chart - ONLY IF THE ELEMENT EXISTS
+        const salesChartElement = document.getElementById("salesChart");
+        if (salesChartElement) {
+          const ctx = salesChartElement.getContext("2d");
+
+          // Sample data for modern chart
+          const salesData = [
+            { x: "5k", y: 20 },
+            { x: "10k", y: 35 },
+            { x: "15k", y: 45 },
+            { x: "20k", y: 30 },
+            { x: "25k", y: 52 },
+            { x: "30k", y: 48 },
+            { x: "35k", y: 58 },
+            { x: "40k", y: 25 },
+            { x: "45k", y: 42 },
+            { x: "50k", y: 38 },
+            { x: "55k", y: 45 },
+            { x: "60k", y: 50 },
+          ];
+
+          new Chart(ctx, {
+            type: "line",
+            data: {
+              labels: salesData.map((d) => d.x),
+              datasets: [
+                {
+                  label: "Sales",
+                  data: salesData.map((d) => d.y),
+                  borderColor: "var(--phoenix-accent)",
+                  backgroundColor: "rgba(212, 175, 55, 0.1)",
+                  borderWidth: 3,
+                  fill: true,
+                  tension: 0.4,
+                  pointBackgroundColor: "var(--phoenix-accent)",
+                  pointBorderColor: "var(--phoenix-accent)",
+                  pointBorderWidth: 2,
+                  pointRadius: 6,
+                  pointHoverRadius: 8,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  display: false,
+                },
+                tooltip: {
+                  backgroundColor: "var(--phoenix-accent)",
+                  titleColor: "white",
+                  bodyColor: "white",
+                  borderColor: "var(--phoenix-accent)",
+                  borderWidth: 1,
+                  displayColors: false,
+                  cornerRadius: 12,
+                  callbacks: {
+                    label: function (context) {
+                      if (
+                        context.dataset.label === "Sales" &&
+                        context.dataIndex === 4
+                      ) {
+                        return "₹64,3564.77";
+                      }
+                      return context.parsed.y + "%";
+                    },
+                  },
+                },
+              },
+              scales: {
+                x: {
+                  grid: { display: false },
+                  border: { display: false },
+                  ticks: {
+                    color: "var(--neutral-600)",
+                    font: { size: 12, family: "var(--font-primary)" }
+                  },
+                },
+                y: {
+                  beginAtZero: true,
+                  max: 100,
+                  grid: {
+                    color: "var(--neutral-200)",
+                    borderDash: [5, 5]
+                  },
+                  border: { display: false },
+                  ticks: {
+                    stepSize: 20,
+                    callback: function (value) {
+                      return value + "%";
+                    },
+                    color: "var(--neutral-600)",
+                    font: { size: 12, family: "var(--font-primary)" },
+                  },
+                },
+              },
+              interaction: {
+                intersect: false,
+                mode: "index",
+              },
+            },
+          });
+        }
+
+        // Modern Logout functionality with SweetAlert2
+        const logoutButton = document.getElementById("logoutBtn");
+        if (logoutButton) {
+          logoutButton.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            Swal.fire({
+              title: "Are you sure?",
+              text: "You are about to logout from the admin panel!",
+              icon: "warning",
+              showCancelButton: true,
+              confirmButtonColor: "var(--phoenix-accent)",
+              cancelButtonColor: "var(--neutral-400)",
+              confirmButtonText: "Yes, logout!",
+              cancelButtonText: "Cancel",
+              customClass: {
+                popup: 'modern-swal-popup',
+                title: 'modern-swal-title',
+                content: 'modern-swal-content'
+              }
+            }).then((result) => {
+              if (result.isConfirmed) {
+                window.location.href = "/admin/logout";
+              }
+            });
+          });
+        }
+
+        // Set active navigation item based on current path
+        const currentPath = window.location.pathname;
+        navItems.forEach((nav) => nav.classList.remove("active"));
+
+        let itemToActivate = null;
+
+        if (
+          currentPath === "/admin/dashboard" ||
+          currentPath.includes("admin/dashboard")
+        ) {
+          itemToActivate = document.querySelector('[data-route="dashboard"]');
+        } else if (
+          currentPath === "/admin/users" ||
+          currentPath.includes("admin/users")
+        ) {
+          itemToActivate = document.querySelector('[data-route="users"]');
+        } else if (
+          currentPath.includes("admin/products") ||
+          currentPath.includes("admin/product")
+        ) {
+          itemToActivate = document.querySelector('[data-route="products"]');
+        } else if (
+          currentPath.includes("admin/orders") ||
+          currentPath.includes("admin/order")
+        ) {
+          itemToActivate = document.querySelector('[data-route="orders"]');
+        } else if (
+          currentPath.includes("admin/sales") ||
+          currentPath.includes("admin/sale")
+        ) {
+          itemToActivate = document.querySelector('[data-route="sales"]');
+        } else if (
+          currentPath.includes("admin/coupons") ||
+          currentPath.includes("admin/coupon")
+        ) {
+          itemToActivate = document.querySelector('[data-route="coupons"]');
+        } else if (
+          currentPath.includes("admin/categories") ||
+          currentPath.includes("admin/category")
+        ) {
+          itemToActivate = document.querySelector('[data-route="categories"]');
+        } else if (currentPath.includes("admin/banner")) {
+          itemToActivate = document.querySelector('[data-route="banner"]');
+        } else if (currentPath.includes("admin/offer")) {
+          itemToActivate = document.querySelector('[data-route="offers"]');
+        } else {
+          itemToActivate = document.querySelector('[data-route="dashboard"]');
+        }
+
+        itemToActivate?.classList.add("active");
+
+        // Add modern animations on load
+        const sidebarElements = document.querySelectorAll('.nav-item, .stat-card, .chart-container');
+        sidebarElements.forEach((element, index) => {
+          element.style.animationDelay = `${index * 0.1}s`;
+          element.classList.add('animate-fade-in');
+        });
+      });
+    </script>
+
+
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         const navItems = document.querySelectorAll(".nav-item[data-route]");
@@ -512,7 +538,7 @@
               cancelButtonText: "No, stay",
             }).then((result) => {
               if (result.isConfirmed) {
-                window.location.href = "/admin-logout"; // Ensure this route is correct
+                window.location.href = "/admin/logout"; // Ensure this route is correct
               }
             });
           });
@@ -528,44 +554,44 @@
         let itemToActivate = null;
 
         if (
-          currentPath === "/admin-dashboard" ||
-          currentPath.includes("admin-dashboard")
+          currentPath === "/admin/dashboard" ||
+          currentPath.includes("admin/dashboard")
         ) {
           itemToActivate = document.querySelector('[data-route="dashboard"]');
         } else if (
-          currentPath === "/get-user" ||
-          currentPath.includes("get-user")
+          currentPath === "/admin/users" ||
+          currentPath.includes("admin/users")
         ) {
           itemToActivate = document.querySelector('[data-route="users"]');
         } else if (
-          currentPath.includes("products") ||
-          currentPath.includes("product")
+          currentPath.includes("admin/products") ||
+          currentPath.includes("admin/product")
         ) {
           itemToActivate = document.querySelector('[data-route="products"]');
         } else if (
-          currentPath.includes("orders") ||
-          currentPath.includes("order")
+          currentPath.includes("admin/orders") ||
+          currentPath.includes("admin/order")
         ) {
           itemToActivate = document.querySelector('[data-route="orders"]');
         } else if (
-          currentPath.includes("sales") ||
-          currentPath.includes("sale")
+          currentPath.includes("admin/sales") ||
+          currentPath.includes("admin/sale")
         ) {
           // Make sure 'sales' route doesn't conflict with chart page if it's different
           itemToActivate = document.querySelector('[data-route="sales"]');
         } else if (
-          currentPath.includes("coupons") ||
-          currentPath.includes("coupon")
+          currentPath.includes("admin/coupons") ||
+          currentPath.includes("admin/coupon")
         ) {
           itemToActivate = document.querySelector('[data-route="coupons"]');
         } else if (
-          currentPath.includes("categories") ||
-          currentPath.includes("category")
+          currentPath.includes("admin/categories") ||
+          currentPath.includes("admin/category")
         ) {
           itemToActivate = document.querySelector('[data-route="categories"]');
-        } else if (currentPath.includes("banner")) {
+        } else if (currentPath.includes("admin/banner")) {
           itemToActivate = document.querySelector('[data-route="banner"]');
-        } else if (currentPath.includes("offer")) {
+        } else if (currentPath.includes("admin/offer")) {
           itemToActivate = document.querySelector('[data-route="offers"]');
         } else {
           // Fallback: if no specific route matches, you might want to default to dashboard or nothing

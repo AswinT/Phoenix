@@ -1,235 +1,204 @@
-<%- include("../partials/admin/sidebar") %>
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Header -->
-        <div class="header">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h2 class="mb-0" style="font-family: 'Times New Roman', Times, serif;">Dashboard</h2>
-                </div>
-                <div class="col-md-6">
-                    <div class="search-container ms-auto">
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Search">
-                            <button class="btn btn-search" type="button">🔍</button>
-                        </div>
-                    </div>
-                </div>
+<%- include("../partials/admin/sidebar") %>
+
+      <!-- Ultra-Modern Main Content -->
+      <main class="main-content">
+        <!-- Modern Header -->
+        <header class="content-header">
+          <div class="header-content">
+            <div>
+              <h1 class="page-title">Dashboard</h1>
+              <p class="page-subtitle">Welcome back! Here's what's happening with your Phoenix store.</p>
             </div>
-        </div>
-        <!-- Dashboard Content -->
-        <div class="container-fluid px-0">
-            <!-- Stats Cards -->
-            <div class="stats-row">
-                <div class="stat-card">
-                    <div class="icon">👥</div>
-                    <div class="stat-label">Total Users</div>
-                    <div class="stat-number">10,583</div>
+            <div class="header-actions">
+              <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Search anything...">
+              </div>
+              <button class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                <span>New Product</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <!-- Modern Content Body -->
+        <div class="content-body">
+          <!-- Ultra-Modern Stats Grid -->
+          <div class="stats-grid">
+            <div class="stat-card animate-fade-in">
+              <div class="stat-header">
+                <div class="stat-icon users">
+                  <i class="fas fa-users"></i>
                 </div>
-                <div class="stat-card">
-                    <div class="icon">🚚</div>
-                    <div class="stat-label">Total Orders</div>
-                    <div class="stat-number">8,538</div>
+                <div class="stat-trend up">
+                  <i class="fas fa-arrow-up"></i>
+                  <span>+12%</span>
                 </div>
-                <div class="stat-card">
-                    <div class="icon">💰</div>
-                    <div class="stat-label">Total Sales</div>
-                    <div class="stat-number">₹65,805</div>
-                </div>
-                <div class="stat-card">
-                    <div class="icon">⏰</div>
-                    <div class="stat-label">Total Pending</div>
-                    <div class="stat-number">3,552</div>
-                </div>
+              </div>
+              <div class="stat-content">
+                <h3 id="totalUsers">5</h3>
+                <p>Total Users</p>
+              </div>
             </div>
 
-            <!-- Sales Chart -->
-            <div class="chart-container">
-                <div class="chart-header">
-                    <h3 class="chart-title">Sales Details</h3>
-                    <select class="chart-dropdown">
-                        <option>October</option>
-                        <option>November</option>
-                        <option>December</option>
-                    </select>
+            <div class="stat-card animate-fade-in">
+              <div class="stat-header">
+                <div class="stat-icon products">
+                  <i class="fas fa-headphones"></i>
                 </div>
-                <div class="chart-canvas">
-                    <canvas id="salesChart"></canvas>
+                <div class="stat-trend up">
+                  <i class="fas fa-arrow-up"></i>
+                  <span>+8%</span>
                 </div>
+              </div>
+              <div class="stat-content">
+                <h3 id="totalProducts">20</h3>
+                <p>Total Products</p>
+              </div>
             </div>
+
+            <div class="stat-card animate-fade-in">
+              <div class="stat-header">
+                <div class="stat-icon orders">
+                  <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="stat-trend up">
+                  <i class="fas fa-arrow-up"></i>
+                  <span>+15%</span>
+                </div>
+              </div>
+              <div class="stat-content">
+                <h3 id="totalOrders">0</h3>
+                <p>Total Orders</p>
+              </div>
+            </div>
+
+            <div class="stat-card animate-fade-in">
+              <div class="stat-header">
+                <div class="stat-icon revenue">
+                  <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-trend up">
+                  <i class="fas fa-arrow-up"></i>
+                  <span>+23%</span>
+                </div>
+              </div>
+              <div class="stat-content">
+                <h3 id="totalRevenue">₹0</h3>
+                <p>Total Revenue</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ultra-Modern Chart Container -->
+          <div class="chart-container animate-slide-up">
+            <div class="chart-header">
+              <div>
+                <h2 class="chart-title">Sales Analytics</h2>
+                <p class="chart-subtitle">Track your Phoenix headphones sales performance</p>
+              </div>
+              <div class="chart-actions">
+                <button class="chart-filter active">7 Days</button>
+                <button class="chart-filter">30 Days</button>
+                <button class="chart-filter">90 Days</button>
+                <button class="chart-filter">1 Year</button>
+              </div>
+            </div>
+            <div class="chart-body">
+              <canvas id="salesChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Modern Quick Actions Grid -->
+          <div class="stats-grid">
+            <div class="card animate-fade-in">
+              <div class="card-body">
+                <h3 style="font-family: var(--font-brand); color: var(--phoenix-primary); margin-bottom: var(--space-4);">
+                  <i class="fas fa-bolt" style="color: var(--phoenix-accent); margin-right: var(--space-2);"></i>
+                  Quick Actions
+                </h3>
+                <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+                  <a href="/admin/products" class="btn btn-secondary" style="justify-content: flex-start;">
+                    <i class="fas fa-headphones"></i>
+                    <span>Manage Products</span>
+                  </a>
+                  <a href="/admin/users" class="btn btn-secondary" style="justify-content: flex-start;">
+                    <i class="fas fa-users"></i>
+                    <span>Manage Users</span>
+                  </a>
+                  <a href="/get-category" class="btn btn-secondary" style="justify-content: flex-start;">
+                    <i class="fas fa-tags"></i>
+                    <span>Manage Categories</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="card animate-fade-in">
+              <div class="card-body">
+                <h3 style="font-family: var(--font-brand); color: var(--phoenix-primary); margin-bottom: var(--space-4);">
+                  <i class="fas fa-chart-pie" style="color: var(--phoenix-accent); margin-right: var(--space-2);"></i>
+                  Recent Activity
+                </h3>
+                <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+                  <div style="display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); background: var(--neutral-50); border-radius: var(--radius-lg);">
+                    <div class="table-avatar">A</div>
+                    <div>
+                      <p style="margin: 0; font-weight: var(--font-medium); color: var(--neutral-800);">Admin logged in</p>
+                      <p style="margin: 0; font-size: var(--text-sm); color: var(--neutral-600);">Just now</p>
+                    </div>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); background: var(--neutral-50); border-radius: var(--radius-lg);">
+                    <div class="table-avatar" style="background: var(--success);">S</div>
+                    <div>
+                      <p style="margin: 0; font-weight: var(--font-medium); color: var(--neutral-800);">System initialized</p>
+                      <p style="margin: 0; font-size: var(--text-sm); color: var(--neutral-600);">5 minutes ago</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+      </main>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const navItems = document.querySelectorAll('.nav-item[data-route]');
-            const mobileToggle = document.getElementById('mobileToggle');
-            const sidebar = document.getElementById('sidebar');
+      document.addEventListener('DOMContentLoaded', function () {
+        // Set Dashboard as active by default
+        document.querySelector('[data-route="dashboard"]')?.classList.add('active');
 
-            // Set Dashboard as active by default
-            document.querySelector('[data-route="dashboard"]')?.classList.add('active');
+        // Animate stats cards with counting effect
+        function animateCounter(element, target) {
+          let current = 0;
+          const increment = target / 50;
+          const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+              current = target;
+              clearInterval(timer);
+            }
+            element.textContent = Math.floor(current);
+          }, 30);
+        }
 
-            // Handle sidebar navigation clicks
-            navItems.forEach(item => {
-                item.addEventListener('click', function (e) {
+        // Animate the stats
+        setTimeout(() => {
+          animateCounter(document.getElementById('totalUsers'), 5);
+          animateCounter(document.getElementById('totalProducts'), 20);
+          animateCounter(document.getElementById('totalOrders'), 0);
+        }, 500);
 
-
-                    // Remove active class from all nav items
-                    navItems.forEach(nav => nav.classList.remove('active'));
-
-                    // Add active class to clicked item
-                    this.classList.add('active');
-
-                    // Close mobile sidebar
-                    if (window.innerWidth <= 768) {
-                        sidebar.classList.remove('show');
-                    }
-                });
-            });
-
-            // Mobile toggle functionality
-            mobileToggle.addEventListener('click', function () {
-                sidebar.classList.toggle('show');
-            });
-
-            // Close sidebar when clicking outside on mobile
-            document.addEventListener('click', function (e) {
-                if (window.innerWidth <= 768) {
-                    if (!sidebar.contains(e.target) && !mobileToggle.contains(e.target)) {
-                        sidebar.classList.remove('show');
-                    }
-                }
-            });
-
-            // Initialize Sales Chart
-            const ctx = document.getElementById('salesChart').getContext('2d');
-
-            // Sample data similar to the screenshot
-            const salesData = [
-                { x: '5k', y: 20 },
-                { x: '10k', y: 35 },
-                { x: '15k', y: 45 },
-                { x: '20k', y: 30 },
-                { x: '25k', y: 52 },
-                { x: '30k', y: 48 },
-                { x: '35k', y: 58 },
-                { x: '40k', y: 25 },
-                { x: '45k', y: 42 },
-                { x: '50k', y: 38 },
-                { x: '55k', y: 45 },
-                { x: '60k', y: 50 }
-            ];
-
-            const peakPoint = { x: '22k', y: 85, value: '64,3564.77' }; // Peak point like in screenshot
-
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: salesData.map(d => d.x),
-                    datasets: [{
-                        label: 'Sales',
-                        data: salesData.map(d => d.y),
-                        borderColor: '#4CAF50',
-                        backgroundColor: 'rgba(76, 175, 80, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#4CAF50',
-                        pointBorderColor: '#4CAF50',
-                        pointBorderWidth: 2,
-                        pointRadius: 4,
-                        pointHoverRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            backgroundColor: '#4CAF50',
-                            titleColor: 'white',
-                            bodyColor: 'white',
-                            borderColor: '#4CAF50',
-                            borderWidth: 1,
-                            displayColors: false,
-                            callbacks: {
-                                label: function (context) {
-                                    if (context.dataIndex === 4) { // Peak point
-                                        return '64,3564.77';
-                                    }
-                                    return context.parsed.y + '%';
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: {
-                                display: false
-                            },
-                            border: {
-                                display: false
-                            },
-                            ticks: {
-                                color: '#666',
-                                font: {
-                                    size: 12
-                                }
-                            }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            max: 100,
-                            grid: {
-                                color: 'rgba(0,0,0,0.05)',
-                                borderDash: [5, 5]
-                            },
-                            border: {
-                                display: false
-                            },
-                            ticks: {
-                                stepSize: 20,
-                                callback: function (value) {
-                                    return value + '%';
-                                },
-                                color: '#666',
-                                font: {
-                                    size: 12
-                                }
-                            }
-                        }
-                    },
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
-                    }
-                }
-            });
-
-            // Logout functionality
-            document.getElementById('logoutBtn').addEventListener('click', function (e) {
-                e.preventDefault();
-
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes',
-                    cancelButtonText: 'No'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = '/admin-logout';
-                    }
-                });
-            });
+        // Chart filter functionality
+        const chartFilters = document.querySelectorAll('.chart-filter');
+        chartFilters.forEach(filter => {
+          filter.addEventListener('click', function() {
+            chartFilters.forEach(f => f.classList.remove('active'));
+            this.classList.add('active');
+          });
         });
+      });
     </script>
     </body>
-
     </html>

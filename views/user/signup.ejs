@@ -4,6 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Phoenix - Create an Account</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
     <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -14,12 +23,17 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="../../styles/user/user-register.css" />
     <!-- SweetAlert2 + Animate.css -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
     />
+
+    <!-- Modern Design System -->
+    <link rel="stylesheet" href="../../styles/modern-design-system.css" />
+    <link rel="stylesheet" href="../../styles/modern-components.css" />
+    <link rel="stylesheet" href="../../styles/animations.css" />
+    <link rel="stylesheet" href="../../styles/user/user-register.css" />
     <style>
       .error-message {
         color: #dc3545;
@@ -86,134 +100,161 @@
     </style>
   </head>
 
-  <body>
-    <div class="page-container">
-      <div class="signup-container">
-        <div class="signup-image">
-          <img
-            src="/assets/register-img.jpg"
-            style="width: 100%; height: 100%; object-fit: cover"
-            alt="Phoenix Headphones"
-          />
-        </div>
-        <div class="signup-form">
-          <h2
-            class="mb-3"
-            style="
-              font-weight: bolder;
-              font-family: 'Times New Roman', Times, serif;
-            "
-          >
-            PHOENIX
-          </h2>
-          <p style="font-weight: bold">Create your account</p>
-          <form id="signupForm" novalidate>
-            <div class="mb-3">
-              <input
-                type="text"
-                id="fullname"
-                name="fullname"
-                class="form-control"
-                placeholder="Fullname"
-                required
-              />
-              <div class="error-message" id="fullname-error">
-                Full name must be at least 4 characters long
+  <body class="animate-fade-in">
+    <div class="page-container-modern">
+      <div class="signup-container-modern animate-scale-in">
+        <!-- Left Form Section -->
+        <div class="signup-form-modern">
+          <div class="signup-form-container">
+            <div class="signup-header">
+              <h2 class="signup-brand">PHOENIX</h2>
+              <p class="signup-subtitle">
+                Join the Phoenix community and experience superior sound
+              </p>
+            </div>
+            <form id="signupForm" novalidate>
+              <!-- Full Name Field -->
+              <div class="form-group-signup">
+                <input
+                  type="text"
+                  id="fullname"
+                  name="fullname"
+                  class="form-input-signup"
+                  placeholder="Enter your full name"
+                  required
+                />
+                <i class="bi bi-person form-icon-signup"></i>
+                <div class="error-message-signup" id="fullname-error">
+                  Full name must be at least 4 characters long
+                </div>
               </div>
-            </div>
-            <div class="mb-3">
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                class="form-control"
-                placeholder="Phone"
-                required
-              />
-              <div class="error-message" id="phone-error">
-                Please enter a valid phone number
-              </div>
-            </div>
-            <div class="mb-3">
-              <input
-                type="email"
-                id="email"
-                name="email"
-                class="form-control"
-                placeholder="Email"
-                required
-              />
-              <div class="error-message" id="email-error">
-                Please enter a valid email address
-              </div>
-            </div>
-            <div class="mb-3 password-wrapper">
-              <input
-                type="password"
-                id="password"
-                name="password"
-                class="form-control"
-                placeholder="Password"
-              />
-              <i class="bi bi-lock password-toggle" id="password-toggle"></i>
-              <div class="error-message" id="password-error">
-                Give strong password
-              </div>
-            </div>
-            <div class="mb-3 password-wrapper">
-              <input
-                type="password"
-                id="confirmpassword"
-                name="confirmpassword"
-                class="form-control"
-                placeholder="Confirm Password"
-              />
-              <i
-                class="bi bi-lock password-toggle"
-                id="confirmpassword-toggle"
-              ></i>
-              <div class="error-message" id="confirmpassword-error">
-                Passwords do not match
-              </div>
-            </div>
-            <div class="form-check mb-2">
-              <input class="form-check-input" type="checkbox" id="rememberMe" />
-              <label class="form-check-label text-muted" for="rememberMe">
-                Remember me
-              </label>
-            </div>
-            <button type="submit" class="btn btn-create py-2" id="signupButton">
-              <span class="btn-text">Sign Up</span>
-              <span
-                class="spinner-border spinner-border-sm d-none"
-                role="status"
-                aria-hidden="true"
-              ></span>
-            </button>
-            <div class="d-flex align-items-center my-3">
-              <hr class="flex-grow-1" />
-              <span class="mx-3 text-muted">or</span>
-              <hr class="flex-grow-1" />
-            </div>
-            <a
-              href="/auth/google"
-              class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center p-2"
-              role="button"
-            >
-              <img
-                src="../../assets/google-icon.png"
-                alt="Google logo"
-                width="20"
-                height="20"
-                style="margin-right: 10px"
-              />
-              Sign up with Google
-            </a>
 
-            <div class="login-link">
-              Already have an account? <a href="/login">Log In</a>
-            </div>
-          </form>
+              <!-- Phone Field -->
+              <div class="form-group-signup">
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  class="form-input-signup"
+                  placeholder="Enter your phone number"
+                  required
+                />
+                <i class="bi bi-telephone form-icon-signup"></i>
+                <div class="error-message-signup" id="phone-error">
+                  Please enter a valid phone number
+                </div>
+              </div>
+
+              <!-- Email Field -->
+              <div class="form-group-signup">
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  class="form-input-signup"
+                  placeholder="Enter your email address"
+                  required
+                />
+                <i class="bi bi-envelope form-icon-signup"></i>
+                <div class="error-message-signup" id="email-error">
+                  Please enter a valid email address
+                </div>
+              </div>
+
+              <!-- Password Field -->
+              <div class="form-group-signup">
+                <div class="password-field-signup">
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    class="form-input-signup"
+                    placeholder="Create a strong password"
+                    required
+                  />
+                  <i class="bi bi-lock form-icon-signup"></i>
+                  <button
+                    type="button"
+                    class="password-toggle-signup"
+                    id="password-toggle"
+                  >
+                    <i class="bi bi-eye"></i>
+                  </button>
+                </div>
+                <div class="error-message-signup" id="password-error">
+                  Password must be at least 8 characters with uppercase,
+                  lowercase, number and special character
+                </div>
+              </div>
+
+              <!-- Confirm Password Field -->
+              <div class="form-group-signup">
+                <div class="password-field-signup">
+                  <input
+                    type="password"
+                    id="confirmpassword"
+                    name="confirmpassword"
+                    class="form-input-signup"
+                    placeholder="Confirm your password"
+                    required
+                  />
+                  <i class="bi bi-lock form-icon-signup"></i>
+                  <button
+                    type="button"
+                    class="password-toggle-signup"
+                    id="confirmpassword-toggle"
+                  >
+                    <i class="bi bi-eye"></i>
+                  </button>
+                </div>
+                <div class="error-message-signup" id="confirmpassword-error">
+                  Passwords do not match
+                </div>
+              </div>
+
+              <!-- Terms Checkbox -->
+              <div class="form-check-signup">
+                <input type="checkbox" id="rememberMe" />
+                <label for="rememberMe">
+                  I agree to the Terms of Service and Privacy Policy
+                </label>
+              </div>
+
+              <!-- Signup Button -->
+              <button type="submit" class="btn-signup-modern" id="signupButton">
+                <span class="btn-text">Create Account</span>
+                <div class="loading-spinner d-none"></div>
+              </button>
+              <!-- Divider -->
+              <div class="divider-signup">
+                <span>or continue with</span>
+              </div>
+
+              <!-- Google Signup -->
+              <a href="/auth/google" class="btn-google-signup">
+                <img src="../../assets/google-icon.png" alt="Google" />
+                <span>Sign up with Google</span>
+              </a>
+
+              <!-- Login Link -->
+              <div class="login-link-signup">
+                Already have an account?
+                <a href="/login">Sign in here</a>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Right Image Section -->
+        <div class="signup-image-modern d-none d-md-flex">
+          <div class="signup-image-content">
+            <h1 class="signup-image-title">PHOENIX</h1>
+            <p class="signup-image-subtitle">
+              Join thousands of audiophiles who trust Phoenix for superior sound
+              quality. Experience the difference with our premium headphone
+              collection.
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -255,28 +296,47 @@
         },
       ];
 
+      // Modern validation with enhanced styling
       function validateField(field) {
         const input = document.getElementById(field.id);
         const isValid = field.validate(input.value);
-        input.classList.toggle("is-invalid", !isValid);
+
+        // Remove existing validation classes
+        input.classList.remove("is-invalid", "is-valid");
+
+        // Add appropriate class
+        if (input.value.trim() !== "") {
+          input.classList.add(isValid ? "is-valid" : "is-invalid");
+        }
+
         return isValid;
       }
 
-      // Real-time validation on input
+      // Enhanced real-time validation
       fields.forEach((field) => {
         const input = document.getElementById(field.id);
-        input.addEventListener("input", () => validateField(field));
+
+        // Validate on blur for better UX
+        input.addEventListener("blur", () => validateField(field));
+
+        // Clear validation on focus
+        input.addEventListener("focus", () => {
+          input.classList.remove("is-invalid", "is-valid");
+        });
       });
 
-      // Password toggle functionality
+      // Modern password toggle functionality
       function setupPasswordToggle(inputId, toggleId) {
         const input = document.getElementById(inputId);
         const toggle = document.getElementById(toggleId);
+
         toggle.addEventListener("click", () => {
           const isPassword = input.type === "password";
           input.type = isPassword ? "text" : "password";
-          toggle.classList.toggle("bi-unlock", isPassword);
-          toggle.classList.toggle("bi-lock", !isPassword);
+
+          const icon = toggle.querySelector("i");
+          icon.classList.toggle("bi-eye", !isPassword);
+          icon.classList.toggle("bi-eye-slash", isPassword);
         });
       }
 
@@ -286,12 +346,13 @@
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
 
-        // Show loader and disable button
-        signupButton.classList.add("btn-loading");
-        signupButton
-          .querySelector(".spinner-border")
-          .classList.remove("d-none");
-        signupButton.querySelector(".btn-text").classList.add("d-none");
+        // Show modern loading state
+        const btnText = signupButton.querySelector(".btn-text");
+        const spinner = signupButton.querySelector(".loading-spinner");
+
+        btnText.textContent = "Creating Account...";
+        spinner.classList.remove("d-none");
+        signupButton.disabled = true;
 
         let isValid = true;
         fields.forEach((field) => {
@@ -301,10 +362,10 @@
         });
 
         if (!isValid) {
-          // Hide loader and enable button if validation fails
-          signupButton.classList.remove("btn-loading");
-          signupButton.querySelector(".spinner-border").classList.add("d-none");
-          signupButton.querySelector(".btn-text").classList.remove("d-none");
+          // Reset button state
+          btnText.textContent = "Create Account";
+          spinner.classList.add("d-none");
+          signupButton.disabled = false;
           return;
         }
 
@@ -351,6 +412,11 @@
                 popup: "animate__animated animate__fadeOutUp",
               },
             });
+
+            // Reset button state
+            btnText.textContent = "Create Account";
+            spinner.classList.add("d-none");
+            signupButton.disabled = false;
           }
         } catch (error) {
           console.error("Signup error:", error);
@@ -360,11 +426,11 @@
             title: "Error",
             text: "An error occurred during signup.",
           });
-        } finally {
-          // Hide loader and enable button after request completes
-          signupButton.classList.remove("btn-loading");
-          signupButton.querySelector(".spinner-border").classList.add("d-none");
-          signupButton.querySelector(".btn-text").classList.remove("d-none");
+
+          // Reset button state
+          btnText.textContent = "Create Account";
+          spinner.classList.add("d-none");
+          signupButton.disabled = false;
         }
       });
     </script>

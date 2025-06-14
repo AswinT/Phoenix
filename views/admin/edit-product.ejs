@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Product - Admin Dashboard</title>
+    <title>Edit Product - Phoenix Admin Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.5/sweetalert2.all.min.js"></script>
@@ -340,8 +340,8 @@
     <div class="main-content">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/admin-dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li class="breadcrumb-item"><a href="/get-product">Products</a></li>
+                <li class="breadcrumb-item"><a href="/admin/dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="/admin/products">Products</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Edit Product</li>
             </ol>
         </nav>
@@ -511,7 +511,7 @@
 
                     <!-- Form Actions -->
                     <div class="form-actions">
-                        <a href="/get-product" class="btn btn-secondary">
+                        <a href="/admin/products" class="btn btn-secondary">
                             <i class="fas fa-times"></i> Cancel
                         </a>
                         <button type="submit" class="btn btn-dark">
@@ -1349,7 +1349,7 @@
                     removedImages: removedImages
                 });
 
-                const response = await fetch(`/api/products/${productId}`, {
+                const response = await fetch(`/admin/api/products/${productId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1366,7 +1366,7 @@
                         text: 'Product has been updated successfully!',
                         icon: 'success',
                         confirmButtonText: 'Go to Products'
-                    }).then(() => window.location.href = '/get-product');
+                    }).then(() => window.location.href = '/admin/products');
                 } else {
                     throw new Error(result.message || 'Failed to update product');
                 }

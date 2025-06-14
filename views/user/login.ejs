@@ -4,6 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Phoenix - Login</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
     <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -24,6 +33,11 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
     />
+
+    <!-- Modern Design System -->
+    <link rel="stylesheet" href="../../styles/modern-design-system.css" />
+    <link rel="stylesheet" href="../../styles/modern-components.css" />
+    <link rel="stylesheet" href="../../styles/animations.css" />
     <link rel="stylesheet" href="../../styles/user/user-login.css" />
     <style>
       body,
@@ -85,106 +99,102 @@
     </style>
   </head>
 
-  <body>
-    <div
-      class="container d-flex align-items-center justify-content-center login-wrapper"
-    >
-      <div class="row login-box">
-        <!-- Left Image Column -->
-        <div class="col-md-6 d-none d-md-block p-0">
-          <img
-            src="../../assets/login-img.jpg"
-            alt="Login Image"
-            class="login-img"
-          />
+  <body class="animate-fade-in">
+    <div class="login-container-modern animate-scale-in">
+      <!-- Left Image Section -->
+      <div class="login-image-modern d-none d-md-flex">
+        <div class="login-image-content">
+          <h1 class="login-image-title">PHOENIX</h1>
+          <p class="login-image-subtitle">
+            Experience premium audio quality with our cutting-edge headphone
+            technology. Join thousands of audiophiles who trust Phoenix for
+            superior sound.
+          </p>
         </div>
+      </div>
 
-        <!-- Right Form Column -->
-        <div class="col-md-6 p-5 bg-white">
-          <div class="text-center mb-4">
-            <h2
-              style="
-                font-family: 'Times New Roman', Times, serif;
-                font-weight: bolder;
-              "
-            >
-              PHOENIX
-            </h2>
-            <p class="text-muted" style="font-weight: bold">
-              Log into your account
+      <!-- Right Form Section -->
+      <div class="login-form-modern">
+        <div class="login-form-container">
+          <div class="login-header">
+            <h2 class="login-brand">PHOENIX</h2>
+            <p class="login-subtitle">
+              Welcome back! Please sign in to your account
             </p>
           </div>
 
           <form id="loginForm" novalidate>
-            <div class="mb-3">
-              <label for="email" class="form-label">Email address</label>
+            <!-- Email Field -->
+            <div class="form-group-login">
               <input
                 type="email"
-                class="form-control"
+                class="form-input-login"
                 id="email"
-                placeholder="Enter your email"
+                placeholder="Enter your email address"
                 required
               />
-              <div class="error-message" id="email-error">
+              <i class="bi bi-envelope form-icon"></i>
+              <div class="error-message-modern" id="email-error">
                 Please enter a valid email address
               </div>
             </div>
 
-            <div class="mb-3 password-wrapper">
-              <label for="password" class="form-label">Password</label>
-              <input
-                type="password"
-                class="form-control"
-                id="password"
-                placeholder="Enter your password"
-                required
-              />
-              <i class="bi bi-lock password-toggle" id="password-toggle"></i>
-              <div class="error-message" id="password-error">
+            <!-- Password Field -->
+            <div class="form-group-login">
+              <div class="password-field-modern">
+                <input
+                  type="password"
+                  class="form-input-login"
+                  id="password"
+                  placeholder="Enter your password"
+                  required
+                />
+                <i class="bi bi-lock form-icon"></i>
+                <button
+                  type="button"
+                  class="password-toggle-modern"
+                  id="password-toggle"
+                >
+                  <i class="bi bi-eye"></i>
+                </button>
+              </div>
+              <div class="error-message-modern" id="password-error">
                 Please enter a valid password
               </div>
             </div>
 
-            <div class="mb-3 d-flex justify-content-between">
-              <div class="form-check">
-                <input
-                  type="checkbox"
-                  class="form-control-check-input"
-                  id="rememberMe"
-                />
-                <label class="form-check-label" for="rememberMe"
-                  >Remember me</label
-                >
+            <!-- Form Extras -->
+            <div class="form-extras">
+              <div class="form-check-modern">
+                <input type="checkbox" id="rememberMe" />
+                <label for="rememberMe">Remember me</label>
               </div>
-              <a href="/forgot-password" class="text-dark text-decoration-none"
+              <a href="/forgot-password" class="forgot-link"
                 >Forgot Password?</a
               >
             </div>
 
-            <button type="submit" class="btn btn-dark w-100 mb-3">
-              Log In
+            <!-- Login Button -->
+            <button type="submit" class="btn-login-modern" id="loginButton">
+              <span class="btn-text">Sign In</span>
+              <div class="loading-spinner d-none"></div>
             </button>
 
-            <div class="divider text-center text-muted my-3">or</div>
+            <!-- Divider -->
+            <div class="divider-modern">
+              <span>or continue with</span>
+            </div>
 
-            <a
-              href="/auth/google"
-              class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center p-2"
-              role="button"
-            >
-              <img
-                src="../../assets/google-icon.png"
-                alt="Google logo"
-                width="20"
-                height="20"
-                style="margin-right: 10px"
-              />
-              Sign up with Google
+            <!-- Google Login -->
+            <a href="/auth/google" class="btn-google-modern">
+              <img src="../../assets/google-icon.png" alt="Google" />
+              <span>Sign in with Google</span>
             </a>
 
-            <div class="text-center mt-3">
+            <!-- Signup Link -->
+            <div class="signup-link">
               Don't have an account?
-              <a href="/signup" class="text-dark">Sign Up</a>
+              <a href="/signup">Create one here</a>
             </div>
           </form>
         </div>
@@ -218,6 +228,7 @@
           );
         }
         const loginForm = document.getElementById("loginForm");
+        const loginButton = document.getElementById("loginButton");
         const fields = [
           {
             id: "email",
@@ -235,36 +246,59 @@
           },
         ];
 
-        // Real-time validation
+        // Real-time validation with modern styling
         function validateField(field) {
           const input = document.getElementById(field.id);
           const isValid = field.validate(input.value);
-          input.classList.toggle("is-invalid", !isValid);
+
+          // Remove existing validation classes
+          input.classList.remove("is-invalid", "is-valid");
+
+          // Add appropriate class
+          if (input.value.trim() !== "") {
+            input.classList.add(isValid ? "is-valid" : "is-invalid");
+          }
+
           return isValid;
         }
 
+        // Add real-time validation
         fields.forEach((field) => {
           const input = document.getElementById(field.id);
-          input.addEventListener("input", () => validateField(field));
+
+          // Validate on blur for better UX
+          input.addEventListener("blur", () => validateField(field));
+
+          // Clear validation on focus
+          input.addEventListener("focus", () => {
+            input.classList.remove("is-invalid", "is-valid");
+          });
         });
 
-        // Password toggle functionality
-        function setupPasswordToggle(inputId, toggleId) {
-          const input = document.getElementById(inputId);
-          const toggle = document.getElementById(toggleId);
-          toggle.addEventListener("click", () => {
-            const isPassword = input.type === "password";
-            input.type = isPassword ? "text" : "password";
-            toggle.classList.toggle("bi-unlock", isPassword);
-            toggle.classList.toggle("bi-lock", !isPassword);
-          });
-        }
+        // Modern password toggle functionality
+        const passwordToggle = document.getElementById("password-toggle");
+        const passwordInput = document.getElementById("password");
 
-        setupPasswordToggle("password", "password-toggle");
+        passwordToggle.addEventListener("click", () => {
+          const isPassword = passwordInput.type === "password";
+          passwordInput.type = isPassword ? "text" : "password";
 
-        // Form submit handling
+          const icon = passwordToggle.querySelector("i");
+          icon.classList.toggle("bi-eye", !isPassword);
+          icon.classList.toggle("bi-eye-slash", isPassword);
+        });
+
+        // Form submit handling with modern loading states
         loginForm.addEventListener("submit", async (event) => {
           event.preventDefault();
+
+          // Show loading state
+          const btnText = loginButton.querySelector(".btn-text");
+          const spinner = loginButton.querySelector(".loading-spinner");
+
+          btnText.textContent = "Signing In...";
+          spinner.classList.remove("d-none");
+          loginButton.disabled = true;
 
           let isValid = true;
           fields.forEach((field) => {
@@ -274,6 +308,10 @@
           });
 
           if (!isValid) {
+            // Reset button state
+            btnText.textContent = "Sign In";
+            spinner.classList.add("d-none");
+            loginButton.disabled = false;
             return;
           }
 
@@ -325,6 +363,11 @@
                   popup: "animate__animated animate__fadeOutUp",
                 },
               });
+
+              // Reset button state
+              btnText.textContent = "Sign In";
+              spinner.classList.add("d-none");
+              loginButton.disabled = false;
               return;
             }
           } catch (error) {
@@ -348,6 +391,11 @@
                 popup: "animate__animated animate__fadeOutUp",
               },
             });
+
+            // Reset button state
+            btnText.textContent = "Sign In";
+            spinner.classList.add("d-none");
+            loginButton.disabled = false;
           }
         });
       });
