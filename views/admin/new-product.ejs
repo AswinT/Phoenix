@@ -354,6 +354,8 @@
 
         fetchCategories();
         setupEventListeners();
+        setupRealTimeValidation();
+        initializeFormValidation();
 
         // Initialize modal
         try {
@@ -403,6 +405,227 @@
           option.textContent = category.name;
           categorySelect.appendChild(option);
         });
+      }
+
+      // Initialize form validation state
+      function initializeFormValidation() {
+        // Set up form submission prevention
+        const form = document.getElementById('productForm');
+        const submitBtn = document.getElementById('saveProductBtn');
+
+        if (form && submitBtn) {
+          // Disable submit button initially
+          updateSubmitButtonState();
+
+          // Override form submission
+          form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (validateAllFields()) {
+              handleFormSubmission(e);
+            } else {
+              showValidationSummary();
+            }
+          });
+        }
+      }
+
+      // Setup comprehensive real-time validation
+      function setupRealTimeValidation() {
+        const fields = [
+          'productName', 'brand', 'category', 'quantity',
+          'regularPrice', 'productOffer', 'features', 'description'
+        ];
+
+        fields.forEach(fieldId => {
+          const field = document.getElementById(fieldId);
+          if (field) {
+            // Add event listeners for real-time validation
+            field.addEventListener('input', () => {
+              validateField(field);
+              updateSubmitButtonState();
+            });
+            field.addEventListener('blur', () => {
+              validateField(field);
+              updateSubmitButtonState();
+            });
+            field.addEventListener('change', () => {
+              validateField(field);
+              updateSubmitButtonState();
+            });
+
+            // Add ARIA attributes for accessibility
+            const formGroup = field.closest('.form-group');
+            const errorElement = formGroup.querySelector('.error-message');
+            const successElement = formGroup.querySelector('.success-message');
+
+            if (errorElement) {
+              errorElement.id = `${fieldId}-error`;
+              field.setAttribute('aria-describedby', `${fieldId}-error`);
+              field.setAttribute('aria-invalid', 'false');
+            }
+          }
+        });
+
+        // Setup description character counter
+        const description = document.getElementById('description');
+        if (description) {
+          description.addEventListener('input', () => {
+            updateCharacterCount();
+            validateField(description);
+            updateSubmitButtonState();
+          });
+        }
+
+        // Setup image validation
+        const imageInput = document.getElementById('productImages');
+        if (imageInput) {
+          imageInput.addEventListener('change', (e) => {
+            validateImages(e);
+            updateSubmitButtonState();
+          });
+        }
+      }
+
+      // Comprehensive field validation function
+      function validateField(field) {
+        const fieldId = field.id;
+        const value = field.value.trim();
+        const formGroup = field.closest('.form-group');
+        const errorElement = formGroup.querySelector('.error-message');
+        const successElement = formGroup.querySelector('.success-message');
+
+        let isValid = true;
+        let errorMessage = '';
+
+        // Clear previous states
+        formGroup.classList.remove('error', 'success');
+        field.setAttribute('aria-invalid', 'false');
+
+        switch (fieldId) {
+          case 'productName':
+            if (!value) {
+              isValid = false;
+              errorMessage = 'Product name is required';
+            } else if (value.length < 3) {
+              isValid = false;
+              errorMessage = 'Product name must be at least 3 characters';
+            } else if (value.length > 100) {
+              isValid = false;
+              errorMessage = 'Product name must not exceed 100 characters';
+            } else if (!/^[a-zA-Z0-9\s\-]+$/.test(value)) {
+              isValid = false;
+              errorMessage = 'Product name can only contain letters, numbers, spaces, and hyphens';
+            }
+            break;
+
+          case 'brand':
+            if (!value) {
+              isValid = false;
+              errorMessage = 'Brand name is required';
+            } else if (value.length < 2) {
+              isValid = false;
+              errorMessage = 'Brand name must be at least 2 characters';
+            } else if (value.length > 50) {
+              isValid = false;
+              errorMessage = 'Brand name must not exceed 50 characters';
+            }
+            break;
+
+          case 'category':
+            if (!value) {
+              isValid = false;
+              errorMessage = 'Please select a category';
+            }
+            break;
+
+          case 'quantity':
+            const quantity = parseInt(value);
+            if (!value) {
+              isValid = false;
+              errorMessage = 'Stock quantity is required';
+            } else if (isNaN(quantity) || quantity < 0) {
+              isValid = false;
+              errorMessage = 'Please enter a valid quantity (0 or more)';
+            } else if (quantity > 10000) {
+              isValid = false;
+              errorMessage = 'Quantity cannot exceed 10,000';
+            } else if (!Number.isInteger(quantity)) {
+              isValid = false;
+              errorMessage = 'Quantity must be a whole number';
+            }
+            break;
+
+          case 'regularPrice':
+            const price = parseFloat(value);
+            if (!value) {
+              isValid = false;
+              errorMessage = 'Regular price is required';
+            } else if (isNaN(price) || price <= 0) {
+              isValid = false;
+              errorMessage = 'Please enter a valid price greater than ₹0';
+            } else if (price < 0.01) {
+              isValid = false;
+              errorMessage = 'Price must be at least ₹0.01';
+            } else if (price > 999999.99) {
+              isValid = false;
+              errorMessage = 'Price cannot exceed ₹999,999.99';
+            }
+            break;
+
+          case 'productOffer':
+            if (value) {
+              const offer = parseFloat(value);
+              if (isNaN(offer) || offer < 0 || offer > 100) {
+                isValid = false;
+                errorMessage = 'Offer must be between 0 and 100%';
+              }
+            }
+            break;
+
+          case 'features':
+            if (!value) {
+              isValid = false;
+              errorMessage = 'Product features are required';
+            } else if (value.length < 10) {
+              isValid = false;
+              errorMessage = 'Features must be at least 10 characters';
+            } else if (value.length > 200) {
+              isValid = false;
+              errorMessage = 'Features must not exceed 200 characters';
+            }
+            break;
+
+          case 'description':
+            if (!value) {
+              isValid = false;
+              errorMessage = 'Product description is required';
+            } else if (value.length < 20) {
+              isValid = false;
+              errorMessage = 'Description must be at least 20 characters';
+            } else if (value.length > 1000) {
+              isValid = false;
+              errorMessage = 'Description must not exceed 1000 characters';
+            }
+            break;
+        }
+
+        // Update UI based on validation result
+        if (isValid) {
+          formGroup.classList.add('success');
+          field.setAttribute('aria-invalid', 'false');
+          if (errorElement) errorElement.style.display = 'none';
+          if (successElement) successElement.style.display = 'block';
+        } else {
+          formGroup.classList.add('error');
+          field.setAttribute('aria-invalid', 'true');
+          if (errorElement) {
+            errorElement.textContent = errorMessage;
+            errorElement.style.display = 'block';
+          }
+          if (successElement) successElement.style.display = 'none';
+        }
+
+        return isValid;
       }
 
       // Setup event listeners
@@ -462,25 +685,198 @@
         }
       }
 
+      // Update character count for description
+      function updateCharacterCount() {
+        const description = document.getElementById('description');
+        const counter = document.getElementById('descriptionCount');
+        if (description && counter) {
+          const length = description.value.length;
+          counter.textContent = length;
+
+          // Update counter color based on length
+          if (length > 900) {
+            counter.style.color = 'var(--error)';
+          } else if (length > 800) {
+            counter.style.color = 'var(--warning)';
+          } else {
+            counter.style.color = 'var(--neutral-600)';
+          }
+        }
+      }
+
+      // Validate images
+      function validateImages(e) {
+        const files = Array.from(e.target.files);
+        const imageGroup = document.getElementById('productImages').closest('.form-group');
+        const errorElement = imageGroup.querySelector('.error-message');
+        const successElement = imageGroup.querySelector('.success-message');
+
+        let isValid = true;
+        let errorMessage = '';
+
+        // Clear previous states
+        imageGroup.classList.remove('error', 'success');
+
+        if (files.length === 0) {
+          isValid = false;
+          errorMessage = 'Please select at least 3 images';
+        } else if (files.length < 3) {
+          isValid = false;
+          errorMessage = `Please select at least 3 images. Currently selected: ${files.length}`;
+        } else {
+          // Validate file types and sizes
+          const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+          const maxSize = 5 * 1024 * 1024; // 5MB
+
+          for (let file of files) {
+            if (!validTypes.includes(file.type)) {
+              isValid = false;
+              errorMessage = `Invalid file type: ${file.name}. Only JPEG, PNG, and WebP are allowed.`;
+              break;
+            }
+            if (file.size > maxSize) {
+              isValid = false;
+              errorMessage = `File too large: ${file.name}. Maximum size is 5MB.`;
+              break;
+            }
+          }
+        }
+
+        // Update UI
+        if (isValid) {
+          imageGroup.classList.add('success');
+          if (errorElement) errorElement.style.display = 'none';
+          if (successElement) {
+            successElement.textContent = `${files.length} images selected successfully`;
+            successElement.style.display = 'block';
+          }
+        } else {
+          imageGroup.classList.add('error');
+          if (errorElement) {
+            errorElement.textContent = errorMessage;
+            errorElement.style.display = 'block';
+          }
+          if (successElement) successElement.style.display = 'none';
+        }
+
+        return isValid;
+      }
+
+      // Validate all fields
+      function validateAllFields() {
+        const fields = [
+          'productName', 'brand', 'category', 'quantity',
+          'regularPrice', 'productOffer', 'features', 'description'
+        ];
+
+        let allValid = true;
+
+        // Validate individual fields
+        fields.forEach(fieldId => {
+          const field = document.getElementById(fieldId);
+          if (field && !validateField(field)) {
+            allValid = false;
+          }
+        });
+
+        // Validate images
+        const validCroppedImages = croppedImages.filter(img => img);
+        if (validCroppedImages.length < 3) {
+          const imageGroup = document.getElementById('productImages').closest('.form-group');
+          const errorElement = imageGroup.querySelector('.error-message');
+          imageGroup.classList.add('error');
+          if (errorElement) {
+            errorElement.textContent = `At least 3 images required. Currently have: ${validCroppedImages.length}`;
+            errorElement.style.display = 'block';
+          }
+          allValid = false;
+        }
+
+        return allValid;
+      }
+
+      // Update submit button state
+      function updateSubmitButtonState() {
+        const submitBtn = document.getElementById('saveProductBtn');
+        if (!submitBtn) return;
+
+        const fields = [
+          'productName', 'brand', 'category', 'quantity',
+          'regularPrice', 'features', 'description'
+        ];
+
+        let hasErrors = false;
+        let hasEmptyRequired = false;
+
+        // Check for validation errors
+        fields.forEach(fieldId => {
+          const field = document.getElementById(fieldId);
+          if (field) {
+            const formGroup = field.closest('.form-group');
+            if (formGroup.classList.contains('error')) {
+              hasErrors = true;
+            }
+            if (!field.value.trim()) {
+              hasEmptyRequired = true;
+            }
+          }
+        });
+
+        // Check images
+        const validCroppedImages = croppedImages.filter(img => img);
+        if (validCroppedImages.length < 3) {
+          hasErrors = true;
+        }
+
+        // Update button state
+        if (hasErrors || hasEmptyRequired) {
+          submitBtn.disabled = true;
+          submitBtn.style.opacity = '0.6';
+          submitBtn.style.cursor = 'not-allowed';
+        } else {
+          submitBtn.disabled = false;
+          submitBtn.style.opacity = '1';
+          submitBtn.style.cursor = 'pointer';
+        }
+      }
+
+      // Show validation summary
+      function showValidationSummary() {
+        const errors = [];
+
+        // Collect all error messages
+        document.querySelectorAll('.form-group.error .error-message').forEach(errorEl => {
+          if (errorEl.style.display !== 'none' && errorEl.textContent.trim()) {
+            errors.push(errorEl.textContent.trim());
+          }
+        });
+
+        if (errors.length > 0) {
+          const errorList = errors.map(error => `• ${error}`).join('\n');
+          Swal.fire({
+            title: 'Validation Errors',
+            text: `Please fix the following errors:\n\n${errorList}`,
+            icon: 'error',
+            confirmButtonText: 'OK',
+            customClass: {
+              content: 'text-left'
+            }
+          });
+        }
+      }
+
       // Handle file selection
       function handleFileSelection(e) {
         const files = Array.from(e.target.files);
 
-        if (files.length < 3) {
-          Swal.fire({
-            title: "Insufficient Images",
-            text: "Please select at least 3 images",
-            icon: "warning",
-            confirmButtonText: "OK",
-          });
-          document.getElementById("imagesError").textContent =
-            "Please select at least 3 images";
-          document.getElementById("imagesError").style.display = "block";
+        // First validate the files
+        if (!validateImages(e)) {
           e.target.value = ""; // Clear the input
+          updateSubmitButtonState();
           return;
         }
 
-        document.getElementById("imagesError").style.display = "none";
+        // Clear previous images and reset state
         document.getElementById("imagePreviews").innerHTML = "";
         croppedImages = [];
         selectedFiles = files;
@@ -670,6 +1066,8 @@
               if (currentCallback) {
                 currentCallback();
               }
+              // Update submit button state after image processing
+              updateSubmitButtonState();
             },
             remainingImages > 0 ? 1500 : 500
           );
@@ -701,14 +1099,24 @@
 
         // Update validation
         const validImages = croppedImages.filter((img) => img);
+        const imageGroup = document.getElementById('productImages').closest('.form-group');
+        const errorElement = imageGroup.querySelector('.error-message');
+
         if (validImages.length < 3) {
-          document.getElementById(
-            "imagesError"
-          ).textContent = `At least 3 images required. Currently have: ${validImages.length}`;
-          document.getElementById("imagesError").style.display = "block";
+          imageGroup.classList.add('error');
+          if (errorElement) {
+            errorElement.textContent = `At least 3 images required. Currently have: ${validImages.length}`;
+            errorElement.style.display = 'block';
+          }
         } else {
-          document.getElementById("imagesError").style.display = "none";
+          imageGroup.classList.remove('error');
+          if (errorElement) {
+            errorElement.style.display = 'none';
+          }
         }
+
+        // Update submit button state
+        updateSubmitButtonState();
       }
 
       // Calculate sale price based on regular price and discount
@@ -810,91 +1218,17 @@
         }
       }
 
-      // Validate form
+      // Legacy validate form function (now uses comprehensive validation)
       function validateForm() {
-        let isValid = true;
-        const requiredFields = [
-          "productName",
-          "brand",
-          "category",
-          "regularPrice",
-          "salePrice",
-          "quantity",
-          "description",
-          "features",
-        ];
-
-        // Clear previous errors
-        document
-          .querySelectorAll(".form-group")
-          .forEach((group) => group.classList.remove("error"));
-
-        // Check required fields
-        requiredFields.forEach((fieldName) => {
-          const field = document.getElementById(fieldName);
-          if (!field || !field.value.trim()) {
-            if (field) {
-              field.closest(".form-group").classList.add("error");
-            }
-            isValid = false;
-          }
-        });
-
-        // Check images
-        const validCroppedImages = croppedImages.filter((img) => img);
-
-        if (validCroppedImages.length < 3) {
-          document.getElementById(
-            "imagesError"
-          ).textContent = `Please upload and crop at least 3 images. Currently have: ${validCroppedImages.length}`;
-          document.getElementById("imagesError").style.display = "block";
-          isValid = false;
-        } else {
-          document.getElementById("imagesError").style.display = "none";
-        }
-
-        // Validate prices
-        const regularPrice = parseFloat(
-          document.getElementById("regularPrice").value
-        );
-        const salePrice = parseFloat(
-          document.getElementById("salePrice").value
-        );
-        if (salePrice > regularPrice) {
-          const salePriceGroup = document
-            .getElementById("salePrice")
-            .closest(".form-group");
-          salePriceGroup.classList.add("error");
-          isValid = false;
-        }
-
-        // Validate offer percentage
-        const productOffer = document
-          .getElementById("productOffer")
-          .value.trim()
-          ? parseFloat(document.getElementById("productOffer").value)
-          : null;
-        if (productOffer !== null && (productOffer < 0 || productOffer > 100)) {
-          document
-            .getElementById("productOffer")
-            .closest(".form-group")
-            .classList.add("error");
-          isValid = false;
-        }
-
-        return isValid;
+        return validateAllFields();
       }
 
       // Handle form submission
       async function handleFormSubmission(e) {
         e.preventDefault();
 
-        if (!validateForm()) {
-          Swal.fire(
-            "Validation Error!",
-            "Please fill in all required fields correctly and upload at least 3 images.",
-            "error"
-          );
+        if (!validateAllFields()) {
+          showValidationSummary();
           return;
         }
 
