@@ -355,8 +355,81 @@ const checkProductStatus = async (req, res) => {
   }
 };
 
+// Search Products API Controller
+const searchProducts = async (req, res) => {
+  try {
+    const searchQuery = req.query.q || "";
+    const limit = parseInt(req.query.limit) || 8; // Limit results for dropdown
+
+    if (!searchQuery || searchQuery.trim().length < 2) {
+      return res.json({
+        success: true,
+        products: [],
+        message: "Please enter at least 2 characters to search"
+      });
+    }
+
+    // Build search filter for navbar search
+    const searchFilter = {
+      isDeleted: false,
+      isBlocked: false,
+      isListed: true,
+      $or: [
+        { productName: { $regex: searchQuery.trim(), $options: "i" } },
+        { brand: { $regex: searchQuery.trim(), $options: "i" } },
+        { description: { $regex: searchQuery.trim(), $options: "i" } },
+      ],
+    };
+
+    // Fetch products with category information
+    const products = await Product.find(searchFilter)
+      .populate({
+        path: "category",
+        match: { isListed: true },
+        select: "name",
+      })
+      .select("productName brand salePrice regularPrice mainImage category")
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .lean();
+
+    // Filter out products with unlisted categories
+    const filteredProducts = products.filter(
+      (product) => product.category !== null
+    );
+
+    // Format products for frontend
+    const formattedProducts = filteredProducts.map(product => ({
+      _id: product._id,
+      productName: product.productName,
+      brand: product.brand,
+      salePrice: product.salePrice,
+      regularPrice: product.regularPrice,
+      mainImage: product.mainImage,
+      category: product.category.name,
+      hasDiscount: product.salePrice < product.regularPrice
+    }));
+
+    res.json({
+      success: true,
+      products: formattedProducts,
+      totalFound: filteredProducts.length,
+      searchQuery: searchQuery.trim()
+    });
+
+  } catch (error) {
+    console.error("Error searching products:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to search products",
+      products: []
+    });
+  }
+};
+
 module.exports = {
   loadShop,
   loadProductDetails,
   checkProductStatus,
+  searchProducts,
 };

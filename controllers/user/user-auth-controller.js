@@ -70,7 +70,7 @@ const signup = async (req, res) => {
       });
     }
 
-    const emailRegex = /^\S+@\S+\.\S+$/;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!email || !emailRegex.test(email)) {
       return res
         .status(400)
@@ -84,10 +84,19 @@ const signup = async (req, res) => {
       });
     }
 
-    if (phone && !/^\d{10}$/.test(phone)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Phone must be 10 digits" });
+    // Validate Indian mobile number (required field)
+    if (!phone) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone number is required",
+      });
+    }
+
+    if (!/^[6-9]\d{9}$/.test(phone)) {
+      return res.status(400).json({
+        success: false,
+        message: "Phone number must start with 6, 7, 8, or 9 and be 10 digits long",
+      });
     }
 
     const existingUser = await User.findOne({ email });
@@ -99,6 +108,7 @@ const signup = async (req, res) => {
     }
 
     const otp = generateOtp();
+    console.log(otp);
     const isSendMail = await sendEmail(email, otp);
 
     if (!isSendMail) {
@@ -244,6 +254,7 @@ const resendOtp = async (req, res) => {
     }
 
     const otp = generateOtp();
+    console.log(otp);
     req.session.userOtp = otp;
 
     const isSendMail = await sendEmail(email, otp);
@@ -283,6 +294,7 @@ const verifyForgotPasswordEmail = async (req, res) => {
     req.session.userOtp = {
       otp,
       email,
+      expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes expiry
     };
 
     const isSendMail = await sendEmail(email, otp);
@@ -309,18 +321,26 @@ const verifyForgotPasswordEmail = async (req, res) => {
 const verifyForgotPasswordOtp = (req, res) => {
   try {
     const { otp } = req.body;
-    const sessionOtp = req.session.userOtp.otp;
+    const sessionOtpData = req.session.userOtp;
 
-    console.log(otp, sessionOtp);
+    console.log(otp, sessionOtpData?.otp);
 
-    if (!sessionOtp) {
+    if (!sessionOtpData || !sessionOtpData.otp) {
       return res.status(400).json({
         success: false,
         message: "No OTP session found. Please request again.",
       });
     }
 
-    if (String(otp) !== String(sessionOtp)) {
+    // Check if OTP has expired
+    if (sessionOtpData.expiresAt && Date.now() > sessionOtpData.expiresAt) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP has expired. Please request a new one.",
+      });
+    }
+
+    if (String(otp) !== String(sessionOtpData.otp)) {
       return res.status(400).json({
         success: false,
         message: "Invalid OTP. Please try again.",
@@ -343,20 +363,34 @@ const verifyForgotPasswordOtp = (req, res) => {
 
 const resendForgotPasswordOtp = async (req, res) => {
   try {
-    const email = req.session.userOtp.email;
+    const sessionOtpData = req.session.userOtp;
 
-    if (!email) {
-      res.status(401).json({ message: "email not found, session ends" });
+    if (!sessionOtpData || !sessionOtpData.email) {
+      return res.status(401).json({
+        success: false,
+        message: "Email not found, session ends"
+      });
+    }
+
+    // Check if current OTP is still valid (prevent spam)
+    if (sessionOtpData.expiresAt && Date.now() < sessionOtpData.expiresAt) {
+      const remainingTime = Math.ceil((sessionOtpData.expiresAt - Date.now()) / 1000);
+      if (remainingTime > 270) { // Only allow resend if less than 30 seconds left (270 = 300 - 30)
+        return res.status(400).json({
+          success: false,
+          message: `Please wait ${Math.ceil(remainingTime / 60)} more minutes before requesting a new OTP.`,
+        });
+      }
     }
 
     const otp = generateOtp();
     req.session.userOtp = {
       otp,
-      expiresAt: Date.now() + 5 * 60 * 1000,
-      email,
+      expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes expiry
+      email: sessionOtpData.email,
     };
 
-    const isSendMail = await sendEmail(email, otp);
+    const isSendMail = await sendEmail(sessionOtpData.email, otp);
 
     if (!isSendMail) {
       return res.json({
@@ -367,11 +401,14 @@ const resendForgotPasswordOtp = async (req, res) => {
 
     res.json({
       success: true,
-      message: "otp sent successfully",
+      message: "OTP sent successfully",
     });
   } catch (error) {
     console.error("Error in resending otp", error);
-    res.status(500).send("Internal server error");
+    res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
   }
 };
 

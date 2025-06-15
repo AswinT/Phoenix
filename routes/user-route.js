@@ -64,8 +64,12 @@ router.post("/mark-helpful", isUserAuthenticated, noCache, checkUserBlocked, use
 // Profile photo upload route
 router.post("/upload-profile-photo", isUserAuthenticated, noCache, checkUserBlocked, profileUpload.single('profilePhoto'), handleMulterError, userProfileController.uploadProfilePhoto);
 
+// Profile update route
+router.post("/profile/update", isUserAuthenticated, noCache, checkUserBlocked, userProfileController.updateProfile);
+
 // API routes
 router.get("/api/product-status/:id", isUserAuthenticated, noCache, checkUserBlocked, userShopController.checkProductStatus);
+router.get("/api/search", addUserContext, checkUserBlocked, userShopController.searchProducts);
 
 
 

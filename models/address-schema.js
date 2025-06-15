@@ -32,12 +32,24 @@ const addressSchema = new Schema({
       type: Number, 
       required: true 
     },
-    phone: { 
-      type: String, 
-      required: true 
+    phone: {
+      type: String,
+      required: true,
+      validate: {
+        validator: function(v) {
+          return /^[6-9]\d{9}$/.test(v);
+        },
+        message: "Phone number must start with 6, 7, 8, or 9 and be 10 digits long"
+      }
     },
-    altPhone: { 
-      type: String 
+    altPhone: {
+      type: String,
+      validate: {
+        validator: function(v) {
+          return !v || /^[6-9]\d{9}$/.test(v);
+        },
+        message: "Alternate phone number must start with 6, 7, 8, or 9 and be 10 digits long"
+      }
     }
   }]
 }, { timestamps: true });

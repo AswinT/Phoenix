@@ -127,9 +127,31 @@ const processProductImages = async (imageData, mainImageIndex) => {
 // Helper function to validate product data
 const validateProductData = (data) => {
   const { productName, description, brand, category, regularPrice, salePrice, features } = data;
-  
+
   if (!productName || !description || !brand || !category || !regularPrice || !salePrice || !features) {
     throw new Error("All required fields must be filled");
+  }
+
+  // Validate description word count
+  if (description) {
+    const wordCount = description.trim().split(/\s+/).filter(word => word.length > 0).length;
+    if (wordCount < 10) {
+      throw new Error(`Description must contain at least 10 words (currently ${wordCount} words)`);
+    }
+    if (description.length > 1000) {
+      throw new Error("Description must not exceed 1000 characters");
+    }
+  }
+
+  // Validate other fields
+  if (productName && productName.length < 3) {
+    throw new Error("Product name must be at least 3 characters");
+  }
+  if (brand && brand.length < 2) {
+    throw new Error("Brand name must be at least 2 characters");
+  }
+  if (features && features.length < 10) {
+    throw new Error("Features must be at least 10 characters");
   }
 };
 

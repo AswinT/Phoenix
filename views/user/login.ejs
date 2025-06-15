@@ -131,7 +131,6 @@
                 class="form-input-login"
                 id="email"
                 placeholder="Enter your email address"
-                required
               />
               <i class="bi bi-envelope form-icon"></i>
               <div class="error-message-modern" id="email-error">
@@ -147,7 +146,6 @@
                   class="form-input-login"
                   id="password"
                   placeholder="Enter your password"
-                  required
                 />
                 <i class="bi bi-lock form-icon"></i>
                 <button
@@ -205,6 +203,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Phoenix Form Validation -->
+    <script src="/js/form-validation.js?v=2024061501"></script>
 
     <!-- Login Script -->
     <script>
@@ -229,50 +229,13 @@
         }
         const loginForm = document.getElementById("loginForm");
         const loginButton = document.getElementById("loginButton");
-        const fields = [
-          {
-            id: "email",
-            validate: (value) =>
-              /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim()),
-            errorElement: "email-error",
-          },
-          {
-            id: "password",
-            validate: (value) =>
-              /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
-                value
-              ),
-            errorElement: "password-error",
-          },
-        ];
 
-        // Real-time validation with modern styling
-        function validateField(field) {
-          const input = document.getElementById(field.id);
-          const isValid = field.validate(input.value);
-
-          // Remove existing validation classes
-          input.classList.remove("is-invalid", "is-valid");
-
-          // Add appropriate class
-          if (input.value.trim() !== "") {
-            input.classList.add(isValid ? "is-valid" : "is-invalid");
+        // Initialize Phoenix Form Validation
+        window.PhoenixValidator.setupLoginForm('loginForm', {
+          showValidationSummary: true,
+          onValidSubmit: async (form, event) => {
+            await handleLoginSubmission();
           }
-
-          return isValid;
-        }
-
-        // Add real-time validation
-        fields.forEach((field) => {
-          const input = document.getElementById(field.id);
-
-          // Validate on blur for better UX
-          input.addEventListener("blur", () => validateField(field));
-
-          // Clear validation on focus
-          input.addEventListener("focus", () => {
-            input.classList.remove("is-invalid", "is-valid");
-          });
         });
 
         // Modern password toggle functionality
@@ -288,10 +251,8 @@
           icon.classList.toggle("bi-eye-slash", isPassword);
         });
 
-        // Form submit handling with modern loading states
-        loginForm.addEventListener("submit", async (event) => {
-          event.preventDefault();
-
+        // Handle login submission
+        async function handleLoginSubmission() {
           // Show loading state
           const btnText = loginButton.querySelector(".btn-text");
           const spinner = loginButton.querySelector(".loading-spinner");
@@ -299,21 +260,6 @@
           btnText.textContent = "Signing In...";
           spinner.classList.remove("d-none");
           loginButton.disabled = true;
-
-          let isValid = true;
-          fields.forEach((field) => {
-            if (!validateField(field)) {
-              isValid = false;
-            }
-          });
-
-          if (!isValid) {
-            // Reset button state
-            btnText.textContent = "Sign In";
-            spinner.classList.add("d-none");
-            loginButton.disabled = false;
-            return;
-          }
 
           const email = document.getElementById("email").value.trim();
           const password = document.getElementById("password").value;
@@ -397,7 +343,7 @@
             spinner.classList.add("d-none");
             loginButton.disabled = false;
           }
-        });
+        }
       });
     </script>
   </body>

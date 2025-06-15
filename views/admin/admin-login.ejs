@@ -147,7 +147,7 @@
             <h4>Good to see you, Admin</h4>
           </div>
 
-          <form id="loginForm" novalidate>
+          <form id="loginForm">
             <div class="mb-3">
               <label for="email" class="form-label">Email address</label>
               <input
@@ -155,7 +155,6 @@
                 class="form-control"
                 id="email"
                 placeholder="Enter your email"
-                required
               />
               <div class="error-message" id="email-error">
                 Please enter a valid email address
@@ -169,7 +168,6 @@
                 class="form-control"
                 id="password"
                 placeholder="Enter your password"
-                required
               />
               <i class="bi bi-lock password-toggle" id="password-toggle"></i>
               <div class="error-message" id="password-error">
@@ -209,39 +207,20 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Phoenix Form Validation -->
+    <script src="/js/form-validation.js"></script>
 
     <!-- Login Script -->
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const loginForm = document.getElementById("loginForm");
-        const fields = [
-          {
-            id: "email",
-            validate: (value) =>
-              /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim()),
-            errorElement: "email-error",
-          },
-          {
-            id: "password",
-            validate: (value) =>
-              /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
-                value
-              ),
-            errorElement: "password-error",
-          },
-        ];
 
-        // Real-time validation
-        function validateField(field) {
-          const input = document.getElementById(field.id);
-          const isValid = field.validate(input.value);
-          input.classList.toggle("is-invalid", !isValid);
-          return isValid;
-        }
-
-        fields.forEach((field) => {
-          const input = document.getElementById(field.id);
-          input.addEventListener("input", () => validateField(field));
+        // Initialize Phoenix Form Validation
+        window.PhoenixValidator.setupLoginForm('loginForm', {
+          showValidationSummary: true,
+          onValidSubmit: async (form, event) => {
+            await handleAdminLogin();
+          }
         });
 
         // Password toggle functionality
@@ -258,21 +237,8 @@
 
         setupPasswordToggle("password", "password-toggle");
 
-        // Form submit handling
-        loginForm.addEventListener("submit", async (event) => {
-          event.preventDefault();
-
-          let isValid = true;
-          fields.forEach((field) => {
-            if (!validateField(field)) {
-              isValid = false;
-            }
-          });
-
-          if (!isValid) {
-            return;
-          }
-
+        // Handle admin login submission
+        async function handleAdminLogin() {
           const email = document.getElementById("email").value.trim();
           const password = document.getElementById("password").value;
 
@@ -345,7 +311,7 @@
               },
             });
           }
-        });
+        }
       });
     </script>
   </body>

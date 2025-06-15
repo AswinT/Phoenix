@@ -17,8 +17,13 @@ const userSchema = new Schema({
   },
   phone: {
     type: String,
-    default: null,
-    sparse: true,
+    required: [true, "Phone number is required"],
+    validate: {
+      validator: function(v) {
+        return /^[6-9]\d{9}$/.test(v);
+      },
+      message: "Phone number must start with 6, 7, 8, or 9 and be 10 digits long"
+    }
   },
   googleId: {
     type: String,

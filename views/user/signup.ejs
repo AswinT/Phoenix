@@ -121,7 +121,6 @@
                   name="fullname"
                   class="form-input-signup"
                   placeholder="Enter your full name"
-                  required
                 />
                 <i class="bi bi-person form-icon-signup"></i>
                 <div class="error-message-signup" id="fullname-error">
@@ -136,12 +135,12 @@
                   id="phone"
                   name="phone"
                   class="form-input-signup"
-                  placeholder="Enter your phone number"
-                  required
+                  placeholder="Enter your 10-digit mobile number"
+                  maxlength="10"
                 />
                 <i class="bi bi-telephone form-icon-signup"></i>
                 <div class="error-message-signup" id="phone-error">
-                  Please enter a valid phone number
+                  Phone number must start with 6, 7, 8, or 9 and be 10 digits long
                 </div>
               </div>
 
@@ -153,7 +152,6 @@
                   name="email"
                   class="form-input-signup"
                   placeholder="Enter your email address"
-                  required
                 />
                 <i class="bi bi-envelope form-icon-signup"></i>
                 <div class="error-message-signup" id="email-error">
@@ -170,7 +168,6 @@
                     name="password"
                     class="form-input-signup"
                     placeholder="Create a strong password"
-                    required
                   />
                   <i class="bi bi-lock form-icon-signup"></i>
                   <button
@@ -196,7 +193,6 @@
                     name="confirmpassword"
                     class="form-input-signup"
                     placeholder="Confirm your password"
-                    required
                   />
                   <i class="bi bi-lock form-icon-signup"></i>
                   <button
@@ -261,68 +257,18 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Phoenix Form Validation -->
+    <script src="/js/form-validation.js?v=2024061501"></script>
     <script>
       const form = document.getElementById("signupForm");
       const signupButton = document.getElementById("signupButton");
-      const fields = [
-        {
-          id: "fullname",
-          validate: (value) => value.trim().length >= 4,
-          errorElement: "fullname-error",
-        },
-        {
-          id: "phone",
-          validate: (value) => /^\+?[\d\s-]{10,}$/.test(value.trim()),
-          errorElement: "phone-error",
-        },
-        {
-          id: "email",
-          validate: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim()),
-          errorElement: "email-error",
-        },
-        {
-          id: "password",
-          validate: (value) =>
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
-              value
-            ),
-          errorElement: "password-error",
-        },
-        {
-          id: "confirmpassword",
-          validate: (value) =>
-            value === document.getElementById("password").value,
-          errorElement: "confirmpassword-error",
-        },
-      ];
 
-      // Modern validation with enhanced styling
-      function validateField(field) {
-        const input = document.getElementById(field.id);
-        const isValid = field.validate(input.value);
-
-        // Remove existing validation classes
-        input.classList.remove("is-invalid", "is-valid");
-
-        // Add appropriate class
-        if (input.value.trim() !== "") {
-          input.classList.add(isValid ? "is-valid" : "is-invalid");
+      // Initialize Phoenix Form Validation
+      window.PhoenixValidator.setupSignupForm('signupForm', {
+        showValidationSummary: true,
+        onValidSubmit: async (form, event) => {
+          await handleSignupSubmission();
         }
-
-        return isValid;
-      }
-
-      // Enhanced real-time validation
-      fields.forEach((field) => {
-        const input = document.getElementById(field.id);
-
-        // Validate on blur for better UX
-        input.addEventListener("blur", () => validateField(field));
-
-        // Clear validation on focus
-        input.addEventListener("focus", () => {
-          input.classList.remove("is-invalid", "is-valid");
-        });
       });
 
       // Modern password toggle functionality
@@ -343,9 +289,40 @@
       setupPasswordToggle("password", "password-toggle");
       setupPasswordToggle("confirmpassword", "confirmpassword-toggle");
 
-      form.addEventListener("submit", async (event) => {
-        event.preventDefault();
+      // Phone number input filtering - only allow digits
+      const phoneInput = document.getElementById("phone");
+      phoneInput.addEventListener("input", function(e) {
+        // Remove any non-digit characters
+        let value = e.target.value.replace(/\D/g, '');
 
+        // Limit to 10 digits
+        if (value.length > 10) {
+          value = value.slice(0, 10);
+        }
+
+        e.target.value = value;
+      });
+
+      // Prevent non-numeric input on keypress
+      phoneInput.addEventListener("keypress", function(e) {
+        // Allow backspace, delete, tab, escape, enter
+        if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
+            // Allow Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+            (e.keyCode === 65 && e.ctrlKey === true) ||
+            (e.keyCode === 67 && e.ctrlKey === true) ||
+            (e.keyCode === 86 && e.ctrlKey === true) ||
+            (e.keyCode === 88 && e.ctrlKey === true)) {
+          return;
+        }
+
+        // Ensure that it is a number and stop the keypress
+        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+          e.preventDefault();
+        }
+      });
+
+      // Handle signup submission
+      async function handleSignupSubmission() {
         // Show modern loading state
         const btnText = signupButton.querySelector(".btn-text");
         const spinner = signupButton.querySelector(".loading-spinner");
@@ -353,21 +330,6 @@
         btnText.textContent = "Creating Account...";
         spinner.classList.remove("d-none");
         signupButton.disabled = true;
-
-        let isValid = true;
-        fields.forEach((field) => {
-          if (!validateField(field)) {
-            isValid = false;
-          }
-        });
-
-        if (!isValid) {
-          // Reset button state
-          btnText.textContent = "Create Account";
-          spinner.classList.add("d-none");
-          signupButton.disabled = false;
-          return;
-        }
 
         const fullname = document.getElementById("fullname").value.trim();
         const phone = document.getElementById("phone").value.trim();
@@ -432,7 +394,7 @@
           spinner.classList.add("d-none");
           signupButton.disabled = false;
         }
-      });
+      }
     </script>
   </body>
 </html>

@@ -13,17 +13,8 @@
   </head>
   <body>
     <div class="main-content">
-      <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item">
-            <a href="/admin/dashboard"><i class="fas fa-home"></i> Dashboard</a>
-          </li>
-          <li class="breadcrumb-item"><a href="/admin/products">Products</a></li>
-          <li class="breadcrumb-item active" aria-current="page">
-            Add Product
-          </li>
-        </ol>
-      </nav>
+      <!-- Breadcrumb Navigation -->
+      <%- include("../partials/admin/breadcrumb") %>
 
       <div class="form-container">
         <div class="form-header">
@@ -135,9 +126,7 @@
                     name="salePrice"
                     class="form-control"
                     placeholder="Auto-calculated from regular price and discount"
-                    step="0.01"
                     readonly
-                    required
                   />
                   <div class="error-message">
                     Please enter a valid sale price
@@ -159,9 +148,6 @@
                     name="productOffer"
                     class="form-control"
                     placeholder="Enter offer percentage"
-                    step="0.01"
-                    min="0"
-                    max="100"
                   />
                   <div class="error-message">
                     Please enter a valid offer (0-100)
@@ -198,9 +184,12 @@
                   name="description"
                   class="form-textarea"
                   rows="4"
-                  placeholder="Enter product description"
+                  placeholder="Enter product description (minimum 10 words)"
                   required
                 ></textarea>
+                <div class="form-help">
+                  <small id="descriptionCount" class="text-muted">0 words, 0 characters</small>
+                </div>
                 <div class="error-message">
                   Please enter a product description
                 </div>
@@ -223,12 +212,24 @@
                       id="productImages"
                       name="productImages"
                       class="form-control"
-                      accept="image/*"
+                      accept="image/jpeg,image/jpg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
                       multiple
                       required
+                      aria-describedby="productImages-help productImages-error"
+                      title="Select JPEG, PNG, or WebP image files (minimum 3 required, max 5MB each)"
                     />
+                    <div class="file-upload-help" id="productImages-help">
+                      <small class="text-muted">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Supported formats:</strong> JPEG (.jpg, .jpeg), PNG (.png), WebP (.webp)<br>
+                        <strong>Requirements:</strong> Minimum 3 images, Maximum 5MB each
+                      </small>
+                    </div>
                     <div class="error-message" id="imagesError">
                       Please upload at least 3 images
+                    </div>
+                    <div class="success-message" id="imagesSuccess" style="display: none;">
+                      <i class="fas fa-check"></i> Images selected successfully
                     </div>
                   </div>
                   <div id="imagePreviews" class="images-grid"></div>
@@ -240,7 +241,7 @@
               <a href="/admin/products" class="btn btn-secondary" data-tooltip="Discard changes">
                 <i class="fas fa-times"></i> Cancel
               </a>
-              <button type="submit" class="btn btn-primary" data-tooltip="Save product details">
+              <button type="submit" id="saveProductBtn" class="btn btn-primary" data-tooltip="Save product details">
                 <i class="fas fa-save"></i> Save Product
               </button>
             </div>
@@ -305,6 +306,37 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.js"></script>
+    <!-- Phoenix Form Validation -->
+    <script src="/js/form-validation.js"></script>
+
+    <!-- Fix for productOffer field text visibility -->
+    <style>
+      #productOffer {
+        color: #ffffff !important;
+        background-color: var(--dark-bg-primary, #121212) !important;
+      }
+
+      #productOffer:focus {
+        color: #ffffff !important;
+        background-color: var(--dark-bg-elevated, #252525) !important;
+      }
+
+      #productOffer:hover {
+        color: #ffffff !important;
+        background-color: var(--dark-bg-elevated, #252525) !important;
+      }
+
+      /* Ensure Phoenix validation states work properly for productOffer */
+      .form-group.error #productOffer {
+        color: #ffffff !important;
+        background-color: rgba(239, 68, 68, 0.1) !important;
+      }
+
+      .form-group.success #productOffer {
+        color: #ffffff !important;
+        background-color: rgba(16, 185, 129, 0.1) !important;
+      }
+    </style>
     <script>
       // Fallback for Cropper.js if it doesn't load
       window.addEventListener("load", function () {
@@ -338,6 +370,7 @@
       let cropModal;
       let mainImageIndex = null; // Start with null, set to 0 when first image is added
       let draggedIndex = null;
+      let isSubmitting = false; // Track form submission state
 
       // Initialize page
       document.addEventListener("DOMContentLoaded", function () {
@@ -356,6 +389,17 @@
         setupEventListeners();
         setupRealTimeValidation();
         initializeFormValidation();
+
+        // Initialize Phoenix Form Validation
+        window.PhoenixValidator.setupProductForm('productForm', {
+          showValidationSummary: true,
+          disableSubmitUntilValid: true,
+          validateOnInput: true,  // Enable real-time validation
+          validateOnBlur: true,   // Also validate on blur
+          onValidSubmit: async (form, event) => {
+            await handleFormSubmission(event);
+          }
+        });
 
         // Initialize modal
         try {
@@ -409,71 +453,24 @@
 
       // Initialize form validation state
       function initializeFormValidation() {
-        // Set up form submission prevention
-        const form = document.getElementById('productForm');
-        const submitBtn = document.getElementById('saveProductBtn');
-
-        if (form && submitBtn) {
-          // Disable submit button initially
-          updateSubmitButtonState();
-
-          // Override form submission
-          form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            if (validateAllFields()) {
-              handleFormSubmission(e);
-            } else {
-              showValidationSummary();
-            }
-          });
-        }
+        // Phoenix Form Validation will handle form submission and validation
+        // This function is kept for any additional initialization if needed
+        console.log('Form validation initialized - using Phoenix Form Validation system');
       }
 
       // Setup comprehensive real-time validation
       function setupRealTimeValidation() {
-        const fields = [
-          'productName', 'brand', 'category', 'quantity',
-          'regularPrice', 'productOffer', 'features', 'description'
-        ];
+        // Only setup word counter and image validation since Phoenix handles field validation
+        // The Phoenix Form Validation system will handle the main field validation
 
-        fields.forEach(fieldId => {
-          const field = document.getElementById(fieldId);
-          if (field) {
-            // Add event listeners for real-time validation
-            field.addEventListener('input', () => {
-              validateField(field);
-              updateSubmitButtonState();
-            });
-            field.addEventListener('blur', () => {
-              validateField(field);
-              updateSubmitButtonState();
-            });
-            field.addEventListener('change', () => {
-              validateField(field);
-              updateSubmitButtonState();
-            });
-
-            // Add ARIA attributes for accessibility
-            const formGroup = field.closest('.form-group');
-            const errorElement = formGroup.querySelector('.error-message');
-            const successElement = formGroup.querySelector('.success-message');
-
-            if (errorElement) {
-              errorElement.id = `${fieldId}-error`;
-              field.setAttribute('aria-describedby', `${fieldId}-error`);
-              field.setAttribute('aria-invalid', 'false');
-            }
-          }
-        });
-
-        // Setup description character counter
+        // Setup description word counter
         const description = document.getElementById('description');
         if (description) {
           description.addEventListener('input', () => {
-            updateCharacterCount();
-            validateField(description);
-            updateSubmitButtonState();
+            updateWordCount();
           });
+          // Initialize word count display
+          updateWordCount();
         }
 
         // Setup image validation
@@ -481,152 +478,11 @@
         if (imageInput) {
           imageInput.addEventListener('change', (e) => {
             validateImages(e);
-            updateSubmitButtonState();
           });
         }
       }
 
-      // Comprehensive field validation function
-      function validateField(field) {
-        const fieldId = field.id;
-        const value = field.value.trim();
-        const formGroup = field.closest('.form-group');
-        const errorElement = formGroup.querySelector('.error-message');
-        const successElement = formGroup.querySelector('.success-message');
-
-        let isValid = true;
-        let errorMessage = '';
-
-        // Clear previous states
-        formGroup.classList.remove('error', 'success');
-        field.setAttribute('aria-invalid', 'false');
-
-        switch (fieldId) {
-          case 'productName':
-            if (!value) {
-              isValid = false;
-              errorMessage = 'Product name is required';
-            } else if (value.length < 3) {
-              isValid = false;
-              errorMessage = 'Product name must be at least 3 characters';
-            } else if (value.length > 100) {
-              isValid = false;
-              errorMessage = 'Product name must not exceed 100 characters';
-            } else if (!/^[a-zA-Z0-9\s\-]+$/.test(value)) {
-              isValid = false;
-              errorMessage = 'Product name can only contain letters, numbers, spaces, and hyphens';
-            }
-            break;
-
-          case 'brand':
-            if (!value) {
-              isValid = false;
-              errorMessage = 'Brand name is required';
-            } else if (value.length < 2) {
-              isValid = false;
-              errorMessage = 'Brand name must be at least 2 characters';
-            } else if (value.length > 50) {
-              isValid = false;
-              errorMessage = 'Brand name must not exceed 50 characters';
-            }
-            break;
-
-          case 'category':
-            if (!value) {
-              isValid = false;
-              errorMessage = 'Please select a category';
-            }
-            break;
-
-          case 'quantity':
-            const quantity = parseInt(value);
-            if (!value) {
-              isValid = false;
-              errorMessage = 'Stock quantity is required';
-            } else if (isNaN(quantity) || quantity < 0) {
-              isValid = false;
-              errorMessage = 'Please enter a valid quantity (0 or more)';
-            } else if (quantity > 10000) {
-              isValid = false;
-              errorMessage = 'Quantity cannot exceed 10,000';
-            } else if (!Number.isInteger(quantity)) {
-              isValid = false;
-              errorMessage = 'Quantity must be a whole number';
-            }
-            break;
-
-          case 'regularPrice':
-            const price = parseFloat(value);
-            if (!value) {
-              isValid = false;
-              errorMessage = 'Regular price is required';
-            } else if (isNaN(price) || price <= 0) {
-              isValid = false;
-              errorMessage = 'Please enter a valid price greater than ₹0';
-            } else if (price < 0.01) {
-              isValid = false;
-              errorMessage = 'Price must be at least ₹0.01';
-            } else if (price > 999999.99) {
-              isValid = false;
-              errorMessage = 'Price cannot exceed ₹999,999.99';
-            }
-            break;
-
-          case 'productOffer':
-            if (value) {
-              const offer = parseFloat(value);
-              if (isNaN(offer) || offer < 0 || offer > 100) {
-                isValid = false;
-                errorMessage = 'Offer must be between 0 and 100%';
-              }
-            }
-            break;
-
-          case 'features':
-            if (!value) {
-              isValid = false;
-              errorMessage = 'Product features are required';
-            } else if (value.length < 10) {
-              isValid = false;
-              errorMessage = 'Features must be at least 10 characters';
-            } else if (value.length > 200) {
-              isValid = false;
-              errorMessage = 'Features must not exceed 200 characters';
-            }
-            break;
-
-          case 'description':
-            if (!value) {
-              isValid = false;
-              errorMessage = 'Product description is required';
-            } else if (value.length < 20) {
-              isValid = false;
-              errorMessage = 'Description must be at least 20 characters';
-            } else if (value.length > 1000) {
-              isValid = false;
-              errorMessage = 'Description must not exceed 1000 characters';
-            }
-            break;
-        }
-
-        // Update UI based on validation result
-        if (isValid) {
-          formGroup.classList.add('success');
-          field.setAttribute('aria-invalid', 'false');
-          if (errorElement) errorElement.style.display = 'none';
-          if (successElement) successElement.style.display = 'block';
-        } else {
-          formGroup.classList.add('error');
-          field.setAttribute('aria-invalid', 'true');
-          if (errorElement) {
-            errorElement.textContent = errorMessage;
-            errorElement.style.display = 'block';
-          }
-          if (successElement) successElement.style.display = 'none';
-        }
-
-        return isValid;
-      }
+      // Note: Field validation is now handled by Phoenix Form Validation system
 
       // Setup event listeners
       function setupEventListeners() {
@@ -685,101 +541,263 @@
         }
       }
 
-      // Update character count for description
-      function updateCharacterCount() {
+      // Update word count for description
+      function updateWordCount() {
         const description = document.getElementById('description');
         const counter = document.getElementById('descriptionCount');
         if (description && counter) {
-          const length = description.value.length;
-          counter.textContent = length;
+          const text = description.value.trim();
+          const wordCount = text.split(/\s+/).filter(word => word.length > 0).length;
+          const charCount = text.length;
 
-          // Update counter color based on length
-          if (length > 900) {
+          // Display both word and character count
+          counter.textContent = `${wordCount} words, ${charCount} characters`;
+
+          // Update counter color based on word count
+          if (wordCount < 10) {
             counter.style.color = 'var(--error)';
-          } else if (length > 800) {
+          } else if (charCount > 900) {
+            counter.style.color = 'var(--error)';
+          } else if (charCount > 800) {
             counter.style.color = 'var(--warning)';
           } else {
-            counter.style.color = 'var(--neutral-600)';
+            counter.style.color = 'var(--success)';
           }
         }
       }
 
-      // Validate images
+      // Enhanced image validation with comprehensive file type checking
       function validateImages(e) {
         const files = Array.from(e.target.files);
         const imageGroup = document.getElementById('productImages').closest('.form-group');
         const errorElement = imageGroup.querySelector('.error-message');
         const successElement = imageGroup.querySelector('.success-message');
+        const fileUploadArea = imageGroup.querySelector('.file-upload-area');
 
         let isValid = true;
         let errorMessage = '';
+        let validFiles = [];
+        let rejectedFiles = [];
 
         // Clear previous states
         imageGroup.classList.remove('error', 'success');
+        if (fileUploadArea) {
+          fileUploadArea.classList.remove('error-state');
+        }
 
         if (files.length === 0) {
           isValid = false;
           errorMessage = 'Please select at least 3 images';
-        } else if (files.length < 3) {
-          isValid = false;
-          errorMessage = `Please select at least 3 images. Currently selected: ${files.length}`;
         } else {
-          // Validate file types and sizes
-          const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-          const maxSize = 5 * 1024 * 1024; // 5MB
+          // Enhanced file validation
+          const validationResult = validateFileTypes(files);
+          validFiles = validationResult.validFiles;
+          rejectedFiles = validationResult.rejectedFiles;
 
-          for (let file of files) {
-            if (!validTypes.includes(file.type)) {
+          if (rejectedFiles.length > 0) {
+            isValid = false;
+            errorMessage = generateFileRejectionMessage(rejectedFiles);
+          } else if (validFiles.length < 3) {
+            isValid = false;
+            errorMessage = `Please select at least 3 images. Currently selected: ${validFiles.length}`;
+          } else {
+            // Validate file sizes for valid files
+            const sizeValidation = validateFileSizes(validFiles);
+            if (!sizeValidation.isValid) {
               isValid = false;
-              errorMessage = `Invalid file type: ${file.name}. Only JPEG, PNG, and WebP are allowed.`;
-              break;
-            }
-            if (file.size > maxSize) {
-              isValid = false;
-              errorMessage = `File too large: ${file.name}. Maximum size is 5MB.`;
-              break;
+              errorMessage = sizeValidation.errorMessage;
             }
           }
         }
 
-        // Update UI
+        // Update UI with enhanced visual feedback
         if (isValid) {
           imageGroup.classList.add('success');
-          if (errorElement) errorElement.style.display = 'none';
+          if (fileUploadArea) {
+            fileUploadArea.classList.add('success-state');
+          }
+          if (errorElement) {
+            errorElement.style.display = 'none';
+            errorElement.setAttribute('aria-live', 'off');
+          }
           if (successElement) {
-            successElement.textContent = `${files.length} images selected successfully`;
+            successElement.innerHTML = `<i class="fas fa-check"></i> ${validFiles.length} images selected successfully`;
             successElement.style.display = 'block';
           }
         } else {
           imageGroup.classList.add('error');
-          if (errorElement) {
-            errorElement.textContent = errorMessage;
-            errorElement.style.display = 'block';
+          if (fileUploadArea) {
+            fileUploadArea.classList.add('error-state');
           }
-          if (successElement) successElement.style.display = 'none';
+          if (errorElement) {
+            errorElement.innerHTML = errorMessage;
+            errorElement.style.display = 'block';
+            errorElement.setAttribute('aria-live', 'polite');
+          }
+          if (successElement) {
+            successElement.style.display = 'none';
+          }
+
+          // Clear the file input if there are rejected files
+          if (rejectedFiles.length > 0) {
+            e.target.value = '';
+            showFileRejectionAlert(rejectedFiles);
+          }
         }
 
         return isValid;
       }
 
-      // Validate all fields
-      function validateAllFields() {
-        const fields = [
-          'productName', 'brand', 'category', 'quantity',
-          'regularPrice', 'productOffer', 'features', 'description'
+      // Comprehensive file type validation
+      function validateFileTypes(files) {
+        const validFiles = [];
+        const rejectedFiles = [];
+
+        // Define allowed file types with both MIME types and extensions
+        const allowedMimeTypes = [
+          'image/jpeg',
+          'image/jpg',
+          'image/png',
+          'image/webp'
         ];
 
-        let allValid = true;
+        const allowedExtensions = [
+          '.jpg',
+          '.jpeg',
+          '.png',
+          '.webp'
+        ];
 
-        // Validate individual fields
-        fields.forEach(fieldId => {
-          const field = document.getElementById(fieldId);
-          if (field && !validateField(field)) {
-            allValid = false;
+        files.forEach(file => {
+          const fileName = file.name.toLowerCase();
+          const fileExtension = fileName.substring(fileName.lastIndexOf('.'));
+          const mimeType = file.type.toLowerCase();
+
+          // Check both MIME type and file extension for security
+          const isMimeTypeValid = allowedMimeTypes.includes(mimeType);
+          const isExtensionValid = allowedExtensions.includes(fileExtension);
+
+          if (isMimeTypeValid && isExtensionValid) {
+            validFiles.push(file);
+          } else {
+            rejectedFiles.push({
+              file: file,
+              reason: getFileRejectionReason(file, isMimeTypeValid, isExtensionValid)
+            });
           }
         });
 
-        // Validate images
+        return { validFiles, rejectedFiles };
+      }
+
+      // Determine specific reason for file rejection
+      function getFileRejectionReason(file, isMimeTypeValid, isExtensionValid) {
+        const fileName = file.name;
+        const fileExtension = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
+        const mimeType = file.type;
+
+        if (!isMimeTypeValid && !isExtensionValid) {
+          return `Invalid file type (${fileExtension}). Only JPEG, PNG, and WebP images are allowed.`;
+        } else if (!isMimeTypeValid) {
+          return `Invalid MIME type (${mimeType}). File may be corrupted or not a valid image.`;
+        } else if (!isExtensionValid) {
+          return `Invalid file extension (${fileExtension}). Only .jpg, .jpeg, .png, and .webp are allowed.`;
+        }
+
+        return 'Invalid file type. Only JPEG, PNG, and WebP images are allowed.';
+      }
+
+      // Validate file sizes
+      function validateFileSizes(files) {
+        const maxSize = 5 * 1024 * 1024; // 5MB
+
+        for (let file of files) {
+          if (file.size > maxSize) {
+            return {
+              isValid: false,
+              errorMessage: `File too large: <strong>${file.name}</strong><br>Size: ${formatFileSize(file.size)} (Maximum: 5MB)`
+            };
+          }
+
+          if (file.size === 0) {
+            return {
+              isValid: false,
+              errorMessage: `Empty file detected: <strong>${file.name}</strong><br>Please select a valid image file.`
+            };
+          }
+        }
+
+        return { isValid: true };
+      }
+
+      // Generate detailed error message for rejected files
+      function generateFileRejectionMessage(rejectedFiles) {
+        if (rejectedFiles.length === 1) {
+          const rejected = rejectedFiles[0];
+          return `<strong>File rejected:</strong> ${rejected.file.name}<br>${rejected.reason}`;
+        } else {
+          let message = `<strong>${rejectedFiles.length} files rejected:</strong><br>`;
+          rejectedFiles.forEach((rejected, index) => {
+            if (index < 3) { // Show first 3 rejected files
+              message += `• ${rejected.file.name}: ${rejected.reason}<br>`;
+            }
+          });
+          if (rejectedFiles.length > 3) {
+            message += `• ... and ${rejectedFiles.length - 3} more files<br>`;
+          }
+          message += '<br><strong>Only JPEG, PNG, and WebP images are allowed.</strong>';
+          return message;
+        }
+      }
+
+      // Show detailed file rejection alert
+      function showFileRejectionAlert(rejectedFiles) {
+        let alertMessage = 'The following files were rejected:\n\n';
+
+        rejectedFiles.forEach((rejected, index) => {
+          if (index < 5) { // Show first 5 rejected files in alert
+            alertMessage += `• ${rejected.file.name}\n  ${rejected.reason}\n\n`;
+          }
+        });
+
+        if (rejectedFiles.length > 5) {
+          alertMessage += `... and ${rejectedFiles.length - 5} more files\n\n`;
+        }
+
+        alertMessage += 'Please select only JPEG (.jpg, .jpeg), PNG (.png), or WebP (.webp) image files.';
+
+        Swal.fire({
+          title: 'Invalid Files Detected',
+          text: alertMessage,
+          icon: 'error',
+          confirmButtonText: 'Select Valid Images',
+          customClass: {
+            content: 'text-left'
+          }
+        });
+      }
+
+      // Format file size for display
+      function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+      }
+
+      // Validate all fields using Phoenix Form Validation
+      function validateAllFields() {
+        const form = document.getElementById('productForm');
+        if (!form || !form._phoenixValidator) {
+          console.error('Phoenix Form Validation not initialized');
+          return false;
+        }
+
+        // Use Phoenix validator to validate all fields
+        const isFormValid = window.PhoenixValidator.validateAllFields(form, form._phoenixValidator.fieldConfigs);
+
+        // Also validate images
         const validCroppedImages = croppedImages.filter(img => img);
         if (validCroppedImages.length < 3) {
           const imageGroup = document.getElementById('productImages').closest('.form-group');
@@ -789,107 +807,72 @@
             errorElement.textContent = `At least 3 images required. Currently have: ${validCroppedImages.length}`;
             errorElement.style.display = 'block';
           }
-          allValid = false;
+          return false;
         }
 
-        return allValid;
+        return isFormValid;
       }
 
-      // Update submit button state
-      function updateSubmitButtonState() {
-        const submitBtn = document.getElementById('saveProductBtn');
-        if (!submitBtn) return;
+      // Note: Submit button state is now handled by Phoenix Form Validation system
 
-        const fields = [
-          'productName', 'brand', 'category', 'quantity',
-          'regularPrice', 'features', 'description'
-        ];
+      // Note: Validation summary is now handled by Phoenix Form Validation system
 
-        let hasErrors = false;
-        let hasEmptyRequired = false;
-
-        // Check for validation errors
-        fields.forEach(fieldId => {
-          const field = document.getElementById(fieldId);
-          if (field) {
-            const formGroup = field.closest('.form-group');
-            if (formGroup.classList.contains('error')) {
-              hasErrors = true;
-            }
-            if (!field.value.trim()) {
-              hasEmptyRequired = true;
-            }
-          }
-        });
-
-        // Check images
-        const validCroppedImages = croppedImages.filter(img => img);
-        if (validCroppedImages.length < 3) {
-          hasErrors = true;
-        }
-
-        // Update button state
-        if (hasErrors || hasEmptyRequired) {
-          submitBtn.disabled = true;
-          submitBtn.style.opacity = '0.6';
-          submitBtn.style.cursor = 'not-allowed';
-        } else {
-          submitBtn.disabled = false;
-          submitBtn.style.opacity = '1';
-          submitBtn.style.cursor = 'pointer';
-        }
-      }
-
-      // Show validation summary
-      function showValidationSummary() {
-        const errors = [];
-
-        // Collect all error messages
-        document.querySelectorAll('.form-group.error .error-message').forEach(errorEl => {
-          if (errorEl.style.display !== 'none' && errorEl.textContent.trim()) {
-            errors.push(errorEl.textContent.trim());
-          }
-        });
-
-        if (errors.length > 0) {
-          const errorList = errors.map(error => `• ${error}`).join('\n');
-          Swal.fire({
-            title: 'Validation Errors',
-            text: `Please fix the following errors:\n\n${errorList}`,
-            icon: 'error',
-            confirmButtonText: 'OK',
-            customClass: {
-              content: 'text-left'
-            }
-          });
-        }
-      }
-
-      // Handle file selection
+      // Enhanced file selection handler with immediate validation
       function handleFileSelection(e) {
         const files = Array.from(e.target.files);
 
-        // First validate the files
-        if (!validateImages(e)) {
-          e.target.value = ""; // Clear the input
-          updateSubmitButtonState();
+        // Immediate file type validation
+        if (files.length === 0) {
+          return;
+        }
+
+        // Perform comprehensive validation
+        const validationResult = validateImages(e);
+
+        if (!validationResult) {
+          // Validation failed - files were rejected
+          return;
+        }
+
+        // Get only valid files after validation
+        const validationDetails = validateFileTypes(files);
+        const validFiles = validationDetails.validFiles;
+
+        if (validFiles.length === 0) {
           return;
         }
 
         // Clear previous images and reset state
         document.getElementById("imagePreviews").innerHTML = "";
         croppedImages = [];
-        selectedFiles = files;
+        selectedFiles = validFiles; // Use only valid files
         currentFileIndex = 0;
 
-        // Show info message
+        // Show success message with file details
+        const fileDetails = validFiles.map(file =>
+          `• ${file.name} (${formatFileSize(file.size)})`
+        ).join('\n');
+
         Swal.fire({
-          title: "Image Cropping",
-          text: `You selected ${files.length} images. Each image will be cropped individually.`,
-          icon: "info",
+          title: "Valid Images Selected",
+          html: `
+            <div style="text-align: left;">
+              <p><strong>${validFiles.length} images ready for cropping:</strong></p>
+              <div style="font-family: monospace; font-size: 0.9em; margin: 10px 0; max-height: 200px; overflow-y: auto;">
+                ${validFiles.map(file =>
+                  `<div style="margin: 5px 0;">• ${file.name} <span style="color: #666;">(${formatFileSize(file.size)})</span></div>`
+                ).join('')}
+              </div>
+              <p style="color: #666; font-size: 0.9em;">Each image will be cropped individually for optimal quality.</p>
+            </div>
+          `,
+          icon: "success",
           confirmButtonText: "Start Cropping",
+          customClass: {
+            content: 'text-left'
+          }
         }).then(() => {
-          processImageSequentially(files, 0);
+          processImageSequentially(validFiles, 0);
         });
       }
 
@@ -1066,8 +1049,7 @@
               if (currentCallback) {
                 currentCallback();
               }
-              // Update submit button state after image processing
-              updateSubmitButtonState();
+              // Phoenix Form Validation will handle submit button state
             },
             remainingImages > 0 ? 1500 : 500
           );
@@ -1115,8 +1097,7 @@
           }
         }
 
-        // Update submit button state
-        updateSubmitButtonState();
+        // Phoenix Form Validation will handle submit button state
       }
 
       // Calculate sale price based on regular price and discount
@@ -1227,9 +1208,23 @@
       async function handleFormSubmission(e) {
         e.preventDefault();
 
-        if (!validateAllFields()) {
-          showValidationSummary();
+        // Prevent multiple submissions
+        if (isSubmitting) {
+          console.log('Form submission already in progress, ignoring duplicate submission');
           return;
+        }
+
+        if (!validateAllFields()) {
+          // Phoenix Form Validation will handle showing validation errors
+          return;
+        }
+
+        // Set submission state and disable submit button
+        isSubmitting = true;
+        const submitBtn = document.getElementById('saveProductBtn');
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Saving...';
         }
 
         Swal.fire({
@@ -1285,6 +1280,12 @@
                 confirmButtonText: "Go to Products",
               }).then(() => (window.location.href = "/admin/products"));
             } else {
+              // Reset submission state on error
+              isSubmitting = false;
+              if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Save Product';
+              }
               throw new Error(result.message || "Failed to save product");
             }
           } else {
@@ -1297,6 +1298,14 @@
           }
         } catch (error) {
           console.error("Error submitting form:", error);
+
+          // Reset submission state on error
+          isSubmitting = false;
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Save Product';
+          }
+
           Swal.fire(
             "Error!",
             `Failed to save product: ${error.message}`,

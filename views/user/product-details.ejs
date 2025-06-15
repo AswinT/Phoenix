@@ -1,5 +1,8 @@
 <%- include('../partials/user/header') %>
 
+<!-- Breadcrumb Navigation -->
+<%- include("../partials/user/breadcrumb") %>
+
 <!-- Modern Design System Integration -->
 <link href="/styles/modern-design-system.css" rel="stylesheet">
 <link href="/styles/modern-components.css" rel="stylesheet">
@@ -1637,7 +1640,7 @@
                 <!-- Product Info -->
                 <div class="product-info">
                     <div class="product-brand"><%= product.brand %></div>
-                    <h1 class="product-title"><%= product.productName %></h1>
+                    <h1 class="product-title" data-product-name="<%= product.productName %>"><%= product.productName %></h1>
 
                     <div class="product-rating-summary">
                         <div class="rating-stars">
@@ -2078,6 +2081,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Phoenix Form Validation -->
+<script src="/js/form-validation.js"></script>
 <script>
     let selectedRating = 0;
 
@@ -2121,10 +2126,21 @@
         });
     }
 
-    // Submit review
-    document.getElementById('submitReviewForm')?.addEventListener('submit', async function(e) {
-        e.preventDefault();
+    // Initialize review form validation
+    document.addEventListener('DOMContentLoaded', () => {
+        const reviewForm = document.getElementById('submitReviewForm');
+        if (reviewForm) {
+            window.PhoenixValidator.setupReviewForm('submitReviewForm', {
+                showValidationSummary: true,
+                onValidSubmit: async (form, event) => {
+                    await handleReviewSubmission();
+                }
+            });
+        }
+    });
 
+    // Handle review submission
+    async function handleReviewSubmission() {
         if (selectedRating === 0) {
             Swal.fire({
                 icon: 'error',
@@ -2178,7 +2194,7 @@
                 confirmButtonColor: '#111827'
             });
         }
-    });
+    }
 
     // Mark review as helpful
     async function markHelpful(reviewId) {

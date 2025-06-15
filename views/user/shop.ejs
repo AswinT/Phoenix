@@ -19,6 +19,9 @@
 
 <%- include("../partials/user/header") %>
 
+<!-- Breadcrumb Navigation -->
+<%- include("../partials/user/breadcrumb") %>
+
 <!-- Modern Design System Integration -->
 <link href="/styles/modern-design-system.css" rel="stylesheet">
 <link href="/styles/modern-components.css" rel="stylesheet">
@@ -1212,7 +1215,7 @@
                             Price Range
                         </label>
                         <div class="price-inputs-container">
-                            <div class="price-input-group">
+                            <div class="price-input-group form-group">
                                 <label class="input-label">Minimum Price</label>
                                 <div class="input-wrapper">
                                     <span class="currency-symbol">₹</span>
@@ -1222,14 +1225,17 @@
                                            class="price-input"
                                            placeholder="0"
                                            min="0"
-                                           step="100"
+                                           step="0.01"
                                            value="<%= minPrice || '' %>">
+                                </div>
+                                <div class="error-message" style="display: none;">
+                                    Minimum price cannot be negative
                                 </div>
                             </div>
 
                             <div class="price-separator">TO</div>
 
-                            <div class="price-input-group">
+                            <div class="price-input-group form-group">
                                 <label class="input-label">Maximum Price</label>
                                 <div class="input-wrapper">
                                     <span class="currency-symbol">₹</span>
@@ -1239,8 +1245,11 @@
                                            class="price-input"
                                            placeholder="100000"
                                            min="0"
-                                           step="100"
+                                           step="0.01"
                                            value="<%= maxPrice || '' %>">
+                                </div>
+                                <div class="error-message" style="display: none;">
+                                    Maximum price cannot be negative
                                 </div>
                             </div>
                         </div>
@@ -1396,6 +1405,61 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Phoenix Form Validation -->
+<script src="/js/form-validation.js"></script>
+
+<!-- Phoenix Validation Styles for Shop -->
+<style>
+  /* Phoenix validation styles for price inputs */
+  .price-input-group.form-group.error .price-input {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+    background-color: rgba(239, 68, 68, 0.1) !important;
+  }
+
+  .price-input-group.form-group.success .price-input {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2) !important;
+    background-color: rgba(16, 185, 129, 0.1) !important;
+  }
+
+  .price-input-group .error-message {
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    display: none;
+    font-weight: 500;
+    text-align: left;
+  }
+
+  .price-input-group.form-group.error .error-message {
+    display: block;
+    animation: slideDown 0.3s ease;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Ensure price inputs have proper styling */
+  .price-input.is-invalid {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+  }
+
+  .price-input.is-valid {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2) !important;
+  }
+</style>
 <script>
     // Show redirect message if product was blocked/unavailable
     <% if (typeof redirectMessage !== 'undefined' && redirectMessage) { %>
@@ -1469,30 +1533,47 @@
         }
     }
 
-    // Form Enhancement - Manual Submit Only
+    // Form Enhancement with Phoenix Validation
     document.addEventListener('DOMContentLoaded', function() {
         const filterForm = document.getElementById('filterForm');
 
-        // Handle form submission
-        filterForm.addEventListener('submit', function(e) {
-            e.preventDefault();
+        // Initialize Phoenix Form Validation for shop filters
+        window.PhoenixValidator.setupShopForm('filterForm', {
+            onValidSubmit: function(form, event) {
+                handleValidFormSubmission(form, event);
+            }
+        });
 
-            // Validate price inputs before submission
-            if (!validatePriceInputs()) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Invalid Price Range',
-                    text: 'Maximum price must be greater than minimum price.',
-                    confirmButtonColor: '#111827'
-                });
-                return;
+        // Handle valid form submission
+        function handleValidFormSubmission(form, event) {
+            event.preventDefault();
+
+            // Additional range validation
+            const minPriceInput = document.getElementById('minPriceInput');
+            const maxPriceInput = document.getElementById('maxPriceInput');
+
+            if (form._phoenixValidator && form._phoenixValidator.validatePriceRange) {
+                if (!form._phoenixValidator.validatePriceRange()) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid Price Range',
+                        text: 'Maximum price must be greater than or equal to minimum price.',
+                        confirmButtonColor: '#ef4444',
+                        background: '#1e1e1e',
+                        color: '#ffffff',
+                        customClass: {
+                            popup: 'phoenix-validation-popup'
+                        }
+                    });
+                    return;
+                }
             }
 
             const loadingOverlay = document.getElementById('loadingOverlay');
             loadingOverlay.classList.add('active');
 
             // Build URL with form data
-            const formData = new FormData(filterForm);
+            const formData = new FormData(form);
             const params = new URLSearchParams();
 
             // Add form fields
@@ -1508,36 +1589,11 @@
             // Navigate to new URL
             const newUrl = '/shop' + (params.toString() ? '?' + params.toString() : '');
             window.location.href = newUrl;
-        });
+        }
 
-        // Simple Price Inputs Implementation
+        // Enhanced UX for price inputs (Phoenix handles validation)
         const minPriceInput = document.getElementById('minPriceInput');
         const maxPriceInput = document.getElementById('maxPriceInput');
-
-        function validatePriceInputs() {
-            const minPrice = parseFloat(minPriceInput.value) || 0;
-            const maxPrice = parseFloat(maxPriceInput.value) || Infinity;
-
-            // Clear previous validation states
-            minPriceInput.style.borderColor = '';
-            maxPriceInput.style.borderColor = '';
-
-            if (minPrice > maxPrice && maxPrice !== Infinity) {
-                // Invalid range - highlight inputs with red
-                minPriceInput.style.borderColor = '#dc2626';
-                maxPriceInput.style.borderColor = '#dc2626';
-                minPriceInput.style.boxShadow = '0 0 0 3px rgba(220, 38, 38, 0.2)';
-                maxPriceInput.style.boxShadow = '0 0 0 3px rgba(220, 38, 38, 0.2)';
-                return false;
-            } else {
-                // Valid range - highlight inputs with green
-                minPriceInput.style.borderColor = '#059669';
-                maxPriceInput.style.borderColor = '#059669';
-                minPriceInput.style.boxShadow = '0 0 0 3px rgba(5, 150, 105, 0.2)';
-                maxPriceInput.style.boxShadow = '0 0 0 3px rgba(5, 150, 105, 0.2)';
-                return true;
-            }
-        }
 
         function handlePriceInputChange(input) {
             // Add visual feedback
@@ -1545,9 +1601,6 @@
             setTimeout(() => {
                 input.style.transform = 'scale(1)';
             }, 200);
-
-            // Validate range
-            validatePriceInputs();
 
             // Add glow effect to container
             const container = document.querySelector('.price-inputs-container');
@@ -1557,7 +1610,7 @@
             }, 300);
         }
 
-        // Price input event listeners
+        // Price input event listeners for enhanced UX
         minPriceInput.addEventListener('input', function() {
             handlePriceInputChange(this);
         });
@@ -1570,22 +1623,14 @@
         [minPriceInput, maxPriceInput].forEach(input => {
             input.addEventListener('focus', function() {
                 this.style.transform = 'translateY(-1px)';
-                this.style.boxShadow = '0 0 0 3px rgba(17, 24, 39, 0.3), 0 4px 6px rgba(0, 0, 0, 0.2)';
                 this.style.background = '#111827';
             });
 
             input.addEventListener('blur', function() {
                 this.style.transform = 'translateY(0)';
-                this.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
                 this.style.background = '#1f2937';
-                validatePriceInputs();
             });
         });
-
-        // Initialize validation
-        if (minPriceInput.value || maxPriceInput.value) {
-            validatePriceInputs();
-        }
     });
 
 

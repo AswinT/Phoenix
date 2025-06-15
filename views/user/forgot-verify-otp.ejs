@@ -578,9 +578,10 @@
 
         initialize() {
           const storedEndTime = sessionStorage.getItem("forgotOtpTimerEndTime");
+          const currentTime = Date.now();
+
           if (storedEndTime) {
             const endTime = parseInt(storedEndTime, 10);
-            const currentTime = Date.now();
             const remainingTimeMs = endTime - currentTime;
             this.timeLeft = Math.max(0, Math.floor(remainingTimeMs / 1000));
 
@@ -600,7 +601,6 @@
         start() {
           this.timerInterval = setInterval(() => {
             this.timeLeft--;
-            this.storeEndTime();
             this.updateDisplay();
 
             if (this.timeLeft <= 0) {

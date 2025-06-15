@@ -493,7 +493,7 @@
       <div class="container-fluid px-4">
         <!-- Brand -->
         <div class="d-flex flex-column">
-          <a class="navbar-brand-modern" href="/dashboard">PHOENIX</a>
+          <a class="navbar-brand-modern" href="/">PHOENIX</a>
           <span class="navbar-brand-tagline">Superior Sound</span>
         </div>
 
@@ -519,7 +519,7 @@
           <!-- Main Navigation -->
           <ul class="navbar-nav navbar-nav-modern me-auto">
             <li class="nav-item nav-item-modern">
-              <a class="nav-link nav-link-modern active" href="/dashboard"
+              <a class="nav-link nav-link-modern active" href="/"
                 >Home</a
               >
             </li>
@@ -533,18 +533,43 @@
               <a class="nav-link nav-link-modern" href="#contact">Contact</a>
             </li>
           </ul>
-          <form class="d-flex me-3 mb-2 mb-lg-0">
-            <div class="input-group">
-              <input
-                class="form-control search-box"
-                type="search"
-                placeholder="Search"
-              />
-              <button class="search-btn" type="submit">
-                <i class="bi bi-search"></i>
-              </button>
+          <!-- Enhanced Search Form -->
+          <div class="search-container-wrapper position-relative me-3 mb-2 mb-lg-0">
+            <form class="d-flex" id="navbarSearchForm">
+              <div class="input-group">
+                <input
+                  class="form-control search-box"
+                  type="search"
+                  placeholder="Search products, brands..."
+                  id="navbarSearchInput"
+                  autocomplete="off"
+                />
+                <button class="search-btn" type="submit">
+                  <i class="bi bi-search"></i>
+                </button>
+              </div>
+            </form>
+
+            <!-- Search Results Dropdown -->
+            <div class="search-results-dropdown" id="searchResultsDropdown">
+              <div class="search-results-header">
+                <span class="search-results-title">Search Results</span>
+                <div class="search-loading" id="searchLoading">
+                  <div class="spinner-border spinner-border-sm" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                </div>
+              </div>
+              <div class="search-results-content" id="searchResultsContent">
+                <!-- Results will be populated here -->
+              </div>
+              <div class="search-results-footer" id="searchResultsFooter" style="display: none;">
+                <a href="#" class="view-all-results" id="viewAllResults">
+                  View all results <i class="bi bi-arrow-right"></i>
+                </a>
+              </div>
             </div>
-          </form>
+          </div>
 
           <!-- Conditional User Section -->
           <% if (typeof user !=='undefined' && user) { %> <% let userName =
@@ -668,9 +693,9 @@
           const linkPath = new URL(link.href).pathname;
           if (
             linkPath === currentPath ||
-            (currentPath === "/dashboard" && linkPath === "/dashboard") ||
+            (currentPath === "/dashboard" && linkPath === "/") ||
             (currentPath === "/shop" && linkPath === "/shop") ||
-            (currentPath === "/" && linkPath === "/dashboard")
+            (currentPath === "/" && linkPath === "/")
           ) {
             link.classList.add("active");
           }
@@ -704,6 +729,180 @@
             }
           });
         });
+        // Enhanced Search Functionality
+        const searchInput = document.getElementById("navbarSearchInput");
+        const searchForm = document.getElementById("navbarSearchForm");
+        const searchDropdown = document.getElementById("searchResultsDropdown");
+        const searchContent = document.getElementById("searchResultsContent");
+        const searchLoading = document.getElementById("searchLoading");
+        const searchFooter = document.getElementById("searchResultsFooter");
+        const viewAllResults = document.getElementById("viewAllResults");
+
+        let searchTimeout;
+        let currentSearchQuery = "";
+
+        // Debounce function for search
+        function debounce(func, wait) {
+          return function executedFunction(...args) {
+            const later = () => {
+              clearTimeout(searchTimeout);
+              func(...args);
+            };
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(later, wait);
+          };
+        }
+
+        // Search function
+        async function performSearch(query) {
+          if (!query || query.trim().length < 2) {
+            hideSearchDropdown();
+            return;
+          }
+
+          currentSearchQuery = query.trim();
+          showSearchLoading();
+
+          try {
+            const response = await fetch(`/api/search?q=${encodeURIComponent(query)}&limit=6`);
+            const data = await response.json();
+
+            if (data.success) {
+              displaySearchResults(data.products, query);
+            } else {
+              showSearchError("Failed to search products");
+            }
+          } catch (error) {
+            console.error("Search error:", error);
+            showSearchError("Search temporarily unavailable");
+          }
+        }
+
+        // Display search results
+        function displaySearchResults(products, query) {
+          hideSearchLoading();
+
+          if (products.length === 0) {
+            searchContent.innerHTML = `
+              <div class="search-no-results">
+                <i class="bi bi-search"></i>
+                <p>No products found for "${query}"</p>
+                <small>Try different keywords or browse our categories</small>
+              </div>
+            `;
+            searchFooter.style.display = "none";
+          } else {
+            const resultsHTML = products.map(product => `
+              <div class="search-result-item" data-product-id="${product._id}" style="cursor: pointer;">
+                <div class="search-result-image">
+                  <img src="/uploads/products/${product.mainImage}" alt="${product.productName}" loading="lazy">
+                </div>
+                <div class="search-result-info">
+                  <h6 class="search-result-title">${product.productName}</h6>
+                  <p class="search-result-brand">${product.brand} • ${product.category}</p>
+                  <div class="search-result-price">
+                    <span class="current-price">₹${product.salePrice.toLocaleString()}</span>
+                    ${product.hasDiscount ? `<span class="original-price">₹${product.regularPrice.toLocaleString()}</span>` : ''}
+                  </div>
+                </div>
+              </div>
+            `).join('');
+
+            searchContent.innerHTML = resultsHTML;
+
+            // Add click event listeners to search result items
+            const searchResultItems = searchContent.querySelectorAll('.search-result-item');
+            searchResultItems.forEach(item => {
+              item.addEventListener('click', function() {
+                const productId = this.getAttribute('data-product-id');
+                if (productId) {
+                  window.location.href = `/product/${productId}`;
+                }
+              });
+            });
+
+            // Show "View all results" footer
+            viewAllResults.href = `/shop?search=${encodeURIComponent(query)}`;
+            searchFooter.style.display = "block";
+          }
+
+          showSearchDropdown();
+        }
+
+        // UI helper functions
+        function showSearchDropdown() {
+          searchDropdown.classList.add("show");
+        }
+
+        function hideSearchDropdown() {
+          searchDropdown.classList.remove("show");
+        }
+
+        function showSearchLoading() {
+          searchLoading.style.display = "block";
+          showSearchDropdown();
+        }
+
+        function hideSearchLoading() {
+          searchLoading.style.display = "none";
+        }
+
+        function showSearchError(message) {
+          hideSearchLoading();
+          searchContent.innerHTML = `
+            <div class="search-error">
+              <i class="bi bi-exclamation-triangle"></i>
+              <p>${message}</p>
+            </div>
+          `;
+          searchFooter.style.display = "none";
+          showSearchDropdown();
+        }
+
+        // Event listeners for search
+        if (searchInput) {
+          searchInput.addEventListener("input", debounce((e) => {
+            performSearch(e.target.value);
+          }, 300));
+
+          searchInput.addEventListener("focus", () => {
+            if (currentSearchQuery && searchContent.innerHTML.trim()) {
+              showSearchDropdown();
+            }
+          });
+
+          // Handle keyboard navigation
+          searchInput.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+              hideSearchDropdown();
+              searchInput.blur();
+            } else if (e.key === "Enter") {
+              e.preventDefault();
+              if (currentSearchQuery) {
+                window.location.href = `/shop?search=${encodeURIComponent(currentSearchQuery)}`;
+              }
+            }
+          });
+        }
+
+        // Form submission
+        if (searchForm) {
+          searchForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const query = searchInput.value.trim();
+            if (query) {
+              window.location.href = `/shop?search=${encodeURIComponent(query)}`;
+            }
+          });
+        }
+
+        // Hide dropdown when clicking outside
+        document.addEventListener("click", (e) => {
+          if (!e.target.closest(".search-container-wrapper")) {
+            hideSearchDropdown();
+          }
+        });
+
         // Account dropdown functionality - Enhanced version
         const accountDropdown = document.getElementById("accountDropdown");
         const dropdownMenu = document.querySelector(".account-dropdown");
