@@ -1,0 +1,2050 @@
+<%- include('../partials/admin/_adminHeader.ejs') %>
+<%- include("../partials/admin/_adminSidebar.ejs") %>
+
+
+
+<div class="admin-content">
+    <div class="container-fluid">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-content">
+                <h1 class="page-title">
+                    <i class="bi bi-plus-circle"></i>
+                    Add New Product
+                </h1>
+                <p class="page-subtitle">Add a new product to your Phoenix store</p>
+            </div>
+        </div>
+
+        <form action="/admin/product/add" method="POST" enctype="multipart/form-data" id="productForm" novalidate>
+            <div class="modern-form-container">
+                <!-- Basic Information Card -->
+                <div class="form-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="bi bi-info-circle"></i>
+                            Basic Information
+                        </h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="form-grid">
+                            <!-- Product Name -->
+                            <div class="form-group">
+                                <label for="name" class="form-label">
+                                    Product Name <span class="required">*</span>
+                                </label>
+                                <input type="text"
+                                       class="form-input <%= errors && errors.name ? 'error' : '' %>"
+                                       id="name"
+                                       name="name"
+                                       placeholder="e.g., Sony WH-1000XM5"
+                                       value="<%= formData ? formData.name : '' %>">
+                                <div class="error-message" id="name-error"></div>
+                                <% if (errors && errors.name) { %>
+                                    <div class="server-error"><%= errors.name %></div>
+                                <% } %>
+                            </div>
+
+                            <!-- Model Number -->
+                            <div class="form-group">
+                                <label for="modelNumber" class="form-label">
+                                    Model Number <span class="required">*</span>
+                                </label>
+                                <input type="text"
+                                       class="form-input <%= errors && errors.modelNumber ? 'error' : '' %>"
+                                       id="modelNumber"
+                                       name="modelNumber"
+                                       placeholder="e.g., WH-1000XM5"
+                                       value="<%= formData ? formData.modelNumber : '' %>">
+                                <div class="error-message" id="modelNumber-error"></div>
+                                <% if (errors && errors.modelNumber) { %>
+                                    <div class="server-error"><%= errors.modelNumber %></div>
+                                <% } %>
+                            </div>
+
+                            <!-- Category -->
+                            <div class="form-group">
+                                <label for="category" class="form-label">
+                                    Category <span class="required">*</span>
+                                </label>
+                                <select class="form-input <%= errors && errors.category ? 'error' : '' %>"
+                                        id="category"
+                                        name="category">
+                                    <option value="">Select Category</option>
+                                    <% categories.forEach(category => { %>
+                                        <option value="<%= category.name %>"
+                                                <%= formData && formData.category === category.name ? 'selected' : '' %>>
+                                            <%= category.name %>
+                                        </option>
+                                    <% }) %>
+                                </select>
+                                <div class="error-message" id="category-error"></div>
+                                <% if (errors && errors.category) { %>
+                                    <div class="server-error"><%= errors.category %></div>
+                                <% } %>
+                            </div>
+
+                            <!-- Color -->
+                            <div class="form-group">
+                                <label for="color" class="form-label">
+                                    Color <span class="required">*</span>
+                                </label>
+                                <input type="text"
+                                       class="form-input <%= errors && errors.color ? 'error' : '' %>"
+                                       id="color"
+                                       name="color"
+                                       placeholder="e.g., Midnight Black, Silver"
+                                       value="<%= formData ? formData.color : '' %>">
+                                <div class="error-message" id="color-error"></div>
+                                <% if (errors && errors.color) { %>
+                                    <div class="server-error"><%= errors.color %></div>
+                                <% } %>
+                            </div>
+
+                            <!-- Brand -->
+                            <div class="form-group">
+                                <label for="brand" class="form-label">
+                                    Brand <span class="required">*</span>
+                                </label>
+                                <input type="text"
+                                       class="form-input <%= errors && errors.brand ? 'error' : '' %>"
+                                       id="brand"
+                                       name="brand"
+                                       placeholder="e.g., Sony, Bose, JBL"
+                                       value="<%= formData ? formData.brand : '' %>">
+                                <div class="error-message" id="brand-error"></div>
+                                <% if (errors && errors.brand) { %>
+                                    <div class="server-error"><%= errors.brand %></div>
+                                <% } %>
+                            </div>
+
+                            <!-- Stock -->
+                            <div class="form-group">
+                                <label for="stock" class="form-label">
+                                    Stock Quantity <span class="required">*</span>
+                                </label>
+                                <input type="number"
+                                       class="form-input <%= errors && errors.stock ? 'error' : '' %>"
+                                       id="stock"
+                                       name="stock"
+                                       placeholder="e.g., 50"
+                                       value="<%= formData ? formData.stock : '' %>">
+                                <div class="error-message" id="stock-error"></div>
+                                <% if (errors && errors.stock) { %>
+                                    <div class="server-error"><%= errors.stock %></div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audio Specifications Card -->
+                <div class="form-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="bi bi-headphones"></i>
+                            Audio Specifications
+                        </h3>
+                    </div>
+                    <div class="card-content">
+                            <!-- Driver Size -->
+                            <div class="form-group">
+                                <label for="driverSize" class="form-label">
+                                    Driver Size <span class="required">*</span>
+                                </label>
+                                <select class="form-input <%= errors && errors.driverSize ? 'error' : '' %>"
+                                        id="driverSize"
+                                        name="driverSize"
+                                        onchange="handleDriverSizeChange(this)">
+                                    <option value="">Select Driver Size</option>
+                                    <option value="20mm" <%= formData && formData.driverSize === '20mm' ? 'selected' : '' %>>20mm</option>
+                                    <option value="30mm" <%= formData && formData.driverSize === '30mm' ? 'selected' : '' %>>30mm</option>
+                                    <option value="40mm" <%= formData && formData.driverSize === '40mm' ? 'selected' : '' %>>40mm</option>
+                                    <option value="50mm" <%= formData && formData.driverSize === '50mm' ? 'selected' : '' %>>50mm</option>
+                                    <option value="53mm" <%= formData && formData.driverSize === '53mm' ? 'selected' : '' %>>53mm</option>
+                                    <option value="60mm" <%= formData && formData.driverSize === '60mm' ? 'selected' : '' %>>60mm</option>
+                                    <option value="custom" <%= formData && formData.driverSize && !['20mm', '30mm', '40mm', '50mm', '53mm', '60mm'].includes(formData.driverSize) ? 'selected' : '' %>>Custom Size</option>
+                                </select>
+
+                                <!-- Custom Driver Size Input (hidden by default) -->
+                                <div class="custom-input-container" id="customDriverSizeContainer" style="display: none;">
+                                    <input type="text"
+                                           class="form-input custom-input"
+                                           id="customDriverSize"
+                                           name="customDriverSize"
+                                           placeholder="Enter custom driver size (e.g., 45mm)"
+                                           value="<%= formData && formData.driverSize && !['20mm', '30mm', '40mm', '50mm', '53mm', '60mm'].includes(formData.driverSize) ? formData.driverSize : '' %>">
+                                    <small class="input-help">Specify the exact driver size with unit (e.g., 45mm)</small>
+                                </div>
+
+                                <div class="error-message" id="driverSize-error"></div>
+                                <% if (errors && errors.driverSize) { %>
+                                    <div class="server-error"><%= errors.driverSize %></div>
+                                <% } %>
+                            </div>
+
+                            <!-- Connectivity -->
+                            <div class="form-group">
+                                <label for="connectivity" class="form-label">
+                                    Connectivity <span class="required">*</span>
+                                </label>
+                                <select class="form-input <%= errors && errors.connectivity ? 'error' : '' %>"
+                                        id="connectivity"
+                                        name="connectivity">
+                                    <option value="">Select Connectivity</option>
+                                    <option value="Wired" <%= formData && formData.connectivity === 'Wired' ? 'selected' : '' %>>Wired</option>
+                                    <option value="Wireless" <%= formData && formData.connectivity === 'Wireless' ? 'selected' : '' %>>Wireless</option>
+                                </select>
+                                <div class="error-message" id="connectivity-error"></div>
+                                <% if (errors && errors.connectivity) { %>
+                                    <div class="server-error"><%= errors.connectivity %></div>
+                                <% } %>
+                            </div>
+
+                            <!-- Features -->
+                            <div class="form-group full-width">
+                                <label class="form-label">Features</label>
+                                <div class="checkbox-group">
+                                    <div class="checkbox-item">
+                                        <input type="checkbox"
+                                               id="noiseCancellation"
+                                               name="noiseCancellation"
+                                               <%= formData && formData.noiseCancellation ? 'checked' : '' %>>
+                                        <label for="noiseCancellation" class="checkbox-label">
+                                            <i class="bi bi-shield-check"></i>
+                                            Noise Cancellation
+                                        </label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox"
+                                               id="microphoneIncluded"
+                                               name="microphoneIncluded"
+                                               <%= formData && formData.microphoneIncluded ? 'checked' : '' %>>
+                                        <label for="microphoneIncluded" class="checkbox-label">
+                                            <i class="bi bi-mic"></i>
+                                            Built-in Microphone
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pricing & Warranty Card -->
+                <div class="form-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="bi bi-currency-rupee"></i>
+                            Pricing & Warranty
+                        </h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="form-grid">
+                            <!-- Regular Price -->
+                            <div class="form-group">
+                                <label for="regularPrice" class="form-label">
+                                    Regular Price (₹) <span class="required">*</span>
+                                </label>
+                                <input type="number"
+                                       class="form-input <%= errors && errors.regularPrice ? 'error' : '' %>"
+                                       id="regularPrice"
+                                       name="regularPrice"
+                                       placeholder="e.g., 25000"
+                                       step="0.01"
+                                       value="<%= formData ? formData.regularPrice : '' %>">
+                                <div class="error-message" id="regularPrice-error"></div>
+                                <% if (errors && errors.regularPrice) { %>
+                                    <div class="server-error"><%= errors.regularPrice %></div>
+                                <% } %>
+                            </div>
+
+                            <!-- Sale Price -->
+                            <div class="form-group">
+                                <label for="salePrice" class="form-label">
+                                    Sale Price (₹) <span class="required">*</span>
+                                </label>
+                                <input type="number"
+                                       class="form-input <%= errors && errors.salePrice ? 'error' : '' %>"
+                                       id="salePrice"
+                                       name="salePrice"
+                                       placeholder="e.g., 22000"
+                                       step="0.01"
+                                       value="<%= formData ? formData.salePrice : '' %>">
+                                <div class="error-message" id="salePrice-error"></div>
+                                <% if (errors && errors.salePrice) { %>
+                                    <div class="server-error"><%= errors.salePrice %></div>
+                                <% } %>
+                            </div>
+
+                            <!-- Warranty -->
+                            <div class="form-group">
+                                <label for="warranty" class="form-label">
+                                    Warranty
+                                </label>
+                                <input type="text"
+                                       class="form-input <%= errors && errors.warranty ? 'error' : '' %>"
+                                       id="warranty"
+                                       name="warranty"
+                                       placeholder="e.g., 1 Year"
+                                       value="<%= formData ? formData.warranty : '' %>">
+                                <div class="error-message" id="warranty-error"></div>
+                                <% if (errors && errors.warranty) { %>
+                                    <div class="server-error"><%= errors.warranty %></div>
+                                <% } %>
+                            </div>
+
+                            <!-- Active Status -->
+                            <div class="form-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox"
+                                           id="isActive"
+                                           name="isActive"
+                                           <%= !formData || formData.isActive !== false ? 'checked' : '' %>>
+                                    <label for="isActive" class="checkbox-label">
+                                        <i class="bi bi-eye"></i>
+                                        Active (Visible to customers)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description Card -->
+                <div class="form-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="bi bi-file-text"></i>
+                            Product Description
+                        </h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="form-group">
+                            <label for="description" class="form-label">
+                                Description <span class="required">*</span>
+                            </label>
+                            <textarea class="form-input <%= errors && errors.description ? 'error' : '' %>"
+                                      id="description"
+                                      name="description"
+                                      rows="5"
+                                      placeholder="Detailed description of the product..."><%= formData ? formData.description : '' %></textarea>
+                            <div class="error-message" id="description-error"></div>
+                            <div class="char-count">
+                                <span id="description-count">0</span> / 10 characters minimum
+                            </div>
+                            <% if (errors && errors.description) { %>
+                                <div class="server-error"><%= errors.description %></div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modern Image Upload Card -->
+                <div class="form-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="bi bi-image"></i>
+                            Product Images
+                        </h3>
+                        <div class="upload-counter">
+                            <span id="upload-counter">0/5 images uploaded</span>
+                            <span class="required-note">Minimum 3 required</span>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <!-- Unified Image Upload Area -->
+                        <div class="unified-upload-area" id="unifiedUploadArea">
+                            <div class="upload-zone" id="uploadZone">
+                                <div class="upload-icon">
+                                    <i class="bi bi-cloud-upload"></i>
+                                </div>
+                                <h4>Drag & Drop Images Here</h4>
+                                <p>or <span class="browse-link">browse files</span></p>
+                                <small>JPG, PNG, WEBP • Max 5MB each • 3-5 images</small>
+                                <input type="file"
+                                       id="imageInput"
+                                       multiple
+                                       accept="image/jpeg,image/jpg,image/png,image/webp"
+                                       style="display: none;">
+                            </div>
+
+                            <!-- Hidden inputs for form submission -->
+                            <% for (let i = 0; i < 5; i++) { %>
+                                <input type="file"
+                                       id="hiddenImage<%= i %>"
+                                       name="images[<%= i %>].file"
+                                       style="display: none;">
+                            <% } %>
+                        </div>
+
+                        <!-- Image Preview Grid -->
+                        <div class="image-preview-grid" id="imagePreviewGrid" style="display: none;">
+                            <!-- Images will be dynamically added here -->
+                        </div>
+
+                        <!-- Upload Errors -->
+                        <div class="error-message" id="images-error"></div>
+                        <% if (errors && (errors.images || errors.imageUpload)) { %>
+                            <div class="server-error">
+                                <% if (errors.images) { %>
+                                    <div><%= errors.images %></div>
+                                <% } %>
+                                <% if (errors.imageUpload) { %>
+                                    <div><%= errors.imageUpload %></div>
+                                <% } %>
+                            </div>
+                        <% } %>
+
+                        <!-- Database Errors -->
+                        <% if (errors && errors.database) { %>
+                            <div class="server-error">
+                                <%= errors.database %>
+                            </div>
+                        <% } %>
+
+                        <div class="info-box">
+                            <i class="bi bi-info-circle"></i>
+                            <div>
+                                <strong>Image Guidelines:</strong>
+                                <ul>
+                                    <li>Upload 3-5 high-quality product photos</li>
+                                    <li>Show different angles and details</li>
+                                    <li>First image will be the main display image</li>
+                                    <li>Drag to reorder images</li>
+                                    <li>Click on any image to crop it</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button type="submit" class="btn-primary" id="submitBtn">
+                        <i class="bi bi-plus-circle"></i>
+                        Add Product
+                    </button>
+                    <a href="/admin/products" class="btn-secondary">
+                        <i class="bi bi-arrow-left"></i>
+                        Back to Products
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modern Image Crop Modal -->
+<div class="modal-overlay" id="cropModal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>
+                <i class="bi bi-crop"></i>
+                Crop Image (Required)
+            </h3>
+            <div class="mandatory-notice">
+                <i class="bi bi-exclamation-triangle"></i>
+                Cropping is mandatory for all product images
+            </div>
+        </div>
+        <div class="modal-body">
+            <div class="crop-instructions">
+                <p><strong>Instructions:</strong> Drag the corners to adjust the crop area. All images must be cropped to ensure consistent product display.</p>
+            </div>
+            <div class="crop-container">
+                <img id="cropImage" style="max-width: 100%;">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="closeCropModal()">
+                <i class="bi bi-x-circle"></i>
+                Cancel (Image will remain uncropped)
+            </button>
+            <button type="button" class="btn-primary" onclick="applyCrop()">
+                <i class="bi bi-check-circle"></i>
+                Apply Crop & Continue
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Modern Admin Product Add Page - Black/White Theme */
+
+/* Page Layout */
+.page-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #000000;
+}
+
+.header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.page-title {
+    color: #000000;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.page-subtitle {
+    color: #666666;
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Modern Form Container */
+.modern-form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Form Cards */
+.form-card {
+    background: #ffffff;
+    border: 2px solid #e5e5e5;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.form-card:hover {
+    border-color: #000000;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background: #000000;
+    color: #ffffff;
+    padding: 1.5rem;
+    border-bottom: none;
+}
+
+.card-title {
+    color: #ffffff;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.card-subtitle {
+    color: #cccccc;
+    font-size: 0.875rem;
+    margin: 0.5rem 0 0 0;
+}
+
+.upload-counter {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+}
+
+.upload-counter span {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+#upload-counter {
+    color: #ffffff;
+}
+
+.required-note {
+    color: #ffc107;
+    font-size: 0.75rem;
+}
+
+.card-content {
+    padding: 2rem 1.5rem;
+}
+
+/* Form Grid Layout */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+/* Custom Input Styling */
+.custom-input-container {
+    margin-top: 0.75rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.custom-input-container.show {
+    display: block !important;
+    animation: slideDown 0.3s ease;
+}
+
+.custom-input {
+    margin-bottom: 0.5rem;
+}
+
+.input-help {
+    color: #666666;
+    font-size: 0.875rem;
+    font-style: italic;
+    margin: 0;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Modern Image Upload Styles */
+.unified-upload-area {
+    margin-bottom: 1.5rem;
+}
+
+.upload-zone {
+    border: 3px dashed #e5e5e5;
+    border-radius: 12px;
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #fafafa;
+    position: relative;
+}
+
+.upload-zone:hover,
+.upload-zone.drag-over {
+    border-color: #000000;
+    background: #f5f5f5;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.upload-icon {
+    font-size: 3rem;
+    color: #999999;
+    margin-bottom: 1rem;
+}
+
+.upload-zone h4 {
+    color: #000000;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+}
+
+.upload-zone p {
+    color: #666666;
+    font-size: 1rem;
+    margin: 0 0 1rem 0;
+}
+
+.browse-link {
+    color: #000000;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.browse-link:hover {
+    color: #333333;
+}
+
+.upload-zone small {
+    color: #999999;
+    font-size: 0.875rem;
+}
+
+/* Image Preview Grid */
+.image-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.image-preview-item {
+    position: relative;
+    background: #ffffff;
+    border: 2px solid #e5e5e5;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.image-preview-item:hover {
+    border-color: #000000;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.image-preview-item.main-image {
+    border-color: #000000;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.image-preview-item.main-image::before {
+    content: "Main";
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    background: #000000;
+    color: #ffffff;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    z-index: 2;
+}
+
+/* Uncropped Image Indicators */
+.image-preview-item.uncropped {
+    border-color: #dc3545;
+    background: #fff5f5;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2);
+}
+
+.image-preview-item.uncropped::after {
+    content: "⚠️ CROP REQUIRED";
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: #dc3545;
+    color: #ffffff;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    z-index: 2;
+
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.image-preview-item.uncropped:hover {
+    border-color: #dc3545;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(220, 53, 69, 0.3);
+}
+
+.image-preview-item.cropped::after {
+    content: "✓ CROPPED";
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: #28a745;
+    color: #ffffff;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    z-index: 2;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+
+
+
+
+.preview-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    display: block;
+}
+
+.image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.image-preview-item:hover .image-overlay {
+    opacity: 1;
+}
+
+.overlay-btn {
+    background: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+}
+
+.overlay-btn:hover {
+    background: #f5f5f5;
+    transform: scale(1.1);
+}
+
+.overlay-btn.crop-btn {
+    color: #000000;
+}
+
+.overlay-btn.remove-btn {
+    color: #dc3545;
+}
+
+.drag-handle {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 4px;
+    padding: 0.25rem;
+    cursor: move;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.image-preview-item:hover .drag-handle {
+    opacity: 1;
+}
+
+/* Form Groups */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    color: #000000;
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.required {
+    color: #dc3545;
+    font-weight: 700;
+}
+
+/* Form Inputs */
+.form-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e5e5e5;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    background: #ffffff;
+    color: #000000;
+    transition: all 0.2s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #000000;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.form-input.error {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.form-input::placeholder {
+    color: #999999;
+}
+
+/* Textarea */
+textarea.form-input {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* Select */
+select.form-input {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23000000' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 12px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    padding-right: 40px;
+    appearance: none;
+}
+
+/* Checkbox Groups */
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.checkbox-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #e5e5e5;
+    border-radius: 4px;
+    cursor: pointer;
+    accent-color: #000000;
+}
+
+.checkbox-label {
+    color: #000000;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+/* Error Messages */
+.error-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    display: none;
+    font-weight: 500;
+}
+
+.error-message.show {
+    display: block;
+}
+
+.server-error {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    font-weight: 500;
+}
+
+/* Character Count */
+.char-count {
+    color: #666666;
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+    text-align: right;
+}
+
+/* Image Upload */
+.image-upload-group {
+    margin-bottom: 1.5rem;
+}
+
+.image-upload-area {
+    border: 2px dashed #e5e5e5;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #fafafa;
+    min-height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-upload-area:hover {
+    border-color: #000000;
+    background: #f5f5f5;
+}
+
+.upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: #666666;
+}
+
+.upload-placeholder i {
+    font-size: 2rem;
+    color: #999999;
+}
+
+.upload-placeholder p {
+    margin: 0;
+    font-weight: 500;
+}
+
+.upload-placeholder small {
+    color: #999999;
+}
+
+.image-preview-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.image-preview {
+    max-width: 100%;
+    max-height: 150px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.image-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-crop, .btn-remove {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.btn-crop {
+    background: #000000;
+    color: #ffffff;
+}
+
+.btn-crop:hover {
+    background: #333333;
+}
+
+.btn-remove {
+    background: #dc3545;
+    color: #ffffff;
+}
+
+.btn-remove:hover {
+    background: #c82333;
+}
+
+/* Info Box */
+.info-box {
+    background: #f8f9fa;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.info-box i {
+    color: #000000;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+}
+
+.info-box ul {
+    margin: 0.5rem 0 0 0;
+    padding-left: 1.25rem;
+}
+
+.info-box li {
+    margin-bottom: 0.25rem;
+    color: #666666;
+    font-size: 0.875rem;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 1rem 1.5rem;
+    border: 2px solid;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-align: center;
+}
+
+.btn-primary {
+    background: #000000;
+    border-color: #000000;
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background: #333333;
+    border-color: #333333;
+    color: #ffffff;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary:disabled {
+    background: #cccccc;
+    border-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-secondary {
+    background: #ffffff;
+    border-color: #e5e5e5;
+    color: #000000;
+}
+
+.btn-secondary:hover {
+    background: #f5f5f5;
+    border-color: #000000;
+    color: #000000;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background: #ffffff;
+    border-radius: 12px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+    background: #000000;
+    color: #ffffff;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.5rem;
+    position: relative;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.mandatory-notice {
+    font-size: 0.875rem;
+    color: #ffc107;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.modal-body {
+    padding: 1.5rem;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.crop-instructions {
+    background: #f8f9fa;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+    color: #495057;
+}
+
+.crop-instructions strong {
+    color: #000000;
+}
+
+.modal-footer {
+    padding: 1.5rem;
+    border-top: 1px solid #e5e5e5;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.crop-container {
+    max-width: 100%;
+    max-height: 400px;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .modern-form-container {
+        max-width: 100%;
+        padding: 0 1rem;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .image-preview-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 1.5rem;
+    }
+
+    .card-content {
+        padding: 1.5rem 1rem;
+    }
+
+    .form-input {
+        padding: 10px 12px;
+    }
+
+    .upload-zone {
+        padding: 2rem 1rem;
+    }
+
+    .upload-zone h4 {
+        font-size: 1.125rem;
+    }
+
+    .action-buttons {
+        position: sticky;
+        bottom: 0;
+        background: #ffffff;
+        padding: 1rem;
+        border-top: 1px solid #e5e5e5;
+        margin: 0 -1rem -1rem -1rem;
+        z-index: 100;
+    }
+
+    .image-preview-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+
+    .preview-image {
+        height: 120px;
+    }
+}
+
+
+
+/* Success State */
+.success {
+    border-color: #28a745 !important;
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1) !important;
+}
+
+
+</style>
+
+<!-- Include Cropper.js for image cropping -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+
+<script>
+// Modern Form Validation and Image Handling
+class ModernProductFormValidator {
+    constructor() {
+        this.form = document.getElementById('productForm');
+        this.submitBtn = document.getElementById('submitBtn');
+        this.cropper = null;
+        this.currentImageIndex = null;
+        this.uploadedImages = [];
+        this.maxImages = 5;
+        this.minImages = 3;
+
+        // Image upload elements
+        this.uploadZone = document.getElementById('uploadZone');
+        this.imageInput = document.getElementById('imageInput');
+        this.previewGrid = document.getElementById('imagePreviewGrid');
+        this.uploadCounter = document.getElementById('upload-counter');
+
+        this.init();
+    }
+
+    init() {
+        this.setupEventListeners();
+        this.updateCharacterCount();
+        this.updateUploadCounter();
+        // Don't validate form on init - button should be enabled by default
+    }
+
+    setupEventListeners() {
+        // Form validation only on blur and submit
+        const inputs = this.form.querySelectorAll('.form-input');
+        inputs.forEach(input => {
+            // Only validate on blur (when user leaves field)
+            input.addEventListener('blur', (e) => {
+                this.validateField(e.target);
+            });
+
+            // Clear errors on input (when user starts typing)
+            input.addEventListener('input', (e) => {
+                this.clearError(e.target.id);
+            });
+        });
+
+        // Form submission with validation
+        this.form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleSubmit();
+        });
+
+        // Description character count
+        const description = document.getElementById('description');
+        description.addEventListener('input', () => {
+            this.updateCharacterCount();
+        });
+
+        // Image upload event listeners
+        this.setupImageUpload();
+    }
+
+    setupImageUpload() {
+        // Click to browse
+        this.uploadZone.addEventListener('click', () => {
+            if (this.uploadedImages.length < this.maxImages) {
+                this.imageInput.click();
+            }
+        });
+
+        // Browse link click
+        const browseLink = this.uploadZone.querySelector('.browse-link');
+        if (browseLink) {
+            browseLink.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (this.uploadedImages.length < this.maxImages) {
+                    this.imageInput.click();
+                }
+            });
+        }
+
+        // File input change
+        this.imageInput.addEventListener('change', (e) => {
+            this.handleFileSelect(e.target.files);
+        });
+
+        // Drag and drop
+        this.uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            this.uploadZone.classList.add('drag-over');
+        });
+
+        this.uploadZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            this.uploadZone.classList.remove('drag-over');
+        });
+
+        this.uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            this.uploadZone.classList.remove('drag-over');
+            this.handleFileSelect(e.dataTransfer.files);
+        });
+    }
+
+    handleFileSelect(files) {
+        const fileArray = Array.from(files);
+
+        // Check if adding these files would exceed the limit
+        if (this.uploadedImages.length + fileArray.length > this.maxImages) {
+            this.showError('images', `Maximum ${this.maxImages} images allowed`);
+            return;
+        }
+
+        fileArray.forEach(file => {
+            if (this.uploadedImages.length < this.maxImages) {
+                this.addImage(file);
+            }
+        });
+    }
+
+    addImage(file) {
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+            this.showError('images', 'Only JPG, PNG, and WEBP files are allowed');
+            return;
+        }
+
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            this.showError('images', 'File size must be less than 5MB');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const imageData = {
+                file: file,
+                url: e.target.result,
+                id: Date.now() + Math.random(),
+                isCropped: false // Track cropping state - MANDATORY cropping required
+            };
+
+            this.uploadedImages.push(imageData);
+            this.renderImagePreview();
+            this.updateUploadCounter();
+            this.updateHiddenInputs();
+
+            // Show mandatory cropping message immediately after upload
+            this.showMandatoryCroppingMessage();
+
+            // Auto-open crop modal for the newly uploaded image (optional UX enhancement)
+            const newImageIndex = this.uploadedImages.length - 1;
+            setTimeout(() => {
+                this.cropImage(newImageIndex);
+            }, 500); // Small delay to allow rendering
+        };
+        reader.readAsDataURL(file);
+    }
+
+    renderImagePreview() {
+        if (this.uploadedImages.length === 0) {
+            this.previewGrid.style.display = 'none';
+            return;
+        }
+
+        this.previewGrid.style.display = 'grid';
+        this.previewGrid.innerHTML = '';
+
+        this.uploadedImages.forEach((image, index) => {
+            const previewItem = document.createElement('div');
+            let className = 'image-preview-item';
+            if (index === 0) className += ' main-image';
+            if (image.isCropped) {
+                className += ' cropped';
+            } else {
+                className += ' uncropped';
+            }
+            previewItem.className = className;
+            previewItem.draggable = true;
+            previewItem.dataset.index = index;
+
+            previewItem.innerHTML = `
+                <img src="${image.url}" alt="Preview ${index + 1}" class="preview-image">
+                <div class="image-overlay">
+                    <button type="button" class="overlay-btn crop-btn" onclick="validator.cropImage(${index})">
+                        <i class="bi bi-crop"></i>
+                    </button>
+                    <button type="button" class="overlay-btn remove-btn" onclick="validator.removeImage(${index})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+                <div class="drag-handle">
+                    <i class="bi bi-grip-vertical"></i>
+                </div>
+            `;
+
+            // Add drag and drop for reordering
+            previewItem.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', index);
+            });
+
+            previewItem.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            });
+
+            previewItem.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const draggedIndex = parseInt(e.dataTransfer.getData('text/plain'));
+                const targetIndex = parseInt(e.currentTarget.dataset.index);
+                this.reorderImages(draggedIndex, targetIndex);
+            });
+
+            this.previewGrid.appendChild(previewItem);
+        });
+    }
+
+    reorderImages(fromIndex, toIndex) {
+        if (fromIndex === toIndex) return;
+
+        const movedImage = this.uploadedImages.splice(fromIndex, 1)[0];
+        this.uploadedImages.splice(toIndex, 0, movedImage);
+
+        this.renderImagePreview();
+        this.updateHiddenInputs();
+    }
+
+    removeImage(index) {
+        this.uploadedImages.splice(index, 1);
+        this.renderImagePreview();
+        this.updateUploadCounter();
+        this.updateHiddenInputs();
+        this.clearError('images');
+    }
+
+    cropImage(index) {
+        this.currentImageIndex = index;
+        const image = this.uploadedImages[index];
+
+        const cropModal = document.getElementById('cropModal');
+        const cropImage = document.getElementById('cropImage');
+
+        cropImage.src = image.url;
+        cropModal.style.display = 'flex';
+
+        // Initialize cropper
+        setTimeout(() => {
+            if (this.cropper) {
+                this.cropper.destroy();
+            }
+            this.cropper = new Cropper(cropImage, {
+                aspectRatio: 1,
+                viewMode: 1,
+                autoCropArea: 0.8,
+                responsive: true,
+                background: false
+            });
+        }, 100);
+    }
+
+    updateUploadCounter() {
+        const count = this.uploadedImages.length;
+        const croppedCount = this.uploadedImages.filter(img => img.isCropped).length;
+        const uncroppedCount = count - croppedCount;
+
+        let counterText = `${count}/${this.maxImages} images uploaded`;
+        if (count > 0) {
+            if (uncroppedCount > 0) {
+                counterText += ` • ${uncroppedCount} need cropping`;
+            } else {
+                counterText += ` • All cropped ✓`;
+            }
+        }
+
+        this.uploadCounter.textContent = counterText;
+
+        // Update upload zone visibility
+        if (count >= this.maxImages) {
+            this.uploadZone.style.display = 'none';
+        } else {
+            this.uploadZone.style.display = 'block';
+        }
+    }
+
+    updateHiddenInputs() {
+        // Clear all hidden inputs first
+        for (let i = 0; i < this.maxImages; i++) {
+            const hiddenInput = document.getElementById(`hiddenImage${i}`);
+            if (hiddenInput) {
+                hiddenInput.value = '';
+                hiddenInput.files = null;
+            }
+        }
+
+        // Set files for uploaded images
+        this.uploadedImages.forEach((image, index) => {
+            const hiddenInput = document.getElementById(`hiddenImage${index}`);
+            if (hiddenInput && image.file) {
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(image.file);
+                hiddenInput.files = dataTransfer.files;
+            }
+        });
+    }
+
+    validateField(field) {
+        const fieldName = field.name || field.id;
+        const value = field.value.trim();
+        let isValid = true;
+        let errorMessage = '';
+
+        // Clear previous error
+        this.clearError(fieldName);
+
+        switch (fieldName) {
+            case 'name':
+                if (!value) {
+                    errorMessage = `${this.getFieldLabel(fieldName)} is required`;
+                    isValid = false;
+                } else if (value.length < 2) {
+                    errorMessage = 'Must be at least 2 characters long';
+                    isValid = false;
+                }
+                break;
+                
+            case 'color':
+            case 'brand':
+                if (!value) {
+                    errorMessage = `${this.getFieldLabel(fieldName)} is required`;
+                    isValid = false;
+                } else if (!/^[A-Za-z\s\-'\.]+$/.test(value)) {
+                    errorMessage = 'Only alphabetic characters, spaces, hyphens, and apostrophes allowed';
+                    isValid = false;
+                } else if (value.length < 2) {
+                    errorMessage = 'Must be at least 2 characters long';
+                    isValid = false;
+                }
+                break;
+
+
+
+            case 'stock':
+                if (!value) {
+                    errorMessage = 'Stock quantity is required';
+                    isValid = false;
+                } else if (!/^\d+$/.test(value)) {
+                    errorMessage = 'Must be a positive integer';
+                    isValid = false;
+                } else if (parseInt(value) < 0) {
+                    errorMessage = 'Cannot be negative';
+                    isValid = false;
+                }
+                break;
+
+            case 'regularPrice':
+            case 'salePrice':
+                if (!value) {
+                    errorMessage = `${this.getFieldLabel(fieldName)} is required`;
+                    isValid = false;
+                } else if (!/^\d+(\.\d{1,2})?$/.test(value)) {
+                    errorMessage = 'Must be a positive number with up to 2 decimal places';
+                    isValid = false;
+                } else if (parseFloat(value) <= 0) {
+                    errorMessage = 'Must be greater than 0';
+                    isValid = false;
+                }
+                break;
+
+            case 'description':
+                if (!value) {
+                    errorMessage = 'Description is required';
+                    isValid = false;
+                } else if (value.length < 10) {
+                    errorMessage = 'Description must be at least 10 characters long';
+                    isValid = false;
+                }
+                break;
+
+            case 'category':
+            case 'connectivity':
+                if (!value) {
+                    errorMessage = `Please select a ${fieldName}`;
+                    isValid = false;
+                }
+                break;
+
+            case 'modelNumber':
+                if (!value) {
+                    errorMessage = `${this.getFieldLabel(fieldName)} is required`;
+                    isValid = false;
+                }
+                break;
+
+            case 'driverSize':
+                if (!value) {
+                    errorMessage = 'Driver size is required';
+                    isValid = false;
+                } else if (value === 'custom') {
+                    // Validate custom driver size input
+                    const customInput = document.getElementById('customDriverSize');
+                    const customValue = customInput ? customInput.value.trim() : '';
+                    if (!customValue) {
+                        errorMessage = 'Please enter a custom driver size';
+                        isValid = false;
+                    } else if (!/^\d+(\.\d+)?\s*(mm|cm|inch|in)$/i.test(customValue)) {
+                        errorMessage = 'Please enter a valid size with unit (e.g., 45mm, 1.8in)';
+                        isValid = false;
+                    }
+                }
+                break;
+        }
+
+        // Additional validation for sale price vs regular price
+        if (fieldName === 'salePrice' && isValid) {
+            const regularPrice = parseFloat(document.getElementById('regularPrice').value);
+            const salePrice = parseFloat(value);
+            if (regularPrice && salePrice > regularPrice) {
+                errorMessage = 'Sale price cannot be higher than regular price';
+                isValid = false;
+            }
+        }
+
+        if (!isValid) {
+            this.showError(fieldName, errorMessage);
+            field.classList.add('error');
+        } else {
+            field.classList.remove('error');
+            field.classList.add('success');
+            setTimeout(() => field.classList.remove('success'), 2000);
+        }
+
+        return isValid;
+    }
+
+    validateImages() {
+        const imageCount = this.uploadedImages.length;
+        const uncroppedImages = this.uploadedImages.filter(img => !img.isCropped);
+        const uncroppedCount = uncroppedImages.length;
+
+        let isValid = true;
+        let errorMessage = '';
+
+        // Check minimum image count first
+        if (imageCount < this.minImages) {
+            isValid = false;
+            errorMessage = `Please upload at least ${this.minImages} images (currently ${imageCount})`;
+        }
+        // MANDATORY: Check if all images are cropped - this is now required
+        else if (uncroppedCount > 0) {
+            isValid = false;
+            if (uncroppedCount === 1) {
+                errorMessage = `⚠️ Cropping is mandatory! Please crop the remaining image before submitting`;
+            } else {
+                errorMessage = `⚠️ Cropping is mandatory! Please crop all ${uncroppedCount} remaining images before submitting`;
+            }
+        }
+
+        if (!isValid) {
+            this.showError('images', errorMessage);
+        } else {
+            this.clearError('images');
+        }
+
+        return isValid;
+    }
+
+    showMandatoryCroppingMessage() {
+        const uncroppedCount = this.uploadedImages.filter(img => !img.isCropped).length;
+        if (uncroppedCount > 0) {
+            if (uncroppedCount === 1) {
+                this.showError('images', `⚠️ Image cropping is mandatory! Please crop the uploaded image to continue.`);
+            } else {
+                this.showError('images', `⚠️ Image cropping is mandatory! Please crop all ${uncroppedCount} uploaded images to continue.`);
+            }
+        }
+    }
+
+    validateForm() {
+        const requiredFields = [
+            'name', 'modelNumber', 'category', 'color', 'brand',
+            'stock', 'driverSize', 'connectivity', 'regularPrice',
+            'salePrice', 'description'
+        ];
+
+        let isFormValid = true;
+
+        // Only validate fields that have been touched or on submit
+        requiredFields.forEach(fieldName => {
+            const field = document.getElementById(fieldName);
+            if (field && field.value.trim() === '') {
+                isFormValid = false;
+            }
+        });
+
+        // Validate images
+        if (!this.validateImages()) {
+            isFormValid = false;
+        }
+
+        // Don't disable button by default - only on submit validation
+        return isFormValid;
+    }
+
+    handleSubmit() {
+        // Validate all fields on submit
+        const requiredFields = [
+            'name', 'modelNumber', 'category', 'color', 'brand',
+            'stock', 'driverSize', 'connectivity', 'regularPrice',
+            'salePrice', 'description'
+        ];
+
+        let isFormValid = true;
+
+        // Validate all required fields and show errors
+        requiredFields.forEach(fieldName => {
+            const field = document.getElementById(fieldName);
+            if (field && !this.validateField(field)) {
+                isFormValid = false;
+            }
+        });
+
+        // Validate images
+        if (!this.validateImages()) {
+            isFormValid = false;
+        }
+
+        if (isFormValid) {
+            // Submit the form directly without animations
+            this.form.submit();
+        } else {
+            // Scroll to first error
+            const firstError = document.querySelector('.error-message.show');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    }
+
+    showError(fieldName, message) {
+        const errorElement = document.getElementById(`${fieldName}-error`);
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.classList.add('show');
+        }
+    }
+
+
+
+    hideLoadingOverlay() {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+            overlay.classList.remove('show');
+            // Restore scrolling
+            document.body.style.overflow = '';
+        }
+    }
+
+    clearError(fieldName) {
+        const errorElement = document.getElementById(`${fieldName}-error`);
+        if (errorElement) {
+            errorElement.textContent = '';
+            errorElement.classList.remove('show');
+        }
+    }
+
+    getFieldLabel(fieldName) {
+        const labels = {
+            'name': 'Product name',
+            'modelNumber': 'Model number',
+            'color': 'Color',
+            'brand': 'Brand',
+            'stock': 'Stock quantity',
+            'driverSize': 'Driver size',
+            'regularPrice': 'Regular price',
+            'salePrice': 'Sale price',
+            'description': 'Description'
+        };
+        return labels[fieldName] || fieldName;
+    }
+
+    updateCharacterCount() {
+        const description = document.getElementById('description');
+        const counter = document.getElementById('description-count');
+        if (description && counter) {
+            counter.textContent = description.value.length;
+            counter.style.color = description.value.length >= 10 ? '#28a745' : '#dc3545';
+        }
+    }
+}
+
+// Driver Size Dropdown Handler
+function handleDriverSizeChange(selectElement) {
+    const customContainer = document.getElementById('customDriverSizeContainer');
+    const customInput = document.getElementById('customDriverSize');
+
+    if (selectElement.value === 'custom') {
+        customContainer.style.display = 'block';
+        customContainer.classList.add('show');
+        customInput.focus();
+
+        // Clear any existing validation errors on the select
+        validator.clearError('driverSize');
+    } else {
+        customContainer.style.display = 'none';
+        customContainer.classList.remove('show');
+        customInput.value = '';
+
+        // Clear any custom input validation errors
+        validator.clearError('driverSize');
+    }
+}
+
+// Initialize driver size on page load
+function initializeDriverSize() {
+    const driverSizeSelect = document.getElementById('driverSize');
+    const customContainer = document.getElementById('customDriverSizeContainer');
+    const customInput = document.getElementById('customDriverSize');
+
+    // Check if we have a custom value from server-side validation
+    if (customInput && customInput.value.trim() !== '') {
+        driverSizeSelect.value = 'custom';
+        customContainer.style.display = 'block';
+        customContainer.classList.add('show');
+    }
+
+    // Add event listener to custom input for validation
+    if (customInput) {
+        customInput.addEventListener('blur', function() {
+            if (driverSizeSelect.value === 'custom') {
+                validator.validateField(driverSizeSelect);
+            }
+        });
+
+        customInput.addEventListener('input', function() {
+            if (driverSizeSelect.value === 'custom') {
+                validator.clearError('driverSize');
+            }
+        });
+    }
+}
+
+// Modern Crop Modal Functions
+function closeCropModal() {
+    const cropModal = document.getElementById('cropModal');
+    cropModal.style.display = 'none';
+
+    if (validator.cropper) {
+        validator.cropper.destroy();
+        validator.cropper = null;
+    }
+}
+
+function applyCrop() {
+    if (validator.cropper && validator.currentImageIndex !== null) {
+        const canvas = validator.cropper.getCroppedCanvas({
+            width: 400,
+            height: 400,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high'
+        });
+
+        const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+
+        // Update the image in the array
+        validator.uploadedImages[validator.currentImageIndex].url = croppedDataUrl;
+        validator.uploadedImages[validator.currentImageIndex].isCropped = true; // Mark as cropped
+
+        // Convert canvas to blob and update file
+        canvas.toBlob((blob) => {
+            const file = new File([blob], `cropped-image-${validator.currentImageIndex}.jpg`, {
+                type: 'image/jpeg'
+            });
+
+            validator.uploadedImages[validator.currentImageIndex].file = file;
+            validator.renderImagePreview();
+            validator.updateUploadCounter(); // Update counter to reflect cropping status
+            validator.updateHiddenInputs();
+
+            // Clear any cropping errors and show success message if all images are cropped
+            const uncroppedCount = validator.uploadedImages.filter(img => !img.isCropped).length;
+            if (uncroppedCount === 0) {
+                validator.clearError('images');
+                // Optional: Show brief success message
+                setTimeout(() => {
+                    const imageCount = validator.uploadedImages.length;
+                    if (imageCount >= validator.minImages) {
+                        validator.showError('images', `✅ All ${imageCount} images have been cropped successfully!`);
+                        setTimeout(() => validator.clearError('images'), 3000);
+                    }
+                }, 100);
+            } else {
+                validator.showMandatoryCroppingMessage();
+            }
+        }, 'image/jpeg', 0.9);
+
+        closeCropModal();
+    }
+}
+
+
+
+// Initialize validator when DOM is loaded
+let validator;
+document.addEventListener('DOMContentLoaded', function() {
+    validator = new ModernProductFormValidator();
+    initializeDriverSize();
+});
+
+// Prevent form submission on Enter key (except in textarea)
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+    }
+});
+</script>

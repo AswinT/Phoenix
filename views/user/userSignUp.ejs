@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Phoenix Headphones</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .signup-card {
+            background: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e5e5;
+        }
+        
+        .brand-title {
+            color: #000000;
+            font-weight: 700;
+            font-size: 2.5rem;
+        }
+
+        .header-section {
+            background: #000000;
+            color: #ffffff;
+            border-radius: 15px 15px 0 0;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .form-section {
+            padding: 2rem;
+        }
+
+        .form-control {
+            border: 2px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: #000000;
+            box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: #000000;
+            border: 2px solid #000000;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background: #333333;
+            border-color: #333333;
+        }
+
+        .btn-outline-dark {
+            border: 2px solid #000000;
+            color: #000000;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-outline-dark:hover {
+            background: #000000;
+            border-color: #000000;
+            color: #ffffff;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .password-toggle:hover {
+            color: #000;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .success-message {
+            color: #198754;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .form-label {
+            color: #000000;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .text-muted {
+            color: #666666 !important;
+        }
+
+        a {
+            color: #000000;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #333333;
+            text-decoration: underline;
+        }
+
+        .position-relative {
+            position: relative;
+        }
+
+        .invalid-feedback {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .is-invalid {
+            border-color: #dc3545;
+        }
+
+        /* SweetAlert2 Custom Styling for Phoenix Theme */
+        .swal2-popup {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            border-radius: 15px !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .swal2-title {
+            color: #000000 !important;
+            font-weight: 600 !important;
+            font-size: 1.5rem !important;
+        }
+
+        .swal2-content {
+            color: #6c757d !important;
+            font-size: 1rem !important;
+        }
+
+        .swal2-confirm {
+            background-color: #000000 !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            padding: 0.75rem 1.5rem !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .swal2-confirm:hover {
+            background-color: #333333 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        .swal2-icon.swal2-success {
+            border-color: #22c55e !important;
+            color: #22c55e !important;
+        }
+
+        .swal2-icon.swal2-error {
+            border-color: #ef4444 !important;
+            color: #ef4444 !important;
+        }
+
+        .swal2-toast {
+            border-radius: 8px !important;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="signup-card">
+                    <!-- Brand Header -->
+                    <div class="header-section">
+                        <h1 class="brand-title">Phoenix</h1>
+                        <h4 class="mb-2">Join Phoenix Today</h4>
+                        <p class="mb-0">Join us today and get started with premium headphones</p>
+                    </div>
+
+                    <div class="form-section">
+                        <!-- Success/Error Message (Hidden - will be shown via SweetAlert2) -->
+                        <% if (typeof message !== 'undefined' && message) { %>
+                            <div id="successMessage" data-message="<%= message %>" style="display: none;"></div>
+                        <% } %>
+
+                        <!-- Registration Form -->
+                        <form action="/signup" method="POST" id="signupForm">
+                            <!-- Full Name -->
+                            <div class="mb-3">
+                                <label for="fullname" class="form-label">
+                                    <i class="bi bi-person me-2"></i>Full Name
+                                </label>
+                                <input type="text" 
+                                       class="form-control <%= errors && errors.fullname ? 'is-invalid' : '' %>" 
+                                       id="fullname" 
+                                       name="fullname" 
+                                       placeholder="Enter your full name"
+                                       value="<%= typeof formData !== 'undefined' ? formData.fullname || '' : '' %>">
+                                <% if (errors && errors.fullname) { %>
+                                    <div class="invalid-feedback">
+                                        <%= errors.fullname %>
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="mb-3">
+                                <label for="email" class="form-label">
+                                    <i class="bi bi-envelope me-2"></i>Email Address
+                                </label>
+                                <input type="email" 
+                                       class="form-control <%= errors && errors.email ? 'is-invalid' : '' %>" 
+                                       id="email" 
+                                       name="email" 
+                                       placeholder="Enter your email"
+                                       value="<%= typeof formData !== 'undefined' ? formData.email || '' : '' %>">
+                                <% if (errors && errors.email) { %>
+                                    <div class="invalid-feedback">
+                                        <%= errors.email %>
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <!-- Mobile -->
+                            <div class="mb-3">
+                                <label for="mobile" class="form-label">
+                                    <i class="bi bi-phone me-2"></i>Mobile Number
+                                </label>
+                                <input type="tel" 
+                                       class="form-control <%= errors && errors.mobile ? 'is-invalid' : '' %>" 
+                                       id="mobile" 
+                                       name="mobile" 
+                                       placeholder="Enter your mobile number"
+                                       maxlength="10"
+                                       value="<%= typeof formData !== 'undefined' ? formData.mobile || '' : '' %>">
+                                <% if (errors && errors.mobile) { %>
+                                    <div class="invalid-feedback">
+                                        <%= errors.mobile %>
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <!-- Password -->
+                            <div class="mb-3">
+                                <label for="password" class="form-label">
+                                    <i class="bi bi-lock me-2"></i>Password
+                                </label>
+                                <div class="position-relative">
+                                    <input type="password" 
+                                           class="form-control <%= errors && errors.password ? 'is-invalid' : '' %>" 
+                                           id="password" 
+                                           name="password" 
+                                           placeholder="Create a password">
+                                    <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                                        <i class="bi bi-eye" id="eye-icon-password"></i>
+                                    </button>
+                                </div>
+                                <% if (errors && errors.password) { %>
+                                    <div class="invalid-feedback">
+                                        <%= errors.password %>
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <!-- Confirm Password -->
+                            <div class="mb-4">
+                                <label for="confirmPassword" class="form-label">
+                                    <i class="bi bi-lock-fill me-2"></i>Confirm Password
+                                </label>
+                                <div class="position-relative">
+                                    <input type="password" 
+                                           class="form-control <%= errors && errors.confirmPassword ? 'is-invalid' : '' %>" 
+                                           id="confirmPassword" 
+                                           name="confirmPassword" 
+                                           placeholder="Confirm your password">
+                                    <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
+                                        <i class="bi bi-eye" id="eye-icon-confirmPassword"></i>
+                                    </button>
+                                </div>
+                                <% if (errors && errors.confirmPassword) { %>
+                                    <div class="invalid-feedback">
+                                        <%= errors.confirmPassword %>
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
+                                <i class="bi bi-person-plus me-2"></i>
+                                Create Account
+                            </button>
+                        </form>
+
+                        <!-- Social Signup -->
+                        <div class="text-center mb-3">
+                            <p class="text-muted">Or sign up with</p>
+                            <a href="/auth/google" class="btn btn-outline-dark">
+                                <i class="bi bi-google me-2"></i>Sign up with Google
+                            </a>
+                        </div>
+
+                        <!-- Footer Links -->
+                        <div class="text-center">
+                            <p class="text-muted">
+                                Already have an account?
+                                <a href="/login">Log in</a>
+                            </p>
+                        </div>
+
+                        <!-- Error Message (Hidden - will be shown via SweetAlert2) -->
+                        <% if (error) { %>
+                            <div id="errorMessage" data-error="<%= error %>" style="display: none;"></div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Show server messages using SweetAlert2
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for success message
+            const successMessageElement = document.getElementById('successMessage');
+            if (successMessageElement) {
+                const successMessage = successMessageElement.getAttribute('data-message');
+                if (successMessage) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Registration Successful!',
+                        text: successMessage,
+                        confirmButtonText: 'Continue',
+                        customClass: {
+                            popup: 'phoenix-alert',
+                            confirmButton: 'phoenix-btn-primary'
+                        }
+                    });
+                }
+            }
+
+            // Check for error message
+            const errorMessageElement = document.getElementById('errorMessage');
+            if (errorMessageElement) {
+                const errorMessage = errorMessageElement.getAttribute('data-error');
+                if (errorMessage) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Registration Failed',
+                        text: errorMessage,
+                        confirmButtonText: 'Try Again',
+                        customClass: {
+                            popup: 'phoenix-alert',
+                            confirmButton: 'phoenix-btn-primary'
+                        }
+                    });
+                }
+            }
+        });
+        // Toggle password visibility
+        function togglePassword(fieldName) {
+            const passwordInput = document.getElementById(fieldName);
+            const eyeIcon = document.getElementById(`eye-icon-${fieldName}`);
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.className = 'bi bi-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.className = 'bi bi-eye';
+            }
+        }
+
+        // Name validation function
+        function validateName(name) {
+            if (!name.trim()) {
+                return { isValid: false, message: 'Full name is required' };
+            }
+            
+            if (name.trim().length < 2) {
+                return { isValid: false, message: 'Name must be at least 2 characters long' };
+            }
+            
+            if (name.trim().length > 50) {
+                return { isValid: false, message: 'Name must be less than 50 characters' };
+            }
+            
+            // Check for valid name characters (letters, spaces, hyphens, apostrophes)
+            const nameRegex = /^[a-zA-Z\s\-']+$/;
+            if (!nameRegex.test(name.trim())) {
+                return { isValid: false, message: 'Name can only contain letters, spaces, hyphens, and apostrophes' };
+            }
+            
+            // Check for at least one letter
+            if (!/[a-zA-Z]/.test(name.trim())) {
+                return { isValid: false, message: 'Name must contain at least one letter' };
+            }
+            
+            return { isValid: true, message: '' };
+        }
+
+        // Add name validation on input
+        document.getElementById('fullname').addEventListener('input', function() {
+            const name = this.value;
+            const validation = validateName(name);
+            
+            // Clear previous validation
+            this.classList.remove('is-invalid', 'is-valid');
+            const feedback = this.parentNode.querySelector('.invalid-feedback');
+            if (feedback) {
+                feedback.style.display = 'none';
+            }
+            
+            if (name.trim() && !validation.isValid) {
+                this.classList.add('is-invalid');
+                if (feedback) {
+                    feedback.textContent = validation.message;
+                    feedback.style.display = 'block';
+                }
+            } else if (name.trim() && validation.isValid) {
+                this.classList.add('is-valid');
+            }
+        });
+
+        // Form validation
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            const fullname = document.getElementById('fullname').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            let hasErrors = false;
+
+            // Validate name
+            const nameValidation = validateName(fullname);
+            if (!nameValidation.isValid) {
+                e.preventDefault();
+                const fullnameField = document.getElementById('fullname');
+                fullnameField.classList.add('is-invalid');
+                
+                let feedback = fullnameField.parentNode.querySelector('.invalid-feedback');
+                if (!feedback) {
+                    feedback = document.createElement('div');
+                    feedback.className = 'invalid-feedback';
+                    fullnameField.parentNode.appendChild(feedback);
+                }
+                feedback.textContent = nameValidation.message;
+                feedback.style.display = 'block';
+                hasErrors = true;
+            }
+
+            // Validate password match
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                const confirmPasswordField = document.getElementById('confirmPassword');
+                confirmPasswordField.classList.add('is-invalid');
+                hasErrors = true;
+
+                // Modern error notification
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Password Mismatch',
+                    text: 'Passwords do not match. Please check and try again.',
+                    confirmButtonText: 'OK',
+                    customClass: {
+                        popup: 'phoenix-alert',
+                        confirmButton: 'phoenix-btn-primary'
+                    }
+                }).then(() => {
+                    // Focus on the confirm password field after closing alert
+                    confirmPasswordField.focus();
+                });
+            }
+
+            if (hasErrors) {
+                return false;
+            }
+
+            // Show loading notification for successful submission
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+
+            submitBtn.innerHTML = '<div class="spinner-border spinner-border-sm me-2"></div>Creating Account...';
+            submitBtn.disabled = true;
+
+            // Show processing notification
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'info',
+                title: 'Creating Account...',
+                text: 'Please wait while we process your registration',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                customClass: {
+                    popup: 'phoenix-toast'
+                }
+            });
+        });
+
+        // Remove validation errors on input
+        document.querySelectorAll('.form-control').forEach(input => {
+            input.addEventListener('input', function() {
+                this.classList.remove('is-invalid');
+                const errorMsg = this.parentNode.querySelector('.invalid-feedback');
+                if (errorMsg) {
+                    errorMsg.remove();
+                }
+            });
+        });
+
+        // Mobile number validation
+        document.getElementById('mobile').addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '').substring(0, 10);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1311 @@
+<%- include('../partials/admin/_adminHeader.ejs') %>
+<%- include("../partials/admin/_adminSidebar.ejs") %>
+
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="admin-content">
+    <div class="modern-admin-container">
+        <!-- Page Header -->
+        <div class="admin-page-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1 class="page-title">
+                        <i class="bi bi-tags"></i>
+                        Category Management
+                    </h1>
+                    <p class="page-subtitle">Manage headphone categories for your Phoenix store</p>
+                </div>
+                <div class="header-actions">
+                    <a href="/admin/category/add" class="modern-btn modern-btn-primary">
+                        <i class="bi bi-plus-circle"></i>
+                        Add New Category
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter Section -->
+        <div class="search-filter-section">
+            <div class="search-container">
+                <form action="/admin/category" method="GET" class="search-form" id="searchForm">
+                    <div class="search-input-group">
+                        <input type="text"
+                               class="search-input"
+                               name="search"
+                               id="searchInput"
+                               placeholder="Search categories by name or description..."
+                               value="<%= searchQuery %>">
+                        <button type="submit" class="search-btn">
+                            <i class="bi bi-search"></i>
+                        </button>
+                        <% if (searchQuery) { %>
+                            <a href="/admin/category" class="clear-btn">
+                                <i class="bi bi-x"></i>
+                            </a>
+                        <% } %>
+                    </div>
+                    <div class="search-error" id="searchError"></div>
+                </form>
+            </div>
+            <div class="filter-container">
+                <select class="filter-select" onchange="filterByStatus(this.value)" id="statusFilter">
+                    <option value="">All Categories</option>
+                    <option value="listed">Listed Only</option>
+                    <option value="unlisted">Unlisted Only</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <i class="bi bi-tags"></i>
+                    <span>Total Categories</span>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number"><%= category.length %></div>
+                </div>
+            </div>
+            <div class="stat-card stat-card-success">
+                <div class="stat-header">
+                    <i class="bi bi-eye"></i>
+                    <span>Listed Categories</span>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number"><%= category.filter(c => c.isListed).length %></div>
+                </div>
+            </div>
+            <div class="stat-card stat-card-warning">
+                <div class="stat-header">
+                    <i class="bi bi-eye-slash"></i>
+                    <span>Unlisted Categories</span>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number"><%= category.filter(c => !c.isListed).length %></div>
+                </div>
+            </div>
+            <div class="stat-card stat-card-info">
+                <div class="stat-header">
+                    <i class="bi bi-box"></i>
+                    <span>With Products</span>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number"><%= categoryStock.length %></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Categories Grid -->
+        <div class="categories-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="bi bi-grid"></i>
+                    Headphone Categories
+                </h2>
+            </div>
+
+            <% if (category && category.length > 0) { %>
+                <div class="categories-grid">
+                    <% category.forEach((cat, index) => { %>
+                        <div class="category-card">
+                            <div class="category-header">
+                                <div class="category-info">
+                                    <div class="category-icon">
+                                        <% if (cat.name === 'Over-ear') { %>
+                                            <i class="bi bi-headphones"></i>
+                                        <% } else if (cat.name === 'In-ear') { %>
+                                            <i class="bi bi-earbuds"></i>
+                                        <% } else if (cat.name === 'Wireless' || cat.name === 'Bluetooth') { %>
+                                            <i class="bi bi-wifi"></i>
+                                        <% } else if (cat.name === 'Gaming') { %>
+                                            <i class="bi bi-controller"></i>
+                                        <% } else { %>
+                                            <i class="bi bi-tag"></i>
+                                        <% } %>
+                                    </div>
+                                    <div class="category-details">
+                                        <h3 class="category-name"><%= cat.name %></h3>
+                                        <span class="category-number">#<%= (currentPage - 1) * limit + index + 1 %></span>
+                                    </div>
+                                </div>
+                                <div class="category-status">
+                                    <% if (cat.isListed) { %>
+                                        <span class="status-badge status-listed">
+                                            <i class="bi bi-eye"></i>
+                                            Listed
+                                        </span>
+                                    <% } else { %>
+                                        <span class="status-badge status-unlisted">
+                                            <i class="bi bi-eye-slash"></i>
+                                            Unlisted
+                                        </span>
+                                    <% } %>
+                                </div>
+                            </div>
+
+                            <div class="category-content">
+                                <div class="category-description">
+                                    <%= cat.description ? (cat.description.length > 100 ? cat.description.substring(0, 100) + '...' : cat.description) : 'No description available' %>
+                                </div>
+                                <div class="category-meta">
+                                    <span class="meta-item">
+                                        <i class="bi bi-calendar"></i>
+                                        <%= cat.addedDate.toLocaleString('en-IN', {
+                                            dateStyle: 'medium',
+                                            timeStyle: 'short'
+                                        }) %>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="category-actions">
+                                <a href="/admin/category/edit/<%= cat._id %>"
+                                   class="action-btn action-btn-edit"
+                                   title="Edit Category">
+                                    <i class="bi bi-pencil"></i>
+                                    Edit
+                                </a>
+
+                                <form action="/admin/category-list-unlist/<%= cat._id %>"
+                                      method="POST"
+                                      class="action-form">
+                                    <input type="hidden" name="isListed" value="<%= !cat.isListed %>">
+                                    <button type="submit"
+                                            class="action-btn action-btn-toggle"
+                                            onclick="return confirmToggleCategory('<%= cat.isListed %>', '<%= cat.name %>')"
+                                            title="<%= cat.isListed ? 'Unlist' : 'List' %> Category">
+                                        <i class="bi bi-<%= cat.isListed ? 'eye-slash' : 'eye' %>"></i>
+                                        <%= cat.isListed ? 'Unlist' : 'List' %>
+                                    </button>
+                                </form>
+
+                                <button type="button"
+                                        class="action-btn action-btn-delete"
+                                        onclick="deleteCategory('<%= cat._id %>', '<%= cat.name %>')"
+                                        title="Delete Category">
+                                    <i class="bi bi-trash"></i>
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } else { %>
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="bi bi-tags"></i>
+                    </div>
+                    <h3 class="empty-title">No categories found</h3>
+                    <p class="empty-description">
+                        <% if (searchQuery) { %>
+                            No categories match your search criteria.
+                            <a href="/admin/category" class="empty-link">Clear search</a> to see all categories.
+                        <% } else { %>
+                            Start by creating categories for your headphones.
+                        <% } %>
+                    </p>
+                    <a href="/admin/category/add" class="modern-btn modern-btn-primary">
+                        <i class="bi bi-plus-circle"></i>
+                        Add First Category
+                    </a>
+                </div>
+            <% } %>
+        </div>
+
+        <!-- Pagination -->
+        <% if (totalPages > 1) { %>
+            <div class="pagination-section">
+                <div class="pagination-container">
+                    <% if (currentPage > 1) { %>
+                        <a class="pagination-btn pagination-prev" href="?page=<%= currentPage - 1 %>&search=<%= searchQuery %>">
+                            <i class="bi bi-chevron-left"></i>
+                            Previous
+                        </a>
+                    <% } %>
+
+                    <div class="pagination-numbers">
+                        <% for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) { %>
+                            <a class="pagination-number <%= i === currentPage ? 'active' : '' %>"
+                               href="?page=<%= i %>&search=<%= searchQuery %>">
+                                <%= i %>
+                            </a>
+                        <% } %>
+                    </div>
+
+                    <% if (currentPage < totalPages) { %>
+                        <a class="pagination-btn pagination-next" href="?page=<%= currentPage + 1 %>&search=<%= searchQuery %>">
+                            Next
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    <% } %>
+                </div>
+                <div class="pagination-info">
+                    Page <%= currentPage %> of <%= totalPages %>
+                    (<%= category.length %> categories)
+                </div>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<style>
+/* SweetAlert2 Custom Styling for Phoenix Admin Theme */
+.swal2-popup {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.swal2-title {
+    color: #000000 !important;
+    font-weight: 600 !important;
+    font-size: 1.5rem !important;
+}
+
+.swal2-content {
+    color: #6c757d !important;
+    font-size: 1rem !important;
+}
+
+.swal2-confirm {
+    background-color: #000000 !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    padding: 0.75rem 1.5rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.swal2-confirm:hover {
+    background-color: #333333 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+.swal2-cancel {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 2px solid #000000 !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    padding: 0.75rem 1.5rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.swal2-cancel:hover {
+    background-color: #f8f9fa !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.swal2-icon.swal2-success {
+    border-color: #22c55e !important;
+    color: #22c55e !important;
+}
+
+.swal2-icon.swal2-error {
+    border-color: #ef4444 !important;
+    color: #ef4444 !important;
+}
+
+.swal2-icon.swal2-warning {
+    border-color: #f59e0b !important;
+    color: #f59e0b !important;
+}
+
+.swal2-toast {
+    border-radius: 8px !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+.phoenix-btn-danger {
+    background-color: #ef4444 !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    padding: 0.75rem 1.5rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.phoenix-btn-danger:hover {
+    background-color: #dc2626 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3) !important;
+}
+
+.phoenix-btn-secondary {
+    background-color: #ffffff !important;
+    color: #6b7280 !important;
+    border: 2px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    padding: 0.75rem 1.5rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.phoenix-btn-secondary:hover {
+    background-color: #f9fafb !important;
+    border-color: #d1d5db !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Phoenix Admin Category Page - Modern Black & White Theme */
+
+/* ===== LAYOUT & CONTAINER ===== */
+.admin-content {
+    margin-left: 280px;
+    padding: 2rem;
+    padding-top: calc(64px + 2rem);
+    background: #ffffff;
+    min-height: calc(100vh - 64px);
+    position: relative;
+    z-index: 1;
+}
+
+.modern-admin-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* ===== PAGE HEADER ===== */
+.admin-page-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.header-left {
+    flex: 1;
+    min-width: 300px;
+}
+
+.page-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #000000;
+    margin: 0 0 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.page-title i {
+    font-size: 1.75rem;
+}
+
+.page-subtitle {
+    font-size: 1rem;
+    color: #6b7280;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.header-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+}
+
+/* ===== MODERN BUTTONS ===== */
+.modern-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.modern-btn-primary {
+    background: #000000;
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.modern-btn-primary:hover {
+    background: #1a1a1a;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    text-decoration: none;
+}
+
+/* ===== SEARCH & FILTER SECTION ===== */
+.search-filter-section {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    align-items: start;
+}
+
+.search-container {
+    flex: 1;
+}
+
+.search-form {
+    position: relative;
+}
+
+.search-input-group {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.search-input-group:focus-within {
+    border-color: #000000;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.search-input {
+    flex: 1;
+    padding: 0.875rem 1rem;
+    border: none;
+    outline: none;
+    font-size: 0.875rem;
+    background: transparent;
+}
+
+.search-input::placeholder {
+    color: #9ca3af;
+}
+
+.search-btn, .clear-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.875rem 1rem;
+    border: none;
+    background: #000000;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.search-btn:hover {
+    background: #1a1a1a;
+}
+
+.clear-btn {
+    background: #6b7280;
+    border-left: 1px solid #e5e7eb;
+}
+
+.clear-btn:hover {
+    background: #4b5563;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.search-error {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #ef4444;
+    display: none;
+}
+
+.filter-container {
+    min-width: 200px;
+}
+
+.filter-select {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    background: #ffffff;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #000000;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== STATISTICS GRID ===== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stat-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    color: #6b7280;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.stat-header i {
+    font-size: 1.25rem;
+    color: #000000;
+}
+
+.stat-card-success .stat-header i {
+    color: #22c55e;
+}
+
+.stat-card-warning .stat-header i {
+    color: #f59e0b;
+}
+
+.stat-card-info .stat-header i {
+    color: #3b82f6;
+}
+
+.stat-content {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #000000;
+    line-height: 1;
+}
+
+/* ===== CATEGORIES SECTION ===== */
+.categories-section {
+    margin-bottom: 2rem;
+}
+
+.section-header {
+    margin-bottom: 1.5rem;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #000000;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    background: #000000;
+    color: #ffffff;
+    border-radius: 12px;
+}
+
+.section-title i {
+    font-size: 1.25rem;
+}
+
+/* ===== CATEGORIES GRID ===== */
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 1.5rem;
+}
+
+.category-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.category-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== CATEGORY CARD HEADER ===== */
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: #000000;
+    color: #ffffff;
+}
+
+.category-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.category-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    background: #ffffff;
+    color: #000000;
+    border-radius: 8px;
+    font-size: 1.25rem;
+}
+
+.category-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.category-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+    color: #ffffff;
+}
+
+.category-number {
+    font-size: 0.875rem;
+    color: #d1d5db;
+    font-weight: 500;
+}
+
+/* ===== STATUS BADGES ===== */
+.category-status {
+    display: flex;
+    align-items: center;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 8px;
+    white-space: nowrap;
+}
+
+.status-listed {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-unlisted {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+/* ===== CATEGORY CONTENT ===== */
+.category-content {
+    padding: 1.5rem;
+}
+
+.category-description {
+    font-size: 0.875rem;
+    color: #6b7280;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    min-height: 2.4rem;
+}
+
+.category-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.meta-item i {
+    font-size: 0.875rem;
+}
+
+/* ===== CATEGORY ACTIONS ===== */
+.category-actions {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+}
+
+.action-form {
+    display: inline-flex;
+    margin: 0;
+}
+
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #ffffff;
+    color: #374151;
+}
+
+.action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+}
+
+.action-btn-edit {
+    border-color: #3b82f6;
+    color: #3b82f6;
+}
+
+.action-btn-edit:hover {
+    background: #3b82f6;
+    color: #ffffff;
+}
+
+.action-btn-toggle {
+    border-color: #22c55e;
+    color: #22c55e;
+}
+
+.action-btn-toggle:hover {
+    background: #22c55e;
+    color: #ffffff;
+}
+
+.action-btn-delete {
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.action-btn-delete:hover {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.empty-icon {
+    margin-bottom: 1.5rem;
+}
+
+.empty-icon i {
+    font-size: 4rem;
+    color: #d1d5db;
+}
+
+.empty-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #000000;
+    margin: 0 0 1rem 0;
+}
+
+.empty-description {
+    font-size: 1rem;
+    color: #6b7280;
+    margin: 0 0 2rem 0;
+    line-height: 1.6;
+}
+
+.empty-link {
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.empty-link:hover {
+    color: #2563eb;
+    text-decoration: underline;
+}
+
+/* ===== PAGINATION ===== */
+.pagination-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.pagination-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: #374151;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.pagination-btn:hover {
+    background: #f9fafb;
+    color: #000000;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pagination-numbers {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.pagination-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: #374151;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.pagination-number:hover {
+    background: #f9fafb;
+    color: #000000;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pagination-number.active {
+    background: #000000;
+    color: #ffffff;
+    border-color: #000000;
+}
+
+.pagination-number.active:hover {
+    background: #1a1a1a;
+    transform: translateY(-1px);
+}
+
+.pagination-info {
+    text-align: center;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 1024px) {
+    .categories-grid {
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-content {
+        margin-left: 0;
+        padding: 1rem;
+        padding-top: calc(64px + 1rem);
+    }
+
+    .header-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1.5rem;
+    }
+
+    .header-left {
+        min-width: auto;
+    }
+
+    .page-title {
+        font-size: 1.5rem;
+    }
+
+    .search-filter-section {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .categories-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .category-actions {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .action-btn {
+        flex: 1;
+        justify-content: center;
+        min-width: 0;
+    }
+
+    .pagination-container {
+        flex-wrap: wrap;
+        gap: 0.25rem;
+    }
+
+    .pagination-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+    }
+
+    .pagination-number {
+        width: 2rem;
+        height: 2rem;
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-content {
+        padding: 0.75rem;
+        padding-top: calc(64px + 0.75rem);
+    }
+
+    .page-title {
+        font-size: 1.25rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .category-header {
+        padding: 1rem;
+    }
+
+    .category-content {
+        padding: 1rem;
+    }
+
+    .category-actions {
+        padding: 0.75rem 1rem;
+    }
+
+    .empty-state {
+        padding: 2rem 1rem;
+    }
+}
+</style>
+
+<script>
+// Phoenix Admin Category Management - Modern JavaScript
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializeSearchValidation();
+    initializeFilterFunctionality();
+    initializeCardAnimations();
+});
+
+// ===== SEARCH VALIDATION =====
+function initializeSearchValidation() {
+    const searchForm = document.getElementById('searchForm');
+    const searchInput = document.getElementById('searchInput');
+    const searchError = document.getElementById('searchError');
+
+    if (!searchForm || !searchInput || !searchError) return;
+
+    // Validation on blur
+    searchInput.addEventListener('blur', function() {
+        validateSearchInput();
+    });
+
+    // Validation on form submit
+    searchForm.addEventListener('submit', function(e) {
+        if (!validateSearchInput()) {
+            e.preventDefault();
+        }
+    });
+
+    function validateSearchInput() {
+        const value = searchInput.value.trim();
+
+        // Clear previous errors
+        searchError.style.display = 'none';
+        searchInput.parentElement.classList.remove('error');
+
+        // Validate search input
+        if (value.length > 0 && value.length < 2) {
+            showSearchError('Search term must be at least 2 characters long');
+            return false;
+        }
+
+        if (value.length > 100) {
+            showSearchError('Search term cannot exceed 100 characters');
+            return false;
+        }
+
+        // Check for invalid characters (only allow letters, numbers, spaces, hyphens)
+        const validPattern = /^[a-zA-Z0-9\s\-]*$/;
+        if (value.length > 0 && !validPattern.test(value)) {
+            showSearchError('Search term contains invalid characters');
+            return false;
+        }
+
+        return true;
+    }
+
+    function showSearchError(message) {
+        searchError.textContent = message;
+        searchError.style.display = 'block';
+        searchInput.parentElement.classList.add('error');
+    }
+}
+
+// ===== FILTER FUNCTIONALITY =====
+function initializeFilterFunctionality() {
+    const statusFilter = document.getElementById('statusFilter');
+    if (statusFilter) {
+        // Set current filter value from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentStatus = urlParams.get('status');
+        if (currentStatus) {
+            statusFilter.value = currentStatus;
+        }
+    }
+}
+
+function filterByStatus(status) {
+    const url = new URL(window.location);
+    if (status) {
+        url.searchParams.set('status', status);
+    } else {
+        url.searchParams.delete('status');
+    }
+    url.searchParams.set('page', '1');
+    window.location.href = url.toString();
+}
+
+// ===== CARD ANIMATIONS =====
+function initializeCardAnimations() {
+    const categoryCards = document.querySelectorAll('.category-card');
+    const statCards = document.querySelectorAll('.stat-card');
+
+    // Add intersection observer for fade-in animation
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    // Apply initial styles and observe cards
+    [...categoryCards, ...statCards].forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(card);
+    });
+}
+
+// ===== DELETE CATEGORY =====
+async function deleteCategory(categoryId, categoryName) {
+    // Modern SweetAlert2 confirmation dialog
+    const result = await Swal.fire({
+        title: 'Delete Category',
+        text: `Are you sure you want to delete "${categoryName}"?`,
+        html: `
+            <p>Are you sure you want to delete "<strong>${categoryName}</strong>"?</p>
+            <small class="text-muted">This action cannot be undone and will affect all products in this category.</small>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#ef4444',
+        customClass: {
+            popup: 'phoenix-alert',
+            confirmButton: 'phoenix-btn-danger',
+            cancelButton: 'phoenix-btn-secondary'
+        }
+    });
+
+    if (!result.isConfirmed) return;
+
+    // Show loading state
+    const deleteBtn = document.querySelector(`button[onclick*="${categoryId}"]`);
+    const originalContent = deleteBtn.innerHTML;
+    deleteBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Deleting...';
+    deleteBtn.disabled = true;
+
+    try {
+        const response = await fetch(`/admin/category/delete/${categoryId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Show success message and reload
+            showNotification('Category deleted successfully', 'success');
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            throw new Error(result.message || 'Failed to delete category');
+        }
+    } catch (error) {
+        console.error('Error deleting category:', error);
+        showNotification('Error deleting category: ' + error.message, 'error');
+
+        // Restore button state
+        deleteBtn.innerHTML = originalContent;
+        deleteBtn.disabled = false;
+    }
+}
+
+// ===== MODERN ALERT FUNCTIONS =====
+async function confirmToggleCategory(isListed, categoryName) {
+    const action = isListed === 'true' ? 'unlist' : 'list';
+    const result = await Swal.fire({
+        title: `${action.charAt(0).toUpperCase() + action.slice(1)} Category`,
+        text: `Are you sure you want to ${action} "${categoryName}"?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: `Yes, ${action} it!`,
+        cancelButtonText: 'Cancel',
+        customClass: {
+            popup: 'phoenix-alert',
+            confirmButton: 'phoenix-btn-primary',
+            cancelButton: 'phoenix-btn-secondary'
+        }
+    });
+    return result.isConfirmed;
+}
+
+function showConfirmDialog(title, message, details, confirmText, cancelText) {
+    return Swal.fire({
+        title: title,
+        text: message,
+        html: details ? `<p>${message}</p><small class="text-muted">${details}</small>` : message,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: confirmText || 'Confirm',
+        cancelButtonText: cancelText || 'Cancel',
+        customClass: {
+            popup: 'phoenix-alert',
+            confirmButton: 'phoenix-btn-primary',
+            cancelButton: 'phoenix-btn-secondary'
+        }
+    }).then(result => result.isConfirmed);
+}
+
+function showNotification(message, type = 'info') {
+    // Modern SweetAlert2 toast notification
+    const iconMap = {
+        'success': 'success',
+        'error': 'error',
+        'warning': 'warning',
+        'info': 'info'
+    };
+
+    Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: iconMap[type] || 'info',
+        title: message,
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        customClass: {
+            popup: 'phoenix-toast'
+        }
+    });
+}
+
+// Add CSS for search error state
+const style = document.createElement('style');
+style.textContent = `
+    .search-input-group.error {
+        border-color: #ef4444 !important;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+    }
+
+    .notification-content {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+`;
+document.head.appendChild(style);
+</script>

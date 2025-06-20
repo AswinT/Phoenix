@@ -1,0 +1,2189 @@
+<%- include('../partials/admin/_adminHeader.ejs') %>
+<%- include("../partials/admin/_adminSidebar.ejs") %>
+
+<div class="admin-content">
+    <div class="container-fluid">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-content">
+                <h1 class="page-title">
+                    <i class="bi bi-pencil-square"></i>
+                    Edit Product
+                </h1>
+                <p class="page-subtitle">Update product information for your Phoenix store</p>
+            </div>
+        </div>
+
+        <form action="/admin/products/<%= product._id %>?_method=PUT" method="POST" enctype="multipart/form-data" id="productForm" novalidate>
+            <div class="modern-form-container">
+                <!-- Basic Information Card -->
+                <div class="form-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="bi bi-info-circle"></i>
+                            Basic Information
+                        </h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="form-grid">
+                            <!-- Product Name -->
+                            <div class="form-group">
+                                <label for="name" class="form-label">
+                                    Product Name <span class="required">*</span>
+                                </label>
+                                <input type="text"
+                                       class="form-input <%= errors && errors.name ? 'error' : '' %>"
+                                       id="name"
+                                       name="name"
+                                       placeholder="e.g., Sony WH-1000XM5"
+                                       value="<%= product.name %>">
+                                <div class="error-message" id="name-error"></div>
+                                <% if (errors && errors.name) { %>
+                                    <div class="server-error"><%= errors.name %></div>
+                                <% } %>
+                            </div>
+
+                            <!-- Model Number -->
+                            <div class="form-group">
+                                <label for="modelNumber" class="form-label">
+                                    Model Number <span class="required">*</span>
+                                </label>
+                                <input type="text"
+                                       class="form-input <%= errors && errors.modelNumber ? 'error' : '' %>"
+                                       id="modelNumber"
+                                       name="modelNumber"
+                                       placeholder="e.g., WH-1000XM5"
+                                       value="<%= product.modelNumber %>">
+                                <div class="error-message" id="modelNumber-error"></div>
+                                <% if (errors && errors.modelNumber) { %>
+                                    <div class="server-error"><%= errors.modelNumber %></div>
+                                <% } %>
+                            </div>
+
+                            <!-- Category -->
+                            <div class="form-group">
+                                <label for="category" class="form-label">
+                                    Category <span class="required">*</span>
+                                </label>
+                                <select class="form-input <%= errors && errors.category ? 'error' : '' %>"
+                                        id="category"
+                                        name="category">
+                                    <option value="">Select Category</option>
+                                    <% categories.forEach(category => { %>
+                                        <option value="<%= category.name %>"
+                                                <%= product.category === category.name ? 'selected' : '' %>>
+                                            <%= category.name %>
+                                        </option>
+                                    <% }) %>
+                                </select>
+                                <div class="error-message" id="category-error"></div>
+                                <% if (errors && errors.category) { %>
+                                    <div class="server-error"><%= errors.category %></div>
+                                <% } %>
+                            </div>
+
+                            <!-- Color -->
+                            <div class="form-group">
+                                <label for="color" class="form-label">
+                                    Color <span class="required">*</span>
+                                </label>
+                                <input type="text"
+                                       class="form-input <%= errors && errors.color ? 'error' : '' %>"
+                                       id="color"
+                                       name="color"
+                                       placeholder="e.g., Midnight Black, Silver"
+                                       value="<%= product.color %>">
+                                <div class="error-message" id="color-error"></div>
+                                <% if (errors && errors.color) { %>
+                                    <div class="server-error"><%= errors.color %></div>
+                                <% } %>
+                            </div>
+
+                            <!-- Brand -->
+                            <div class="form-group">
+                                <label for="brand" class="form-label">
+                                    Brand <span class="required">*</span>
+                                </label>
+                                <input type="text"
+                                       class="form-input <%= errors && errors.brand ? 'error' : '' %>"
+                                       id="brand"
+                                       name="brand"
+                                       placeholder="e.g., Sony, Bose, JBL"
+                                       value="<%= product.brand %>">
+                                <div class="error-message" id="brand-error"></div>
+                                <% if (errors && errors.brand) { %>
+                                    <div class="server-error"><%= errors.brand %></div>
+                                <% } %>
+                            </div>
+
+                            <!-- Stock -->
+                            <div class="form-group">
+                                <label for="stock" class="form-label">
+                                    Stock Quantity <span class="required">*</span>
+                                </label>
+                                <input type="number"
+                                       class="form-input <%= errors && errors.stock ? 'error' : '' %>"
+                                       id="stock"
+                                       name="stock"
+                                       placeholder="e.g., 50"
+                                       value="<%= product.stock %>">
+                                <div class="error-message" id="stock-error"></div>
+                                <% if (errors && errors.stock) { %>
+                                    <div class="server-error"><%= errors.stock %></div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audio Specifications Card -->
+                <div class="form-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="bi bi-headphones"></i>
+                            Audio Specifications
+                        </h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="form-grid">
+                            <!-- Driver Size -->
+                            <div class="form-group">
+                                <label for="driverSize" class="form-label">
+                                    Driver Size <span class="required">*</span>
+                                </label>
+                                <select class="form-input <%= errors && errors.driverSize ? 'error' : '' %>"
+                                        id="driverSize"
+                                        name="driverSize"
+                                        onchange="handleDriverSizeChange(this)">
+                                    <option value="">Select Driver Size</option>
+                                    <option value="20mm" <%= product.driverSize === '20mm' ? 'selected' : '' %>>20mm</option>
+                                    <option value="30mm" <%= product.driverSize === '30mm' ? 'selected' : '' %>>30mm</option>
+                                    <option value="40mm" <%= product.driverSize === '40mm' ? 'selected' : '' %>>40mm</option>
+                                    <option value="50mm" <%= product.driverSize === '50mm' ? 'selected' : '' %>>50mm</option>
+                                    <option value="53mm" <%= product.driverSize === '53mm' ? 'selected' : '' %>>53mm</option>
+                                    <option value="60mm" <%= product.driverSize === '60mm' ? 'selected' : '' %>>60mm</option>
+                                    <option value="custom" <%= product.driverSize && !['20mm', '30mm', '40mm', '50mm', '53mm', '60mm'].includes(product.driverSize) ? 'selected' : '' %>>Custom Size</option>
+                                </select>
+
+                                <!-- Custom Driver Size Input (hidden by default) -->
+                                <div class="custom-input-container" id="customDriverSizeContainer" style="display: none;">
+                                    <input type="text"
+                                           class="form-input custom-input"
+                                           id="customDriverSize"
+                                           name="customDriverSize"
+                                           placeholder="Enter custom driver size (e.g., 45mm)"
+                                           value="<%= product.driverSize && !['20mm', '30mm', '40mm', '50mm', '53mm', '60mm'].includes(product.driverSize) ? product.driverSize : '' %>">
+                                    <small class="input-help">Specify the exact driver size with unit (e.g., 45mm)</small>
+                                </div>
+
+                                <div class="error-message" id="driverSize-error"></div>
+                                <% if (errors && errors.driverSize) { %>
+                                    <div class="server-error"><%= errors.driverSize %></div>
+                                <% } %>
+                            </div>
+
+                            <!-- Connectivity -->
+                            <div class="form-group">
+                                <label for="connectivity" class="form-label">
+                                    Connectivity <span class="required">*</span>
+                                </label>
+                                <select class="form-input <%= errors && errors.connectivity ? 'error' : '' %>"
+                                        id="connectivity"
+                                        name="connectivity">
+                                    <option value="">Select Connectivity</option>
+                                    <option value="Wired" <%= product.connectivity === 'Wired' ? 'selected' : '' %>>Wired</option>
+                                    <option value="Wireless" <%= product.connectivity === 'Wireless' ? 'selected' : '' %>>Wireless</option>
+                                </select>
+                                <div class="error-message" id="connectivity-error"></div>
+                                <% if (errors && errors.connectivity) { %>
+                                    <div class="server-error"><%= errors.connectivity %></div>
+                                <% } %>
+                            </div>
+
+                            <!-- Features -->
+                            <div class="form-group full-width">
+                                <label class="form-label">Features</label>
+                                <div class="features-grid">
+                                    <div class="feature-item">
+                                        <input class="feature-checkbox"
+                                               type="checkbox"
+                                               id="noiseCancellation"
+                                               name="noiseCancellation"
+                                               <%= product.noiseCancellation ? 'checked' : '' %>>
+                                        <label class="feature-label" for="noiseCancellation">
+                                            <i class="bi bi-shield-check"></i>
+                                            Noise Cancellation
+                                        </label>
+                                    </div>
+                                    <div class="feature-item">
+                                        <input class="feature-checkbox"
+                                               type="checkbox"
+                                               id="microphoneIncluded"
+                                               name="microphoneIncluded"
+                                               <%= product.microphoneIncluded ? 'checked' : '' %>>
+                                        <label class="feature-label" for="microphoneIncluded">
+                                            <i class="bi bi-mic"></i>
+                                            Built-in Microphone
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pricing & Warranty Card -->
+                <div class="form-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="bi bi-currency-rupee"></i>
+                            Pricing & Warranty
+                        </h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="form-grid">
+                            <!-- Regular Price -->
+                            <div class="form-group">
+                                <label for="regularPrice" class="form-label">
+                                    Regular Price (₹) <span class="required">*</span>
+                                </label>
+                                <input type="number"
+                                       class="form-input <%= errors && errors.regularPrice ? 'error' : '' %>"
+                                       id="regularPrice"
+                                       name="regularPrice"
+                                       placeholder="e.g., 25000"
+                                       step="0.01"
+                                       value="<%= product.regularPrice %>">
+                                <div class="error-message" id="regularPrice-error"></div>
+                                <% if (errors && errors.regularPrice) { %>
+                                    <div class="server-error"><%= errors.regularPrice %></div>
+                                <% } %>
+                            </div>
+
+                            <!-- Sale Price -->
+                            <div class="form-group">
+                                <label for="salePrice" class="form-label">
+                                    Sale Price (₹) <span class="required">*</span>
+                                </label>
+                                <input type="number"
+                                       class="form-input <%= errors && errors.salePrice ? 'error' : '' %>"
+                                       id="salePrice"
+                                       name="salePrice"
+                                       placeholder="e.g., 22000"
+                                       step="0.01"
+                                       value="<%= product.salePrice %>">
+                                <div class="error-message" id="salePrice-error"></div>
+                                <% if (errors && errors.salePrice) { %>
+                                    <div class="server-error"><%= errors.salePrice %></div>
+                                <% } %>
+                            </div>
+
+                            <!-- Warranty -->
+                            <div class="form-group">
+                                <label for="warranty" class="form-label">
+                                    Warranty Period
+                                </label>
+                                <input type="text"
+                                       class="form-input <%= errors && errors.warranty ? 'error' : '' %>"
+                                       id="warranty"
+                                       name="warranty"
+                                       placeholder="e.g., 1 Year, 2 Years"
+                                       value="<%= product.warranty %>">
+                                <div class="error-message" id="warranty-error"></div>
+                                <% if (errors && errors.warranty) { %>
+                                    <div class="server-error"><%= errors.warranty %></div>
+                                <% } %>
+                            </div>
+
+                            <!-- Active Status -->
+                            <div class="form-group">
+                                <label class="form-label">Product Status</label>
+                                <div class="status-toggle">
+                                    <input class="status-checkbox"
+                                           type="checkbox"
+                                           id="isActive"
+                                           name="isActive"
+                                           <%= product.isActive ? 'checked' : '' %>>
+                                    <label class="status-label" for="isActive">
+                                        <i class="bi bi-eye"></i>
+                                        Active (Visible to customers)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description Card -->
+                <div class="form-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="bi bi-file-text"></i>
+                            Product Description
+                        </h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="form-group full-width">
+                            <label for="description" class="form-label">
+                                Description <span class="required">*</span>
+                            </label>
+                            <textarea class="form-textarea <%= errors && errors.description ? 'error' : '' %>"
+                                      id="description"
+                                      name="description"
+                                      rows="6"
+                                      placeholder="Detailed description of the headphone features, specifications, and benefits..."><%= product.description %></textarea>
+                            <div class="character-count">
+                                <span id="description-count">0</span> / 1000 characters
+                            </div>
+                            <div class="error-message" id="description-error"></div>
+                            <% if (errors && errors.description) { %>
+                                <div class="server-error"><%= errors.description %></div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image Upload Card -->
+                <div class="form-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="bi bi-images"></i>
+                            Product Images
+                        </h3>
+                    </div>
+                    <div class="card-content">
+                        <!-- Current Images Display -->
+                        <% if (product.images && product.images.length > 0) { %>
+                            <div class="current-images-section">
+                                <h4 class="section-title">
+                                    <i class="bi bi-images"></i>
+                                    Current Images
+                                    <span class="image-count">(<span id="currentImageCount"><%= product.images.length %></span> images)</span>
+                                </h4>
+                                <div class="current-images-grid" id="currentImagesGrid">
+                                    <% product.images.forEach((img, index) => { %>
+                                        <div class="current-image-item" data-image-index="<%= index %>" data-image-url="<%= img.url %>" data-is-main="<%= img.isMain %>">
+                                            <div class="image-container">
+                                                <img src="<%= img.url %>"
+                                                     alt="Product Image <%= index + 1 %>"
+                                                     class="current-image">
+
+                                                <!-- Image Overlay with Actions -->
+                                                <div class="image-overlay">
+                                                    <button type="button"
+                                                            class="overlay-btn delete-btn"
+                                                            onclick="confirmImageDeletion('<%= index %>', '<%= img.url %>', <%= img.isMain %>)"
+                                                            title="Delete Image">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                    <% if (!img.isMain && product.images.length > 1) { %>
+                                                        <button type="button"
+                                                                class="overlay-btn main-btn"
+                                                                onclick="setAsMainImage('<%= index %>')"
+                                                                title="Set as Main Image">
+                                                            <i class="bi bi-star"></i>
+                                                        </button>
+                                                    <% } %>
+                                                </div>
+
+                                                <!-- Badges -->
+                                                <% if (img.isMain) { %>
+                                                    <div class="main-badge">
+                                                        <i class="bi bi-star-fill"></i>
+                                                        Main
+                                                    </div>
+                                                <% } %>
+
+                                                <!-- Loading Overlay -->
+                                                <div class="loading-overlay" style="display: none;">
+                                                    <div class="loading-spinner">
+                                                        <i class="bi bi-arrow-clockwise"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <% }); %>
+                                </div>
+
+                                <!-- Image Management Info -->
+                                <div class="image-management-info">
+                                    <div class="info-item">
+                                        <i class="bi bi-info-circle"></i>
+                                        <span>Minimum 3 images required. Click <i class="bi bi-trash"></i> to delete or <i class="bi bi-star"></i> to set as main image.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } %>
+
+                        <!-- Modern Image Upload Component -->
+                        <div class="image-upload-section">
+                            <h4 class="section-title">Update Images</h4>
+                            <div class="upload-container">
+                                <div class="upload-area" id="uploadArea">
+                                    <div class="upload-content">
+                                        <i class="bi bi-cloud-upload upload-icon"></i>
+                                        <h4>Drag & Drop Images Here</h4>
+                                        <p>or click to browse files</p>
+                                        <div class="upload-info">
+                                            <span>Upload 3-5 high-quality images</span>
+                                            <span>Max 5MB each • JPG, PNG, WebP</span>
+                                        </div>
+                                    </div>
+                                    <input type="file"
+                                           id="imageInput"
+                                           name="images"
+                                           multiple
+                                           accept="image/*"
+                                           class="file-input">
+                                </div>
+
+                                <div class="uploaded-images" id="uploadedImages">
+                                    <!-- Uploaded images will appear here -->
+                                </div>
+                            </div>
+
+                            <div class="upload-note">
+                                <i class="bi bi-info-circle"></i>
+                                <span>Note: Uploading new images will replace all existing images. Leave empty to keep current images.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary" id="submitBtn">
+                        <i class="bi bi-check-circle"></i>
+                        Update Product
+                    </button>
+                    <a href="/admin/products" class="btn-secondary">
+                        <i class="bi bi-arrow-left"></i>
+                        Back to Products
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Image Deletion Confirmation Modal -->
+<div class="modal-overlay" id="deleteImageModal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>
+                <i class="bi bi-exclamation-triangle"></i>
+                Delete Image
+            </h3>
+            <button type="button" class="modal-close" onclick="closeDeleteModal()">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="delete-confirmation">
+                <div class="delete-image-preview">
+                    <img id="deleteImagePreview" src="" alt="Image to delete" class="preview-img">
+                </div>
+                <div class="delete-message">
+                    <p class="warning-text">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        Are you sure you want to delete this image?
+                    </p>
+                    <p class="sub-text">This action cannot be undone.</p>
+                    <div id="mainImageWarning" class="main-warning" style="display: none;">
+                        <i class="bi bi-star-fill"></i>
+                        <span>This is the main product image. The first remaining image will become the new main image.</span>
+                    </div>
+                    <div id="minimumWarning" class="minimum-warning" style="display: none;">
+                        <i class="bi bi-info-circle"></i>
+                        <span>Products must have at least 3 images. Please upload new images before deleting this one.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="closeDeleteModal()">
+                <i class="bi bi-x-circle"></i>
+                Cancel
+            </button>
+            <button type="button" class="btn-danger" id="confirmDeleteBtn" onclick="deleteImage()">
+                <i class="bi bi-trash"></i>
+                Delete Image
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Toast Notifications -->
+<div class="toast-container" id="toastContainer">
+    <!-- Toasts will be dynamically added here -->
+</div>
+
+<style>
+/* Modern Admin Product Add Page - Black/White Theme */
+
+/* Page Layout */
+.page-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #000000;
+}
+
+.header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.page-title {
+    color: #000000;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.page-subtitle {
+    color: #666666;
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Modern Form Container */
+.modern-form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Form Cards */
+.form-card {
+    background: #ffffff;
+    border: 2px solid #e5e5e5;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.form-card:hover {
+    border-color: #000000;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background: #000000;
+    color: #ffffff;
+    padding: 1.5rem 2rem;
+    border-bottom: none;
+}
+
+.card-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.card-content {
+    padding: 2rem;
+}
+
+/* Form Grid */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Form Groups */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+/* Form Labels */
+.form-label {
+    font-weight: 600;
+    color: #000000;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.required {
+    color: #dc2626;
+    font-weight: 700;
+}
+
+/* Form Inputs */
+.form-input {
+    padding: 0.875rem 1rem;
+    border: 2px solid #e5e5e5;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #ffffff;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #000000;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.form-input.error {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.form-textarea {
+    padding: 0.875rem 1rem;
+    border: 2px solid #e5e5e5;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #ffffff;
+    resize: vertical;
+    min-height: 120px;
+    font-family: inherit;
+}
+
+.form-textarea:focus {
+    outline: none;
+    border-color: #000000;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.form-textarea.error {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+/* Character Count */
+.character-count {
+    text-align: right;
+    font-size: 0.75rem;
+    color: #666666;
+    margin-top: 0.25rem;
+}
+
+/* Error Messages */
+.error-message {
+    color: #dc2626;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-top: 0.25rem;
+    min-height: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.server-error {
+    color: #dc2626;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-top: 0.25rem;
+    padding: 0.5rem;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+}
+
+/* Custom Input Styling */
+.custom-input-container {
+    margin-top: 0.75rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.custom-input-container.show {
+    display: block !important;
+    animation: slideDown 0.3s ease;
+}
+
+.custom-input {
+    margin-bottom: 0.5rem;
+}
+
+.input-help {
+    color: #666666;
+    font-size: 0.875rem;
+    font-style: italic;
+    margin: 0;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Features Grid */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 2px solid #e5e5e5;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.feature-item:hover {
+    border-color: #000000;
+    background: #f8f9fa;
+}
+
+.feature-checkbox {
+    width: 20px;
+    height: 20px;
+    accent-color: #000000;
+    cursor: pointer;
+}
+
+.feature-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: #000000;
+    cursor: pointer;
+    margin: 0;
+}
+
+.feature-label i {
+    font-size: 1.125rem;
+    color: #666666;
+}
+
+/* Status Toggle */
+.status-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 2px solid #e5e5e5;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    margin-top: 0.5rem;
+}
+
+.status-toggle:hover {
+    border-color: #000000;
+    background: #f8f9fa;
+}
+
+.status-checkbox {
+    width: 20px;
+    height: 20px;
+    accent-color: #000000;
+    cursor: pointer;
+}
+
+.status-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: #000000;
+    cursor: pointer;
+    margin: 0;
+}
+
+.status-label i {
+    font-size: 1.125rem;
+    color: #22c55e;
+}
+
+/* Current Images */
+.current-images-section {
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #000000;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.image-count {
+    font-size: 0.875rem;
+    color: #666666;
+    font-weight: 400;
+    margin-left: auto;
+}
+
+.current-images-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.current-image-item {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid #e5e5e5;
+    transition: all 0.3s ease;
+    background: #ffffff;
+}
+
+.current-image-item:hover {
+    border-color: #000000;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.image-container {
+    position: relative;
+    width: 100%;
+    height: 120px;
+}
+
+.current-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: all 0.3s ease;
+}
+
+.current-image-item:hover .current-image {
+    transform: scale(1.05);
+}
+
+/* Image Overlay */
+.image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(2px);
+}
+
+.current-image-item:hover .image-overlay {
+    opacity: 1;
+}
+
+.overlay-btn {
+    background: #ffffff;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.overlay-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.overlay-btn.delete-btn {
+    color: #dc2626;
+}
+
+.overlay-btn.delete-btn:hover {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.overlay-btn.main-btn {
+    color: #f59e0b;
+}
+
+.overlay-btn.main-btn:hover {
+    background: #f59e0b;
+    color: #ffffff;
+}
+
+/* Badges */
+.main-badge {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    background: #000000;
+    color: #ffffff;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    z-index: 2;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.loading-spinner {
+    color: #000000;
+    font-size: 1.5rem;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Image Management Info */
+.image-management-info {
+    background: #f8f9fa;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #666666;
+}
+
+.info-item i {
+    color: #000000;
+    font-size: 1rem;
+}
+
+/* Image Upload */
+.image-upload-section {
+    border-top: 1px solid #e5e5e5;
+    padding-top: 2rem;
+}
+
+.upload-container {
+    margin-top: 1rem;
+}
+
+.upload-area {
+    position: relative;
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #fafafa;
+}
+
+.upload-area:hover {
+    border-color: #000000;
+    background: #f5f5f5;
+}
+
+.upload-area.dragover {
+    border-color: #000000;
+    background: #f0f0f0;
+    transform: scale(1.02);
+}
+
+.upload-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.upload-icon {
+    font-size: 3rem;
+    color: #666666;
+}
+
+.upload-content h4 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #000000;
+}
+
+.upload-content p {
+    margin: 0;
+    color: #666666;
+    font-size: 1rem;
+}
+
+.upload-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    color: #999999;
+}
+
+.file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.uploaded-images {
+    margin-top: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.image-preview-item {
+    position: relative;
+    border: 2px solid #e5e5e5;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.image-preview-item:hover {
+    border-color: #000000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.preview-image {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    display: block;
+}
+
+.preview-info {
+    padding: 0.75rem;
+    background: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.preview-name {
+    font-size: 0.75rem;
+    color: #666666;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+}
+
+.remove-btn {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: #dc2626;
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.875rem;
+}
+
+.remove-btn:hover {
+    background: #b91c1c;
+    transform: scale(1.1);
+}
+
+.upload-note {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    color: #0369a1;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding-top: 2rem;
+    border-top: 1px solid #e5e5e5;
+}
+
+/* Buttons */
+.btn-primary, .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-decoration: none;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-primary {
+    background: #000000;
+    color: #ffffff;
+    border-color: #000000;
+}
+
+.btn-primary:hover {
+    background: #333333;
+    border-color: #333333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.btn-secondary {
+    background: #ffffff;
+    color: #666666;
+    border-color: #e5e5e5;
+}
+
+.btn-secondary:hover {
+    background: #f8f9fa;
+    border-color: #000000;
+    color: #000000;
+    text-decoration: none;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background: #ffffff;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-header {
+    background: #000000;
+    color: #ffffff;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    padding: 1.5rem;
+    border-top: 1px solid #e5e5e5;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+/* Delete Confirmation Styles */
+.delete-confirmation {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+.delete-image-preview {
+    flex-shrink: 0;
+}
+
+.preview-img {
+    width: 100px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid #e5e5e5;
+}
+
+.delete-message {
+    flex: 1;
+}
+
+.warning-text {
+    color: #dc2626;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sub-text {
+    color: #666666;
+    font-size: 0.875rem;
+    margin: 0 0 1rem 0;
+}
+
+.main-warning, .minimum-warning {
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    border-radius: 6px;
+    padding: 0.75rem;
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #92400e;
+}
+
+.minimum-warning {
+    background: #fef2f2;
+    border-color: #dc2626;
+    color: #991b1b;
+}
+
+/* Button Styles */
+.btn-danger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-decoration: none;
+    border: 2px solid #dc2626;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.btn-danger:hover {
+    background: #b91c1c;
+    border-color: #b91c1c;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.btn-danger:disabled {
+    background: #cccccc;
+    border-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Toast Notifications */
+.toast-container {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    z-index: 10001;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.toast {
+    background: #ffffff;
+    border: 2px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 300px;
+    animation: toastSlideIn 0.3s ease;
+}
+
+.toast.success {
+    border-color: #22c55e;
+    background: #f0fdf4;
+}
+
+.toast.error {
+    border-color: #dc2626;
+    background: #fef2f2;
+}
+
+.toast-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.toast.success .toast-icon {
+    color: #22c55e;
+}
+
+.toast.error .toast-icon {
+    color: #dc2626;
+}
+
+.toast-message {
+    flex: 1;
+    font-weight: 500;
+    color: #000000;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    font-size: 1.125rem;
+    cursor: pointer;
+    color: #666666;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.toast-close:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: #000000;
+}
+
+@keyframes toastSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .modern-form-container {
+        padding: 1rem;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .card-content {
+        padding: 1.5rem;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .btn-primary, .btn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .current-images-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+
+    .delete-confirmation {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .toast-container {
+        top: 1rem;
+        right: 1rem;
+        left: 1rem;
+    }
+
+    .toast {
+        min-width: auto;
+    }
+}
+</style>
+
+<script>
+// Modern Product Form Validation and Functionality
+
+// Modern Form Validator Class
+class ModernProductFormValidator {
+    constructor() {
+        this.requiredFields = ['name', 'modelNumber', 'category', 'color', 'brand', 'driverSize', 'connectivity', 'regularPrice', 'salePrice', 'description'];
+        this.setupEventListeners();
+        this.initializeCharacterCount();
+    }
+
+    setupEventListeners() {
+        // Add blur event listeners for validation
+        this.requiredFields.forEach(fieldName => {
+            const field = document.getElementById(fieldName);
+            if (field) {
+                field.addEventListener('blur', () => this.validateField(field));
+                field.addEventListener('input', () => this.clearError(fieldName));
+            }
+        });
+
+        // Form submission
+        const form = document.getElementById('productForm');
+        if (form) {
+            form.addEventListener('submit', (e) => this.handleSubmit(e));
+        }
+    }
+
+    validateField(field) {
+        const fieldName = field.name || field.id;
+        const value = field.value.trim();
+        let isValid = true;
+        let errorMessage = '';
+
+        // Clear previous error
+        this.clearError(fieldName);
+
+        switch (fieldName) {
+            case 'name':
+                if (!value) {
+                    errorMessage = 'Product name is required';
+                    isValid = false;
+                } else if (!/^[a-zA-Z0-9\s\-\.\,\(\)]+$/.test(value)) {
+                    errorMessage = 'Product name can only contain letters, numbers, spaces, and basic punctuation';
+                    isValid = false;
+                } else if (value.length < 3) {
+                    errorMessage = 'Product name must be at least 3 characters long';
+                    isValid = false;
+                }
+                break;
+
+            case 'modelNumber':
+                if (!value) {
+                    errorMessage = 'Model number is required';
+                    isValid = false;
+                }
+                break;
+
+            case 'driverSize':
+                if (!value) {
+                    errorMessage = 'Driver size is required';
+                    isValid = false;
+                } else if (value === 'custom') {
+                    // Validate custom driver size input
+                    const customInput = document.getElementById('customDriverSize');
+                    const customValue = customInput ? customInput.value.trim() : '';
+                    if (!customValue) {
+                        errorMessage = 'Please enter a custom driver size';
+                        isValid = false;
+                    } else if (!/^\d+(\.\d+)?\s*(mm|cm|inch|in)$/i.test(customValue)) {
+                        errorMessage = 'Please enter a valid size with unit (e.g., 45mm, 1.8in)';
+                        isValid = false;
+                    }
+                }
+                break;
+
+            case 'category':
+            case 'color':
+            case 'brand':
+            case 'connectivity':
+                if (!value) {
+                    errorMessage = `${this.getFieldLabel(fieldName)} is required`;
+                    isValid = false;
+                }
+                break;
+
+            case 'regularPrice':
+            case 'salePrice':
+                if (!value) {
+                    errorMessage = `${this.getFieldLabel(fieldName)} is required`;
+                    isValid = false;
+                } else if (isNaN(value) || parseFloat(value) <= 0) {
+                    errorMessage = `${this.getFieldLabel(fieldName)} must be a positive number`;
+                    isValid = false;
+                }
+                break;
+
+            case 'stock':
+                if (!value) {
+                    errorMessage = 'Stock quantity is required';
+                    isValid = false;
+                } else if (isNaN(value) || parseInt(value) < 0) {
+                    errorMessage = 'Stock quantity must be a non-negative number';
+                    isValid = false;
+                }
+                break;
+
+            case 'description':
+                if (!value) {
+                    errorMessage = 'Product description is required';
+                    isValid = false;
+                } else if (value.length < 10) {
+                    errorMessage = 'Description must be at least 10 characters long';
+                    isValid = false;
+                } else if (value.length > 1000) {
+                    errorMessage = 'Description must be less than 1000 characters';
+                    isValid = false;
+                }
+                break;
+        }
+
+        if (!isValid) {
+            this.showError(fieldName, errorMessage);
+            field.classList.add('error');
+        } else {
+            field.classList.remove('error');
+        }
+
+        return isValid;
+    }
+
+    handleSubmit(event) {
+        let isFormValid = true;
+
+        // Validate all required fields
+        this.requiredFields.forEach(fieldName => {
+            const field = document.getElementById(fieldName);
+            if (field && !this.validateField(field)) {
+                isFormValid = false;
+            }
+        });
+
+        // Additional validation for price comparison
+        const regularPrice = parseFloat(document.getElementById('regularPrice').value);
+        const salePrice = parseFloat(document.getElementById('salePrice').value);
+
+        if (regularPrice && salePrice && salePrice > regularPrice) {
+            this.showError('salePrice', 'Sale price cannot be higher than regular price');
+            document.getElementById('salePrice').classList.add('error');
+            isFormValid = false;
+        }
+
+        if (!isFormValid) {
+            event.preventDefault();
+
+            // Scroll to first error
+            const firstError = document.querySelector('.form-input.error');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstError.focus();
+            }
+        }
+    }
+
+    showError(fieldName, message) {
+        const errorElement = document.getElementById(`${fieldName}-error`);
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.style.display = 'flex';
+        }
+    }
+
+    clearError(fieldName) {
+        const errorElement = document.getElementById(`${fieldName}-error`);
+        if (errorElement) {
+            errorElement.textContent = '';
+            errorElement.style.display = 'none';
+        }
+
+        const field = document.getElementById(fieldName);
+        if (field) {
+            field.classList.remove('error');
+        }
+    }
+
+    getFieldLabel(fieldName) {
+        const labels = {
+            name: 'Product name',
+            modelNumber: 'Model number',
+            category: 'Category',
+            color: 'Color',
+            brand: 'Brand',
+            driverSize: 'Driver size',
+            connectivity: 'Connectivity',
+            regularPrice: 'Regular price',
+            salePrice: 'Sale price',
+            stock: 'Stock quantity',
+            description: 'Description'
+        };
+        return labels[fieldName] || fieldName;
+    }
+
+    initializeCharacterCount() {
+        const descriptionField = document.getElementById('description');
+        const countElement = document.getElementById('description-count');
+
+        if (descriptionField && countElement) {
+            const updateCount = () => {
+                const count = descriptionField.value.length;
+                countElement.textContent = count;
+
+                if (count > 1000) {
+                    countElement.style.color = '#dc2626';
+                } else if (count > 800) {
+                    countElement.style.color = '#f59e0b';
+                } else {
+                    countElement.style.color = '#666666';
+                }
+            };
+
+            // Initial count
+            updateCount();
+
+            // Update on input
+            descriptionField.addEventListener('input', updateCount);
+        }
+    }
+}
+
+// Driver Size Dropdown Handler
+function handleDriverSizeChange(selectElement) {
+    const customContainer = document.getElementById('customDriverSizeContainer');
+    const customInput = document.getElementById('customDriverSize');
+
+    if (selectElement.value === 'custom') {
+        customContainer.style.display = 'block';
+        customContainer.classList.add('show');
+        customInput.focus();
+
+        // Clear any existing validation errors on the select
+        if (validator) {
+            validator.clearError('driverSize');
+        }
+    } else {
+        customContainer.style.display = 'none';
+        customContainer.classList.remove('show');
+        customInput.value = '';
+
+        // Clear any custom input validation errors
+        if (validator) {
+            validator.clearError('driverSize');
+        }
+    }
+}
+
+// Initialize driver size on page load
+function initializeDriverSize() {
+    const driverSizeSelect = document.getElementById('driverSize');
+    const customContainer = document.getElementById('customDriverSizeContainer');
+    const customInput = document.getElementById('customDriverSize');
+
+    // Check if we have a custom value from server-side validation
+    if (customInput && customInput.value.trim() !== '') {
+        driverSizeSelect.value = 'custom';
+        customContainer.style.display = 'block';
+        customContainer.classList.add('show');
+    }
+
+    // Add event listener to custom input for validation
+    if (customInput) {
+        customInput.addEventListener('blur', function() {
+            if (driverSizeSelect.value === 'custom' && validator) {
+                validator.validateField(driverSizeSelect);
+            }
+        });
+
+        customInput.addEventListener('input', function() {
+            if (driverSizeSelect.value === 'custom' && validator) {
+                validator.clearError('driverSize');
+            }
+        });
+    }
+}
+
+// Modern Image Upload Handler
+function initializeImageUpload() {
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('imageInput');
+    const uploadedImagesContainer = document.getElementById('uploadedImages');
+
+    if (!uploadArea || !fileInput) return;
+
+    // Drag and drop handlers
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+
+        const files = Array.from(e.dataTransfer.files);
+        handleFiles(files);
+    });
+
+    // Click to upload
+    uploadArea.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    // File input change
+    fileInput.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files);
+        handleFiles(files);
+    });
+
+    function handleFiles(files) {
+        // Filter image files
+        const imageFiles = files.filter(file => file.type.startsWith('image/'));
+
+        if (imageFiles.length === 0) {
+            alert('Please select valid image files.');
+            return;
+        }
+
+        if (imageFiles.length > 5) {
+            alert('You can upload maximum 5 images.');
+            return;
+        }
+
+        // Clear previous uploads
+        uploadedImagesContainer.innerHTML = '';
+
+        // Process each file
+        imageFiles.forEach((file, index) => {
+            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                alert(`File ${file.name} is too large. Maximum size is 5MB.`);
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                createImagePreview(e.target.result, file.name, index);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function createImagePreview(src, name, index) {
+        const previewDiv = document.createElement('div');
+        previewDiv.className = 'image-preview-item';
+        previewDiv.innerHTML = `
+            <img src="${src}" alt="${name}" class="preview-image">
+            <div class="preview-info">
+                <span class="preview-name">${name}</span>
+                <button type="button" class="remove-btn" onclick="removeImage(this)">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+        `;
+
+        uploadedImagesContainer.appendChild(previewDiv);
+    }
+}
+
+function removeImage(button) {
+    const previewItem = button.closest('.image-preview-item');
+    if (previewItem) {
+        previewItem.remove();
+    }
+}
+
+// Image Deletion Functionality
+let currentDeleteData = null;
+
+function confirmImageDeletion(imageIndex, imageUrl, isMain) {
+    const currentImages = document.querySelectorAll('.current-image-item');
+    const totalCurrentImages = currentImages.length;
+    const uploadedImages = document.querySelectorAll('#uploadedImages .image-preview-item');
+    const totalUploadedImages = uploadedImages.length;
+    const totalImages = totalCurrentImages + totalUploadedImages;
+
+    // Store deletion data
+    currentDeleteData = {
+        index: parseInt(imageIndex),
+        url: imageUrl,
+        isMain: isMain === 'true' || isMain === true
+    };
+
+    // Show modal
+    const modal = document.getElementById('deleteImageModal');
+    const preview = document.getElementById('deleteImagePreview');
+    const mainWarning = document.getElementById('mainImageWarning');
+    const minimumWarning = document.getElementById('minimumWarning');
+    const confirmBtn = document.getElementById('confirmDeleteBtn');
+
+    preview.src = imageUrl;
+
+    // Show/hide warnings
+    if (currentDeleteData.isMain) {
+        mainWarning.style.display = 'flex';
+    } else {
+        mainWarning.style.display = 'none';
+    }
+
+    // Check minimum image requirement
+    if (totalImages <= 3) {
+        minimumWarning.style.display = 'flex';
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = 'Cannot Delete';
+    } else {
+        minimumWarning.style.display = 'none';
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = '<i class="bi bi-trash"></i> Delete Image';
+    }
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeDeleteModal() {
+    const modal = document.getElementById('deleteImageModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+    currentDeleteData = null;
+}
+
+async function deleteImage() {
+    if (!currentDeleteData) return;
+
+    const imageItem = document.querySelector(`[data-image-index="${currentDeleteData.index}"]`);
+    const loadingOverlay = imageItem.querySelector('.loading-overlay');
+
+    try {
+        // Show loading state
+        loadingOverlay.style.display = 'flex';
+        closeDeleteModal();
+
+        // Make API call to delete image
+        const response = await fetch(`/admin/products/<%= product._id %>/images/${currentDeleteData.index}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            // Remove image from DOM
+            imageItem.remove();
+
+            // Update image count
+            updateImageCount();
+
+            // Reassign indices to remaining images
+            reassignImageIndices();
+
+            // Show success toast
+            showToast('success', 'Image deleted successfully');
+
+            // If main image was deleted, update the new main image badge
+            if (currentDeleteData.isMain) {
+                updateMainImageBadge();
+            }
+        } else {
+            // Hide loading and show error
+            loadingOverlay.style.display = 'none';
+            showToast('error', result.message || 'Failed to delete image');
+        }
+    } catch (error) {
+        console.error('Error deleting image:', error);
+        loadingOverlay.style.display = 'none';
+        showToast('error', 'An error occurred while deleting the image');
+    }
+}
+
+function setAsMainImage(imageIndex) {
+    const imageItems = document.querySelectorAll('.current-image-item');
+    const targetItem = document.querySelector(`[data-image-index="${imageIndex}"]`);
+
+    if (!targetItem) return;
+
+    // Show loading state
+    const loadingOverlay = targetItem.querySelector('.loading-overlay');
+    loadingOverlay.style.display = 'flex';
+
+    // Make API call to set as main image
+    fetch(`/admin/products/<%= product._id %>/images/${imageIndex}/set-main`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(result => {
+        loadingOverlay.style.display = 'none';
+
+        if (result.success) {
+            // Remove main badge from all images
+            imageItems.forEach(item => {
+                const badge = item.querySelector('.main-badge');
+                const mainBtn = item.querySelector('.main-btn');
+                if (badge) badge.remove();
+                if (mainBtn) mainBtn.style.display = 'block';
+                item.setAttribute('data-is-main', 'false');
+            });
+
+            // Add main badge to selected image
+            const imageContainer = targetItem.querySelector('.image-container');
+            const mainBadge = document.createElement('div');
+            mainBadge.className = 'main-badge';
+            mainBadge.innerHTML = '<i class="bi bi-star-fill"></i> Main';
+            imageContainer.appendChild(mainBadge);
+
+            // Hide main button for this image
+            const mainBtn = targetItem.querySelector('.main-btn');
+            if (mainBtn) mainBtn.style.display = 'none';
+
+            targetItem.setAttribute('data-is-main', 'true');
+
+            showToast('success', 'Main image updated successfully');
+        } else {
+            showToast('error', result.message || 'Failed to update main image');
+        }
+    })
+    .catch(error => {
+        console.error('Error setting main image:', error);
+        loadingOverlay.style.display = 'none';
+        showToast('error', 'An error occurred while updating the main image');
+    });
+}
+
+function updateImageCount() {
+    const currentImages = document.querySelectorAll('.current-image-item');
+    const countElement = document.getElementById('currentImageCount');
+    if (countElement) {
+        countElement.textContent = currentImages.length;
+    }
+}
+
+function reassignImageIndices() {
+    const imageItems = document.querySelectorAll('.current-image-item');
+    imageItems.forEach((item, index) => {
+        item.setAttribute('data-image-index', index);
+
+        // Update onclick handlers
+        const deleteBtn = item.querySelector('.delete-btn');
+        const mainBtn = item.querySelector('.main-btn');
+
+        if (deleteBtn) {
+            const imageUrl = item.getAttribute('data-image-url');
+            const isMain = item.getAttribute('data-is-main') === 'true';
+            deleteBtn.setAttribute('onclick', `confirmImageDeletion('${index}', '${imageUrl}', ${isMain})`);
+        }
+
+        if (mainBtn) {
+            mainBtn.setAttribute('onclick', `setAsMainImage('${index}')`);
+        }
+    });
+}
+
+function updateMainImageBadge() {
+    const imageItems = document.querySelectorAll('.current-image-item');
+    if (imageItems.length > 0) {
+        const firstItem = imageItems[0];
+        const imageContainer = firstItem.querySelector('.image-container');
+
+        // Add main badge to first image
+        const mainBadge = document.createElement('div');
+        mainBadge.className = 'main-badge';
+        mainBadge.innerHTML = '<i class="bi bi-star-fill"></i> Main';
+        imageContainer.appendChild(mainBadge);
+
+        // Hide main button for first image
+        const mainBtn = firstItem.querySelector('.main-btn');
+        if (mainBtn) mainBtn.style.display = 'none';
+
+        firstItem.setAttribute('data-is-main', 'true');
+    }
+}
+
+function showToast(type, message) {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+
+    const icon = type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill';
+
+    toast.innerHTML = `
+        <i class="toast-icon bi ${icon}"></i>
+        <span class="toast-message">${message}</span>
+        <button class="toast-close" onclick="removeToast(this)">
+            <i class="bi bi-x"></i>
+        </button>
+    `;
+
+    container.appendChild(toast);
+
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (toast.parentNode) {
+            removeToast(toast.querySelector('.toast-close'));
+        }
+    }, 5000);
+}
+
+function removeToast(button) {
+    const toast = button.closest('.toast');
+    if (toast) {
+        toast.style.animation = 'toastSlideOut 0.3s ease forwards';
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.remove();
+            }
+        }, 300);
+    }
+}
+
+// Add toast slide out animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes toastSlideOut {
+        from {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        to {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+    }
+`;
+document.head.appendChild(style);
+
+// Initialize validator when DOM is loaded
+let validator;
+document.addEventListener('DOMContentLoaded', function() {
+    validator = new ModernProductFormValidator();
+    initializeDriverSize();
+    initializeImageUpload();
+
+    // Close modal when clicking outside
+    document.getElementById('deleteImageModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDeleteModal();
+        }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeDeleteModal();
+        }
+    });
+});
+</script>

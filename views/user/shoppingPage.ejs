@@ -1,0 +1,546 @@
+<%- include("../partials/user/_header.ejs") %>
+
+<!-- Products Page Specific CSS -->
+<link rel="stylesheet" href="/css/products.css">
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar Filters -->
+        <div class="col-lg-3 col-md-4">
+            <div class="filter-sidebar bg-light p-4 rounded">
+                <h4 class="mb-4">Filter Headphones</h4>
+
+                <!-- Search Filter -->
+                <div class="filter-section mb-4">
+                    <h6 class="filter-title mb-3">Search</h6>
+                    <form action="/products" method="GET" id="searchForm" onsubmit="return validateSearch()">
+                        <div class="input-group">
+                            <input type="text" 
+                                   class="form-control" 
+                                   name="search" 
+                                   id="searchInput"
+                                   value="<%= searchQuery %>" 
+                                   placeholder="Search headphones...">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search"></i>
+                            </button>
+                            <% if (searchQuery) { %>
+                                <button type="button" class="btn btn-outline-secondary" onclick="clearSearch()">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            <% } %>
+                        </div>
+                        <div id="searchError" class="text-danger small mt-1" style="display: none;"></div>
+                    </form>
+                </div>
+
+                <!-- Category Filter -->
+                <div class="filter-section mb-4">
+                    <h6 class="filter-title mb-3">Category</h6>
+                    <% categories.forEach(category => { %>
+                        <div class="form-check">
+                            <input class="form-check-input" 
+                                   type="checkbox" 
+                                   name="category" 
+                                   value="<%= category.name %>" 
+                                   id="cat-<%= category._id %>"
+                                   <%= query.category.includes(category.name) ? 'checked' : '' %>>
+                            <label class="form-check-label" for="cat-<%= category._id %>">
+                                <%= category.name %>
+                            </label>
+                        </div>
+                    <% }) %>
+                </div>
+
+                <!-- Brand Filter -->
+                <div class="filter-section mb-4">
+                    <h6 class="filter-title mb-3">Brand</h6>
+                    <select class="form-select brand-dropdown"
+                            name="brand"
+                            id="brandSelect"
+                            onchange="handleBrandChange(this)">
+                        <option value="">All Brands</option>
+                        <% brands.forEach(brand => { %>
+                            <option value="<%= brand %>"
+                                    <%= query.brand === brand ? 'selected' : '' %>>
+                                <%= brand %>
+                            </option>
+                        <% }) %>
+                    </select>
+                </div>
+
+                <!-- Connectivity Filter (New for Headphones) -->
+                <div class="filter-section mb-4">
+                    <h6 class="filter-title mb-3">Connectivity</h6>
+                    <% connectivityOptions.forEach(connectivity => { %>
+                        <div class="form-check">
+                            <input class="form-check-input" 
+                                   type="checkbox" 
+                                   name="connectivity" 
+                                   value="<%= connectivity %>" 
+                                   id="conn-<%= connectivity.replace(/\s+/g, '') %>"
+                                   <%= query.connectivity.includes(connectivity) ? 'checked' : '' %>>
+                            <label class="form-check-label" for="conn-<%= connectivity.replace(/\s+/g, '') %>">
+                                <%= connectivity %>
+                            </label>
+                        </div>
+                    <% }) %>
+                </div>
+
+                <!-- Driver Size Filter (New for Headphones) -->
+                <div class="filter-section mb-4">
+                    <h6 class="filter-title mb-3">Driver Size</h6>
+                    <% driverSizes.forEach(driverSize => { %>
+                        <div class="form-check">
+                            <input class="form-check-input" 
+                                   type="checkbox" 
+                                   name="driverSize" 
+                                   value="<%= driverSize %>" 
+                                   id="driver-<%= driverSize.replace(/\s+/g, '') %>"
+                                   <%= query.driverSize.includes(driverSize) ? 'checked' : '' %>>
+                            <label class="form-check-label" for="driver-<%= driverSize.replace(/\s+/g, '') %>">
+                                <%= driverSize %>
+                            </label>
+                        </div>
+                    <% }) %>
+                </div>
+
+                <!-- Price Range Filter -->
+                <div class="filter-section mb-4">
+                    <h6 class="filter-title mb-3">Price Range</h6>
+                    <div class="row">
+                        <div class="col-6">
+                            <input type="number" 
+                                   class="form-control" 
+                                   name="minPrice" 
+                                   id="minPrice"
+                                   placeholder="Min ₹" 
+                                   min="0"
+                                   max="999999"
+                                   value="<%= query.minPrice || '' %>"
+                                   oninput="validatePriceRange()">
+                        </div>
+                        <div class="col-6">
+                            <input type="number" 
+                                   class="form-control" 
+                                   name="maxPrice" 
+                                   id="maxPrice"
+                                   placeholder="Max ₹" 
+                                   min="0"
+                                   max="999999"
+                                   value="<%= query.maxPrice || '' %>"
+                                   oninput="validatePriceRange()">
+                        </div>
+                    </div>
+                    <div id="priceError" class="text-danger small mt-1" style="display: none;"></div>
+                </div>
+
+                <!-- Apply Filters Button -->
+                <button type="button" class="btn btn-primary w-100 mb-2" onclick="applyFilters()">
+                    Apply Filters
+                </button>
+                <button type="button" class="btn btn-outline-secondary w-100" onclick="clearAllFilters()">
+                    Clear All
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9 col-md-8">
+            <!-- Header with Sort -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">Premium Headphones</h2>
+                    <p class="text-muted mb-0">
+                        Showing <%= products.length %> of <%= totalProducts %> headphones
+                        <% if (searchQuery) { %>
+                            for "<%= searchQuery %>"
+                        <% } %>
+                    </p>
+                </div>
+
+                <!-- Sort Options -->
+                <div class="d-flex align-items-center gap-3">
+                    <label for="sortSelect" class="form-label mb-0">Sort by:</label>
+                    <select class="form-select" id="sortSelect" onchange="applySorting()">
+                        <option value="newest" <%= query.sort === 'newest' ? 'selected' : '' %>>Newest</option>
+                        <option value="price-asc" <%= query.sort === 'price-asc' ? 'selected' : '' %>>Price: Low to High</option>
+                        <option value="price-desc" <%= query.sort === 'price-desc' ? 'selected' : '' %>>Price: High to Low</option>
+                        <option value="name-asc" <%= query.sort === 'name-asc' ? 'selected' : '' %>>A - Z</option>
+                        <option value="name-desc" <%= query.sort === 'name-desc' ? 'selected' : '' %>>Z - A</option>
+                        <option value="popularity" <%= query.sort === 'popularity' ? 'selected' : '' %>>Popularity</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="row">
+                <% if (locals.error) { %>
+                    <div class="col-12">
+                        <div class="alert alert-warning">
+                            <%= error %>
+                        </div>
+                    </div>
+                <% } %>
+                
+                <% if (products && products.length > 0) { %>
+                    <% products.forEach(product => { %>
+                        <% const mainImage = product.images.find(img => img.isMain) || product.images[0]; %>
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card h-100 shadow-sm product-card">
+                                <div class="position-relative">
+                                    <img src="<%= mainImage?.url || '/images/products/demo-product.jpg' %>" 
+                                         class="card-img-top" 
+                                         alt="<%= product.name %>" 
+                                         style="height: 250px; object-fit: cover;">
+                                    
+                                    <!-- Stock Status -->
+                                    <% if (product.stock <= 0) { %>
+                                        <div class="badge bg-danger position-absolute top-0 start-0 m-2">
+                                            Out of Stock
+                                        </div>
+                                    <% } else if (product.salePrice < product.regularPrice) { %>
+                                        <div class="badge bg-success position-absolute top-0 start-0 m-2">
+                                            Sale
+                                        </div>
+                                    <% } %>
+
+                                    <!-- Features Badges -->
+                                    <div class="position-absolute top-0 end-0 m-2">
+                                        <% if (product.noiseCancellation) { %>
+                                            <div class="badge bg-info mb-1 d-block">
+                                                <i class="bi bi-shield-check"></i> NC
+                                            </div>
+                                        <% } %>
+                                        <% if (product.microphoneIncluded) { %>
+                                            <div class="badge bg-warning mb-1 d-block">
+                                                <i class="bi bi-mic"></i> Mic
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                </div>
+                                
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title mb-2">
+                                        <a href="/products/<%= product._id %>" class="text-decoration-none text-dark">
+                                            <%= product.name %>
+                                        </a>
+                                    </h5>
+                                    <p class="text-muted small mb-2"><%= product.brand %></p>
+                                    
+                                    <!-- Headphone Specifications -->
+                                    <div class="mb-3">
+                                        <% if (product.driverSize) { %>
+                                            <small class="text-muted d-block">
+                                                <i class="bi bi-speaker"></i> Driver: <%= product.driverSize %>
+                                            </small>
+                                        <% } %>
+                                        <% if (product.connectivity) { %>
+                                            <small class="text-muted d-block">
+                                                <i class="bi bi-wifi"></i> <%= product.connectivity %>
+                                            </small>
+                                        <% } %>
+                                    </div>
+                                    
+                                    <div class="mt-auto">
+                                        <!-- Price -->
+                                        <div class="mb-3">
+                                            <span class="h5 text-primary fw-bold">₹<%= product.salePrice.toLocaleString('en-IN') %></span>
+                                            <% if (product.regularPrice && product.salePrice < product.regularPrice) { %>
+                                                <span class="text-muted text-decoration-line-through ms-2">
+                                                    ₹<%= product.regularPrice.toLocaleString('en-IN') %>
+                                                </span>
+                                            <% } %>
+                                        </div>
+                                        
+                                        <!-- Action Button -->
+                                        <% if (product.stock > 0) { %>
+                                            <a href="/products/<%= product._id %>" class="btn btn-primary btn-sm w-100">
+                                                View Details
+                                            </a>
+                                        <% } else { %>
+                                            <button class="btn btn-secondary btn-sm w-100" disabled>
+                                                Out of Stock
+                                            </button>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="col-12">
+                        <div class="text-center py-5">
+                            <i class="bi bi-headphones display-1 text-muted mb-3"></i>
+                            <h4>No headphones found</h4>
+                            <p class="text-muted">Try adjusting your filters or search criteria</p>
+                            <button type="button" class="btn btn-primary" onclick="clearAllFilters()">
+                                Clear Filters
+                            </button>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+
+            <!-- Pagination -->
+            <% if (totalPages > 1) { %>
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <!-- Previous Button -->
+                        <% if (currentPage > 1) { %>
+                            <li class="page-item">
+                                <a class="page-link" href="?<%= new URLSearchParams({...query, page: currentPage - 1}).toString() %>">
+                                    Previous
+                                </a>
+                            </li>
+                        <% } %>
+
+                        <!-- Page Numbers -->
+                        <% 
+                        const startPage = Math.max(1, currentPage - 2);
+                        const endPage = Math.min(totalPages, currentPage + 2);
+                        %>
+
+                        <% for (let i = startPage; i <= endPage; i++) { %>
+                            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                <a class="page-link" href="?<%= new URLSearchParams({...query, page: i}).toString() %>">
+                                    <%= i %>
+                                </a>
+                            </li>
+                        <% } %>
+
+                        <!-- Next Button -->
+                        <% if (currentPage < totalPages) { %>
+                            <li class="page-item">
+                                <a class="page-link" href="?<%= new URLSearchParams({...query, page: currentPage + 1}).toString() %>">
+                                    Next
+                                </a>
+                            </li>
+                        <% } %>
+                    </ul>
+                </nav>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<script>
+function applyFilters() {
+    // Validate price range before applying filters
+    if (!validatePriceRange()) {
+        return;
+    }
+    
+    const form = document.createElement('form');
+    form.method = 'GET';
+    form.action = '/products';
+
+    // Get all filter inputs
+    const inputs = document.querySelectorAll('input[name], select[name]');
+    inputs.forEach(input => {
+        if (input.type === 'checkbox' && input.checked) {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = input.name;
+            hiddenInput.value = input.value;
+            form.appendChild(hiddenInput);
+        } else if (input.type !== 'checkbox' && input.value) {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = input.name;
+            hiddenInput.value = input.value;
+            form.appendChild(hiddenInput);
+        }
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function validatePriceRange() {
+    const minPrice = document.getElementById('minPrice');
+    const maxPrice = document.getElementById('maxPrice');
+    const priceError = document.getElementById('priceError');
+    
+    if (!minPrice || !maxPrice || !priceError) return true;
+    
+    const minVal = parseFloat(minPrice.value) || 0;
+    const maxVal = parseFloat(maxPrice.value) || 0;
+    
+    // Clear previous errors
+    priceError.style.display = 'none';
+    minPrice.classList.remove('is-invalid');
+    maxPrice.classList.remove('is-invalid');
+    
+    // Validate negative values
+    if (minVal < 0) {
+        priceError.textContent = 'Minimum price cannot be negative';
+        priceError.style.display = 'block';
+        minPrice.classList.add('is-invalid');
+        return false;
+    }
+    
+    if (maxVal < 0) {
+        priceError.textContent = 'Maximum price cannot be negative';
+        priceError.style.display = 'block';
+        maxPrice.classList.add('is-invalid');
+        return false;
+    }
+    
+    // Validate range
+    if (minVal > 0 && maxVal > 0 && minVal > maxVal) {
+        priceError.textContent = 'Minimum price cannot be greater than maximum price';
+        priceError.style.display = 'block';
+        minPrice.classList.add('is-invalid');
+        maxPrice.classList.add('is-invalid');
+        return false;
+    }
+    
+    // Validate maximum values
+    if (minVal > 999999) {
+        priceError.textContent = 'Minimum price cannot exceed ₹9,99,999';
+        priceError.style.display = 'block';
+        minPrice.classList.add('is-invalid');
+        return false;
+    }
+    
+    if (maxVal > 999999) {
+        priceError.textContent = 'Maximum price cannot exceed ₹9,99,999';
+        priceError.style.display = 'block';
+        maxPrice.classList.add('is-invalid');
+        return false;
+    }
+    
+    return true;
+}
+
+function handleBrandChange(selectElement) {
+    const selectedBrand = selectElement.value;
+    const url = new URL(window.location);
+
+    if (selectedBrand) {
+        url.searchParams.set('brand', selectedBrand);
+    } else {
+        url.searchParams.delete('brand');
+    }
+    url.searchParams.set('page', '1'); // Reset to first page
+
+    // Add loading state
+    selectElement.disabled = true;
+    selectElement.style.opacity = '0.6';
+
+    window.location.href = url.toString();
+}
+
+function applySorting() {
+    const sortValue = document.getElementById('sortSelect').value;
+    const url = new URL(window.location);
+    url.searchParams.set('sort', sortValue);
+    url.searchParams.set('page', '1'); // Reset to first page
+    window.location.href = url.toString();
+}
+
+function clearSearch() {
+    const url = new URL(window.location);
+    url.searchParams.delete('search');
+    url.searchParams.set('page', '1');
+    window.location.href = url.toString();
+}
+
+function clearAllFilters() {
+    window.location.href = '/products';
+}
+
+function validateSearch() {
+    const searchInput = document.getElementById('searchInput').value.trim();
+    const searchError = document.getElementById('searchError');
+
+    if (searchInput === '') {
+        searchError.textContent = 'Please enter a search term';
+        searchError.style.display = 'block';
+        return false;
+    }
+
+    searchError.style.display = 'none';
+    return true;
+}
+</script>
+
+<style>
+/* Modern Brand Dropdown Styling - Black & White Theme */
+.brand-dropdown {
+    width: 100% !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    color: #000000 !important;
+    background-color: #ffffff !important;
+    border: 1px solid #e5e5e5 !important;
+    border-radius: 12px !important;
+    cursor: pointer !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23000000' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e") !important;
+    background-position: right 0.75rem center !important;
+    background-repeat: no-repeat !important;
+    background-size: 16px 12px !important;
+    padding-right: 2.5rem !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+}
+
+.brand-dropdown:hover {
+    border-color: #333333 !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+    transform: translateY(-1px) !important;
+}
+
+.brand-dropdown:focus {
+    outline: none !important;
+    border-color: #000000 !important;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1) !important;
+    transform: translateY(-1px) !important;
+}
+
+.brand-dropdown:disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
+.brand-dropdown option {
+    padding: 0.5rem 1rem !important;
+    color: #000000 !important;
+    background-color: #ffffff !important;
+    font-weight: 500 !important;
+}
+
+.brand-dropdown option:hover {
+    background-color: #f5f5f5 !important;
+}
+
+.brand-dropdown option:checked {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+/* Filter section title styling consistency */
+.filter-title {
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    color: #000000 !important;
+    margin-bottom: 0.75rem !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .brand-dropdown {
+        font-size: 0.8rem !important;
+        padding: 0.6rem 0.8rem !important;
+        padding-right: 2.2rem !important;
+    }
+}
+</style>
+
+<%- include("../partials/user/_footer.ejs") %>

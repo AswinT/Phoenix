@@ -1,0 +1,635 @@
+<%- include('../partials/admin/_adminHeader.ejs') %>
+<%- include("../partials/admin/_adminSidebar.ejs") %>
+
+<div class="admin-content">
+    <div class="modern-dashboard-container">
+        <!-- Breadcrumbs -->
+        <nav class="breadcrumb-nav">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item active">
+                    <i class="bi bi-house-door"></i>
+                    Dashboard
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="header-content">
+                <h1 class="page-title">
+                    <i class="bi bi-speedometer2"></i>
+                    Phoenix Admin Dashboard
+                </h1>
+                <p class="page-subtitle">Welcome to your product store management panel</p>
+            </div>
+        </div>
+
+        <!-- Modern Stats Grid -->
+        <div class="stats-grid">
+            <!-- Total Customers -->
+            <div class="modern-stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-icon customers">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div class="stat-trend">
+                        <i class="bi bi-arrow-up text-success"></i>
+                    </div>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value"><%= userCount || 0 %></div>
+                    <div class="stat-label">Total Customers</div>
+                    <div class="stat-description">Registered users</div>
+                </div>
+            </div>
+
+            <!-- Total Products -->
+            <div class="modern-stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-icon products">
+                        <i class="bi bi-headphones"></i>
+                    </div>
+                    <div class="stat-trend">
+                        <i class="bi bi-arrow-up text-success"></i>
+                    </div>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value"><%= productCount || 0 %></div>
+                    <div class="stat-label">Total Products</div>
+                    <div class="stat-description">In inventory</div>
+                </div>
+            </div>
+
+            <!-- Active Categories -->
+            <div class="modern-stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-icon categories">
+                        <i class="bi bi-tags"></i>
+                    </div>
+                    <div class="stat-trend">
+                        <i class="bi bi-dash text-muted"></i>
+                    </div>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">4</div>
+                    <div class="stat-label">Active Categories</div>
+                    <div class="stat-description">Product categories</div>
+                </div>
+            </div>
+
+            <!-- Store Status -->
+            <div class="modern-stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-icon status">
+                        <i class="bi bi-shop"></i>
+                    </div>
+                    <div class="stat-trend">
+                        <i class="bi bi-check-circle text-success"></i>
+                    </div>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">
+                        <span class="status-badge active">Active</span>
+                    </div>
+                    <div class="stat-label">Store Status</div>
+                    <div class="stat-description">All systems operational</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Card -->
+        <div class="modern-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-lightning"></i>
+                    Quick Actions
+                </h3>
+            </div>
+            <div class="card-content">
+                <div class="actions-grid">
+                    <a href="/admin/product/add" class="action-card primary">
+                        <div class="action-icon">
+                            <i class="bi bi-plus-circle"></i>
+                        </div>
+                        <div class="action-content">
+                            <h4>Add New Product</h4>
+                            <p>Create a new product listing</p>
+                        </div>
+                        <div class="action-arrow">
+                            <i class="bi bi-arrow-right"></i>
+                        </div>
+                    </a>
+
+                    <a href="/admin/category/add" class="action-card secondary">
+                        <div class="action-icon">
+                            <i class="bi bi-tags"></i>
+                        </div>
+                        <div class="action-content">
+                            <h4>Add New Category</h4>
+                            <p>Create product categories</p>
+                        </div>
+                        <div class="action-arrow">
+                            <i class="bi bi-arrow-right"></i>
+                        </div>
+                    </a>
+
+                    <a href="/admin/products" class="action-card outline">
+                        <div class="action-icon">
+                            <i class="bi bi-headphones"></i>
+                        </div>
+                        <div class="action-content">
+                            <h4>Manage Products</h4>
+                            <p>View and edit products</p>
+                        </div>
+                        <div class="action-arrow">
+                            <i class="bi bi-arrow-right"></i>
+                        </div>
+                    </a>
+
+                    <a href="/admin/customers" class="action-card outline">
+                        <div class="action-icon">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <div class="action-content">
+                            <h4>Manage Customers</h4>
+                            <p>View customer accounts</p>
+                        </div>
+                        <div class="action-arrow">
+                            <i class="bi bi-arrow-right"></i>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Overview Card -->
+        <div class="modern-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-gear"></i>
+                    System Overview
+                </h3>
+            </div>
+            <div class="card-content">
+                <div class="welcome-section">
+                    <div class="welcome-icon">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                    </div>
+                    <div class="welcome-content">
+                        <h4>Welcome to Phoenix Admin!</h4>
+                        <p>Your product store management system is ready. Start by adding categories and products to set up your store.</p>
+                    </div>
+                </div>
+
+                <div class="system-status">
+                    <div class="status-item">
+                        <div class="status-indicator active"></div>
+                        <div class="status-content">
+                            <h5>System Status</h5>
+                            <p>All systems operational</p>
+                            <small class="text-muted">Phoenix product store is running smoothly</small>
+                        </div>
+                        <div class="status-badge">
+                            <span class="badge-success">Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Modern Admin Dashboard - Black/White Theme */
+
+/* Breadcrumbs */
+.breadcrumb-nav {
+    margin-bottom: 1.5rem;
+}
+
+.breadcrumb {
+    background: #f8f9fa;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin: 0;
+    list-style: none;
+    display: flex;
+    align-items: center;
+}
+
+.breadcrumb-item {
+    display: flex;
+    align-items: center;
+    color: #666666;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.breadcrumb-item.active {
+    color: #000000;
+    font-weight: 600;
+}
+
+.breadcrumb-item i {
+    margin-right: 0.5rem;
+    font-size: 1rem;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "/";
+    margin: 0 0.75rem;
+    color: #999999;
+}
+
+/* Container */
+.modern-dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Page Header */
+.page-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #000000;
+}
+
+.header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.page-title {
+    color: #000000;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.page-subtitle {
+    color: #666666;
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Modern Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.modern-stat-card {
+    background: #ffffff;
+    border: 2px solid #e5e5e5;
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.modern-stat-card:hover {
+    border-color: #000000;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #ffffff;
+}
+
+.stat-icon.customers { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.stat-icon.products { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+.stat-icon.categories { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+.stat-icon.status { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+
+.stat-trend {
+    font-size: 1.25rem;
+}
+
+.stat-content {
+    text-align: left;
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #000000;
+    margin-bottom: 0.25rem;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #000000;
+    margin-bottom: 0.25rem;
+}
+
+.stat-description {
+    font-size: 0.875rem;
+    color: #666666;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.status-badge.active {
+    background: #000000;
+    color: #ffffff;
+}
+
+/* Modern Cards */
+.modern-card {
+    background: #ffffff;
+    border: 2px solid #e5e5e5;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+}
+
+.modern-card:hover {
+    border-color: #000000;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background: #000000;
+    color: #ffffff;
+    padding: 1.5rem;
+    border-bottom: none;
+}
+
+.card-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.card-content {
+    padding: 2rem;
+}
+
+/* Actions Grid */
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.action-card {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    border: 2px solid #e5e5e5;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    background: #ffffff;
+    color: inherit;
+}
+
+.action-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+    color: inherit;
+}
+
+.action-card.primary {
+    border-color: #000000;
+    background: #000000;
+    color: #ffffff;
+}
+
+.action-card.primary:hover {
+    background: #333333;
+    color: #ffffff;
+}
+
+.action-card.secondary {
+    border-color: #666666;
+}
+
+.action-card.secondary:hover {
+    border-color: #000000;
+}
+
+.action-card.outline:hover {
+    border-color: #000000;
+}
+
+.action-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.action-card.primary .action-icon {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+.action-card.secondary .action-icon,
+.action-card.outline .action-icon {
+    background: #f5f5f5;
+    color: #000000;
+}
+
+.action-content {
+    flex: 1;
+}
+
+.action-content h4 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.action-content p {
+    margin: 0;
+    font-size: 0.875rem;
+    opacity: 0.8;
+}
+
+.action-arrow {
+    font-size: 1.25rem;
+    opacity: 0.6;
+    transition: all 0.3s ease;
+}
+
+.action-card:hover .action-arrow {
+    opacity: 1;
+    transform: translateX(4px);
+}
+
+/* Welcome Section */
+.welcome-section {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+.welcome-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.welcome-content h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #000000;
+}
+
+.welcome-content p {
+    margin: 0;
+    color: #666666;
+    line-height: 1.5;
+}
+
+/* System Status */
+.system-status {
+    border-top: 1px solid #e5e5e5;
+    padding-top: 1.5rem;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.status-indicator.active {
+    background: #22c55e;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+
+.status-content {
+    flex: 1;
+}
+
+.status-content h5 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #000000;
+}
+
+.status-content p {
+    margin: 0 0 0.25rem 0;
+    color: #666666;
+    font-size: 0.875rem;
+}
+
+.status-content small {
+    color: #999999;
+    font-size: 0.75rem;
+}
+
+.status-badge .badge-success {
+    background: #000000;
+    color: #ffffff;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .modern-dashboard-container {
+        padding: 1.5rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    .actions-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .modern-dashboard-container {
+        padding: 1rem;
+    }
+
+    .page-title {
+        font-size: 1.5rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .modern-stat-card {
+        padding: 1rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+    }
+
+    .card-content {
+        padding: 1.5rem;
+    }
+
+    .action-card {
+        padding: 1rem;
+    }
+
+    .welcome-section {
+        padding: 1rem;
+    }
+}
+</style>

@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Reset Code - Phoenix Headphones</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .verify-card {
+            background: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e5e5;
+        }
+
+        .brand-title {
+            color: #000000;
+            font-weight: 700;
+            font-size: 2.5rem;
+        }
+
+        .header-section {
+            background: #000000;
+            color: #ffffff;
+            padding: 2rem;
+            border-radius: 15px 15px 0 0;
+            text-align: center;
+        }
+
+        .form-section {
+            padding: 2rem;
+        }
+
+        .otp-input {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: 2px solid #e5e5e5;
+            border-radius: 8px;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+        }
+
+        .otp-input:focus {
+            border-color: #000000;
+            box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.1);
+            outline: none;
+        }
+
+        .otp-input.is-invalid {
+            border-color: #dc3545;
+        }
+
+        .otp-input.is-valid {
+            border-color: #28a745;
+        }
+
+        .timer {
+            font-size: 1.2rem;
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: #000000;
+            border: 2px solid #000000;
+            color: #ffffff;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: #333333;
+            border-color: #333333;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-outline-dark {
+            border: 2px solid #000000;
+            color: #000000;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-dark:hover {
+            background: #000000;
+            border-color: #000000;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .text-muted {
+            color: #666666 !important;
+        }
+
+        a {
+            color: #000000;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        a:hover {
+            color: #333333;
+            text-decoration: underline;
+        }
+
+        .invalid-feedback {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            text-align: center;
+            display: block;
+        }
+
+        .valid-feedback {
+            color: #28a745;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            text-align: center;
+            display: block;
+        }
+
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .email-highlight {
+            color: #000000;
+            font-weight: 600;
+            background: #f8f9fa;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #e5e5e5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="verify-card">
+                    <!-- Brand Header -->
+                    <div class="header-section">
+                        <h1 class="brand-title">Phoenix</h1>
+                        <h4 class="mb-2">Verify Reset Code</h4>
+                        <p class="mb-2">We've sent a verification code to:</p>
+                        <div class="email-highlight"><%= data %></div>
+                    </div>
+
+                    <div class="form-section">
+                        <!-- OTP Input Form -->
+                        <form action="/forgot-verify-otp" method="POST" id="forgotOtpForm" novalidate>
+                            <div class="text-center mb-4">
+                                <div class="d-flex justify-content-center">
+                                    <input type="text" class="otp-input" maxlength="1" id="otp1" name="otp1">
+                                    <input type="text" class="otp-input" maxlength="1" id="otp2" name="otp2">
+                                    <input type="text" class="otp-input" maxlength="1" id="otp3" name="otp3">
+                                    <input type="text" class="otp-input" maxlength="1" id="otp4" name="otp4">
+                                    <input type="text" class="otp-input" maxlength="1" id="otp5" name="otp5">
+                                    <input type="text" class="otp-input" maxlength="1" id="otp6" name="otp6">
+                                </div>
+                                <input type="hidden" name="otp" id="finalOtp">
+                                <div id="otp-error" class="invalid-feedback"></div>
+                            </div>
+
+                            <!-- Timer -->
+                            <div class="text-center mb-3">
+                                <p class="text-muted">Resend code in</p>
+                                <div class="timer" id="timer">--:--</div>
+                            </div>
+
+                            <!-- Resend Button -->
+                            <div class="text-center mb-4">
+                                <p class="text-muted">Didn't receive the code?</p>
+                                <button type="button" class="btn btn-outline-dark" id="resendBtn" disabled>
+                                    <i class="bi bi-arrow-clockwise me-2"></i>
+                                    Resend Code
+                                </button>
+                            </div>
+
+                            <!-- Verify Button -->
+                            <button type="submit" class="btn btn-primary btn-lg w-100 mb-3" id="verifyBtn">
+                                <i class="bi bi-check-circle me-2"></i>
+                                Verify Code
+                            </button>
+                        </form>
+
+                        <!-- Footer Links -->
+                        <div class="text-center">
+                            <a href="/forgot-password">
+                                <i class="bi bi-arrow-left me-1"></i>
+                                Back to Forgot Password
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Validation Functions
+        function showOtpValidationMessage(message, isError = true) {
+            const errorElement = document.getElementById('otp-error');
+            const otpInputs = document.querySelectorAll('.otp-input');
+
+            if (message && message.trim() !== '') {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+
+                if (isError) {
+                    errorElement.className = 'invalid-feedback';
+                    otpInputs.forEach(input => {
+                        input.classList.add('is-invalid');
+                        input.classList.remove('is-valid');
+                    });
+                } else {
+                    errorElement.className = 'valid-feedback';
+                    otpInputs.forEach(input => {
+                        input.classList.add('is-valid');
+                        input.classList.remove('is-invalid');
+                    });
+                }
+            } else {
+                errorElement.textContent = '';
+                errorElement.style.display = 'none';
+                otpInputs.forEach(input => {
+                    input.classList.remove('is-invalid', 'is-valid');
+                });
+            }
+        }
+
+        function validateOtp(otp) {
+            if (!otp || otp.length === 0) {
+                return { isValid: false, message: 'Please enter the verification code' };
+            }
+
+            if (otp.length !== 6) {
+                return { isValid: false, message: 'Please enter all 6 digits' };
+            }
+
+            if (!/^\d{6}$/.test(otp)) {
+                return { isValid: false, message: 'Verification code must contain only numbers' };
+            }
+
+            return { isValid: true, message: 'Verification code format is valid' };
+        }
+
+        // OTP Input functionality
+        const otpInputs = document.querySelectorAll('.otp-input');
+
+        otpInputs.forEach((input, index) => {
+            // Only allow numeric input
+            input.addEventListener('input', (e) => {
+                const value = e.target.value.replace(/[^0-9]/g, '');
+                e.target.value = value;
+
+                if (value.length === 1 && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+                updateFinalOtp();
+
+                // Clear validation when user starts typing
+                if (value) {
+                    showOtpValidationMessage('');
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+
+            // Validate on blur
+            input.addEventListener('blur', () => {
+                const otp = Array.from(otpInputs).map(input => input.value).join('');
+                if (otp.length > 0 && otp.length < 6) {
+                    validateOtp(otp);
+                }
+            });
+        });
+
+        function updateFinalOtp() {
+            const otp = Array.from(otpInputs).map(input => input.value).join('');
+            document.getElementById('finalOtp').value = otp;
+
+            // Real-time validation
+            if (otp.length === 6) {
+                const validation = validateOtp(otp);
+                showOtpValidationMessage(validation.message, !validation.isValid);
+            }
+        }
+
+        // Timer functionality with session-based state (1 minute)
+        const TIMER_DURATION = 60; // 1 minute in seconds
+        const STORAGE_KEY = 'forgotPasswordOtpTimer';
+        let timeLeft = TIMER_DURATION;
+        let countdown;
+        const timerElement = document.getElementById('timer');
+        const resendBtn = document.getElementById('resendBtn');
+
+        // Generate a unique session identifier for this OTP session
+        function generateSessionId() {
+            return 'forgot_otp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Get or create session ID for this page load
+        function getSessionId() {
+            let sessionId = sessionStorage.getItem('currentForgotOtpSession');
+            if (!sessionId) {
+                sessionId = generateSessionId();
+                sessionStorage.setItem('currentForgotOtpSession', sessionId);
+            }
+            return sessionId;
+        }
+
+        // Clean up old timer entries from localStorage
+        function cleanupOldTimers() {
+            try {
+                const keys = Object.keys(localStorage);
+                const otpTimerKeys = keys.filter(key => key.startsWith(STORAGE_KEY + '_'));
+                const currentSessionId = getSessionId();
+                
+                otpTimerKeys.forEach(key => {
+                    if (!key.includes(currentSessionId)) {
+                        localStorage.removeItem(key);
+                    }
+                });
+            } catch (error) {
+                console.warn('Error cleaning up old timers:', error);
+            }
+        }
+
+        // Initialize timer with session-based state management
+        function initializeTimer() {
+            const currentSessionId = getSessionId();
+            const storageKey = STORAGE_KEY + '_' + currentSessionId;
+            
+            try {
+                // Check if there's existing timer data for this session
+                const storedData = localStorage.getItem(storageKey);
+                
+                if (storedData) {
+                    const { startTime, duration, sessionId } = JSON.parse(storedData);
+                    
+                    // Verify this is the same session
+                    if (sessionId === currentSessionId) {
+                        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                        timeLeft = Math.max(0, duration - elapsed);
+
+                        // If timer has expired while away, clean up
+                        if (timeLeft <= 0) {
+                            localStorage.removeItem(storageKey);
+                            enableResendButton();
+                            return;
+                        }
+                    } else {
+                        // Different session, remove old data and start fresh
+                        localStorage.removeItem(storageKey);
+                        timeLeft = TIMER_DURATION;
+                    }
+                } else {
+                    // No existing timer for this session
+                    // Check if this is a form submission (wrong OTP) vs fresh page load
+                    const referrer = document.referrer;
+                    const isFromFormSubmission = referrer && referrer.includes('/forgot-verify-otp');
+                    
+                    if (isFromFormSubmission) {
+                        // This is a wrong OTP submission, try to preserve any existing timer
+                        // Look for any existing timer data from previous sessions
+                        const allKeys = Object.keys(localStorage);
+                        const existingTimerKey = allKeys.find(key => key.startsWith(STORAGE_KEY + '_'));
+                        
+                        if (existingTimerKey) {
+                            try {
+                                const existingData = JSON.parse(localStorage.getItem(existingTimerKey));
+                                const elapsed = Math.floor((Date.now() - existingData.startTime) / 1000);
+                                const remainingTime = Math.max(0, existingData.duration - elapsed);
+                                
+                                if (remainingTime > 0) {
+                                    // Transfer the existing timer to current session
+                                    timeLeft = remainingTime;
+                                    const timerData = {
+                                        startTime: existingData.startTime,
+                                        duration: existingData.duration,
+                                        sessionId: currentSessionId
+                                    };
+                                    localStorage.setItem(storageKey, JSON.stringify(timerData));
+                                    // Clean up old key
+                                    localStorage.removeItem(existingTimerKey);
+                                } else {
+                                    // Old timer expired, start fresh
+                                    timeLeft = TIMER_DURATION;
+                                }
+                            } catch (e) {
+                                // Error parsing old data, start fresh
+                                timeLeft = TIMER_DURATION;
+                                localStorage.removeItem(existingTimerKey);
+                            }
+                        } else {
+                            // No existing timer found, start fresh
+                            timeLeft = TIMER_DURATION;
+                        }
+                    } else {
+                        // Fresh page load, start new timer
+                        timeLeft = TIMER_DURATION;
+                    }
+                }
+
+                // Store/update current timer state if not already stored
+                if (!localStorage.getItem(storageKey)) {
+                    const timerData = {
+                        startTime: Date.now() - (TIMER_DURATION - timeLeft) * 1000,
+                        duration: TIMER_DURATION,
+                        sessionId: currentSessionId
+                    };
+                    localStorage.setItem(storageKey, JSON.stringify(timerData));
+                }
+
+            } catch (error) {
+                console.warn('Error accessing localStorage:', error);
+                timeLeft = TIMER_DURATION;
+            }
+
+            // Clean up old timer entries
+            cleanupOldTimers();
+
+            // Update display immediately before starting countdown
+            updateTimerDisplay();
+            startCountdown();
+        }
+
+        function enableResendButton() {
+            timeLeft = 0;
+            timerElement.textContent = '00:00';
+            resendBtn.disabled = false;
+            resendBtn.classList.remove('btn-outline-dark');
+            resendBtn.classList.add('btn-primary');
+            // Reset page title
+            document.title = 'Verify Reset Code - Phoenix Headphones';
+        }
+
+        function startCountdown() {
+            // Clear any existing countdown
+            if (countdown) {
+                clearInterval(countdown);
+            }
+
+            // Update display immediately to prevent flash
+            updateTimerDisplay();
+
+            countdown = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    localStorage.removeItem(STORAGE_KEY);
+                    enableResendButton();
+                    return;
+                }
+                timeLeft--;
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            const timeDisplay = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            timerElement.textContent = timeDisplay;
+
+            // Update browser tab title with remaining time
+            document.title = `(${timeDisplay}) Verify Reset Code - Phoenix Headphones`;
+        }
+
+        // Clear session storage when coming from forgot password page (fresh OTP)
+        function handleFreshOtpSession() {
+            // Check if this is a fresh load from forgot password (not from form submission)
+            const referrer = document.referrer;
+            const isFromForgotPassword = referrer && referrer.includes('/forgot-password');
+            const isFromFormSubmission = referrer && referrer.includes('/forgot-verify-otp');
+            
+            // Only clear session data if coming directly from forgot password page
+            // Do NOT clear if coming from form submission (wrong OTP attempts)
+            if (isFromForgotPassword && !isFromFormSubmission) {
+                // Clear any existing OTP session data for fresh start
+                sessionStorage.removeItem('currentForgotOtpSession');
+                cleanupOldTimers();
+            }
+            
+            // Additional check: if there's no session ID and no referrer info,
+            // this might be a direct page access, so don't clear existing timer
+            const hasExistingSession = sessionStorage.getItem('currentForgotOtpSession');
+            if (!hasExistingSession && !referrer) {
+                // This is likely a direct page access or refresh
+                // Don't clear any existing timer data
+                return;
+            }
+        }
+
+        // Initialize timer on page load
+        handleFreshOtpSession();
+        initializeTimer();
+
+        // Clean up timer when user leaves the page
+        window.addEventListener('beforeunload', function() {
+            // Don't clean up if timer is still running (user might come back)
+            // Only clean up expired timers
+            cleanupOldTimers();
+        });
+
+        // Resend OTP functionality
+        resendBtn.addEventListener('click', async function() {
+            try {
+                // Show loading state
+                const originalText = this.innerHTML;
+                this.innerHTML = `
+                    <div class="loading"></div>
+                    Sending...
+                `;
+                this.disabled = true;
+
+                const response = await fetch('/resend-forgot-otp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Create new session for the new OTP
+                    const newSessionId = generateSessionId();
+                    sessionStorage.setItem('currentForgotOtpSession', newSessionId);
+                    
+                    // Clear old timer storage
+                    cleanupOldTimers();
+
+                    // Reset timer with new session
+                    timeLeft = TIMER_DURATION;
+                    const timerData = {
+                        startTime: Date.now(),
+                        duration: TIMER_DURATION,
+                        sessionId: newSessionId
+                    };
+                    localStorage.setItem(STORAGE_KEY + '_' + newSessionId, JSON.stringify(timerData));
+
+                    // Reset button state
+                    this.disabled = true;
+                    this.classList.remove('btn-primary');
+                    this.classList.add('btn-outline-dark');
+                    this.innerHTML = originalText;
+
+                    // Update display immediately and restart countdown
+                    updateTimerDisplay();
+                    startCountdown();
+
+                    // Clear OTP inputs
+                    otpInputs.forEach(input => {
+                        input.value = '';
+                        input.classList.remove('is-invalid', 'is-valid');
+                    });
+                    showOtpValidationMessage('');
+                    otpInputs[0].focus();
+
+                    // Show success message
+                    showOtpValidationMessage('New verification code sent to your email!', false);
+                    setTimeout(() => showOtpValidationMessage(''), 3000);
+                } else {
+                    // Reset button state on error
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                    showOtpValidationMessage(data.message || 'Failed to send verification code. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error resending OTP:', error);
+                // Reset button state on error
+                this.innerHTML = originalText;
+                this.disabled = false;
+                showOtpValidationMessage('Failed to send verification code. Please try again.');
+            }
+        });
+
+        // Enhanced form submission
+        document.getElementById('forgotOtpForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            updateFinalOtp();
+            const otp = document.getElementById('finalOtp').value;
+            const validation = validateOtp(otp);
+
+            if (!validation.isValid) {
+                showOtpValidationMessage(validation.message);
+                // Focus on first empty input
+                const firstEmpty = Array.from(otpInputs).find(input => !input.value);
+                if (firstEmpty) {
+                    firstEmpty.focus();
+                }
+                return false;
+            }
+
+            // Show loading state
+            const submitBtn = document.getElementById('verifyBtn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = `
+                <div class="loading"></div>
+                Verifying...
+            `;
+            submitBtn.disabled = true;
+
+            // Submit form after brief delay
+            setTimeout(() => {
+                // Don't clear timer storage here - only clear on successful verification
+                this.removeAttribute('novalidate');
+                this.submit();
+            }, 500);
+
+            // Fallback reset
+            setTimeout(() => {
+                if (submitBtn.disabled) {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    this.setAttribute('novalidate', '');
+                }
+            }, 10000);
+        });
+
+        // Auto-focus first input
+        document.addEventListener('DOMContentLoaded', () => {
+            otpInputs[0].focus();
+        });
+    </script>
+</body>
+</html>
+ 

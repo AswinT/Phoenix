@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phoenix Admin Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/admin.css">
+    <style>
+        /* Black and White Filter */
+        body {
+            filter: grayscale(100%);
+        }
+
+        :root {
+            --gray-50: #f9fafb;
+            --gray-200: #e5e7eb;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --primary-white: #ffffff;
+            --primary-black: #111827;
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 0.75rem;
+            --spacing-lg: 1rem;
+            --spacing-xl: 1.5rem;
+            --spacing-2xl: 2rem;
+            --border-radius-lg: 0.75rem;
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --font-size-sm: 0.875rem;
+            --font-size-base: 1rem;
+            --font-size-lg: 1.125rem;
+            --font-size-3xl: 1.875rem;
+        }
+
+        body {
+            background: var(--gray-50);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Floating background elements */
+        .floating-bg {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .floating-circle {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-circle:nth-child(1) {
+            top: -10rem;
+            right: -10rem;
+            width: 20rem;
+            height: 20rem;
+        }
+
+        .floating-circle:nth-child(2) {
+            bottom: -5rem;
+            left: -5rem;
+            width: 15rem;
+            height: 15rem;
+            animation-delay: -3s;
+        }
+
+        .floating-circle:nth-child(3) {
+            top: 5rem;
+            left: 25%;
+            width: 5rem;
+            height: 5rem;
+            animation-delay: -1s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .login-card {
+            background: var(--primary-white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-lg);
+            padding: var(--spacing-2xl);
+            backdrop-filter: blur(10px);
+        }
+
+        .brand-section {
+            text-align: center;
+            margin-bottom: var(--spacing-2xl);
+        }
+
+        .brand-title {
+            font-size: var(--font-size-3xl);
+            font-weight: 700;
+            color: var(--primary-black);
+            margin-bottom: var(--spacing-sm);
+            letter-spacing: -0.025em;
+            filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.4));
+        }
+
+        .brand-subtitle {
+            color: var(--gray-500);
+            font-size: var(--font-size-lg);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .brand-description {
+            color: var(--gray-400);
+            font-size: var(--font-size-sm);
+        }
+
+        .login-form .form-group {
+            margin-bottom: var(--spacing-lg);
+            position: relative;
+            transition: transform 0.2s ease;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: var(--spacing-sm);
+            font-weight: 500;
+            color: var(--gray-600);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: var(--spacing-md);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--spacing-sm);
+            font-size: var(--font-size-base);
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #000000;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .password-input-wrapper {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: var(--spacing-md);
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray-400);
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .password-toggle:hover {
+            color: var(--gray-600);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: var(--spacing-md);
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            background: linear-gradient(135deg, #000000 0%, #333333 100%);
+            color: white;
+            border: none;
+            border-radius: var(--spacing-sm);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            transform: scale(1);
+        }
+
+        .login-btn:hover {
+            transform: scale(1.02);
+            background: linear-gradient(135deg, #333333 0%, #555555 100%);
+        }
+
+        .login-btn:active {
+            transform: scale(0.98);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: scale(1);
+        }
+
+        .footer-link {
+            text-align: center;
+            margin-top: var(--spacing-lg);
+        }
+
+        .footer-link a {
+            color: var(--gray-600);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer-link a:hover {
+            color: #000000;
+            text-decoration: underline;
+        }
+
+        .alert {
+            padding: var(--spacing-md);
+            border-radius: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .alert-danger {
+            background-color: #f5f5f5;
+            color: #000000;
+            border: 1px solid #cccccc;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loading {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Custom Validation Messages */
+        .validation-message {
+            margin-top: var(--spacing-sm);
+            font-size: var(--font-size-sm);
+            color: #dc2626;
+            font-weight: 500;
+            min-height: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            opacity: 0;
+            transform: translateY(-5px);
+            transition: all 0.3s ease;
+        }
+
+        .validation-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .validation-message i {
+            font-size: 0.75rem;
+            color: #dc2626;
+        }
+
+        /* Form Control States */
+        .form-control.error {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+            background-color: #fef2f2;
+        }
+
+        .form-control.valid {
+            border-color: #16a34a;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+            background-color: #f0fdf4;
+        }
+
+        .form-control.error:focus {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+        }
+
+        .form-control.valid:focus {
+            border-color: #16a34a;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+        }
+
+        /* Success validation message */
+        .validation-message.success {
+            color: #16a34a;
+        }
+
+        .validation-message.success i {
+            color: #16a34a;
+        }
+
+        /* Form group with error state */
+        .form-group.has-error .form-label {
+            color: #dc2626;
+        }
+
+        .form-group.has-success .form-label {
+            color: #16a34a;
+        }
+
+        /* Shake animation for errors */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .form-group.shake {
+            animation: shake 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Background Elements -->
+    <div class="floating-bg">
+        <div class="floating-circle"></div>
+        <div class="floating-circle"></div>
+        <div class="floating-circle"></div>
+    </div>
+
+    <div class="login-container">
+        <div class="login-card fade-in">
+            <!-- Brand Header -->
+            <div class="brand-section">
+                <h1 class="brand-title">Phoenix</h1>
+                <h4 class="brand-subtitle">Admin Access</h4>
+                <p class="brand-description">Secure administrator login portal</p>
+            </div>
+
+            <!-- Error Alert -->
+            <% if (error) { %>
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <%= error %>
+                </div>
+            <% } %>
+
+            <!-- Login Form -->
+            <form action="/admin/login" method="POST" id="loginForm" class="login-form" novalidate>
+                <div class="form-group">
+                    <label for="email" class="form-label">
+                        <i class="bi bi-envelope"></i>
+                        Email Address
+                    </label>
+                    <input type="text"
+                           class="form-control"
+                           id="email"
+                           name="email"
+                           placeholder="Enter admin email"
+                           aria-describedby="email-error"
+                           autocomplete="email"
+                           inputmode="email">
+                    <div class="validation-message" id="email-error" role="alert" aria-live="polite"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">
+                        <i class="bi bi-lock"></i>
+                        Password
+                    </label>
+                    <div class="password-input-wrapper">
+                        <input type="password"
+                               class="form-control"
+                               id="password"
+                               name="password"
+                               placeholder="Enter password"
+                               aria-describedby="password-error">
+                        <button type="button" class="password-toggle" onclick="togglePassword()">
+                            <i id="eye-icon" class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    <div class="validation-message" id="password-error" role="alert" aria-live="polite"></div>
+                </div>
+
+                <button type="submit" class="login-btn">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    Secure Login
+                </button>
+            </form>
+
+            <!-- Footer Links -->
+            <div class="footer-link">
+                <small>
+                    Not an administrator?
+                    <a href="/login">User Login</a>
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle Password Visibility
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eye-icon');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.className = 'bi bi-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.className = 'bi bi-eye';
+            }
+        }
+
+        // Custom Validation Functions
+        function showValidationMessage(fieldId, message, isError = true) {
+            const errorElement = document.getElementById(fieldId + '-error');
+            const inputElement = document.getElementById(fieldId);
+            const formGroup = inputElement.closest('.form-group');
+
+            if (message) {
+                errorElement.innerHTML = `<i class="bi bi-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${message}`;
+                errorElement.classList.add('show');
+                errorElement.classList.toggle('success', !isError);
+
+                inputElement.classList.remove(isError ? 'valid' : 'error');
+                inputElement.classList.add(isError ? 'error' : 'valid');
+
+                formGroup.classList.remove(isError ? 'has-success' : 'has-error');
+                formGroup.classList.add(isError ? 'has-error' : 'has-success');
+
+                if (isError) {
+                    formGroup.classList.add('shake');
+                    setTimeout(() => formGroup.classList.remove('shake'), 500);
+                }
+            } else {
+                errorElement.classList.remove('show', 'success');
+                errorElement.innerHTML = '';
+                inputElement.classList.remove('error', 'valid');
+                formGroup.classList.remove('has-error', 'has-success');
+            }
+        }
+
+        function validateEmail(email) {
+            if (!email.trim()) {
+                return { isValid: false, message: 'Email address is required' };
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                return { isValid: false, message: 'Please enter a valid email address' };
+            }
+
+            return { isValid: true, message: 'Email format is valid' };
+        }
+
+        function validatePassword(password) {
+            if (!password.trim()) {
+                return { isValid: false, message: 'Password is required' };
+            }
+
+            if (password.length < 6) {
+                return { isValid: false, message: 'Password must be at least 6 characters long' };
+            }
+
+            return { isValid: true, message: 'Password meets requirements' };
+        }
+
+        function validateField(fieldId, forceValidation = false) {
+            const input = document.getElementById(fieldId);
+            const value = input.value;
+            let validation;
+
+            switch (fieldId) {
+                case 'email':
+                    validation = validateEmail(value);
+                    break;
+                case 'password':
+                    validation = validatePassword(value);
+                    break;
+                default:
+                    return true;
+            }
+
+            // For form submission, always show validation messages even for empty fields
+            if (forceValidation || value.trim() !== '') {
+                showValidationMessage(fieldId, validation.message, !validation.isValid);
+                return validation.isValid;
+            }
+
+            // For real-time validation, clear messages for empty fields
+            if (value.trim() === '') {
+                showValidationMessage(fieldId, '');
+                return false;
+            }
+
+            showValidationMessage(fieldId, validation.message, !validation.isValid);
+            return validation.isValid;
+        }
+
+        function validateForm() {
+            // Force validation for all fields, even if empty
+            const emailValid = validateField('email', true);
+            const passwordValid = validateField('password', true);
+
+            return emailValid && passwordValid;
+        }
+
+        // Enhanced Form Interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('input');
+            const form = document.getElementById('loginForm');
+
+            // Add real-time validation
+            inputs.forEach(input => {
+                // Floating effect on focus
+                input.addEventListener('focus', function() {
+                    this.closest('.form-group').style.transform = 'translateY(-2px)';
+                    this.closest('.form-group').style.transition = 'transform 0.2s ease';
+                });
+
+                input.addEventListener('blur', function() {
+                    this.closest('.form-group').style.transform = 'translateY(0)';
+                    // Validate on blur if field has content
+                    if (this.value.trim()) {
+                        validateField(this.id);
+                    } else {
+                        // Clear validation message if field is empty on blur
+                        showValidationMessage(this.id, '');
+                    }
+                });
+
+                // Real-time validation on input
+                input.addEventListener('input', function() {
+                    // Clear previous validation state if field becomes empty
+                    if (!this.value.trim()) {
+                        showValidationMessage(this.id, '');
+                    } else {
+                        // Debounced validation
+                        clearTimeout(this.validationTimeout);
+                        this.validationTimeout = setTimeout(() => {
+                            validateField(this.id);
+                        }, 300);
+                    }
+                });
+            });
+
+            // Enhanced form submission with validation
+            form.addEventListener('submit', function(e) {
+                // Always prevent default form submission first
+                e.preventDefault();
+                e.stopPropagation();
+
+                const submitBtn = form.querySelector('.login-btn');
+                const originalText = submitBtn.innerHTML;
+
+                // Validate all fields (force validation even for empty fields)
+                const isFormValid = validateForm();
+
+                if (!isFormValid) {
+                    // Find the first invalid field and focus on it
+                    const emailField = document.getElementById('email');
+                    const passwordField = document.getElementById('password');
+
+                    // Focus on first empty/invalid field
+                    if (!emailField.value.trim() || emailField.classList.contains('error')) {
+                        emailField.focus();
+                    } else if (!passwordField.value.trim() || passwordField.classList.contains('error')) {
+                        passwordField.focus();
+                    }
+
+                    // Prevent form submission
+                    return false;
+                }
+
+                // Show loading state only if validation passes
+                submitBtn.innerHTML = `
+                    <div class="loading"></div>
+                    Authenticating...
+                `;
+                submitBtn.disabled = true;
+
+                // Submit the form after a brief delay for UX
+                setTimeout(() => {
+                    // Remove novalidate temporarily and submit normally
+                    form.removeAttribute('novalidate');
+                    form.submit();
+                }, 500);
+
+                // Fallback reset after 10 seconds
+                setTimeout(() => {
+                    if (submitBtn.disabled) {
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                        form.setAttribute('novalidate', '');
+                    }
+                }, 10000);
+            });
+        });
+    </script>
+</body>
+</html>

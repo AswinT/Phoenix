@@ -1,0 +1,784 @@
+<%- include('../partials/admin/_adminHeader.ejs') %>
+<%- include("../partials/admin/_adminSidebar.ejs") %>
+
+<div class="admin-content">
+    <div class="modern-admin-container">
+        <!-- Page Header -->
+        <div class="admin-page-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1 class="page-title">
+                        <i class="bi bi-plus-circle"></i>
+                        Add New Category
+                    </h1>
+                    <p class="page-subtitle">Create a new category for your headphone collection</p>
+                </div>
+                <div class="header-actions">
+                    <a href="/admin/category" class="modern-btn modern-btn-secondary">
+                        <i class="bi bi-arrow-left"></i>
+                        Back to Categories
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Category Form -->
+        <div class="form-container">
+            <div class="form-card">
+                <div class="form-header">
+                    <h2 class="form-title">
+                        <i class="bi bi-tag"></i>
+                        Category Information
+                    </h2>
+                    <p class="form-subtitle">Fill in the details below to create a new category</p>
+                </div>
+
+                <div class="form-content">
+                    <form action="/admin/add-category" method="POST" id="categoryForm">
+                        <!-- Category Name -->
+                        <div class="form-group">
+                            <label for="name" class="form-label">
+                                <i class="bi bi-tag"></i>
+                                Category Name <span class="required">*</span>
+                            </label>
+                            <input type="text"
+                                   class="form-input"
+                                   id="name"
+                                   name="name"
+                                   placeholder="e.g., Over-ear, In-ear, Wireless, Gaming"
+                                   value="<%= category ? category.name : '' %>">
+                            <% if (error && error.name) { %>
+                                <div class="form-error server-error">
+                                    <%= error.name %>
+                                </div>
+                            <% } %>
+                            <div class="form-error" id="nameError"></div>
+                            <div class="form-help">
+                                Choose a clear, descriptive name for the headphone category
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="form-group">
+                            <label for="description" class="form-label">
+                                <i class="bi bi-file-text"></i>
+                                Description <span class="required">*</span>
+                            </label>
+                            <textarea class="form-input form-textarea"
+                                      id="description"
+                                      name="description"
+                                      rows="4"
+                                      placeholder="Describe this category of headphones..."><%= category ? category.description : '' %></textarea>
+                            <% if (error && error.description) { %>
+                                <div class="form-error server-error">
+                                    <%= error.description %>
+                                </div>
+                            <% } %>
+                            <div class="form-error" id="descriptionError"></div>
+                            <div class="form-help">
+                                Provide a detailed description to help customers understand this category
+                            </div>
+                        </div>
+
+                        <!-- Listing Status -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="bi bi-eye"></i>
+                                Listing Status
+                            </label>
+                            <div class="radio-group">
+                                <div class="radio-option">
+                                    <input class="radio-input"
+                                           type="radio"
+                                           name="isListed"
+                                           id="listed"
+                                           value="true"
+                                           <%= !category || category.isListed !== false ? 'checked' : '' %>>
+                                    <label class="radio-label" for="listed">
+                                        <div class="radio-content">
+                                            <i class="bi bi-check-circle radio-icon radio-icon-success"></i>
+                                            <div class="radio-text">
+                                                <span class="radio-title">Listed</span>
+                                                <span class="radio-description">Visible to customers</span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="radio-option">
+                                    <input class="radio-input"
+                                           type="radio"
+                                           name="isListed"
+                                           id="unlisted"
+                                           value="false"
+                                           <%= category && category.isListed === false ? 'checked' : '' %>>
+                                    <label class="radio-label" for="unlisted">
+                                        <div class="radio-content">
+                                            <i class="bi bi-eye-slash radio-icon radio-icon-warning"></i>
+                                            <div class="radio-text">
+                                                <span class="radio-title">Unlisted</span>
+                                                <span class="radio-description">Hidden from customers</span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-help">
+                                Listed categories will be visible to customers for filtering headphones
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="form-actions">
+                            <button type="submit" class="modern-btn modern-btn-primary" id="submitBtn">
+                                <i class="bi bi-plus-circle"></i>
+                                Add Category
+                            </button>
+                            <a href="/admin/category" class="modern-btn modern-btn-secondary">
+                                <i class="bi bi-arrow-left"></i>
+                                Back to Categories
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Phoenix Admin Add Category - Modern Black & White Theme */
+
+/* ===== LAYOUT & CONTAINER ===== */
+.admin-content {
+    margin-left: 280px;
+    padding: 2rem;
+    padding-top: calc(64px + 2rem);
+    background: #ffffff;
+    min-height: calc(100vh - 64px);
+    position: relative;
+    z-index: 1;
+}
+
+.modern-admin-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* ===== PAGE HEADER ===== */
+.admin-page-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.header-left {
+    flex: 1;
+    min-width: 300px;
+}
+
+.page-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #000000;
+    margin: 0 0 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.page-title i {
+    font-size: 1.75rem;
+}
+
+.page-subtitle {
+    font-size: 1rem;
+    color: #6b7280;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.header-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+}
+
+/* ===== MODERN BUTTONS ===== */
+.modern-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.modern-btn-primary {
+    background: #000000;
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.modern-btn-primary:hover {
+    background: #1a1a1a;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    text-decoration: none;
+}
+
+.modern-btn-primary:disabled {
+    background: #6b7280;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.modern-btn-secondary {
+    background: #ffffff;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.modern-btn-secondary:hover {
+    background: #f9fafb;
+    color: #000000;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+}
+
+/* ===== FORM CONTAINER ===== */
+.form-container {
+    display: flex;
+    justify-content: center;
+}
+
+.form-card {
+    width: 100%;
+    max-width: 600px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.form-header {
+    background: #000000;
+    color: #ffffff;
+    padding: 2rem;
+    text-align: center;
+}
+
+.form-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.form-title i {
+    font-size: 1.25rem;
+}
+
+.form-subtitle {
+    font-size: 0.875rem;
+    color: #d1d5db;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.form-content {
+    padding: 2rem;
+}
+
+/* ===== FORM ELEMENTS ===== */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.form-label i {
+    font-size: 1rem;
+    color: #000000;
+}
+
+.required {
+    color: #ef4444;
+    font-weight: 700;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    font-size: 0.875rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    background: #ffffff;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.form-input:focus {
+    border-color: #000000;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.form-input.error {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+}
+
+.form-error {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #ef4444;
+    display: none;
+}
+
+.form-error.server-error {
+    display: block;
+}
+
+.form-help {
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+/* ===== RADIO BUTTONS ===== */
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.radio-option {
+    position: relative;
+}
+
+.radio-input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.radio-label {
+    display: block;
+    padding: 1rem;
+    background: #ffffff;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.radio-label:hover {
+    border-color: #d1d5db;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.radio-input:checked + .radio-label {
+    border-color: #000000;
+    background: #f9fafb;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.radio-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.radio-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.radio-icon-success {
+    color: #22c55e;
+}
+
+.radio-icon-warning {
+    color: #f59e0b;
+}
+
+.radio-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.radio-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.radio-description {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+/* ===== FORM ACTIONS ===== */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+    .admin-content {
+        margin-left: 0;
+        padding: 1rem;
+        padding-top: calc(64px + 1rem);
+    }
+
+    .header-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1.5rem;
+    }
+
+    .header-left {
+        min-width: auto;
+    }
+
+    .page-title {
+        font-size: 1.5rem;
+    }
+
+    .form-card {
+        margin: 0;
+        border-radius: 8px;
+    }
+
+    .form-header {
+        padding: 1.5rem;
+    }
+
+    .form-title {
+        font-size: 1.25rem;
+    }
+
+    .form-content {
+        padding: 1.5rem;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .modern-btn {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .radio-group {
+        gap: 0.5rem;
+    }
+
+    .radio-label {
+        padding: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-content {
+        padding: 0.75rem;
+        padding-top: calc(64px + 0.75rem);
+    }
+
+    .form-header {
+        padding: 1rem;
+    }
+
+    .form-content {
+        padding: 1rem;
+    }
+
+    .page-title {
+        font-size: 1.25rem;
+    }
+
+    .form-title {
+        font-size: 1.125rem;
+    }
+}
+
+<script>
+// Phoenix Admin Add Category - Modern JavaScript Validation
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializeFormValidation();
+    initializeFormAnimations();
+});
+
+// ===== FORM VALIDATION =====
+function initializeFormValidation() {
+    const form = document.getElementById('categoryForm');
+    const nameInput = document.getElementById('name');
+    const descriptionInput = document.getElementById('description');
+    const submitBtn = document.getElementById('submitBtn');
+
+    if (!form || !nameInput || !descriptionInput || !submitBtn) return;
+
+    // Validation on blur events
+    nameInput.addEventListener('blur', function() {
+        validateCategoryName();
+    });
+
+    descriptionInput.addEventListener('blur', function() {
+        validateDescription();
+    });
+
+    // Validation on form submit
+    form.addEventListener('submit', function(e) {
+        const isNameValid = validateCategoryName();
+        const isDescriptionValid = validateDescription();
+
+        if (!isNameValid || !isDescriptionValid) {
+            e.preventDefault();
+            return false;
+        }
+
+        // Show loading state
+        showLoadingState();
+    });
+
+    // Real-time validation for name input
+    nameInput.addEventListener('input', function() {
+        clearError('nameError');
+        nameInput.classList.remove('error');
+    });
+
+    // Real-time validation for description input
+    descriptionInput.addEventListener('input', function() {
+        clearError('descriptionError');
+        descriptionInput.classList.remove('error');
+    });
+
+    function validateCategoryName() {
+        const name = nameInput.value.trim();
+        const nameError = document.getElementById('nameError');
+
+        // Clear previous errors
+        clearError('nameError');
+        nameInput.classList.remove('error');
+
+        // Required field validation
+        if (!name) {
+            showError('nameError', 'Category name is required');
+            nameInput.classList.add('error');
+            return false;
+        }
+
+        // Length validation
+        if (name.length < 2) {
+            showError('nameError', 'Category name must be at least 2 characters long');
+            nameInput.classList.add('error');
+            return false;
+        }
+
+        if (name.length > 50) {
+            showError('nameError', 'Category name cannot exceed 50 characters');
+            nameInput.classList.add('error');
+            return false;
+        }
+
+        // Character validation (alphabetic + spaces/punctuation only)
+        const validPattern = /^[a-zA-Z\s\-\.\,\'\(\)]+$/;
+        if (!validPattern.test(name)) {
+            showError('nameError', 'Category name can only contain letters, spaces, and basic punctuation');
+            nameInput.classList.add('error');
+            return false;
+        }
+
+        // Check for consecutive spaces
+        if (/\s{2,}/.test(name)) {
+            showError('nameError', 'Category name cannot contain consecutive spaces');
+            nameInput.classList.add('error');
+            return false;
+        }
+
+        // Check for leading/trailing spaces
+        if (name !== name.trim()) {
+            showError('nameError', 'Category name cannot start or end with spaces');
+            nameInput.classList.add('error');
+            return false;
+        }
+
+        return true;
+    }
+
+    function validateDescription() {
+        const description = descriptionInput.value.trim();
+
+        // Clear previous errors
+        clearError('descriptionError');
+        descriptionInput.classList.remove('error');
+
+        // Required field validation
+        if (!description) {
+            showError('descriptionError', 'Description is required');
+            descriptionInput.classList.add('error');
+            return false;
+        }
+
+        // Length validation
+        if (description.length < 10) {
+            showError('descriptionError', 'Description must be at least 10 characters long');
+            descriptionInput.classList.add('error');
+            return false;
+        }
+
+        if (description.length > 500) {
+            showError('descriptionError', 'Description cannot exceed 500 characters');
+            descriptionInput.classList.add('error');
+            return false;
+        }
+
+        return true;
+    }
+
+    function showError(errorId, message) {
+        const errorElement = document.getElementById(errorId);
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+    }
+
+    function clearError(errorId) {
+        const errorElement = document.getElementById(errorId);
+        if (errorElement) {
+            errorElement.style.display = 'none';
+            errorElement.textContent = '';
+        }
+    }
+
+    function showLoadingState() {
+        submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Adding Category...';
+        submitBtn.disabled = true;
+
+        // Disable form inputs
+        nameInput.disabled = true;
+        descriptionInput.disabled = true;
+
+        // Disable radio buttons
+        const radioInputs = form.querySelectorAll('input[type="radio"]');
+        radioInputs.forEach(input => input.disabled = true);
+    }
+}
+
+// ===== FORM ANIMATIONS =====
+function initializeFormAnimations() {
+    const formCard = document.querySelector('.form-card');
+
+    if (formCard) {
+        // Initial animation
+        formCard.style.opacity = '0';
+        formCard.style.transform = 'translateY(20px)';
+        formCard.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+
+        // Animate in
+        setTimeout(() => {
+            formCard.style.opacity = '1';
+            formCard.style.transform = 'translateY(0)';
+        }, 100);
+    }
+
+    // Add hover effects to radio options
+    const radioLabels = document.querySelectorAll('.radio-label');
+    radioLabels.forEach(label => {
+        label.addEventListener('mouseenter', function() {
+            if (!this.previousElementSibling.checked) {
+                this.style.transform = 'translateY(-1px)';
+            }
+        });
+
+        label.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+}
+
+// ===== UTILITY FUNCTIONS =====
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'success' ? '#22c55e' : '#ef4444'};
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        z-index: 10000;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+    `;
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+    }, 100);
+
+    setTimeout(() => {
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 3000);
+}
+</script>

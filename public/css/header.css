@@ -1,0 +1,209 @@
+/* Phoenix Headphone Store - Header Styles */
+
+/* Navigation Bar Styling */
+.navbar {
+    background-color: #000000 !important;
+    border-bottom: 1px solid #333333;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 0.75rem 0;
+}
+
+.navbar-dark {
+    background-color: #000000 !important;
+}
+
+.bg-dark {
+    background-color: #000000 !important;
+}
+
+.navbar-brand {
+    color: #ffffff !important;
+    font-weight: 800;
+    font-size: 1.75rem !important;
+    letter-spacing: -0.025em;
+    text-decoration: none;
+}
+
+.navbar-brand:hover {
+    color: #f5f5f5 !important;
+}
+
+/* Navigation Links */
+.navbar-nav .nav-link {
+    color: #ffffff !important;
+    font-weight: 500;
+    padding: 0.5rem 1rem !important;
+    transition: all 0.3s ease;
+    border-radius: 6px;
+    margin: 0 0.25rem;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #e5e5e5 !important;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-nav .nav-link:focus {
+    color: #ffffff !important;
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+}
+
+/* Search Bar */
+.search-bar {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
+    padding: 0.5rem 1rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.search-bar::placeholder {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.search-bar:focus {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25) !important;
+}
+
+/* Form control overrides */
+.form-control {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}
+
+.form-control:focus {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25) !important;
+}
+
+/* Buttons */
+.btn-outline-light {
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+    font-weight: 500;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-light:hover {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border-color: #ffffff !important;
+}
+
+.btn-outline-light:focus {
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.5) !important;
+}
+
+/* User Dropdown */
+.dropdown-toggle {
+    color: #ffffff !important;
+    border: none;
+    background: none;
+    font-weight: 500;
+}
+
+.dropdown-toggle:hover {
+    color: #e5e5e5 !important;
+}
+
+.dropdown-toggle:focus {
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+}
+
+.dropdown-menu {
+    background-color: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-top: 0.5rem;
+}
+
+.dropdown-item {
+    color: #000000;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.dropdown-item:hover {
+    background-color: #f5f5f5;
+    color: #000000;
+}
+
+/* Mobile Navigation */
+@media (max-width: 768px) {
+    .navbar-brand {
+        font-size: 1.5rem !important;
+    }
+    
+    .navbar-nav {
+        background-color: rgba(0, 0, 0, 0.95);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .navbar-nav .nav-link {
+        padding: 0.75rem 1rem !important;
+        margin: 0.25rem 0;
+    }
+}
+
+/* Ensure text visibility */
+.text-light {
+    color: #ffffff !important;
+}
+
+.text-white {
+    color: #ffffff !important;
+}
+
+/* Fix for Bootstrap conflicts */
+.navbar-dark .navbar-nav .nav-link {
+    color: #ffffff !important;
+}
+
+.navbar-dark .navbar-brand {
+    color: #ffffff !important;
+}
+
+.navbar-dark .navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-dark .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* Container adjustments */
+.container-fluid {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+/* Icon styling */
+.bi {
+    font-size: 1.1rem;
+}
+
+.fs-5 {
+    font-size: 1.25rem !important;
+}
+
+/* Gap utilities */
+.gap-1 {
+    gap: 0.25rem !important;
+}
+
+.gap-2 {
+    gap: 0.5rem !important;
+}
