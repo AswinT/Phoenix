@@ -1,6 +1,8 @@
 const User = require("../models/user");
 
+// Service class to handle user input validation
 class UserValidationService {
+    // Validate all signup form fields
     static validateSignupFields(body) {
         const { fullname, email, mobile, password, confirmPassword } = body;
         const errors = {};
@@ -82,16 +84,19 @@ class UserValidationService {
         return null;
     }
 
+    // Check if email format is valid using regex
     static isValidEmail(email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     }
 
+    // Check if mobile number is valid (10 digits)
     static isValidMobile(mobile) {
         const mobileRegex = /^[0-9]{10}$/;
         return mobileRegex.test(mobile.replace(/\s+/g, ''));
     }
 
+    // Check if user already exists in database
     static async checkUserExists(email) {
         try {
             const existingUser = await User.findOne({ email: email.trim() });
@@ -102,6 +107,7 @@ class UserValidationService {
         }
     }
 
+    // Validate user credentials and account status for login
     static async validateUserForLogin(email, password) {
         const user = await User.findOne({ email });
 

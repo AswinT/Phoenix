@@ -2,8 +2,10 @@ const Review = require("../../models/review");
 const Product = require("../../models/product");
 const User = require("../../models/user");
 
+// Submit a new product review with validation
 const submitReview = async (req, res, next) => {
     try {
+        // Check user authentication
         const user = req.session.user;
         if (!user) {
             return res.status(401).json({ 
@@ -15,6 +17,7 @@ const submitReview = async (req, res, next) => {
         const productId = req.params.id;
         const { rating, reviewText, isAnonymous } = req.body;
 
+        // Validate required fields
         if (!rating || !reviewText) {
             return res.status(400).json({ 
                 success: false, 
@@ -22,6 +25,7 @@ const submitReview = async (req, res, next) => {
             });
         }
 
+        // Validate rating range
         if (rating < 1 || rating > 5) {
             return res.status(400).json({ 
                 success: false, 
@@ -29,6 +33,7 @@ const submitReview = async (req, res, next) => {
             });
         }
 
+        // Validate review text length
         if (reviewText.trim().length < 10) {
             return res.status(400).json({ 
                 success: false, 
@@ -43,6 +48,7 @@ const submitReview = async (req, res, next) => {
             });
         }
 
+        // Verify product exists and is active
         const product = await Product.findById(productId);
         if (!product || !product.isActive || !product.isExisting) {
             return res.status(404).json({ 
@@ -51,6 +57,7 @@ const submitReview = async (req, res, next) => {
             });
         }
 
+        // Check if user has already reviewed this product
         const existingReview = await Review.findOne({ 
             productId, 
             userId: user._id 
@@ -63,6 +70,7 @@ const submitReview = async (req, res, next) => {
             });
         }
 
+        // Get user details for reviewer name
         const userDetails = await User.findById(user._id);
         if (!userDetails) {
             return res.status(404).json({ 
@@ -71,6 +79,7 @@ const submitReview = async (req, res, next) => {
             });
         }
 
+        // Create and save new review
         const newReview = new Review({
             productId,
             userId: user._id,
@@ -98,6 +107,7 @@ const submitReview = async (req, res, next) => {
     } catch (error) {
         console.error('Error submitting review:', error);
         
+        // Handle duplicate review error
         if (error.code === 11000) {
             return res.status(400).json({ 
                 success: false, 
@@ -112,6 +122,7 @@ const submitReview = async (req, res, next) => {
     }
 };
 
+// Get paginated product reviews with sorting options
 const getProductReviews = async (req, res, next) => {
     try {
         const productId = req.params.id;
@@ -119,6 +130,7 @@ const getProductReviews = async (req, res, next) => {
         const limit = parseInt(req.query.limit) || 5;
         const sortBy = req.query.sort || 'newest';
 
+        // Build sort criteria based on user selection
         let sortCriteria = {};
         switch (sortBy) {
             case 'oldest':
@@ -134,13 +146,14 @@ const getProductReviews = async (req, res, next) => {
                 sortCriteria = { helpfulCount: -1, createdAt: -1 };
                 break;
             default:
-                sortCriteria = { createdAt: -1 };
+                sortCriteria = { createdAt: -1 }; // Newest first
         }
 
+        // Fetch reviews with pagination
         const skip = (page - 1) * limit;
         const reviews = await Review.find({ 
             productId, 
-            isApproved: true 
+            isApproved: true // Only show approved reviews
         })
         .sort(sortCriteria)
         .skip(skip)
@@ -148,6 +161,7 @@ const getProductReviews = async (req, res, next) => {
         .populate('userId', 'fullname')
         .lean();
 
+        // Get total count for pagination
         const totalReviews = await Review.countDocuments({ 
             productId, 
             isApproved: true 
@@ -155,6 +169,7 @@ const getProductReviews = async (req, res, next) => {
 
         const totalPages = Math.ceil(totalReviews / limit);
 
+        // Format reviews with time ago
         const formattedReviews = reviews.map(review => ({
             _id: review._id,
             rating: review.rating,
@@ -186,6 +201,7 @@ const getProductReviews = async (req, res, next) => {
     }
 };
 
+// Check if current user has already reviewed a product
 const checkUserReview = async (req, res, next) => {
     try {
         const user = req.session.user;
@@ -217,6 +233,7 @@ const checkUserReview = async (req, res, next) => {
     }
 };
 
+// Mark a review as helpful (one vote per user)
 const markHelpful = async (req, res, next) => {
     try {
         const user = req.session.user;
@@ -237,6 +254,7 @@ const markHelpful = async (req, res, next) => {
             });
         }
 
+        // Check if user has already voted
         const alreadyMarked = review.helpfulVotes.some(
             vote => vote.userId.toString() === user._id.toString()
         );
@@ -248,6 +266,7 @@ const markHelpful = async (req, res, next) => {
             });
         }
 
+        // Add helpful vote and update count
         review.helpfulVotes.push({ userId: user._id });
         review.helpfulCount = review.helpfulVotes.length;
         await review.save();
@@ -267,6 +286,7 @@ const markHelpful = async (req, res, next) => {
     }
 };
 
+// Helper function to calculate time difference for display
 function getTimeAgo(date) {
     const now = new Date();
     const diffInSeconds = Math.floor((now - date) / 1000);

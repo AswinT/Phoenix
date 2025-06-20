@@ -1,7 +1,9 @@
+// Global error handler middleware - handles all unhandled errors
 const errorHandler = (err, req, res, next) => {
     let status = err.status || err.statusCode || 500;
     let message = err.message || 'Internal Server Error';
 
+    // Handle specific error types
     if (err.name === 'ValidationError') {
         status = 400;
         message = 'Validation Error';
@@ -13,6 +15,7 @@ const errorHandler = (err, req, res, next) => {
         message = 'Duplicate entry';
     }
 
+    // Send JSON response for AJAX requests
     if (req.xhr || req.headers.accept?.indexOf('json') > -1) {
         res.status(status).json({
             error: true,
@@ -22,6 +25,7 @@ const errorHandler = (err, req, res, next) => {
             method: req.method
         });
     } else {
+        // Render error page for regular requests
         try {
             res.status(status).render('user/errorPage', {
                 status: status,
@@ -34,6 +38,7 @@ const errorHandler = (err, req, res, next) => {
                 }
             });
         } catch (renderError) {
+            // Fallback if error page rendering fails
             res.status(500).send(`
                 <h1>Internal Server Error</h1>
                 <p>Original Error: ${err.message}</p>

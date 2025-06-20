@@ -4,6 +4,7 @@ const Product = require("../../models/product")
 
 const getadminLogin = (req, res, next) => {
     try {
+        // Redirect if admin is already logged in
         if (req.session.admin) return res.redirect("/admin/dashboard")
         res.render("admin/adminlogin", { error: null })
     } catch (err) {
@@ -18,6 +19,7 @@ const login = async (req, res, next) => {
 
         const { email, password } = req.body
 
+        // Basic field validation
         if (!email || !password)
             return res.render("admin/adminlogin", { error: "All Fields are Required" })
 
@@ -26,14 +28,17 @@ const login = async (req, res, next) => {
         if (!user)
             return res.render("admin/adminlogin", { error: "Account not Found" })
 
+        // Check if user has admin privileges
         if (!user.isAdmin)
             return res.render("admin/adminlogin", { error: "Unauthorized Access" })
 
+        // Verify password
         const isMatch = await bcrypt.compare(password, user.password)
 
         if (!isMatch)
             return res.render("admin/adminlogin", { error: "Invalid Credentials" })
 
+        // Set admin session and redirect to dashboard
         req.session.admin = email
         res.redirect("/admin/dashboard")
     } catch (error) {
@@ -59,9 +64,11 @@ const adminLogout = (req, res, next) => {
 
 const adminDashboard = async (req, res, next) => {
     try {
+        // Check if admin is logged in
         if (!req.session.admin)
             return res.redirect("/admin/login")
 
+        // Fetch dashboard statistics
         const productCount = await Product.countDocuments()
         const userCount = await User.countDocuments({ isAdmin: false })
 

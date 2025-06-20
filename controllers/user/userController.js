@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer")
 const Product = require("../../models/product")
 
+// Import service modules for better code organization
 const UserValidationService = require("../../services/userValidationService");
 const EmailService = require("../../services/emailService");
 const OtpService = require("../../services/otpService");
@@ -34,6 +35,7 @@ const contactUsPage = (req, res, next) => {
 
 const landingPage = async (req, res, next) => {
     try {
+        // Fetch featured products for homepage display
         const { products, gamingProducts } = await ProductDisplayService.getLandingPageProducts();
         const user = req.session.user;
 
@@ -50,6 +52,7 @@ const landingPage = async (req, res, next) => {
 
 const loginPage = (req, res, next) => {
     try {
+        // Redirect if user is already logged in
         if (req.session.user) return res.redirect("/")
         res.render("user/userLogin", { 
             error: null,
@@ -63,6 +66,7 @@ const loginPage = (req, res, next) => {
 
 const signupPage = (req, res, next) => {
     try {
+        // Redirect if user is already logged in
         if (req.session.user) return res.redirect("/")
         return res.render("user/userSignUp", {
             errors: null,
@@ -80,6 +84,7 @@ const signup = async (req, res, next) => {
     try {
         const { fullname, email, mobile, password, confirmPassword } = req.body;
 
+        // Validate all signup fields
         const errors = UserValidationService.validateSignupFields(req.body);
         
         if (Object.keys(errors).length > 0) {
@@ -91,6 +96,7 @@ const signup = async (req, res, next) => {
             });
         }
 
+        // Check if user already exists
         const existingUser = await UserValidationService.checkUserExists(email);
         
         if (existingUser) {
@@ -102,11 +108,13 @@ const signup = async (req, res, next) => {
             });
         }
 
+        // Hash password and generate OTP for verification
         const hashedPassword = await UserAuthService.hashPassword(password);
         const otp = OtpService.generateOtp();
         
         console.log('📧 Signup OTP for', email + ':', otp);
 
+        // Store user data temporarily in session until OTP verification
         OtpService.storeSignupOtp(req.session, otp, {
             fullname,
             email,

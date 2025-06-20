@@ -1,7 +1,9 @@
 const nodemailer = require("nodemailer");
 require("dotenv").config();
 
+// Service class to handle all email-related operations
 class EmailService {
+    // Create and configure email transporter using Gmail
     static createTransporter() {
         return nodemailer.createTransport({
             service: "gmail",
@@ -14,12 +16,14 @@ class EmailService {
         });
     }
 
+    // Generate 6-digit OTP for verification
     static generateOtp() {
         const otp = Math.floor(100000 + Math.random() * 900000);
         console.log(' Generated OTP:', otp);
         return otp;
     }
 
+    // Send verification email for user signup
     static async sendVerificationEmail(email, otp) {
         const transporter = this.createTransporter();
 
@@ -39,6 +43,7 @@ class EmailService {
         }
     }
 
+    // Send password reset email with OTP
     static async sendPasswordResetEmail(email, otp) {
         const transporter = this.createTransporter();
 

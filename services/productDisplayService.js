@@ -1,6 +1,8 @@
 const Product = require("../models/product");
 
+// Service class to handle product display logic for frontend
 class ProductDisplayService {
+    // Get latest active products for homepage display
     static async getLatestProducts(limit = 4) {
         try {
             return await Product.find({ 
@@ -16,6 +18,7 @@ class ProductDisplayService {
         }
     }
 
+    // Get products filtered by category
     static async getProductsByCategory(category, limit = 4) {
         try {
             return await Product.find({
@@ -32,8 +35,10 @@ class ProductDisplayService {
         }
     }
 
+    // Get all products needed for landing page display
     static async getLandingPageProducts() {
         try {
+            // Fetch both latest products and gaming products simultaneously
             const [products, gamingProducts] = await Promise.all([
                 this.getLatestProducts(4),
                 this.getProductsByCategory("Gaming", 4)

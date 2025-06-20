@@ -1,12 +1,13 @@
 const EmailService = require("./emailService");
 
+// Service class to handle OTP generation, validation, and management
 class OtpService {
     static generateOtp() {
         return EmailService.generateOtp();
     }
 
     static getOtpExpiry() {
-        return Date.now() + 10 * 60 * 1000; // 10 minutes
+        return Date.now() + 10 * 60 * 1000; // 10 minutes from now
     }
 
     static isOtpExpired(expiry) {
@@ -17,6 +18,7 @@ class OtpService {
         return parseInt(inputOtp) === sessionOtp;
     }
 
+    // Store user data temporarily in session during signup process
     static storeSignupOtp(session, otp, userData) {
         session.tempUser = {
             fullname: userData.fullname.trim(),
@@ -28,6 +30,7 @@ class OtpService {
         session.otpExpiry = this.getOtpExpiry();
     }
 
+    // Store password reset OTP data in session
     static storePasswordResetOtp(session, otp, email) {
         session.resetOtp = otp;
         session.resetOtpExpiry = this.getOtpExpiry();

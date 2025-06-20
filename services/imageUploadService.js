@@ -2,7 +2,9 @@ const cloudinary = require("../config/cloudinary");
 const fs = require("fs");
 const path = require("path");
 
+// Service class to handle image uploads (Cloudinary or local storage)
 class ImageUploadService {
+    // Check if Cloudinary is properly configured
     static isCloudinaryConfigured() {
         return process.env.CLOUDINARY_CLOUD_NAME &&
                process.env.CLOUDINARY_API_KEY &&
@@ -10,6 +12,7 @@ class ImageUploadService {
                process.env.CLOUDINARY_CLOUD_NAME !== 'your_cloudinary_cloud_name_here';
     }
 
+    // Upload image to Cloudinary with optimization
     static async uploadToCloudinary(fileBuffer, uploadOptions) {
         return new Promise((resolve, reject) => {
             const stream = cloudinary.uploader.upload_stream(uploadOptions, (err, result) => {
@@ -20,9 +23,11 @@ class ImageUploadService {
         });
     }
 
+    // Fallback: Upload image to local storage
     static async uploadToLocal(fileBuffer, fileName) {
         const localImagePath = path.join('public', 'uploads', 'headphones');
         
+        // Create directory if it doesn't exist
         if (!fs.existsSync(localImagePath)) {
             fs.mkdirSync(localImagePath, { recursive: true });
         }
@@ -64,6 +69,7 @@ class ImageUploadService {
         }
     }
 
+    // Upload a single image file with proper error handling
     static async uploadSingleImage(file, index) {
         const fileBuffer = this.getFileBuffer(file);
         const isCloudinaryConfigured = this.isCloudinaryConfigured();
@@ -71,6 +77,7 @@ class ImageUploadService {
         let result;
         
         if (isCloudinaryConfigured) {
+            // Upload to Cloudinary with image optimization
             const uploadOptions = {
                 folder: "headphones",
                 transformation: [
@@ -80,10 +87,12 @@ class ImageUploadService {
             };
             result = await this.uploadToCloudinary(fileBuffer, uploadOptions);
         } else {
+            // Fallback to local storage
             const fileName = `${Date.now()}-${index}-${file.originalname || 'image.jpg'}`;
             result = await this.uploadToLocal(fileBuffer, fileName);
         }
 
+        // Clean up temporary files
         this.cleanupTempFile(file.path);
 
         return {
@@ -92,12 +101,14 @@ class ImageUploadService {
         };
     }
 
+    // Upload multiple product images with validation (minimum 3 required)
     static async uploadProductImages(files) {
         const fileFields = ["images[0].file", "images[1].file", "images[2].file", "images[3].file", "images[4].file"];
         const images = [];
         const uploadPromises = [];
         const uploadErrors = [];
 
+        // Process each image slot
         for (let i = 0; i < 5; i++) {
             const fieldName = fileFields[i];
             const fileArray = files?.[fieldName];
@@ -126,8 +137,10 @@ class ImageUploadService {
             uploadPromises.push(uploadPromise);
         }
 
+        // Wait for all uploads to complete
         await Promise.all(uploadPromises);
 
+        // Validate minimum image requirement
         const errors = {};
         if (images.length < 3) {
             errors.images = "At least 3 images are required";
@@ -137,6 +150,7 @@ class ImageUploadService {
             errors.imageUpload = uploadErrors.join("; ");
         }
 
+        // Set first image as main image
         if (images.length > 0) {
             images[0].isMain = true;
             for (let i = 1; i < images.length; i++) {

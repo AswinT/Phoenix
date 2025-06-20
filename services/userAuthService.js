@@ -2,7 +2,9 @@ const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const UserValidationService = require("./userValidationService");
 
+// Service class to handle user authentication operations
 class UserAuthService {
+    // Hash password with bcrypt (salt rounds: 10)
     static async hashPassword(password) {
         try {
             return await bcrypt.hash(password, 10);
@@ -12,6 +14,7 @@ class UserAuthService {
         }
     }
 
+    // Compare plain password with hashed password
     static async comparePassword(plainPassword, hashedPassword) {
         try {
             return await bcrypt.compare(plainPassword, hashedPassword);
@@ -21,6 +24,7 @@ class UserAuthService {
         }
     }
 
+    // Create new user account after OTP verification
     static async createUser(userData) {
         try {
             const newUser = new User({
@@ -38,6 +42,7 @@ class UserAuthService {
         }
     }
 
+    // Authenticate user login credentials
     static async authenticateUser(email, password) {
         try {
             const validation = await UserValidationService.validateUserForLogin(email, password);
@@ -49,6 +54,7 @@ class UserAuthService {
                 };
             }
 
+            // Verify password matches
             const isMatch = await this.comparePassword(password, validation.user.password);
 
             if (!isMatch) {
@@ -72,6 +78,7 @@ class UserAuthService {
         }
     }
 
+    // Reset user password after OTP verification
     static async resetUserPassword(email, newPassword) {
         try {
             const hashedPassword = await this.hashPassword(newPassword);
@@ -91,11 +98,13 @@ class UserAuthService {
         }
     }
 
+    // Set user session data after successful login
     static setUserSession(session, user) {
         session.user = user;
         session.username = user.fullname;
     }
 
+    // Clear user session on logout
     static clearUserSession(session, callback) {
         session.destroy(callback);
     }

@@ -1,6 +1,8 @@
 const Product = require("../models/product");
 
+// Service class to handle product form validation
 class ProductValidationService {
+    // Validate all required product fields
     static validateRequiredFields(body) {
         const requiredFields = [
             "name",
@@ -27,6 +29,7 @@ class ProductValidationService {
         return errors;
     }
 
+    // Validate custom driver size format
     static validateDriverSize(body, errors) {
         if (body.driverSize === 'custom') {
             if (!body.customDriverSize || body.customDriverSize.trim() === '') {
@@ -37,6 +40,7 @@ class ProductValidationService {
         }
     }
 
+    // Validate product pricing logic
     static validatePricing(body, errors) {
         if (body.regularPrice && (isNaN(body.regularPrice) || body.regularPrice < 0)) {
             errors.regularPrice = "Regular price must be a positive number";
@@ -46,6 +50,7 @@ class ProductValidationService {
             errors.salePrice = "Sale price must be a positive number";
         }
 
+        // Ensure sale price is not higher than regular price
         if (body.salePrice && body.regularPrice && !isNaN(body.salePrice) && !isNaN(body.regularPrice)) {
             const regular = parseFloat(body.regularPrice);
             const sale = parseFloat(body.salePrice);
@@ -55,17 +60,20 @@ class ProductValidationService {
         }
     }
 
+    // Validate stock quantity
     static validateStock(body, errors) {
         if (body.stock && (isNaN(body.stock) || body.stock < 0)) {
             errors.stock = "Stock must be a positive number";
         }
     }
 
+    // Check if product name already exists (case-insensitive)
     static async validateProductUniqueness(name, productId = null) {
         const query = {
             name: { $regex: new RegExp(`^${name}$`, 'i') }
         };
         
+        // Exclude current product when updating
         if (productId) {
             query._id = { $ne: productId };
         }
@@ -74,6 +82,7 @@ class ProductValidationService {
         return existingProduct ? 'The headphone already exists' : null;
     }
 
+    // Main validation method that combines all validations
     static async validateProduct(body, productId = null) {
         const errors = this.validateRequiredFields(body);
         

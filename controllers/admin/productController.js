@@ -3,20 +3,25 @@ const Category = require("../../models/category")
 const cloudinary = require("../../config/cloudinary")
 const fs = require("fs")
 
+// Import service modules for product management
 const ProductValidationService = require("../../services/productValidationService")
 const ImageUploadService = require("../../services/imageUploadService")
 const ProductQueryService = require("../../services/productQueryService")
 const ProductDataService = require("../../services/productDataService")
 
+// Display paginated product list with search and filter functionality
 const productListing = async (req, res, next) => {
     try {
         if (!req.session.admin) return res.redirect("/admin");
 
+        // Extract query parameters and pagination settings
         const queryParams = ProductDataService.extractQueryParams(req.query);
         const { page, limit } = ProductDataService.extractPaginationParams(req.query);
 
+        // Get filter options for dropdowns
         const { categories, brands } = await ProductQueryService.getFilterOptions();
 
+        // Fetch products with applied filters and pagination
         const result = await ProductQueryService.getProductsWithPagination(queryParams, page, limit);
         
         if (result.shouldRedirect) {
@@ -43,6 +48,7 @@ const productListing = async (req, res, next) => {
     }
 }
 
+// Display add product form
 const newProduct = async (req, res, next) => {
     try {
         if (!req.session.admin) return res.redirect("/admin");
@@ -55,10 +61,12 @@ const newProduct = async (req, res, next) => {
     }
 }
 
+// Create new product with validation and image upload
 const addProduct = async (req, res, next) => {
     try {
         if (!req.session.admin) return res.redirect("/admin");
 
+        // Validate product data
         const errors = await ProductValidationService.validateProduct(req.body);
         const formData = { ...req.body };
 
@@ -67,6 +75,7 @@ const addProduct = async (req, res, next) => {
             return res.render("admin/addProduct", { categories, errors, formData });
         }
 
+        // Upload product images (minimum 3 required)
         const { images, errors: imageErrors } = await ImageUploadService.uploadProductImages(req.files);
         
         if (Object.keys(imageErrors).length > 0) {
@@ -79,9 +88,11 @@ const addProduct = async (req, res, next) => {
         }
 
         try {
+            // Find category and build product data
             const category = await ProductDataService.findCategoryByName(req.body.category);
             const productData = ProductDataService.buildProductData(req.body, category._id, images);
 
+            // Save product to database
             const product = new Product(productData);
             await product.save();
             
@@ -174,6 +185,7 @@ const updateProduct = async (req, res, next) => {
     }
 };
 
+// Toggle product active/inactive status
 const toggleProduct = async (req, res, next) => {
     try {
         if (!req.session.admin) return res.redirect("/admin");
@@ -185,6 +197,7 @@ const toggleProduct = async (req, res, next) => {
             return res.json({ success: false, message: "Product not found" })
         }
 
+        // Toggle active status
         product.isActive = !product.isActive
         await product.save()
 
@@ -195,6 +208,7 @@ const toggleProduct = async (req, res, next) => {
     }
 }
 
+// Soft delete product (mark as non-existing)
 const softDelete = async (req, res, next) => {
     try {
         if (!req.session.admin) return res.redirect("/admin");
@@ -206,6 +220,7 @@ const softDelete = async (req, res, next) => {
             return res.json({ success: false, message: "Product not found" })
         }
 
+        // Mark as non-existing instead of hard delete
         product.isExisting = !product.isExisting
         await product.save()
 
@@ -216,6 +231,7 @@ const softDelete = async (req, res, next) => {
     }
 }
 
+// Delete individual product image with validation
 const deleteProductImage = async (req, res, next) => {
     try {
         if (!req.session.admin) {
@@ -230,10 +246,12 @@ const deleteProductImage = async (req, res, next) => {
             return res.status(404).json({ success: false, message: "Product not found" });
         }
 
+        // Validate image index
         if (!product.images || imageIndex < 0 || imageIndex >= product.images.length) {
             return res.status(400).json({ success: false, message: "Invalid image index" });
         }
 
+        // Ensure minimum 3 images requirement
         if (product.images.length <= 3) {
             return res.status(400).json({
                 success: false,
@@ -244,8 +262,10 @@ const deleteProductImage = async (req, res, next) => {
         const imageToDelete = product.images[imageIndex];
         const wasMainImage = imageToDelete.isMain;
 
+        // Remove image from array
         product.images.splice(imageIndex, 1);
 
+        // Set new main image if deleted image was main
         if (wasMainImage && product.images.length > 0) {
             product.images[0].isMain = true;
             for (let i = 1; i < product.images.length; i++) {
@@ -255,6 +275,7 @@ const deleteProductImage = async (req, res, next) => {
 
         await product.save();
 
+        // Clean up image from Cloudinary if applicable
         try {
             if (imageToDelete.url && imageToDelete.url.includes('cloudinary')) {
                 const cloudinary = require('cloudinary').v2;
@@ -282,6 +303,7 @@ const deleteProductImage = async (req, res, next) => {
     }
 };
 
+// Set specific image as main product image
 const setMainProductImage = async (req, res, next) => {
     try {
         if (!req.session.admin) {
@@ -296,10 +318,12 @@ const setMainProductImage = async (req, res, next) => {
             return res.status(404).json({ success: false, message: "Product not found" });
         }
 
+        // Validate image index
         if (!product.images || imageIndex < 0 || imageIndex >= product.images.length) {
             return res.status(400).json({ success: false, message: "Invalid image index" });
         }
 
+        // Update main image status for all images
         product.images.forEach((img, index) => {
             img.isMain = index === imageIndex;
         });

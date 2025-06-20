@@ -2,10 +2,12 @@ const Category = require("../../models/category");
 const Product = require("../../models/product");
 const Review = require("../../models/review");
 
+// Display filtered and paginated product list for users
 const listProducts = async (req, res, next) => {
     try {
         const user = req.session.user;
 
+        // Extract and process search and filter parameters
         const searchQuery = req.query.search ? req.query.search.trim() : "";
         const hasValidSearch = searchQuery !== "";
         
@@ -19,21 +21,26 @@ const listProducts = async (req, res, next) => {
         const minPrice = req.query.minPrice ? parseFloat(req.query.minPrice) : null;
         const sortOption = req.query.sort || "newest";
 
+        // Pagination setup
         const page = parseInt(req.query.page) || 1;
-        const limit = 9;
+        const limit = 9; // Products per page
         const skip = (page - 1) * limit;
 
+        // Get only active categories for filtering
         const activeCategories = await Category.find({ isListed: true, isExisting: true }).select('name');
         const activeCategoryNames = activeCategories.map(cat => cat.name);
         
+        // Base query - only show active products from active categories
         const query = { 
             isActive: true, 
             isExisting: true,
             category: { $in: activeCategoryNames }
         };
+        // Handle search functionality
         if (hasValidSearch && searchQuery) {
             query.name = { $regex: searchQuery, $options: "i" };
         } else if (req.query.search !== undefined && !hasValidSearch) {
+            // Return empty results for invalid search
             return res.render("user/shoppingPage", {
                 products: [],
                 categories: await Category.find({ isListed: true, isExisting: true }).sort({ name: 1 }),
@@ -58,31 +65,39 @@ const listProducts = async (req, res, next) => {
             });
         }
 
+        // Apply category filter
         if (categoryFilter.length > 0) {
             const validCategories = categoryFilter.filter(cat => activeCategoryNames.includes(cat));
             if (validCategories.length > 0) {
                 query.category = { $in: validCategories };
             } else {
-                query.category = { $in: [] };
+                query.category = { $in: [] }; // No valid categories
             }
         }
+        
+        // Apply brand filter
         if (brandFilter) {
             query.brand = brandFilter;
         }
 
+        // Apply connectivity filter
         if (connectivityFilter.length > 0) {
             query.connectivity = { $in: connectivityFilter };
         }
 
+        // Apply driver size filter
         if (driverSizeFilter.length > 0) {
             query.driverSize = { $in: driverSizeFilter };
         }
+        
+        // Apply price range filter
         if (maxPrice || minPrice) {
             query.salePrice = {};
             if (minPrice) query.salePrice.$gte = minPrice;
             if (maxPrice) query.salePrice.$lte = maxPrice;
         }
 
+        // Build sort options
         const sort = {};
         if (sortOption === "newest") {
             sort.createdAt = -1;
@@ -95,21 +110,23 @@ const listProducts = async (req, res, next) => {
         } else if (sortOption === 'name-desc') {
             sort.name = -1;
         } else if (sortOption === "popularity") {
-            sort.updatedAt = -1;
+            sort.updatedAt = -1; // Most recently updated
         }
 
         try {
-            
+            // Fetch products with applied filters, sorting, and pagination
             const products = await Product.find(query)
                 .sort(sort)
                 .skip(skip)
                 .limit(limit)
                 .populate('categoryId');
 
+            // Get filter options for the sidebar
             const brands = await Product.distinct("brand", { isActive: true, isExisting: true, category: { $in: activeCategoryNames } });
             const connectivityOptions = await Product.distinct("connectivity", { isActive: true, isExisting: true, category: { $in: activeCategoryNames } });
             const driverSizes = await Product.distinct("driverSize", { isActive: true, isExisting: true, category: { $in: activeCategoryNames } });
 
+            // Calculate pagination
             const totalProducts = await Product.countDocuments(query);
             const totalPages = Math.ceil(totalProducts / limit);
 
@@ -168,36 +185,44 @@ const listProducts = async (req, res, next) => {
     }
 };
 
+// Display individual product details with reviews and suggestions
 const viewProduct = async (req, res, next) => {
     try {
         const user = req.session.user;
         const productId = req.params.id;
 
+        // Fetch product details
         const product = await Product.findById(productId).populate('categoryId');
 
+        // Check if product is available
         if (!product || !product.isActive || !product.isExisting) {
             return res.redirect('/products?error=Product+not+available');
         }
 
+        // Check if product's category is active
         const category = await Category.findOne({ name: product.category });
         if (!category || !category.isListed || !category.isExisting) {
             return res.redirect('/products?error=Product+not+available');
         }
 
+        // Get active categories for filtering suggestions
         const activeCategories = await Category.find({ isListed: true, isExisting: true }).select('name');
         const activeCategoryNames = activeCategories.map(cat => cat.name);
         
+        // Fetch related product suggestions from same category
         const suggestionCategory = product.category;
         const productSuggestions = await Product.find({
             category: suggestionCategory,
-            _id: { $ne: productId },
+            _id: { $ne: productId }, // Exclude current product
             isActive: true,
             isExisting: true,
             category: { $in: activeCategoryNames }
         }).limit(4).populate('categoryId');
 
+        // Get review statistics for the product
         const reviewStats = await Review.getProductRatingStats(productId);
 
+        // Check if current user has already reviewed this product
         let userHasReviewed = false;
         let userReview = null;
         if (user) {
@@ -208,6 +233,7 @@ const viewProduct = async (req, res, next) => {
             userHasReviewed = !!userReview;
         }
 
+        // Fetch recent approved reviews
         const recentReviews = await Review.find({
             productId,
             isApproved: true
@@ -216,6 +242,8 @@ const viewProduct = async (req, res, next) => {
         .limit(3)
         .populate('userId', 'fullname')
         .lean();
+        
+        // Format reviews with time ago
         const formattedReviews = recentReviews.map(review => ({
             ...review,
             timeAgo: getTimeAgo(review.createdAt)
@@ -236,6 +264,7 @@ const viewProduct = async (req, res, next) => {
     }
 };
 
+// Helper function to calculate time difference for reviews
 function getTimeAgo(date) {
     const now = new Date();
     const diffInSeconds = Math.floor((now - date) / 1000);

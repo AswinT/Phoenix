@@ -1,20 +1,25 @@
 const User = require("../models/user");
 
+// Middleware to check if user is authenticated and not blocked
 const userAuthCheck = async (req, res, next) => {
+    // Check if user session exists
     if (!req.session.user) {
         return res.redirect("/login");
     }
 
     try {
+        // Verify user still exists in database
         const user = await User.findById(req.session.user._id);
 
         if (!user) {
+            // User deleted from database, clear session
             req.session.destroy((err) => {
                 if (err) console.error('Error destroying session:', err);
             });
             return res.redirect("/login");
         }
 
+        // Check if user account is blocked
         if (user.isBlocked) {
             req.session.destroy((err) => {
                 if (err) console.error('Error destroying session:', err);
@@ -33,7 +38,9 @@ const userAuthCheck = async (req, res, next) => {
     }
 };
 
+// Middleware to check if logged-in user is blocked (allows non-logged users to continue)
 const isBlocked = async (req, res, next) => {
+    // Allow non-authenticated users to continue
     if (!req.session.user) {
         return next();
     }
@@ -42,12 +49,14 @@ const isBlocked = async (req, res, next) => {
         const user = await User.findById(req.session.user._id);
 
         if (!user) {
+            // User deleted from database, clear session
             req.session.destroy((err) => {
                 if (err) console.error('Error destroying session:', err);
             });
             return res.redirect("/login");
         }
 
+        // Block access if user account is blocked
         if (user.isBlocked) {
             req.session.destroy((err) => {
                 if (err) console.error('Error destroying session:', err);
@@ -62,7 +71,7 @@ const isBlocked = async (req, res, next) => {
         next();
     } catch (error) {
         console.error('Error in isBlocked middleware:', error);
-        next();
+        next(); // Continue on error to avoid breaking the flow
     }
 };
 
