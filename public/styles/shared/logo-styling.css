@@ -1,0 +1,163 @@
+/* Phoenix Logo Styling for Different Contexts */
+
+/* Base logo styling */
+.phoenix-logo {
+  transition: all 0.3s ease;
+}
+
+/* Logo styling for light backgrounds (auth pages, forms, etc.) */
+.logo-light-bg {
+  filter: brightness(0.9) contrast(1.1);
+}
+
+.logo-light-bg:hover {
+  filter: brightness(0.8) contrast(1.2);
+  transform: scale(1.05);
+}
+
+/* Logo styling for dark backgrounds (admin sidebar, dark navbar) */
+.logo-dark-bg {
+  filter: brightness(1.2) contrast(1.1);
+}
+
+.logo-dark-bg:hover {
+  filter: brightness(1.3) contrast(1.2);
+  transform: scale(1.05);
+}
+
+/* Authentication pages logo styling */
+.auth-logo {
+  height: 21px;
+  width: auto;
+  filter: brightness(0.9) contrast(1.1);
+  transition: all 0.3s ease;
+}
+
+.auth-logo:hover {
+  filter: brightness(0.8) contrast(1.2);
+  transform: scale(1.05);
+}
+
+/* Admin login logo styling */
+.admin-auth-logo {
+  width: 25px;
+  height: 25px;
+  filter: brightness(0.9) contrast(1.1);
+  transition: all 0.3s ease;
+  border-radius: 6px;
+}
+
+.admin-auth-logo:hover {
+  filter: brightness(0.8) contrast(1.2);
+  transform: scale(1.05);
+}
+
+/* Footer logo styling */
+.footer-logo {
+  height: 2.5rem;
+  width: auto;
+  filter: brightness(0.9) contrast(1.1);
+  transition: all 0.3s ease;
+}
+
+.footer-logo:hover {
+  filter: brightness(0.8) contrast(1.2);
+  transform: scale(1.05);
+}
+
+/* Compact footer logo styling */
+.footer-logo-compact {
+  height: 45px;
+  width: auto;
+  filter: brightness(0.9) contrast(1.1);
+  transition: all 0.3s ease;
+}
+
+.footer-logo-compact:hover {
+  filter: brightness(0.8) contrast(1.2);
+  transform: scale(1.05);
+}
+
+/* Footer brand text styling */
+.footer-brand-text {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: 0.5px;
+  color: #1a1a1a;
+}
+
+/* Invoice logo styling */
+.invoice-logo {
+  width: 42px;
+  height: auto;
+  filter: brightness(0.9) contrast(1.1);
+}
+
+/* About page logo styling */
+.about-logo {
+  filter: brightness(0.95) contrast(1.05);
+  transition: all 0.3s ease;
+}
+
+.about-logo:hover {
+  filter: brightness(0.9) contrast(1.1);
+  transform: scale(1.02);
+}
+
+/* Responsive logo adjustments */
+@media (max-width: 768px) {
+  .auth-logo {
+    height: 18px;
+  }
+
+  .admin-auth-logo {
+    width: 22px;
+    height: 22px;
+  }
+
+  .footer-logo {
+    height: 2rem;
+  }
+
+  .footer-logo-compact {
+    height: 35px;
+  }
+
+  .footer-brand-text {
+    font-size: 1.1rem;
+  }
+}
+
+/* Logo container styling for better alignment */
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-container img {
+  flex-shrink: 0;
+}
+
+/* Brand text styling to complement logo */
+.brand-text {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Admin brand text styling */
+.admin-brand-text {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #e5e5e5;
+}
+
+/* Ensure logo maintains aspect ratio */
+img[alt="Phoenix Logo"] {
+  object-fit: contain;
+  max-width: 10%;
+  height: auto;
+}

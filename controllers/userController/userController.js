@@ -1,0 +1,69 @@
+const categoryController = require("../../controllers/userController/categoryController");
+const Product = require('../../models/productSchema');
+const { HttpStatus } = require("../../helpers/status-code");
+
+const pageNotFound = async (req, res) => {
+  try {
+    res.render("page-404");
+  } catch (error) {
+    res.redirect("/pageNotFound");
+  }
+};
+
+const loadHomePage = async (req, res) => {
+  try {
+    const categories = await categoryController.getCategories();
+
+    const LIMIT = 4;
+
+    // Top selling (assumed based on stock, ideally use soldCount)
+    const topSellingProducts = await Product.find({ isListed: true, isDeleted: false })
+      .populate('category')  // Populate category for offer calculation
+      .sort({ stock: -1 }) // Highest stock
+      .limit(LIMIT);
+
+    // New arrivals (based on dateAdded)
+    const newArrivals = await Product.find({ isListed: true, isDeleted: false })
+      .populate('category')  // Populate category for offer calculation
+      .sort({ createdAt: -1  }) // Newest first
+      .limit(LIMIT);
+
+    // Set final price to sale price for all products (no offers)
+    for (const product of topSellingProducts) {
+      product.finalPrice = product.salePrice;
+      product.regularPrice = product.regularPrice || product.salePrice;
+    }
+
+    // Set final price to sale price for all products (no offers)
+    for (const product of newArrivals) {
+      product.finalPrice = product.salePrice;
+      product.regularPrice = product.regularPrice || product.salePrice;
+    }
+
+    return res.render("home", {
+      categories,
+      topSellingProducts,
+      newArrivals,
+      user: req.session.user_id ? { id: req.session.user_id } : null,
+      isAuthenticated: !!req.session.user_id
+    });
+  } catch (error) {
+    console.log(`Error in rendering Home Page: ${error}`);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server Error");
+  }
+};
+
+const getAboutPage = async (req, res) => {
+  try {
+    res.render("about");
+  } catch (error) {
+    console.log(`Error in rendering About Page: ${error}`);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server Error");
+  }
+};
+
+module.exports = {
+  loadHomePage,
+  pageNotFound,
+  getAboutPage,
+};

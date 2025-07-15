@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Phoenix - Premium Headphone Experience</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="/styles/user/landingPageStyle.css" />
+    <link rel="stylesheet" href="/styles/user/productDetails.css" />
+    <link rel="stylesheet" href="/styles/user/navbar-dark-theme.css" />
+    <link rel="stylesheet" href="/styles/shared/logo-styling.css" />
+    <style>
+      /* Minimal styles - main styling handled by navbar-dark-theme.css */
+      .user-dropdown {
+        position: relative;
+      }
+
+      .icon-btn {
+        position: relative;
+      }
+    </style>
+  </head>
+  <body class="paper-texture">
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top compact-navbar">
+      <div class="container py-1">
+        <a class="navbar-brand compact-brand" href="/">
+          <img src="/assets/phoenix-logo.png" alt="Phoenix Logo" class="navbar-logo" />
+          <span class="ms-2 fw-bold brand-text">Phoenix</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <i class="ri-menu-line"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav mx-auto">
+            <li class="nav-item mx-2">
+              <a class="nav-link fw-medium" href="/">Home</a>
+            </li>
+            <li class="nav-item mx-2">
+              <a class="nav-link fw-medium" href="/shopPage">Shop</a>
+            </li>
+            <li class="nav-item mx-2">
+              <a class="nav-link fw-medium" href="/about">About</a>
+            </li>
+            <li class="nav-item mx-2">
+              <a class="nav-link fw-medium" href="/contact">Contact</a>
+            </li>
+          </ul>
+          <div class="d-flex align-items-center flex-column flex-lg-row">
+            <div class="mobile-search">
+              <div class="search-input">
+                <input
+                  type="text"
+                  class="form-control search-field"
+                  placeholder="Search headphones..."
+                />
+                <div class="search-icon">
+                  <i class="ri-search-line"></i>
+                </div>
+                <div class="search-results" id="mobileSearchResults"></div>
+              </div>
+            </div>
+            <div class="search-input d-none d-lg-block me-3">
+              <input
+                type="text"
+                class="form-control search-field"
+                placeholder="Search headphones..."
+              />
+              <div class="search-icon">
+                <i class="ri-search-line"></i>
+              </div>
+              <div class="search-results" id="desktopSearchResults"></div>
+            </div>
+            <div class="header-icons">
+              <% if (!locals.isAuthenticated) { %>
+              <a href="/login" class="icon-btn" title="Wishlist">
+                <i class="ri-heart-line fs-5"></i>
+                <span class="count wishlist-count">0</span>
+              </a>
+              <a href="/login" class="icon-btn" title="Login">
+                <i class="ri-user-line fs-5"></i>
+              </a>
+              <a href="/login" class="icon-btn cart-link" title="Cart">
+                <i class="ri-shopping-bag-line fs-5"></i>
+                <span class="count cart-count">0</span>
+              </a>
+              <% } else { %>
+              <a href="/wishlist" class="icon-btn" title="Wishlist">
+                <i class="ri-heart-line fs-5"></i>
+                <span class="count wishlist-count" data-count="<%= locals.wishlistCount || 0 %>"><%= locals.wishlistCount || 0 %></span>
+              </a>
+              <div class="dropdown user-dropdown">
+                <a
+                  class="icon-btn dropdown-toggle"
+                  href="#"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  id="userDropdown"
+                  title="Account"
+                >
+                  <i class="ri-user-line fs-5"></i>
+                </a>
+                <ul
+                  class="dropdown-menu dropdown-menu-end"
+                  aria-labelledby="userDropdown"
+                >
+                  <li>
+                    <a class="dropdown-item" href="/profile">
+                      <i class="ri-user-3-line"></i> Your Profile
+                    </a>
+                  </li>
+                  <li><hr class="dropdown-divider" /></li>
+                  <li>
+                    <a class="dropdown-item" href="/logout">
+                      <i class="ri-logout-box-line"></i> Logout
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <a href="/cart" class="icon-btn cart-link" title="Cart">
+                <i class="ri-shopping-bag-line fs-5"></i>
+                <span class="count cart-count" data-count="<%= locals.cartCount || 0 %>"><%= locals.cartCount || 0 %></span>
+              </a>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const searchFields = document.querySelectorAll(".search-field");
+        const desktopResults = document.getElementById("desktopSearchResults");
+        const mobileResults = document.getElementById("mobileSearchResults");
+        let debounceTimeout;
+
+        function debounce(func, wait) {
+          return function (...args) {
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(() => func.apply(this, args), wait);
+          };
+        }
+
+        async function fetchSearchResults(query) {
+          try {
+            const response = await fetch(`/search?q=${encodeURIComponent(query)}`);
+            if (!response.ok) throw new Error("Network response was not ok");
+            const products = await response.json();
+            return products;
+          } catch (error) {
+            console.error("Error fetching search results:", error);
+            return [];
+          }
+        }
+
+        function renderSearchResults(products, resultsContainer) {
+          resultsContainer.innerHTML = "";
+          if (products.length === 0) {
+            resultsContainer.innerHTML = '<div class="no-results">No products found.</div>';
+            resultsContainer.classList.add("show");
+            return;
+          }
+
+          products.forEach((product) => {
+            const item = document.createElement("a");
+            item.href = `/products/${product._id}`;
+            item.classList.add("search-result-item");
+            item.innerHTML = `
+              <img src="${product.mainImage || "/api/placeholder/500/600"}" alt="${product.title}" />
+              <div>
+                <div class="title">${product.title}</div>
+                <div class="brand">${product.brand}</div>
+              </div>
+            `;
+            resultsContainer.appendChild(item);
+          });
+          resultsContainer.classList.add("show");
+        }
+
+        searchFields.forEach((field) => {
+          field.addEventListener("input", debounce(async function () {
+            const query = this.value.trim();
+            const resultsContainer = this.closest(".mobile-search") ? mobileResults : desktopResults;
+
+            if (query.length < 2) {
+              resultsContainer.classList.remove("show");
+              resultsContainer.innerHTML = "";
+              return;
+            }
+
+            const products = await fetchSearchResults(query);
+            renderSearchResults(products, resultsContainer);
+          }, 300));
+
+          field.addEventListener("focus", function () {
+            const resultsContainer = this.closest(".mobile-search") ? mobileResults : desktopResults;
+            if (resultsContainer.innerHTML) {
+              resultsContainer.classList.add("show");
+            }
+          });
+
+          field.addEventListener("blur", function (e) {
+            const resultsContainer = this.closest(".mobile-search") ? mobileResults : desktopResults;
+            setTimeout(() => {
+              if (!resultsContainer.contains(e.relatedTarget)) {
+                resultsContainer.classList.remove("show");
+              }
+            }, 200);
+          });
+        });
+
+        [desktopResults, mobileResults].forEach((container) => {
+          container.addEventListener("mousedown", function (e) {
+            e.preventDefault();
+          });
+        });
+
+        // Active page highlighting
+        function setActiveNavLink() {
+          const currentPath = window.location.pathname;
+          const navLinks = document.querySelectorAll('.nav-link');
+
+          // Remove active class from all links
+          navLinks.forEach(link => link.classList.remove('active'));
+
+          // Add active class to current page link
+          navLinks.forEach(link => {
+            const linkPath = new URL(link.href).pathname;
+
+            // Exact match for home page
+            if (currentPath === '/' && linkPath === '/') {
+              link.classList.add('active');
+            }
+            // For other pages, check if current path starts with link path
+            else if (currentPath !== '/' && linkPath !== '/' && currentPath.startsWith(linkPath)) {
+              link.classList.add('active');
+            }
+            // Special cases for specific routes
+            else if (currentPath.includes('/products') && linkPath === '/shopPage') {
+              link.classList.add('active');
+            }
+            else if (currentPath === '/about' && linkPath === '/about') {
+              link.classList.add('active');
+            }
+            else if (currentPath === '/contact' && linkPath === '/contact') {
+              link.classList.add('active');
+            }
+          });
+        }
+
+        // Set active link on page load
+        setActiveNavLink();
+      });
+    </script>
+  </body>
+</html>
