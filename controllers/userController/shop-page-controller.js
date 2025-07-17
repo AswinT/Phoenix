@@ -38,6 +38,12 @@ const shopPage = async (req, res) => {
       case 'stock-desc':
         sortQuery = { stock: -1 };
         break;
+      case 'name-asc':
+        sortQuery = { model: 1 };
+        break;
+      case 'name-desc':
+        sortQuery = { model: -1 };
+        break;
       default:
         sortQuery = { createdAt: -1 };
         break;
@@ -123,11 +129,15 @@ const shopPage = async (req, res) => {
       }
     }
 
-    // Apply sorting based on final prices if needed
+    // Apply sorting based on final prices and other criteria if needed
     if (sortOption === 'price-asc') {
       productsWithOffers.sort((a, b) => a.finalPrice - b.finalPrice);
     } else if (sortOption === 'price-desc') {
       productsWithOffers.sort((a, b) => b.finalPrice - a.finalPrice);
+    } else if (sortOption === 'name-asc') {
+      productsWithOffers.sort((a, b) => a.model.localeCompare(b.model));
+    } else if (sortOption === 'name-desc') {
+      productsWithOffers.sort((a, b) => b.model.localeCompare(a.model));
     }
 
     // Calculate pagination based on filtered results
