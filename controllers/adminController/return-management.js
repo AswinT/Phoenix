@@ -1,9 +1,8 @@
 const Order = require("../../models/orderSchema");
 const Product = require("../../models/productSchema");
-
+const { processReturnRefund } = require("../userController/wallet-controller");
 const { calculateExactRefundAmount } = require("../../helpers/money-calculator");
 const { HttpStatus } = require('../../helpers/status-code');
-const { processReturnRefund } = require("../userController/wallet-controller");
 
 /**
  * ENHANCED RETURN MANAGEMENT - PRODUCTION OPTIMIZED
@@ -48,7 +47,9 @@ const calculateEstimatedRefund = (order) => {
   }
 };
 
-// Get all orders with return requests for admin management
+/**
+ * Get all orders with return requests for admin management
+ */
 const getReturnRequests = async (req, res) => {
   try {
     // Pagination parameters
@@ -226,7 +227,7 @@ const getReturnRequestDetails = async (req, res) => {
     });
     order.formattedTotal = `₹${displayTotal.toFixed(2)}`;
 
-    // **FIXED: Use same calculation as refund controller with corrected total**
+    // **FIXED: Use same calculation as wallet controller with corrected total**
     const estimatedRefund = calculateEstimatedRefund(order);
     const totalRefundAmount = estimatedRefund.total;
 
@@ -325,13 +326,12 @@ const processReturnRequest = async (req, res) => {
                                     );
 
         if (wasDeliveredAndPaid) {
-          console.log(`🔄 Processing COD return refund for user ${order.user}, order ${order._id}`);
           const refundSuccess = await processReturnRefund(order.user, order);
           if (refundSuccess) {
             refundProcessed = true;
-            console.log('✅ COD return refund processed successfully');
+            console.log('COD return refund processed successfully');
           } else {
-            console.error('❌ Failed to process COD return refund');
+            console.error('Failed to process COD return refund');
             return res.status(500).json({
               success: false,
               message: 'Failed to process refund. Please try again.'
@@ -415,17 +415,9 @@ const bulkProcessReturns = async (req, res) => {
     for (const orderId of orderIds) {
       try {
         const order = await Order.findById(orderId);
-        if (!order) {
-          errors.push(`Order ${orderId} not found`);
-          continue;
-        }
+        if (!order) continue;
 
         const returnRequestedItems = order.items.filter(item => item.status === 'Return Requested');
-
-        if (returnRequestedItems.length === 0) {
-          errors.push(`Order ${orderId} has no return requests to process`);
-          continue;
-        }
 
         for (const item of returnRequestedItems) {
           if (approved) {
@@ -514,15 +506,9 @@ const bulkProcessReturns = async (req, res) => {
       }
     }
 
-    // Provide detailed feedback
-    let message = `${approved ? 'Approved' : 'Rejected'} ${processedCount} return request(s)`;
-    if (errors.length > 0) {
-      message += `. ${errors.length} order(s) could not be processed.`;
-    }
-
     res.json({
       success: true,
-      message: message,
+      message: `${approved ? 'Approved' : 'Rejected'} ${processedCount} return request(s)`,
       processedCount,
       errors: errors.length > 0 ? errors : null
     });

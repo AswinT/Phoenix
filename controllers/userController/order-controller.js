@@ -2,18 +2,17 @@ const Order = require("../../models/orderSchema");
 const User = require("../../models/userSchema");
 const Product = require("../../models/productSchema");
 const Cart = require("../../models/cartSchema"); // Added Cart import
-const mongoose = require("mongoose");
-const PDFDocument = require("pdfkit");
-const path = require("path");
+const Offer = require("../../models/offerSchema"); // Added Offer import
+const PDFDocument = require('pdfkit');
+const path = require('path');
+const { getActiveOfferForProduct, calculateDiscount, getItemPriceDetails } = require("../../utils/offer-helper");
+const { processCancelRefund, processReturnRefund } = require("./wallet-controller");
 
 const { HttpStatus } = require("../../helpers/status-code");
-const {
-  calculateRemainingOrderAmount,
-  calculateExactRefundAmount,
-  validateOrderAmountConsistency
-} = require("../../helpers/money-calculator");
 
-// Get all orders for the current user with pagination, filtering, and sorting
+/**
+ * Get all orders for the current user with pagination, filtering, and sorting
+ */
 const getOrders = async (req, res) => {
   try {
     if (!req.session.user_id) {
@@ -33,7 +32,7 @@ const getOrders = async (req, res) => {
     const skip = (page - 1) * limit;
 
     // Handle filter
-    const validFilters = ['All', 'Delivered', 'Processing', 'Shipped', 'Placed', 'Cancelled', 'Returned', 'Partially Cancelled', 'Partially Returned'];
+    const validFilters = ['All', 'Delivered', 'Processing', 'Shipped', 'Placed', 'Cancelled', 'Returned', 'Partially Cancelled', 'Partially Returned', 'Pending Payment'];
     let currentFilter = req.query.filter || 'All';
     if (!validFilters.includes(currentFilter)) {
       currentFilter = 'All';
@@ -75,7 +74,8 @@ const getOrders = async (req, res) => {
       'Cancelled': 'Cancelled Orders',
       'Returned': 'Returned Orders',
       'Partially Cancelled': 'Partially Cancelled Orders',
-      'Partially Returned': 'Partially Returned Orders'
+      'Partially Returned': 'Partially Returned Orders',
+      'Pending Payment': 'Pending Payment Orders'
     };
 
     // Fetch orders with filter and sort
@@ -235,57 +235,20 @@ const getOrderDetails = async (req, res) => {
     const orderId = req.params.id;
     const userId = req.session.user_id;
 
-    console.log('=== ORDER DETAILS DEBUG ===');
-    console.log('Order ID:', orderId);
-    console.log('User ID:', userId);
-    console.log('Session:', req.session);
-
-    // Validate ObjectId format
-    if (!mongoose.Types.ObjectId.isValid(orderId)) {
-      console.log('Invalid ObjectId format:', orderId);
-      return res.status(HttpStatus.BAD_REQUEST).render('page-404', {
-        title: 'Invalid Order ID',
-        message: 'Invalid order ID format'
-      });
-    }
-    console.log('ObjectId validation passed');
-
     if (!userId) {
-      console.log('No user ID in session, redirecting to login');
       return res.redirect('/login');
     }
 
     // Fetch user data
     const user = await User.findById(userId, 'fullName email profileImage').lean();
     if (!user) {
-      console.log('User not found, redirecting to login');
       return res.redirect('/login');
     }
-    console.log('User found:', user.fullName);
 
-    console.log('Querying order with:', { _id: orderId, user: userId, isDeleted: false });
-    const order = await Order.findOne({
-      _id: orderId,
-      user: userId,
-      isDeleted: false
-    }).populate('items.product');
+    const order = await Order.findById(orderId).populate('items.product');
 
-    console.log('Order query result:', order ? 'Order found' : 'Order not found');
-    if (order) {
-      console.log('Order details:', {
-        orderNumber: order.orderNumber,
-        orderStatus: order.orderStatus,
-        itemCount: order.items?.length,
-        total: order.total
-      });
-    }
-
-    if (!order) {
-      console.log('Order not found, rendering 404');
-      return res.status(HttpStatus.NOT_FOUND).render('page-404', {
-        title: 'Order Not Found',
-        message: 'Order not found or you do not have access to this order'
-      });
+    if (!order || order.user.toString() !== userId.toString()) {
+      return res.status(HttpStatus.NOT_FOUND).render('error', { message: 'Order not found' });
     }
 
     // Format order data
@@ -300,29 +263,37 @@ const getOrderDetails = async (req, res) => {
       return sum + (item.price * item.quantity);
     }, 0);
 
-    // Process each item and format prices (Week 1-2: No offers, no coupons)
+    // Process each item for offers and format prices
     for (const item of order.items) {
-      const finalPrice = item.price;
+      // Get active offer for this product
+      const offer = await getActiveOfferForProduct(
+        item.product._id || item.product,
+        null,
+        item.price
+      );
 
-      // Week 1-2: No coupon functionality, set defaults
-      item.couponProportion = 0;
-      item.couponDiscount = 0;
+      // Calculate discount if offer exists
+      const { discountPercentage, discountAmount, finalPrice } = calculateDiscount(offer, item.price);
 
-      // Week 1-2: No offer functionality, set defaults
+      // Calculate coupon proportion and discount
+      if (order.couponDiscount && order.couponDiscount > 0) {
+        const itemValue = item.price * item.quantity;
+        item.couponProportion = itemValue / totalItemsValue;
+        item.couponDiscount = (order.couponDiscount * item.couponProportion);
+      }
+
+      // Update item with offer information
       item.originalPrice = item.price;
       item.discountedPrice = finalPrice;
-      item.offerDiscount = 0;
-      item.offerTitle = null;
-      item.discountPercentage = 0;
+      item.offerDiscount = discountAmount;
+      item.offerTitle = offer ? offer.title : null;
+      item.discountPercentage = discountPercentage;
 
-      // Calculate final price (Week 1-2: just the original price)
+      // Calculate final price after all discounts
       const itemSubtotal = item.price * item.quantity;
-      const itemOfferDiscount = 0; // No offers in Week 1-2
-      const itemCouponDiscount = 0; // No coupons in Week 1-2
+      const itemOfferDiscount = (discountAmount || 0) * item.quantity;
+      const itemCouponDiscount = item.couponDiscount || 0;
       item.finalPrice = (itemSubtotal - itemOfferDiscount - itemCouponDiscount) / item.quantity;
-
-      // Calculate refund amount for this item using the unified calculator
-      item.refundAmount = calculateExactRefundAmount(item, order);
 
       // Format prices for display
       item.formattedPrice = `₹${item.price.toFixed(2)}`;
@@ -511,13 +482,9 @@ const getOrderDetails = async (req, res) => {
       });
     }
 
-    // Calculate remaining order amount using unified function
-    const remainingOrderAmount = calculateRemainingOrderAmount(order);
-
     res.render('order-details', {
       order,
       timeline,
-      remainingOrderAmount,
       title: `Order #${order.orderNumber}`,
       user: {
         id: userId,
@@ -528,18 +495,8 @@ const getOrderDetails = async (req, res) => {
       isAuthenticated: true
     });
   } catch (error) {
-    console.error('=== ERROR IN ORDER DETAILS ===');
-    console.error('Error name:', error.name);
-    console.error('Error message:', error.message);
-    console.error('Order ID:', req.params.id);
-    console.error('User ID:', req.session.user_id);
-    console.error('Full error object:', error);
-    console.error('Error stack:', error.stack);
-    console.error('=== END ERROR DEBUG ===');
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).render('page-404', {
-      title: 'Error',
-      message: 'Error fetching order details'
-    });
+    console.error('Error fetching order details:', error);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).render('error', { message: 'Error fetching order details' });
   }
 };
 
@@ -563,9 +520,9 @@ const getOrderSuccess = async (req, res) => {
     }).lean();
 
     if (!order) {
-      return res.status(HttpStatus.NOT_FOUND).render('page-404', {
-        title: 'Order Not Found',
-        message: 'Order not found or you do not have access to this order'
+      return res.status(HttpStatus.NOT_FOUND).render('error', {
+        message: 'Order not found or you do not have access to this order',
+        isAuthenticated: true
       });
     }
 
@@ -605,14 +562,61 @@ const getOrderSuccess = async (req, res) => {
     });
   } catch (error) {
     console.error('Error rendering order success page:', error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).render('page-404', {
-      title: 'Error',
-      message: 'Internal server error'
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).render('error', {
+      message: 'Internal server error',
+      isAuthenticated: req.session.user_id ? true : false
     });
   }
 };
 
+/**
+ * Get payment failure page
+ */
+const getPaymentFailure = async (req, res) => {
+  try {
+    if (!req.session.user_id) {
+      return res.redirect('/login');
+    }
 
+    const userId = req.session.user_id;
+    const errorMessage = req.query.error || 'Payment could not be processed';
+    const orderId = req.query.orderId || null;
+
+    // Fetch user data
+    const user = await User.findById(userId, 'fullName email profileImage').lean();
+    if (!user) {
+      return res.redirect('/login');
+    }
+
+    // If orderId is provided, verify it belongs to the user
+    let order = null;
+    if (orderId) {
+      order = await Order.findOne({
+        _id: orderId,
+        user: userId,
+        isDeleted: false
+      }).lean();
+    }
+
+    res.render('payment-failure', {
+      errorMessage,
+      orderId: order ? order._id : null,
+      user: {
+        id: userId,
+        fullName: user.fullName || 'User',
+        email: user.email || '',
+        profileImage: user.profileImage || '/api/placeholder/120/120'
+      },
+      isAuthenticated: true
+    });
+  } catch (error) {
+    console.error('Error rendering payment failure page:', error);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).render('error', {
+      message: 'Internal server error',
+      isAuthenticated: req.session.user_id ? true : false
+    });
+  }
+};
 
 /**
  * View HTML invoice for an order
@@ -634,8 +638,7 @@ const viewInvoice = async (req, res) => {
     }).lean();
 
     if (!order) {
-      return res.status(HttpStatus.NOT_FOUND).render('page-404', {
-        title: 'Order Not Found',
+      return res.status(HttpStatus.NOT_FOUND).render('error', {
         message: 'Order not found or you do not have access to this order'
       });
     }
@@ -694,8 +697,7 @@ const viewInvoice = async (req, res) => {
 
   } catch (error) {
     console.error('Error viewing invoice:', error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).render('page-404', {
-      title: 'Error',
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).render('error', {
       message: 'Error loading invoice'
     });
   }
@@ -742,18 +744,31 @@ const downloadInvoice = async (req, res) => {
       day: 'numeric'
     });
 
-    // Process each item (no offers)
+    // Process each item for offers
     for (const item of order.items) {
-      const finalPrice = item.price;
+      // Get active offer for this product
+      const offer = await getActiveOfferForProduct(
+        item.product.toString(),
+        null,
+        item.price
+      );
+
+      // Calculate discount if offer exists
+      const { discountPercentage, discountAmount, finalPrice } = calculateDiscount(offer, item.price);
 
       const itemOriginalTotal = item.price * item.quantity;
+      const itemDiscountTotal = discountAmount * item.quantity;
       const itemFinalTotal = finalPrice * item.quantity;
 
       totalBeforeDiscount += itemOriginalTotal;
+      totalDiscount += itemDiscountTotal;
       totalAfterDiscount += itemFinalTotal;
 
-      // Update item with pricing information
+      // Update item with offer information
       item.discountedPrice = finalPrice;
+      item.offerDiscount = discountAmount;
+      item.offerTitle = offer ? offer.title : null;
+      item.discountPercentage = discountPercentage;
       item.finalTotal = itemFinalTotal;
     }
 
@@ -829,7 +844,7 @@ const downloadInvoice = async (req, res) => {
     try {
       doc.image(path.join(__dirname, '../../public/assets/phoenix-logo.png'), leftMargin, 50, { width: 50 });
     } catch (error) {
-      console.warn('Logo image not found, continuing without logo');
+      console.log('Logo image not found, continuing without logo');
     }
 
     // Company name with professional styling
@@ -842,7 +857,7 @@ const downloadInvoice = async (req, res) => {
     doc.font('Helvetica-Oblique')
        .fontSize(11)
        .fillColor(colors.secondary)
-       .text('Premium Audio Experience', leftMargin + 70, 82);
+       .text('Premium Headphone Experience', leftMargin + 70, 82);
 
     // Add company contact information
     doc.font('Helvetica')
@@ -1058,8 +1073,8 @@ const downloadInvoice = async (req, res) => {
          .font('Helvetica')
          .fontSize(10);
 
-      // Item name with status
-      let itemTitle = item.title || 'Unknown Product';
+      // Item name with status (prefer model over title for headphones)
+      let itemTitle = item.model || item.title || 'Unknown Product';
       if (item.status !== 'Active') {
         itemTitle += ` (${item.status})`;
       }
@@ -1911,11 +1926,18 @@ const reorder = async (req, res) => {
         const quantityToAdd = Math.min(item.quantity, product.stock);
 
         if (quantityToAdd > 0) {
-          // Add item to cart with sale price (no offers)
+          // **FIX: Use standardized offer calculation (same as cart controller)**
+          // Get active offer for this product using the helper function
+          const offer = await getActiveOfferForProduct(product._id, product.category);
+
+          // Calculate final price with offer discount
+          const { finalPrice } = calculateDiscount(offer, product.regularPrice);
+
+          // Add item to cart with correct price
           cart.items.push({
             product: product._id,
             quantity: quantityToAdd,
-            priceAtAddition: product.salePrice
+            priceAtAddition: finalPrice
           });
         }
       }
@@ -1942,6 +1964,7 @@ module.exports = {
   getOrders,
   getOrderDetails,
   getOrderSuccess,
+  getPaymentFailure,
   viewInvoice,
   downloadInvoice,
   cancelOrder,

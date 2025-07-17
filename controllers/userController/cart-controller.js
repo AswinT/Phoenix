@@ -1,5 +1,10 @@
 const Cart = require("../../models/cartSchema");
 const Product = require("../../models/productSchema");
+const Wishlist = require("../../models/wishlistSchema");
+const {
+  getActiveOfferForProduct,
+  calculateDiscount,
+} = require("../../utils/offer-helper");
 const { HttpStatus } = require("../../helpers/status-code");
 
 const getCart = async (req, res) => {
@@ -10,11 +15,13 @@ const getCart = async (req, res) => {
 
     const userId = req.session.user_id;
     const cart = await Cart.findOne({ user: userId }).populate("items.product");
+    const wishlist = await Wishlist.findOne({ user: userId });
 
     let cartItems = [];
     let totalAmount = 0;
     let totalDiscount = 0;
     let cartCount = 0;
+    let wishlistCount = 0;
 
     if (cart && cart.items.length > 0) {
       // Filter valid products
@@ -22,16 +29,35 @@ const getCart = async (req, res) => {
         (item) => item.product && item.product.isListed
       );
 
-      // Calculate totals using sale price (no offers)
+      // Calculate discounted prices and totals
       for (const item of cartItems) {
-        item.product.finalPrice = item.product.salePrice;
-        item.product.regularPrice = item.product.regularPrice || item.product.salePrice;
+        const offer = await getActiveOfferForProduct(
+          item.product._id,
+          item.product.category,
+          item.product.regularPrice
+        );
+
+        const { discountPercentage, discountAmount, finalPrice } =
+          calculateDiscount(offer, item.product.regularPrice);
+
+        item.product.activeOffer = offer;
+        item.product.discountPercentage = discountPercentage;
+        item.product.discountAmount = discountAmount;
+        item.product.finalPrice = finalPrice;
+        item.product.regularPrice =
+          item.product.regularPrice || item.product.salePrice;
+        item.product.salePrice = finalPrice;
 
         // Update totals
-        totalAmount += item.quantity * item.product.salePrice;
+        totalAmount += item.quantity * finalPrice;
+        totalDiscount += item.quantity * discountAmount;
       }
 
       cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+    }
+
+    if (wishlist) {
+      wishlistCount = wishlist.items.length;
     }
 
     const relatedProducts = await Product.aggregate([
@@ -39,10 +65,21 @@ const getCart = async (req, res) => {
       { $sample: { size: 4 } },
     ]);
 
-    // Set final price to sale price for related products (no offers)
+    // Get active offers for related products
     for (const product of relatedProducts) {
-      product.finalPrice = product.salePrice;
+      const offer = await getActiveOfferForProduct(
+        product._id,
+        product.category,
+        product.regularPrice
+      );
+      const { discountPercentage, discountAmount, finalPrice } =
+        calculateDiscount(offer, product.regularPrice);
+      product.activeOffer = offer;
+      product.discountPercentage = discountPercentage;
+      product.discountAmount = discountAmount;
+      product.finalPrice = finalPrice;
       product.regularPrice = product.regularPrice || product.salePrice;
+      product.salePrice = finalPrice;
     }
 
     res.render("cart", {
@@ -51,6 +88,7 @@ const getCart = async (req, res) => {
       totalDiscount: totalDiscount.toFixed(2),
       relatedProducts,
       cartCount,
+      wishlistCount,
       user: userId ? { id: userId } : null,
       isAuthenticated: true,
     });
@@ -83,8 +121,9 @@ const addToCart = async (req, res) => {
         .json({ success: false, message: "Product not found or unavailable" });
     }
 
-    // Use sale price (no offers)
-    const finalPrice = product.salePrice;
+    // Get active offer and calculate discounted price
+    const offer = await getActiveOfferForProduct(product._id, product.category);
+    const { finalPrice } = calculateDiscount(offer, product.regularPrice);
 
     // Fetch the user's cart to check existing quantity
     let cart = await Cart.findOne({ user: userId });
@@ -229,8 +268,9 @@ const updateCartItem = async (req, res) => {
         });
     }
 
-    // Use sale price (no offers)
-    const finalPrice = product.salePrice;
+    // Get active offer and calculate discounted price
+    const offer = await getActiveOfferForProduct(product._id, product.category);
+    const { finalPrice } = calculateDiscount(offer, product.regularPrice);
 
     cart.items[itemIndex].quantity = parseInt(quantity);
     cart.items[itemIndex].priceAtAddition = finalPrice;

@@ -1,7 +1,9 @@
 const { createValidationMiddleware } = require('../../helpers/validation-helper');
 const { HttpStatus } = require('../../helpers/status-code');
 
-
+/**
+ * Validate wishlist toggle request
+ */
 const validateWishlistToggle = createValidationMiddleware({
   productId: {
     type: 'objectId',
@@ -9,7 +11,9 @@ const validateWishlistToggle = createValidationMiddleware({
   }
 });
 
-
+/**
+ * Validate user authentication for wishlist operations
+ */
 const validateWishlistAuth = (req, res, next) => {
   try {
     const userId = req.session.user_id || req.user?._id;
@@ -21,7 +25,7 @@ const validateWishlistAuth = (req, res, next) => {
       });
     }
     
-
+    // Add user ID to validated data
     req.validatedData = { ...req.validatedData, userId };
     next();
   } catch (error) {
@@ -33,7 +37,9 @@ const validateWishlistAuth = (req, res, next) => {
   }
 };
 
-
+/**
+ * Validate remove from wishlist request
+ */
 const validateRemoveFromWishlist = createValidationMiddleware({
   productId: {
     type: 'objectId',
@@ -41,7 +47,9 @@ const validateRemoveFromWishlist = createValidationMiddleware({
   }
 });
 
-
+/**
+ * Validate clear wishlist request
+ */
 const validateClearWishlist = (req, res, next) => {
   try {
     const userId = req.session.user_id || req.user?._id;

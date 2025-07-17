@@ -1000,14 +1000,13 @@
                       <div class="product-cell">
                         <img
                           src="<%= item.image || '/api/placeholder/60/75' %>"
-                          alt="<%= item.title || 'Product' %>"
+                          alt="<%= item.model || 'Product' %>"
                           class="product-image"
                           onerror="this.src='/api/placeholder/60/75'"
                         >
                         <div class="product-details">
-                          <div class="product-name"><%= item.title || 'Unknown Product' %></div>
+                          <div class="product-name"><%= item.model || 'Unknown Product' %></div>
                           <div class="product-meta">
-                            <div>Model: <%= item.model_number %></div>
                             <div>Brand: <%= item.brand %></div>
                           </div>
                         </div>

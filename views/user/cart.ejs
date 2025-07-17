@@ -104,7 +104,7 @@
                 </div>
                 <div class="col-md-6 col-8 mb-3 mb-md-0">
                   <h3 class="fs-5 fw-semibold mb-1"><%= item.product.title %></h3>
-                  <p class="text-muted small mb-1"><%= item.product.brand %></p>
+                  <p class="text-muted small mb-1"><%= item.product.author %></p>
                   <p class="small mb-0"><%= item.product.format || 'Hardcover' %></p>
                   <% if (item.product.activeOffer) { %>
                     <p class="offer-title mt-1"><i class="ri-price-tag-3-line"></i> <%= item.product.activeOffer.title %></p>
@@ -228,7 +228,7 @@
               <h3 class="fs-5 fw-semibold mb-1">
                 <a href="/products/<%= product._id %>" class="text-dark text-decoration-none"><%= product.title %></a>
               </h3>
-              <p class="text-muted small mb-2"><%= product.brand %></p>
+              <p class="text-muted small mb-2"><%= product.author %></p>
               <div class="d-flex justify-content-between align-items-center">
                 <div>
                   <% if (product.activeOffer && product.discountPercentage > 0) { %>

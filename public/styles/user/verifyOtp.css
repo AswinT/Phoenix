@@ -56,16 +56,16 @@ body {
      outline: none;
    }
    .btn-verify {
-     background-color: #FF0000;
-     border-color: #FF0000;
+     background-color: #000;
+     border-color: #000;
      border-radius: 0.5rem;
      padding: 0.75rem 1.5rem;
      font-weight: 500;
      transition: all 0.3s ease;
    }
    .btn-verify:hover {
-     background-color: #cc0000;
-     border-color: #cc0000;
+     background-color: #333;
+     border-color: #333;
    }
    .btn-resend {
      color: #000;

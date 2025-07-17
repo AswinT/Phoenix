@@ -1,6 +1,177 @@
 <%- include("../partials/user/header") %>
 <style>
-  /* Add to existing styles */
+  /* Shop Banner Styles */
+  .shop-banner-section {
+    background-image: url('/assets/shopPageBanner.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    position: relative;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .shop-banner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(26, 26, 26, 0.7), rgba(0, 0, 0, 0.5));
+    z-index: 1;
+  }
+
+  .shop-banner-content {
+    position: relative;
+    z-index: 10;
+    color: #ffffff;
+    text-align: center;
+    animation: fadeInUp 1s ease-out;
+  }
+
+  .shop-banner-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+
+  .shop-banner-subtitle {
+    font-size: 1.25rem;
+    font-weight: 400;
+    margin-bottom: 2rem;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
+    opacity: 0.95;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .shop-breadcrumb .breadcrumb {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .shop-breadcrumb .breadcrumb-item a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .shop-breadcrumb .breadcrumb-item a:hover {
+    color: #f8f9fa;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  }
+
+  .shop-breadcrumb .breadcrumb-item.active {
+    color: #cccccc;
+    font-weight: 500;
+  }
+
+  .shop-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    color: #cccccc;
+    content: "›";
+    font-weight: 600;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .shop-banner-section {
+      height: 300px;
+      background-attachment: scroll;
+    }
+
+    .shop-banner-title {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .shop-banner-subtitle {
+      font-size: 1.1rem;
+      margin-bottom: 1.5rem;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .shop-banner-section {
+      height: 250px;
+    }
+
+    .shop-banner-title {
+      font-size: 2rem;
+      line-height: 1.2;
+    }
+
+    .shop-banner-subtitle {
+      font-size: 1rem;
+      padding: 0 1rem;
+    }
+
+    .shop-breadcrumb .breadcrumb {
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+    }
+  }
+
+  /* Enhanced integration with dark navigation */
+  .shop-banner-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(180deg, rgba(26, 26, 26, 0.3) 0%, transparent 100%);
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  /* Subtle parallax effect on scroll */
+  .shop-banner-section {
+    transition: transform 0.1s ease-out;
+  }
+
+  /* Enhanced text effects */
+  .shop-banner-title {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(2px 2px 8px rgba(0, 0, 0, 0.7));
+  }
+
+  /* Smooth transition for mobile */
+  @media (max-width: 768px) {
+    .shop-banner-title {
+      background: #ffffff;
+      -webkit-text-fill-color: #ffffff;
+      filter: none;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+    }
+  }
+
+  /* Existing styles */
   .offer-badge {
     position: absolute;
     top: 10px;
@@ -19,22 +190,72 @@
     font-size: 0.875rem;
     margin-right: 0.5rem;
   }
+
+  /* Shop Page Pricing Styles */
+  .shop-product-price .current-price {
+    font-weight: 700;
+    color: #e53935;
+    font-size: 1rem;
+  }
+
+  .shop-product-price .original-price {
+    font-size: 0.85rem;
+    color: #6c757d;
+    text-decoration: line-through;
+    margin-right: 0.5rem;
+  }
+
+  /* Enhanced Offer Badge for Shop Page */
+  .offer-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: linear-gradient(135deg, #e53935, #c62828);
+    color: white;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 6px rgba(229, 57, 53, 0.3);
+    z-index: 2;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { box-shadow: 0 2px 6px rgba(229, 57, 53, 0.3); }
+    50% { box-shadow: 0 4px 12px rgba(229, 57, 53, 0.5); }
+    100% { box-shadow: 0 2px 6px rgba(229, 57, 53, 0.3); }
+  }
+
+  /* Mobile Responsive Badge */
+  @media (max-width: 576px) {
+    .offer-badge {
+      top: 8px;
+      right: 8px;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.7rem;
+    }
+  }
 </style>
-<!-- Shop Header -->
-<section class="py-5 bg-light">
+<!-- Shop Banner Section -->
+<section class="shop-banner-section">
+  <div class="shop-banner-overlay"></div>
   <div class="container">
-    <div class="row align-items-center">
-      <div class="col-lg-6">
-        <h1 class="display-5 fw-bold mb-3">Shop Our Collection</h1>
-        <p class="text-muted mb-0">Curated headphones that will elevate your audio experience.</p>
-      </div>
-      <div class="col-lg-6">
-        <nav aria-label="breadcrumb">
-          <ol class="breadcrumb justify-content-lg-end mb-0">
-            <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Shop</li>
-          </ol>
-        </nav>
+    <div class="row align-items-center justify-content-center text-center">
+      <div class="col-lg-8">
+        <div class="shop-banner-content">
+          <h1 class="shop-banner-title">Discover Premium Headphones</h1>
+          <p class="shop-banner-subtitle">Immerse yourself in superior sound quality with our curated collection</p>
+          <nav aria-label="breadcrumb" class="shop-breadcrumb">
+            <ol class="breadcrumb justify-content-center mb-0">
+              <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Shop</li>
+            </ol>
+          </nav>
+        </div>
       </div>
     </div>
   </div>
@@ -74,20 +295,20 @@
           <div class="mb-4">
             <h4 class="fs-6 fw-semibold mb-3">Price Range</h4>
             <div class="range-slider">
-              <input type="range" class="form-range custom-range" min="0" max="5000" id="priceRange" value="5000">
+              <input type="range" class="form-range custom-range" min="0" max="50000" id="priceRange" value="50000">
               <div class="d-flex justify-content-between mt-2">
                 <span class="small text-muted" id="minPrice">₹0</span>
-                <span class="small text-muted" id="maxPrice">₹5000</span>
+                <span class="small text-muted" id="maxPrice">₹50000</span>
               </div>
             </div>
             <div class="price-inputs d-flex gap-2 mt-3">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">₹</span>
-                <input type="number" class="form-control" id="minPriceInput" placeholder="Min" aria-label="Minimum price" min="0" max="5000" value="0">
+                <input type="number" class="form-control" id="minPriceInput" placeholder="Min" aria-label="Minimum price" min="0" max="50000" value="0">
               </div>
               <div class="input-group input-group-sm">
                 <span class="input-group-text">₹</span>
-                <input type="number" class="form-control" id="maxPriceInput" placeholder="Max" aria-label="Maximum price" min="0" max="5000" value="5000">
+                <input type="number" class="form-control" id="maxPriceInput" placeholder="Max" aria-label="Maximum price" min="0" max="50000" value="50000">
               </div>
             </div>
           </div>
@@ -150,43 +371,37 @@
                       <span class="product-tag">New</span>
                     <% } %>
 
-                    <% if (product.activeOffer && product.discountPercentage > 0) { %>
-                      <span class="offer-badge"><%= product.discountPercentage %>% OFF</span>
+                    <% if (product.discountPercentage > 0) { %>
+                      <span class="offer-badge"><%= Math.round(product.discountPercentage) %>% OFF</span>
                     <% } %>
 
                     <a href="/products/<%= product._id %>" class="text-decoration-none">
-                      <img src="<%= product.mainImage || '/api/placeholder/500/600' %>" alt="<%= product.title %>" class="product-image" />
+                      <img src="<%= product.mainImage || '/api/placeholder/500/600' %>" alt="<%= product.model %>" class="product-image" />
                     </a>
                   </div>
                   <div class="p-3">
                     <h3 class="fs-5 fw-semibold mb-1">
-                      <a href="/products/<%= product._id %>" class="text-dark text-decoration-none"><%= product.title %></a>
+                      <a href="/products/<%= product._id %>" class="text-dark text-decoration-none"><%= product.model %></a>
                     </h3>
                     <p class="text-muted small mb-2"><%= product.brand %></p>
-
-                    <!-- Product Rating -->
-                    <% if (product.reviewCount > 0) { %>
-                      <div class="d-flex align-items-center mb-2">
-                        <div class="rating-stars me-2">
-                          <% for (let i = 1; i <= 5; i++) { %>
-                            <i class="<%= i <= Math.round(product.averageRating) ? 'ri-star-fill' : 'ri-star-line' %> text-warning" style="font-size: 0.8rem;"></i>
-                          <% } %>
-                        </div>
-                        <small class="text-muted">(<%= product.reviewCount %>)</small>
-                      </div>
-                    <% } %>
-
                     <div class="d-flex justify-content-between align-items-center">
-                      <div>
-                        <% if (product.activeOffer && product.discountPercentage > 0) { %>
-                          <span class="original-price">₹<%= product.regularPrice.toFixed(2) %></span>
-                          <span class="fw-bold">₹<%= product.finalPrice.toFixed(2) %></span>
-                          <small class="d-block text-success"><%= product.activeOffer.title %></small>
+                      <div class="shop-product-price">
+                        <% if (product.discountPercentage > 0) { %>
+                          <div class="d-flex align-items-center gap-1 flex-wrap">
+                            <span class="original-price">₹<%= product.regularPrice.toFixed(2) %></span>
+                            <span class="current-price">₹<%= product.finalPrice.toFixed(2) %></span>
+                          </div>
+                          <% if (product.bestOfferTitle) { %>
+                            <small class="d-block text-success mt-1"><%= product.bestOfferTitle %></small>
+                          <% } %>
                         <% } else { %>
-                          <span class="fw-bold">₹<%= product.finalPrice.toFixed(2) %></span>
+                          <span class="current-price">₹<%= product.finalPrice.toFixed(2) %></span>
                         <% } %>
                       </div>
                       <div class="d-flex gap-2 align-items-center">
+                        <button class="btn-wishlist-shop" data-product-id="<%= product._id %>">
+                          <i class="ri-heart-line"></i>
+                        </button>
                         <button class="add-to-cart border-0" data-product-id="<%= product._id %>" <%= product.stock === 0 ? 'disabled' : '' %>>
                           <i class="ri-shopping-cart-line"></i>
                         </button>
@@ -342,7 +557,35 @@
     background-color: #333;
   }
 
+  .btn-wishlist-shop {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: #fff;
+    color: #000;
+    border: 2px solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
 
+  .btn-wishlist-shop:hover {
+    background-color: #000;
+    color: #fff;
+  }
+
+  .btn-wishlist-shop.wishlisted {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: #fff;
+  }
+
+  .btn-wishlist-shop.wishlisted:hover {
+    background-color: #c82333;
+    border-color: #c82333;
+  }
 
   .custom-range {
     -webkit-appearance: none;
@@ -496,7 +739,7 @@
     }
 
     const minPrice = parseInt(document.getElementById('minPriceInput').value) || 0;
-    const maxPrice = parseInt(document.getElementById('maxPriceInput').value) || 5000;
+    const maxPrice = parseInt(document.getElementById('maxPriceInput').value) || 50000;
     params.set('minPrice', minPrice);
     params.set('maxPrice', maxPrice);
 
@@ -531,10 +774,10 @@
 
     // Reset price range
     document.getElementById('minPriceInput').value = 0;
-    document.getElementById('maxPriceInput').value = 5000;
-    document.getElementById('priceRange').value = 5000;
+    document.getElementById('maxPriceInput').value = 50000;
+    document.getElementById('priceRange').value = 50000;
     document.getElementById('minPrice').textContent = '₹0';
-    document.getElementById('maxPrice').textContent = '₹5000';
+    document.getElementById('maxPrice').textContent = '₹50000';
 
     // Reset sort to recommended
     document.getElementById('sortSelect').value = 'recommended';
@@ -605,8 +848,9 @@
       document.getElementById('sortSelect').value = sortValue;
     }
 
-    // Cart functionality
+    // Cart and Wishlist functionality
     const cartCountElement = document.querySelector('.cart-count');
+    const wishlistCountElement = document.querySelector('.wishlist-count');
 
     // Add to cart functionality
     document.querySelectorAll('.add-to-cart').forEach(button => {
@@ -685,6 +929,92 @@
       });
     });
 
+    // Wishlist functionality
+    document.querySelectorAll('.btn-wishlist-shop').forEach(button => {
+      button.addEventListener('click', async function() {
+        const productId = this.dataset.productId;
 
+        try {
+          const response = await fetch('/wishlist/toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId })
+          });
+          const result = await response.json();
+
+          // Check if it's a 401 Unauthorized or authentication error
+          if (response.status === 401 || !result.success) {
+            console.log('Shop wishlist authentication error - redirecting to login');
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'error',
+              title: result.message || 'Please log in to manage your wishlist',
+              showConfirmButton: false,
+              timer: 2000
+            }).then(() => {
+              window.location.href = '/login';
+            });
+          } else if (result.success) {
+            // Update button appearance
+            const icon = this.querySelector('i');
+            if (result.isWishlisted) {
+              icon.className = 'ri-heart-fill';
+              this.classList.add('wishlisted');
+            } else {
+              icon.className = 'ri-heart-line';
+              this.classList.remove('wishlisted');
+            }
+
+            // Update wishlist count
+            if (wishlistCountElement) {
+              wishlistCountElement.textContent = result.wishlistCount;
+              wishlistCountElement.dataset.count = result.wishlistCount;
+            }
+
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: result.message,
+              showConfirmButton: false,
+              timer: 1500
+            });
+          } else {
+            // Check if it's an authentication error
+            if (result.message === 'Please log in to manage your wishlist' || result.requiresAuth) {
+              Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: result.message,
+                showConfirmButton: false,
+                timer: 2000
+              }).then(() => {
+                window.location.href = '/login';
+              });
+            } else {
+              Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: result.message,
+                showConfirmButton: false,
+                timer: 1500
+              });
+            }
+          }
+        } catch (error) {
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: 'Error managing wishlist',
+            showConfirmButton: false,
+            timer: 1500
+          });
+        }
+      });
+    });
   });
 </script>

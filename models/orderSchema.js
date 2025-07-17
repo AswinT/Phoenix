@@ -56,7 +56,7 @@ const orderItemSchema = new mongoose.Schema(
       ref: "Product",
       required: true,
     },
-    title: {
+    model: {
       type: String,
       required: true,
     },
@@ -91,8 +91,31 @@ const orderItemSchema = new mongoose.Schema(
         required: true,
         min: 0
       },
-
-
+      offerDiscount: {
+        type: Number,
+        default: 0,
+        min: 0
+      },
+      offerTitle: {
+        type: String,
+        default: null
+      },
+      priceAfterOffer: {
+        type: Number,
+        required: true,
+        min: 0
+      },
+      couponDiscount: {
+        type: Number,
+        default: 0,
+        min: 0
+      },
+      couponProportion: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 1
+      },
       finalPrice: {
         type: Number,
         required: true,
@@ -147,19 +170,20 @@ const orderSchema = new mongoose.Schema({
   shippingAddress: addressSchema,
   paymentMethod: {
     type: String,
-    enum: ["cod", "COD"], // Support both lowercase and uppercase for Week 1-2 compatibility
+    enum: ["COD", "Razorpay", "UPI", "Card", "Wallet"],
     required: true,
   },
   paymentStatus: {
     type: String,
     enum: [
-      "Pending", 
-      "Paid", 
-      "Failed", 
-      "Refunded", 
-      "Partially Refunded", 
+      "Pending",
+      "Paid",
+      "Failed",
+      "Refunded",
+      "Partially Refunded",
       "Refund Initiated",
-      "Refund Processing"
+      "Refund Processing",
+      "Pending Payment"
     ],
     default: "Pending",
   },
@@ -175,7 +199,8 @@ const orderSchema = new mongoose.Schema({
       "Return Requested",
       "Partially Return Requested",
       "Returned",
-      "Partially Returned"
+      "Partially Returned",
+      "Pending Payment"
     ],
     default: "Placed",
     required: true
@@ -199,13 +224,39 @@ const orderSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-
+  couponCode: {
+    type: String,
+  },
+  couponDiscount: {
+    type: Number,
+    default: 0,
+  },
   total: {
     type: Number,
     required: true,
     min: 0,
   },
-
+  razorpayOrderId: {
+    type: String,
+  },
+  razorpayPaymentId: {
+    type: String,
+  },
+  // Payment retry tracking
+  paymentRetryAttempts: {
+    type: Number,
+    default: 0,
+  },
+  lastPaymentAttempt: {
+    type: Date,
+  },
+  paymentFailureReason: {
+    type: String,
+  },
+  // Store original Razorpay order for retry
+  originalRazorpayOrderId: {
+    type: String,
+  },
   processedAt: {
     type: Date,
   },

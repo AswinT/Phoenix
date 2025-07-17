@@ -22,7 +22,7 @@ const getProducts = async (req, res) => {
     // Add search filters if provided
     if (search) {
       query.$or = [
-        { title: { $regex: search, $options: 'i' } },
+        { model: { $regex: search, $options: 'i' } },
         { brand: { $regex: search, $options: 'i' } },
       ];
     }
@@ -71,28 +71,25 @@ const getProducts = async (req, res) => {
 const addProduct = async (req, res) => {
   try {
     const {
-      title,
+      model,
       brand,
       description,
       category,
       regularPrice,
       salePrice,
       stock,
-      battery_life,
       connectivity,
       manufacturer,
-      release_date,
-      model_number,
       isListed,
     } = req.body;
 
-    // Validate category exists (additional business logic validation)
+    // Validate category exists
     const categoryExists = await Category.findById(category);
     if (!categoryExists) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message: 'Validation failed',
-        fieldErrors: { category: 'Invalid category selected' }
+        message: 'Invalid category',
+        errors: ['Invalid category selected']
       });
     }
 
@@ -111,19 +108,16 @@ const addProduct = async (req, res) => {
         folder: 'products',
         quality: 'auto:best',
         fetch_format: 'auto',
-        flags: 'preserve_transparency',
-        transformation: [
-          {
-            width: 800,
-            height: 800,
-            crop: 'fill',
-            gravity: 'center',
-            quality: 'auto:good'
-          }
-        ]
+        flags: 'preserve_transparency'
       });
       mainImageUrl = result.secure_url;
       fs.unlinkSync(file.path); // Delete local file
+    } else {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'Main image is required',
+        errors: ['Main image is required']
+      });
     }
 
     // Upload sub images (up to 3)
@@ -144,16 +138,7 @@ const addProduct = async (req, res) => {
           folder: 'products/sub',
           quality: 'auto:best',
           fetch_format: 'auto',
-          flags: 'preserve_transparency',
-          transformation: [
-            {
-              width: 800,
-              height: 800,
-              crop: 'fill',
-              gravity: 'center',
-              quality: 'auto:good'
-            }
-          ]
+          flags: 'preserve_transparency'
         });
         subImages.push(result.secure_url);
         processedPaths.add(file.path); // Mark this path as processed
@@ -164,18 +149,15 @@ const addProduct = async (req, res) => {
 
 
     const product = new Product({
-      title: title.trim(),
+      model: model.trim(),
       brand: brand.trim(),
       description,
       category,
       regularPrice: parseFloat(regularPrice),
       salePrice: parseFloat(salePrice),
       stock: parseInt(stock),
-      battery_life: parseInt(battery_life),
       connectivity,
       manufacturer,
-      release_date: release_date ? new Date(release_date) : undefined,
-      model_number,
       mainImage: mainImageUrl,
       subImages,
       isListed: isListed === 'on',
@@ -192,17 +174,20 @@ const addProduct = async (req, res) => {
     if (error.message.includes('ENOENT')) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: 'File upload failed: File not found on server'
+        message: 'File upload failed: File not found on server',
+        errors: ['File upload failed: File not found on server']
       });
     } else if (error.name === 'TimeoutError') {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: 'Upload timed out. Please try again with a smaller file or check your network.'
+        message: 'Upload timed out. Please try again with a smaller file or check your network.',
+        errors: ['Upload timed out. Please try again with a smaller file or check your network.']
       });
     } else {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: 'Server Error'
+        message: 'Server Error',
+        errors: ['An unexpected error occurred while adding the product']
       });
     }
   }
@@ -252,18 +237,15 @@ const updateProduct = async (req, res) => {
   try {
     const productId = req.params.id;
     const {
-      title,
+      model,
       brand,
       description,
       category,
       regularPrice,
       salePrice,
       stock,
-      battery_life,
       connectivity,
       manufacturer,
-      release_date,
-      model_number,
       isListed,
     } = req.body;
 
@@ -284,21 +266,6 @@ const updateProduct = async (req, res) => {
       return res.status(HttpStatus.BAD_REQUEST).json({ error: 'Invalid category' });
     }
 
-    // Validate minimum image requirements for updates
-    const hasNewMainImage = req.files && req.files.mainImage && req.files.mainImage.length > 0;
-    const newSubImageCount = req.files && req.files.subImages ? req.files.subImages.length : 0;
-    const currentSubImageCount = product.subImages ? product.subImages.length : 0;
-
-    // Calculate total images after update
-    const totalImagesAfterUpdate = 1 + (hasNewMainImage ? 0 : 0) + currentSubImageCount + newSubImageCount;
-
-    // If new images are being uploaded, ensure minimum requirement is met
-    if ((hasNewMainImage || newSubImageCount > 0) && totalImagesAfterUpdate < 3) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        error: `Minimum 3 images required. Current: ${currentSubImageCount + 1}, Adding: ${newSubImageCount}, Total after update: ${totalImagesAfterUpdate}`
-      });
-    }
-
     let mainImageUrl = product.mainImage;
     if (req.files && req.files.mainImage && req.files.mainImage.length > 0) {
       const file = req.files.mainImage[0];
@@ -307,16 +274,7 @@ const updateProduct = async (req, res) => {
         folder: 'products',
         quality: 'auto:best',
         fetch_format: 'auto',
-        flags: 'preserve_transparency',
-        transformation: [
-          {
-            width: 800,
-            height: 800,
-            crop: 'fill',
-            gravity: 'center',
-            quality: 'auto:good'
-          }
-        ]
+        flags: 'preserve_transparency'
       });
       mainImageUrl = result.secure_url;
       fs.unlinkSync(file.path);
@@ -340,16 +298,7 @@ const updateProduct = async (req, res) => {
           folder: 'products/sub',
           quality: 'auto:best',
           fetch_format: 'auto',
-          flags: 'preserve_transparency',
-          transformation: [
-            {
-              width: 800,
-              height: 800,
-              crop: 'fill',
-              gravity: 'center',
-              quality: 'auto:good'
-            }
-          ]
+          flags: 'preserve_transparency'
         });
         subImages.push(result.secure_url);
         processedPaths.add(file.path);
@@ -357,25 +306,25 @@ const updateProduct = async (req, res) => {
       }
     }
 
-    product.title = title;
+    product.model = model;
     product.brand = brand;
     product.description = description;
     product.category = category;
     product.regularPrice = parseFloat(regularPrice);
     product.salePrice = parseFloat(salePrice);
     product.stock = parseInt(stock);
-    product.battery_life = parseInt(battery_life);
     product.connectivity = connectivity;
     product.manufacturer = manufacturer;
-    product.release_date = release_date ? new Date(release_date) : undefined;
-    product.model_number = model_number;
     product.mainImage = mainImageUrl;
     product.subImages = subImages;
     product.isListed = isListed === 'on';
 
     await product.save();
     console.log('Product updated:', product._id);
-    res.status(HttpStatus.OK).json({ message: 'Product updated successfully' });
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Product updated successfully'
+    });
   } catch (error) {
     console.error('Error updating product:', error);
     if (error.message.includes('ENOENT')) {
@@ -400,7 +349,10 @@ const softDeleteProduct = async (req, res) => {
     product.isDeleted = true;
     await product.save();
     console.log('Product soft deleted:', product._id);
-    res.status(HttpStatus.OK).json({ message: 'Product soft deleted successfully' });
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Product soft deleted successfully'
+    });
   } catch (error) {
     console.error('Error soft deleting product:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server Error' });

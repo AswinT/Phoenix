@@ -47,14 +47,14 @@ body {
   border-color: #000;
 }
 .btn-primary {
-  background-color: #FF0000;
-  border-color: #FF0000;
+  background-color: #000;
+  border-color: #000;
   border-radius: 8px;
   padding: 0.6rem 0.75rem;
 }
 .btn-primary:hover {
-  background-color: #cc0000;
-  border-color: #cc0000;
+  background-color: #333;
+  border-color: #333;
 }
 .btn-outline-secondary {
   border-color: #000;
@@ -103,7 +103,7 @@ body {
 .btn-google {
   background-color: #fff;
   border: 1px solid #e2e2e2;
-  color: #6b7280;
+  color: #5f6368;
   font-weight: 500;
   padding: 0.6rem 0.75rem;
   border-radius: 8px;

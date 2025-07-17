@@ -7,8 +7,7 @@ const getContact = async (req, res) => {
     res.render("contact");
   } catch (error) {
     console.log("Error in rendering contact page", error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).render("page-404", {
-      title: "Error",
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).render("error", {
       message: "Internal server error",
     });
   }

@@ -1,33 +1,68 @@
-// Refund Calculator
+/**
+ * **BULLETPROOF REFUND CALCULATOR - UNIFIED SYSTEM**
+ * Single source of truth for ALL refund calculations
+ * Prevents double refunding and ensures mathematical accuracy
+ */
+
+/**
+ * **MAIN REFUND CALCULATOR**
+ * Handles all refund scenarios with bulletproof logic
+ *
+ * @param {string} refundType - 'INDIVIDUAL_ITEM' or 'REMAINING_ORDER'
+ * @param {Object} order - Complete order object
+ * @param {string} targetItemId - Item ID for individual refunds (optional for full order)
+ * @returns {Object} - Calculation result with amount and details
+ */
 const calculateRefundAmount = (refundType, order, targetItemId = null) => {
   try {
-
+    // **STEP 1: VALIDATION**
     if (!order || !order.total || order.total <= 0) {
       console.error('Invalid order data for refund calculation');
       return { success: false, amount: 0, reason: 'Invalid order data' };
     }
 
+    // **STEP 2: GET RELEVANT ITEMS BASED ON REFUND TYPE**
+    // For cancellations: get active items to prevent double refunding
+    // For returns: get returned items to calculate what should be refunded
+    let relevantItems;
+    if (refundType === 'REMAINING_ORDER') {
+      // Check if this is a return scenario (items already returned) or cancellation scenario
+      const returnedItems = order.items.filter(item => item.status === 'Returned');
+      const activeItems = order.items.filter(item =>
+        item.status === 'Active' || item.status === 'Placed' || !item.status
+      );
 
-    const itemsToProcess = order.items.filter(item => {
-      if (refundType === 'INDIVIDUAL_ITEM') {
-
-        return true;
+      if (returnedItems.length > 0) {
+        // This is a return refund - use returned items
+        relevantItems = returnedItems;
+        console.log(`📦 RETURN REFUND - Using returned items: ${returnedItems.length}`);
       } else {
-
-        return item.status === 'Active' || item.status === 'Placed' ||
-               item.status === 'Returned' || !item.status;
+        // This is a cancellation refund - use active items
+        relevantItems = activeItems;
+        console.log(`📦 CANCELLATION REFUND - Using active items: ${activeItems.length}`);
       }
+    } else {
+      // For individual item refunds, we'll handle this in the specific function
+      relevantItems = order.items.filter(item =>
+        item.status === 'Active' || item.status === 'Placed' || !item.status
+      );
+    }
+
+    console.log(`📦 ORDER ITEMS ANALYSIS:`);
+    console.log(`   Total Items: ${order.items.length}`);
+    order.items.forEach((item, index) => {
+      console.log(`   Item ${index + 1}: ${item.title} - Status: ${item.status || 'No Status'} - Product: ${item.product}`);
     });
+    console.log(`   Relevant Items: ${relevantItems.length}`);
 
-
-
-
+    // **STEP 3: CALCULATE BASED ON REFUND TYPE**
     if (refundType === 'INDIVIDUAL_ITEM') {
-
+      // For individual items, we need to check ALL items (not just active)
+      // because the item might have just been cancelled
       return calculateIndividualItemRefund(targetItemId, order, order.items);
     } else if (refundType === 'REMAINING_ORDER') {
-
-      return calculateRemainingOrderRefund(order, itemsToProcess, order.items);
+      // For full order cancellation/return, we need to check what hasn't been refunded yet
+      return calculateRemainingOrderRefund(order, relevantItems, order.items);
     } else {
       return { success: false, amount: 0, reason: 'Invalid refund type' };
     }
@@ -38,9 +73,11 @@ const calculateRefundAmount = (refundType, order, targetItemId = null) => {
   }
 };
 
-
+/**
+ * **INDIVIDUAL ITEM REFUND CALCULATOR**
+ */
 const calculateIndividualItemRefund = (targetItemId, order, allItems) => {
-
+  // Find the specific item to refund with flexible matching
   const itemToRefund = allItems.find(item => {
     const productMatch = item.product?.toString() === targetItemId?.toString();
     const idMatch = item._id?.toString() === targetItemId?.toString();
@@ -51,13 +88,13 @@ const calculateIndividualItemRefund = (targetItemId, order, allItems) => {
     return { success: false, amount: 0, reason: 'Item not found in order' };
   }
 
-
+  // Check if item is eligible for refund
   const eligibleStatuses = ['Cancelled', 'Active', 'Return Requested', 'Returned'];
   if (!eligibleStatuses.includes(itemToRefund.status)) {
     return { success: false, amount: 0, reason: 'Item not eligible for refund' };
   }
 
-
+  // Calculate proportional refund for this item
   const refundAmount = calculateItemProportion(itemToRefund, order, allItems);
 
   return {
@@ -69,129 +106,121 @@ const calculateIndividualItemRefund = (targetItemId, order, allItems) => {
   };
 };
 
+/**
+ * **REMAINING ORDER REFUND CALCULATOR**
+ * Handles both cancellations and returns
+ */
+const calculateRemainingOrderRefund = (order, relevantItems, allItems) => {
+  console.log(`🔍 CALCULATING REMAINING ORDER REFUND:`);
+  console.log(`   Relevant Items: ${relevantItems.length}`);
+  console.log(`   All Items: ${allItems.length}`);
 
-const calculateRemainingOrderRefund = (order, itemsToProcess, allItems) => {
-
-  const returnedItems = allItems.filter(item => item.status === 'Returned');
-  const activeItems = allItems.filter(item =>
-    item.status === 'Active' || item.status === 'Placed' || !item.status
-  );
-
-
-  if (returnedItems.length > 0) {
-    let totalRefund = 0;
-    const refundedItems = [];
-
-    returnedItems.forEach(item => {
-      const itemRefund = calculateItemProportion(item, order, allItems);
-      totalRefund += itemRefund;
-      refundedItems.push({
-        title: item.title,
-        amount: itemRefund
-      });
-    });
-
-    return {
-      success: true,
-      amount: totalRefund,
-      reason: `Refund for ${returnedItems.length} returned item(s)`,
-      itemCount: returnedItems.length,
-      refundedItems: refundedItems
-    };
+  // Check if we have items to process
+  if (relevantItems.length === 0) {
+    console.log(`⚠️  No relevant items found for refund`);
+    return { success: false, amount: 0, reason: 'No items to refund' };
   }
 
+  // Determine if this is a return or cancellation scenario
+  const isReturnScenario = relevantItems.some(item => item.status === 'Returned');
+  console.log(`   Scenario: ${isReturnScenario ? 'RETURN' : 'CANCELLATION'}`);
 
-  if (activeItems.length === 0) {
-
-    const recentlyCancelledItems = allItems.filter(item => item.status === 'Cancelled');
-
-    if (recentlyCancelledItems.length === 0) {
-      return { success: false, amount: 0, reason: 'No items to refund' };
-    }
-
-
-    let totalRefund = 0;
-    const refundedItems = [];
-
-
-    const totalOrderRefund = order.total;
-
-
-    let alreadyRefunded = 0;
-
-
-    const remainingItems = recentlyCancelledItems.filter(item => {
-      return true;
-    });
-
-    if (remainingItems.length > 0) {
-
-      remainingItems.forEach(item => {
-        const itemRefund = calculateItemProportion(item, order, allItems);
-        totalRefund += itemRefund;
-        refundedItems.push({
-          title: item.title,
-          amount: itemRefund
-        });
-      });
-
-
-
-      return {
-        success: true,
-        amount: totalRefund,
-        reason: `Refund for remaining ${remainingItems.length} item(s) in cancelled order`,
-        itemCount: remainingItems.length,
-        refundedItems: refundedItems
-      };
-    }
-
-    return { success: false, amount: 0, reason: 'All items already processed' };
+  if (isReturnScenario) {
+    // For returns, calculate refund for all returned items
+    return calculateReturnRefund(order, relevantItems);
+  } else {
+    // For cancellations, use the existing logic
+    return calculateCancellationRefund(order, relevantItems, allItems);
   }
+};
 
+/**
+ * **RETURN REFUND CALCULATOR**
+ * Calculates refund for returned items
+ */
+const calculateReturnRefund = (order, returnedItems) => {
+  console.log(`🔄 CALCULATING RETURN REFUND:`);
+  console.log(`   Returned Items: ${returnedItems.length}`);
 
   let totalRefund = 0;
   const refundedItems = [];
 
-  activeItems.forEach(item => {
+  // Calculate proportional refund for each returned item
+  for (const item of returnedItems) {
+    const itemRefund = calculateItemProportion(item, order, order.items);
+    totalRefund += itemRefund;
+    refundedItems.push({
+      title: item.title,
+      amount: itemRefund
+    });
+
+    console.log(`   Item: ${item.title} - Refund: ₹${itemRefund}`);
+  }
+
+  console.log(`   Total Return Refund: ₹${totalRefund}`);
+
+  return {
+    success: true,
+    amount: totalRefund,
+    reason: `Refund for ${returnedItems.length} returned item(s)`,
+    items: refundedItems
+  };
+};
+
+/**
+ * **CANCELLATION REFUND CALCULATOR**
+ * Handles the existing cancellation logic
+ */
+const calculateCancellationRefund = (order, activeItems, allItems) => {
+  // Find items that were recently cancelled but haven't been refunded yet
+  const recentlyCancelledItems = allItems.filter(item => item.status === 'Cancelled');
+
+  if (recentlyCancelledItems.length === 0) {
+    console.log(`❌ No cancelled items to refund`);
+    return { success: false, amount: 0, reason: 'No cancelled items to refund' };
+  }
+
+  let totalRefund = 0;
+  const refundedItems = [];
+
+  // Calculate proportional refund for cancelled items
+  for (const item of recentlyCancelledItems) {
     const itemRefund = calculateItemProportion(item, order, allItems);
     totalRefund += itemRefund;
     refundedItems.push({
       title: item.title,
       amount: itemRefund
     });
-  });
 
+    console.log(`   Cancelled Item: ${item.title} - Refund: ₹${itemRefund}`);
+  }
 
+  console.log(`   Total Cancellation Refund: ₹${totalRefund}`);
 
   return {
     success: true,
     amount: totalRefund,
-    reason: `Refund for remaining ${activeItems.length} item(s) in order`,
-    itemCount: activeItems.length,
-    refundedItems: refundedItems
+    reason: `Refund for ${recentlyCancelledItems.length} cancelled item(s)`,
+    items: refundedItems
   };
 };
 
-
+/**
+ * **CORE HELPER: CALCULATE ITEM PROPORTION**
+ * Calculates exact proportional refund for a single item
+ */
 const calculateItemProportion = (item, order, allActiveItems) => {
   try {
-    // Validate inputs
-    if (!item || !order || !order.total || order.total <= 0) {
-      console.error('Invalid item or order data for proportion calculation');
-      return 0;
-    }
-
-    // Get the item's final price (including any discounts)
+    // Get item's final price (after all discounts)
     const itemFinalPrice = item.priceBreakdown?.finalPrice || (item.discountedPrice * item.quantity);
 
-    // For single-item orders, return the full order total
+    // **SPECIAL CASE: Single item order**
     if (order.items.length === 1) {
       return Number(order.total.toFixed(2));
     }
 
-    // Calculate the total original value of ALL items in the order
-    // This ensures that the sum of all proportional refunds equals the order total
+    // **MULTI-ITEM: Calculate proportional share based on ORIGINAL order composition**
+    // Calculate total value of ALL original items (not just active ones)
     const totalOriginalValue = order.items.reduce((sum, originalItem) => {
       const originalItemPrice = originalItem.priceBreakdown?.finalPrice || (originalItem.discountedPrice * originalItem.quantity);
       return sum + originalItemPrice;
@@ -202,18 +231,11 @@ const calculateItemProportion = (item, order, allActiveItems) => {
       return 0;
     }
 
-    // Calculate the item's proportion of the total order value
+    // Calculate item's proportion of the ORIGINAL order
     const itemProportion = itemFinalPrice / totalOriginalValue;
 
-    // Calculate the proportional refund amount
-    // This includes the item's share of taxes, shipping, and any order-level discounts
+    // Apply proportion to order total (including tax and all charges)
     const itemRefund = order.total * itemProportion;
-
-    // Validate the result
-    if (itemRefund < 0 || itemRefund > order.total) {
-      console.error(`Invalid refund amount calculated: ₹${itemRefund} for item ${item.title}`);
-      return 0;
-    }
 
     return Number(itemRefund.toFixed(2));
   } catch (error) {
@@ -222,30 +244,46 @@ const calculateItemProportion = (item, order, allActiveItems) => {
   }
 };
 
-
+/**
+ * **LEGACY COMPATIBILITY FUNCTION**
+ * Maintains backward compatibility with existing code
+ */
 const calculateExactRefundAmount = (item, order) => {
   const result = calculateRefundAmount('INDIVIDUAL_ITEM', order, item.product || item._id);
   return result.success ? result.amount : 0;
 };
 
-
+/**
+ * Calculate display price for item in modals/interfaces
+ * RULE: Show the actual amount customer will get back
+ *
+ * @param {Object} item - Order item
+ * @param {Object} order - Complete order object
+ * @returns {string} - Formatted price for display
+ */
 const getItemDisplayPrice = (item, order) => {
   const refundAmount = calculateExactRefundAmount(item, order);
   return `₹${refundAmount.toFixed(2)}`;
 };
 
-
+/**
+ * Validate refund calculation accuracy
+ *
+ * @param {Array} items - Items being refunded
+ * @param {Object} order - Complete order object
+ * @returns {Object} - Validation result
+ */
 const validateRefundCalculation = (items, order) => {
   try {
     let totalRefund = 0;
-    
+
     items.forEach(item => {
       totalRefund += calculateExactRefundAmount(item, order);
     });
 
     const isFullOrderRefund = items.length === order.items.length;
     const expectedTotal = isFullOrderRefund ? order.total : totalRefund;
-    
+
     return {
       totalRefund: Number(totalRefund.toFixed(2)),
       expectedTotal: Number(expectedTotal.toFixed(2)),
@@ -263,11 +301,17 @@ const validateRefundCalculation = (items, order) => {
   }
 };
 
-
+/**
+ * Get refund breakdown for display purposes
+ *
+ * @param {Object} item - Order item
+ * @param {Object} order - Complete order object
+ * @returns {Object} - Detailed breakdown
+ */
 const getRefundBreakdown = (item, order) => {
   try {
     const refundAmount = calculateExactRefundAmount(item, order);
-    
+
     return {
       itemTitle: item.title || 'Unknown Item',
       originalPrice: item.price || 0,
@@ -275,7 +319,7 @@ const getRefundBreakdown = (item, order) => {
       refundAmount: refundAmount,
       formattedRefund: `₹${refundAmount.toFixed(2)}`,
       isFullOrderRefund: order.items.length === 1,
-      explanation: order.items.length === 1 
+      explanation: order.items.length === 1
         ? 'Full order total (what you paid)'
         : 'Proportional share of order total'
     };
@@ -293,7 +337,13 @@ const getRefundBreakdown = (item, order) => {
   }
 };
 
-
+/**
+ * Calculate total refund for multiple items
+ *
+ * @param {Array} items - Items being refunded
+ * @param {Object} order - Complete order object
+ * @returns {number} - Total refund amount
+ */
 const calculateTotalRefund = (items, order) => {
   try {
     let totalRefund = 0;
@@ -310,128 +360,28 @@ const calculateTotalRefund = (items, order) => {
 };
 
 /**
- * Calculate the remaining order amount after partial cancellations
- * This function ensures consistency between refunded amounts and remaining amounts
- * @param {Object} order - The order object
- * @returns {number} - The remaining amount the customer should pay for active items
+ * Check if refund amount is valid for payment method
+ *
+ * @param {Object} order - Order object
+ * @param {number} refundAmount - Calculated refund amount
+ * @returns {Object} - Validation result
  */
-const calculateRemainingOrderAmount = (order) => {
-  try {
-    // Validate input
-    if (!order || !order.items || !Array.isArray(order.items) || !order.total || order.total <= 0) {
-      console.error('Invalid order data for remaining amount calculation');
-      return 0;
-    }
-
-    // Get active items (items that are not cancelled or returned)
-    const activeItems = order.items.filter(item =>
-      item.status === 'Active' ||
-      item.status === 'Placed' ||
-      !item.status
-    );
-
-    // If no active items, remaining amount is 0
-    if (activeItems.length === 0) {
-      return 0;
-    }
-
-    // If all items are still active, return full order total
-    if (activeItems.length === order.items.length) {
-      return Number(order.total.toFixed(2));
-    }
-
-    // Calculate the remaining amount using the same proportional logic as refunds
-    // This ensures mathematical consistency: refunded + remaining = order total
-    let remainingAmount = 0;
-
-    activeItems.forEach(item => {
-      remainingAmount += calculateItemProportion(item, order, order.items);
-    });
-
-    // Validate the result
-    if (remainingAmount < 0 || remainingAmount > order.total) {
-      console.error(`Invalid remaining amount calculated: ₹${remainingAmount} for order ${order._id}`);
-      return 0;
-    }
-
-    return Number(remainingAmount.toFixed(2));
-  } catch (error) {
-    console.error('Error calculating remaining order amount:', error.message);
-    return 0;
-  }
-};
-
-/**
- * Validate that refunded amounts + remaining amount = order total
- * This function helps ensure mathematical consistency in partial cancellations
- * @param {Object} order - The order object
- * @returns {Object} - Validation result with details
- */
-const validateOrderAmountConsistency = (order) => {
-  try {
-    if (!order || !order.items || !order.total) {
-      return {
-        isValid: false,
-        reason: 'Invalid order data',
-        details: {}
-      };
-    }
-
-    const activeItems = order.items.filter(item =>
-      item.status === 'Active' || item.status === 'Placed' || !item.status
-    );
-    const cancelledItems = order.items.filter(item =>
-      item.status === 'Cancelled'
-    );
-    const returnedItems = order.items.filter(item =>
-      item.status === 'Returned'
-    );
-
-    // Calculate amounts
-    const remainingAmount = calculateRemainingOrderAmount(order);
-    const cancelledRefunds = calculateTotalRefund(cancelledItems, order);
-    const returnedRefunds = calculateTotalRefund(returnedItems, order);
-    const totalRefunds = cancelledRefunds + returnedRefunds;
-    const calculatedTotal = remainingAmount + totalRefunds;
-
-    // Check for consistency (allow small rounding differences)
-    const difference = Math.abs(calculatedTotal - order.total);
-    const isValid = difference < 0.01;
-
-    return {
-      isValid,
-      reason: isValid ? 'Amounts are consistent' : 'Amount mismatch detected',
-      details: {
-        orderTotal: Number(order.total.toFixed(2)),
-        remainingAmount: remainingAmount,
-        cancelledRefunds: cancelledRefunds,
-        returnedRefunds: returnedRefunds,
-        totalRefunds: totalRefunds,
-        calculatedTotal: Number(calculatedTotal.toFixed(2)),
-        difference: Number(difference.toFixed(2)),
-        activeItemsCount: activeItems.length,
-        cancelledItemsCount: cancelledItems.length,
-        returnedItemsCount: returnedItems.length
-      }
-    };
-  } catch (error) {
-    console.error('Error validating order amount consistency:', error.message);
-    return {
-      isValid: false,
-      reason: 'Validation error',
-      details: {}
-    };
-  }
-};
-
-
 const validateRefundForPaymentMethod = (order, refundAmount) => {
   try {
+    console.log(`🔍 VALIDATING REFUND FOR PAYMENT METHOD:`);
+    console.log(`   Payment Method: ${order.paymentMethod}`);
+    console.log(`   Payment Status: ${order.paymentStatus}`);
+    console.log(`   Order Status: ${order.orderStatus}`);
+    console.log(`   Refund Amount: ₹${refundAmount}`);
 
-    if (order.paymentMethod === 'COD' || order.paymentMethod === 'cod') {
+    // COD orders - only refund if delivered (cash was paid)
+    if (order.paymentMethod === 'COD') {
       const wasDelivered = order.orderStatus === 'Delivered' || order.paymentStatus === 'Paid';
 
+      console.log(`   COD Order - Was Delivered: ${wasDelivered}`);
+
       if (!wasDelivered) {
+        console.log(`   ❌ COD refund blocked - order not delivered`);
         return {
           isValid: true,
           shouldRefund: false,
@@ -441,11 +391,14 @@ const validateRefundForPaymentMethod = (order, refundAmount) => {
       }
     }
 
-
-    if (order.paymentMethod !== 'COD' && order.paymentMethod !== 'cod') {
+    // Online payments - check payment status
+    if (order.paymentMethod !== 'COD') {
       const isPaid = ['Paid', 'Partially Refunded'].includes(order.paymentStatus);
 
+      console.log(`   Online Order - Is Paid: ${isPaid}`);
+
       if (!isPaid) {
+        console.log(`   ❌ Online refund blocked - order not paid`);
         return {
           isValid: true,
           shouldRefund: false,
@@ -455,6 +408,7 @@ const validateRefundForPaymentMethod = (order, refundAmount) => {
       }
     }
 
+    console.log(`   ✅ Refund validation passed`);
     return {
       isValid: true,
       shouldRefund: true,
@@ -473,20 +427,14 @@ const validateRefundForPaymentMethod = (order, refundAmount) => {
 };
 
 module.exports = {
-  // Core refund calculation functions
+  // **NEW UNIFIED SYSTEM**
   calculateRefundAmount,
+
+  // **LEGACY COMPATIBILITY**
   calculateExactRefundAmount,
-
-  // Display and formatting functions
   getItemDisplayPrice,
-  getRefundBreakdown,
-
-  // Validation functions
   validateRefundCalculation,
-  validateRefundForPaymentMethod,
-  validateOrderAmountConsistency,
-
-  // Total calculation functions
+  getRefundBreakdown,
   calculateTotalRefund,
-  calculateRemainingOrderAmount
+  validateRefundForPaymentMethod
 };

@@ -26,11 +26,8 @@ const getUsers = async (req, res) => {
     // Get total user count matching the search
     const totalUsers = await User.countDocuments(searchQuery);
 
-    // Get users for current page, sorted by newest first
-    const users = await User.find(searchQuery)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
+    // Get users for current page
+    const users = await User.find(searchQuery).skip(skip).limit(limit);
 
     // Calculate pagination variables
     const totalPages = Math.ceil(totalUsers / limit);

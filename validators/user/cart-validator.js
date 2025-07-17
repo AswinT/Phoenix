@@ -1,7 +1,9 @@
 const { createValidationMiddleware, validateObjectId, validateQuantity } = require('../../helpers/validation-helper');
 const { HttpStatus } = require('../../helpers/status-code');
 
-
+/**
+ * Validate add to cart request
+ */
 const validateAddToCart = createValidationMiddleware({
   productId: {
     type: 'objectId',
@@ -13,7 +15,9 @@ const validateAddToCart = createValidationMiddleware({
   }
 });
 
-
+/**
+ * Validate update cart quantity request
+ */
 const validateUpdateCartQuantity = createValidationMiddleware({
   productId: {
     type: 'objectId',
@@ -25,7 +29,9 @@ const validateUpdateCartQuantity = createValidationMiddleware({
   }
 });
 
-
+/**
+ * Validate remove from cart request
+ */
 const validateRemoveFromCart = createValidationMiddleware({
   productId: {
     type: 'objectId',
@@ -33,7 +39,9 @@ const validateRemoveFromCart = createValidationMiddleware({
   }
 });
 
-
+/**
+ * Validate cart item existence and user ownership
+ */
 const validateCartItemOwnership = async (req, res, next) => {
   try {
     const { productId } = req.validatedData || req.body;
@@ -58,7 +66,9 @@ const validateCartItemOwnership = async (req, res, next) => {
   }
 };
 
-
+/**
+ * Validate cart checkout request
+ */
 const validateCartCheckout = (req, res, next) => {
   try {
     const userId = req.session.user_id || req.user?._id;

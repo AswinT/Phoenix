@@ -1,7 +1,9 @@
 const { HttpStatus } = require('../../helpers/status-code');
 const { sanitizeInput } = require('../../helpers/validation-helper');
 
-
+/**
+ * Validate search query parameters
+ */
 const validateSearchQuery = (req, res, next) => {
   try {
     const { 
@@ -20,7 +22,7 @@ const validateSearchQuery = (req, res, next) => {
     const sanitizedQuery = {};
     const errors = [];
     
-
+    // Validate search term
     if (q) {
       const sanitizedQ = sanitizeInput(q);
       if (sanitizedQ.length < 2) {
@@ -32,7 +34,7 @@ const validateSearchQuery = (req, res, next) => {
       }
     }
     
-
+    // Validate category
     if (category) {
       const sanitizedCategory = sanitizeInput(category);
       if (sanitizedCategory.length > 50) {
@@ -42,7 +44,7 @@ const validateSearchQuery = (req, res, next) => {
       }
     }
     
-
+    // Validate brand
     if (brand) {
       const sanitizedBrand = sanitizeInput(brand);
       if (sanitizedBrand.length > 50) {
@@ -149,7 +151,9 @@ const validateSearchQuery = (req, res, next) => {
   }
 };
 
-
+/**
+ * Validate search suggestions request
+ */
 const validateSearchSuggestions = (req, res, next) => {
   try {
     const { q } = req.query;
@@ -188,7 +192,9 @@ const validateSearchSuggestions = (req, res, next) => {
   }
 };
 
-
+/**
+ * Validate filter options request
+ */
 const validateFilterOptions = (req, res, next) => {
   try {
     const { category } = req.query;
@@ -216,7 +222,9 @@ const validateFilterOptions = (req, res, next) => {
   }
 };
 
-
+/**
+ * Validate product details request
+ */
 const validateProductDetails = (req, res, next) => {
   try {
     const { id } = req.params;
@@ -228,7 +236,7 @@ const validateProductDetails = (req, res, next) => {
       });
     }
     
-
+    // Validate MongoDB ObjectId format
     if (!/^[0-9a-fA-F]{24}$/.test(id)) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,

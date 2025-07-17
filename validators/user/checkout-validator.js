@@ -1,11 +1,11 @@
-
+// Validate full name
 function validateFullName(fullName) {
   const trimmedName = fullName.trim();
   if (trimmedName.length < 3) return false;
   return /^[A-Za-z\s'-]+$/.test(trimmedName);
 }
 
-
+// Validate phone number
 function validatePhoneNumber(phoneNumber) {
   const cleanPhone = phoneNumber.replace(/\D/g, "");
   if (cleanPhone.length !== 10) {
@@ -21,7 +21,7 @@ function validatePhoneNumber(phoneNumber) {
   return true;
 }
 
-
+// Validate pincode
 function validatePincode(pincode) {
   const cleanPincode = pincode.replace(/\D/g, "");
   return cleanPincode.length === 6 && /^\d+$/.test(cleanPincode);
@@ -29,7 +29,7 @@ function validatePincode(pincode) {
 
 
 
-
+// Validate address form
 function validateAddressForm(formData) {
   const errors = {};
 

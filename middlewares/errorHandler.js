@@ -1,11 +1,16 @@
 
 const globalErrorHandler = (err, req, res, next) => {
-  // Log error for monitoring
-  console.error(`Error ${err.name}: ${err.message} - ${req.method} ${req.url}`);
+  // Log error for debugging
+  console.error('Error occurred:', {
+    message: err.message,
+    url: req.url,
+    method: req.method,
+    timestamp: new Date().toISOString()
+  });
 
   // Default error response
   let statusCode = 500;
-  let message = err.message || 'Something went wrong. Please try again.';
+  let message = 'Something went wrong. Please try again.';
 
   // Handle common error types
   if (err.name === 'ValidationError') {

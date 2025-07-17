@@ -11,11 +11,11 @@ const searchProducts = async (req, res) => {
       isListed: true,
       isDeleted: false,
       $or: [
-        { title: { $regex: query, $options: 'i' } },
+        { model: { $regex: query, $options: 'i' } },
         { brand: { $regex: query, $options: 'i' } },
       ],
     })
-      .select('title brand mainImage _id')
+      .select('model brand mainImage _id')
       .limit(10); // Limit to 10 results for performance
 
     res.json(products);

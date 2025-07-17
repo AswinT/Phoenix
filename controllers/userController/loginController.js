@@ -13,7 +13,7 @@ const getLogin = async (req, res) => {
 
     res.render("login");
   } catch (error) {
-    console.error("Error in getLogin:", error);
+    console.log(error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: "Server Error",
@@ -69,11 +69,11 @@ const postLogin = async (req, res) => {
 
       return res.status(HttpStatus.OK).json({
         success: true,
-        message: "Welcome to Phoenix",
+        message: "Welcome to Chapterless",
       });
     });
   } catch (error) {
-    console.error("Error in postLogin:", error);
+    console.log("Signin ERROR", error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: "Server Error",

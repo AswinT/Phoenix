@@ -1,7 +1,9 @@
 const { createValidationMiddleware, validateObjectId, validateText } = require('../../helpers/validation-helper');
 const { HttpStatus } = require('../../helpers/status-code');
 
-
+/**
+ * Validate place order request
+ */
 const validatePlaceOrder = createValidationMiddleware({
   addressId: {
     type: 'objectId',
@@ -10,12 +12,20 @@ const validatePlaceOrder = createValidationMiddleware({
   paymentMethod: {
     type: 'text',
     fieldName: 'Payment Method',
-    pattern: /^(cod)$/,
+    pattern: /^(razorpay|cod|wallet)$/,
     required: true
+  },
+  couponCode: {
+    type: 'text',
+    fieldName: 'Coupon Code',
+    required: false,
+    max: 20
   }
 });
 
-
+/**
+ * Validate cancel order request
+ */
 const validateCancelOrder = createValidationMiddleware({
   orderId: {
     type: 'objectId',
@@ -29,7 +39,9 @@ const validateCancelOrder = createValidationMiddleware({
   }
 });
 
-
+/**
+ * Validate return order request
+ */
 const validateReturnOrder = createValidationMiddleware({
   orderId: {
     type: 'objectId',
@@ -69,9 +81,36 @@ const validateOrderOwnership = (req, res, next) => {
   }
 };
 
+/**
+ * Validate Razorpay payment verification
+ */
+const validateRazorpayPayment = createValidationMiddleware({
+  razorpay_order_id: {
+    type: 'text',
+    fieldName: 'Razorpay Order ID',
+    required: true,
+    min: 10,
+    max: 50
+  },
+  razorpay_payment_id: {
+    type: 'text',
+    fieldName: 'Razorpay Payment ID',
+    required: true,
+    min: 10,
+    max: 50
+  },
+  razorpay_signature: {
+    type: 'text',
+    fieldName: 'Razorpay Signature',
+    required: true,
+    min: 10,
+    max: 200
+  }
+});
 
-
-
+/**
+ * Validate reorder request
+ */
 const validateReorder = createValidationMiddleware({
   orderId: {
     type: 'objectId',
@@ -79,7 +118,9 @@ const validateReorder = createValidationMiddleware({
   }
 });
 
-
+/**
+ * Validate order status update (admin)
+ */
 const validateOrderStatusUpdate = createValidationMiddleware({
   orderId: {
     type: 'objectId',
@@ -99,13 +140,15 @@ const validateOrderStatusUpdate = createValidationMiddleware({
   }
 });
 
-
+/**
+ * Validate order search/filter parameters
+ */
 const validateOrderSearch = (req, res, next) => {
   try {
     const { page, limit, status, startDate, endDate, search } = req.query;
     const sanitizedQuery = {};
     
-
+    // Validate page number
     if (page) {
       const pageNum = parseInt(page);
       if (isNaN(pageNum) || pageNum < 1) {
@@ -117,7 +160,7 @@ const validateOrderSearch = (req, res, next) => {
       sanitizedQuery.page = pageNum;
     }
     
-
+    // Validate limit
     if (limit) {
       const limitNum = parseInt(limit);
       if (isNaN(limitNum) || limitNum < 1 || limitNum > 100) {
@@ -129,7 +172,7 @@ const validateOrderSearch = (req, res, next) => {
       sanitizedQuery.limit = limitNum;
     }
     
-
+    // Validate status
     if (status) {
       const validStatuses = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled', 'returned'];
       if (!validStatuses.includes(status)) {
@@ -141,7 +184,7 @@ const validateOrderSearch = (req, res, next) => {
       sanitizedQuery.status = status;
     }
     
-
+    // Validate dates
     if (startDate) {
       const start = new Date(startDate);
       if (isNaN(start.getTime())) {
@@ -192,6 +235,7 @@ module.exports = {
   validateCancelOrder,
   validateReturnOrder,
   validateOrderOwnership,
+  validateRazorpayPayment,
   validateReorder,
   validateOrderStatusUpdate,
   validateOrderSearch

@@ -1,7 +1,9 @@
 const { createValidationMiddleware, validateName, validatePhone, validateText } = require('../../helpers/validation-helper');
 const { HttpStatus } = require('../../helpers/status-code');
 
-
+/**
+ * Indian states for validation
+ */
 const INDIAN_STATES = [
   'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Goa',
   'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka', 'Kerala',
@@ -12,7 +14,9 @@ const INDIAN_STATES = [
   'Ladakh', 'Lakshadweep', 'Puducherry'
 ];
 
-
+/**
+ * Validate add/update address request
+ */
 const validateAddressData = createValidationMiddleware({
   fullName: {
     type: 'name',
@@ -62,7 +66,9 @@ const validateAddressData = createValidationMiddleware({
   }
 });
 
-
+/**
+ * Additional validation for state
+ */
 const validateState = (req, res, next) => {
   try {
     const { state } = req.validatedData;
@@ -85,7 +91,9 @@ const validateState = (req, res, next) => {
   }
 };
 
-
+/**
+ * Validate user authentication for address operations
+ */
 const validateAddressAuth = (req, res, next) => {
   try {
     const userId = req.session.user_id || req.user?._id;
@@ -108,7 +116,9 @@ const validateAddressAuth = (req, res, next) => {
   }
 };
 
-
+/**
+ * Validate address ID for update/delete operations
+ */
 const validateAddressId = createValidationMiddleware({
   addressId: {
     type: 'objectId',
@@ -116,7 +126,9 @@ const validateAddressId = createValidationMiddleware({
   }
 });
 
-
+/**
+ * Validate set default address request
+ */
 const validateSetDefaultAddress = createValidationMiddleware({
   addressId: {
     type: 'objectId',
@@ -124,12 +136,15 @@ const validateSetDefaultAddress = createValidationMiddleware({
   }
 });
 
-
+/**
+ * Validate address ownership
+ */
 const validateAddressOwnership = async (req, res, next) => {
   try {
     const { addressId, userId } = req.validatedData;
     
-
+    // This would typically check if the address belongs to the user
+    // For now, we'll just pass the data along
     req.validatedData = { ...req.validatedData, addressId, userId };
     next();
   } catch (error) {
@@ -141,12 +156,15 @@ const validateAddressOwnership = async (req, res, next) => {
   }
 };
 
-
+/**
+ * Validate pincode format and basic checks
+ */
 const validatePincodeDetails = (req, res, next) => {
   try {
     const { pincode } = req.validatedData;
     
-
+    // Basic pincode validation (already done in main validator)
+    // Additional checks can be added here (like API calls to verify pincode)
     
     next();
   } catch (error) {

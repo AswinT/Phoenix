@@ -1,6 +1,7 @@
 const User = require("../../models/userSchema");
 const OTP = require("../../models/otpSchema"); // Import the new OTP model
-
+const Referral = require("../../models/referralSchema");
+const Wallet = require("../../models/walletSchema");
 const hashPasswordHelper = require("../../helpers/hash");
 const { sendOtpEmail } = require("../../helpers/sendMail");
 const { validateBasicOtp, validateOtpSession } = require("../../validators/user/basic-otp-validator");
@@ -9,7 +10,7 @@ const { createOtpMessage } = require("../../helpers/email-mask");
 
 const getOtp = async (req, res) => {
   try {
-
+    // Get email from session and create masked version
     const email = req.session.tempUser?.email;
     const otpMessage = createOtpMessage(email, 'signup');
 
@@ -26,7 +27,28 @@ const getOtp = async (req, res) => {
 const otpGenerator = () =>
   Math.floor(100000 + Math.random() * 900000).toString();
 
+// Generate unique referral code
+const generateReferralCode = async () => {
+  let code;
+  let isUnique = false;
 
+  while (!isUnique) {
+    // Generate a random 12-character code
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    code = 'REF';
+    for (let i = 0; i < 9; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    // Check if code already exists
+    const existingUser = await User.findOne({ referralCode: code });
+    if (!existingUser) {
+      isUnique = true;
+    }
+  }
+
+  return code;
+};
 
 const getSignup = async (req, res) => {
   try {
@@ -38,14 +60,14 @@ const getSignup = async (req, res) => {
 
 const postSignup = async (req, res) => {
   try {
-    const { fullName, email, phoneNumber, password } = req.body;
+    const { fullName, email, phoneNumber, password, referralCode } = req.body;
 
-
+    // Trim and sanitize inputs
     const trimmedEmail = email.trim().toLowerCase();
     const trimmedName = fullName.trim();
     const trimmedPhone = phoneNumber.trim();
 
-
+    // Check if user already exists
     const existingUser = await User.findOne({
       $or: [{ email: trimmedEmail }, { phone: trimmedPhone }],
     });
@@ -59,11 +81,11 @@ const postSignup = async (req, res) => {
 
     // Generate OTP
     const otp = otpGenerator();
-    console.log("Generated OTP for signup:", otp);
+    console.log("Generated OTP:", otp);
 
     const subjectContent = "Verify your email for Phoenix";
 
-
+    // ✅ Try sending the email first
     try {
       await sendOtpEmail(trimmedEmail, trimmedName, otp, subjectContent,"signup");
     } catch (err) {
@@ -76,10 +98,10 @@ const postSignup = async (req, res) => {
 
     const hashedPassword = await hashPasswordHelper.hashPassword(password);
 
-
+    // Delete any existing OTPs (optional but safe)
     await OTP.deleteMany({ email: trimmedEmail, purpose: "signup" });
 
-
+    // Store OTP in DB
     const otpDoc = new OTP({
       email: trimmedEmail,
       otp,
@@ -87,15 +109,16 @@ const postSignup = async (req, res) => {
     });
     await otpDoc.save();
 
-
+    // Temporarily store user data in session
     req.session.tempUser = {
       fullName: trimmedName,
       email: trimmedEmail,
       phone: trimmedPhone,
       password: hashedPassword,
+      referralCode: referralCode || null,
     };
 
-
+    // Create professional OTP message
     const otpMessage = createOtpMessage(trimmedEmail, 'signup');
 
     return res.status(HttpStatus.OK).json({
@@ -116,7 +139,7 @@ const verifyOtp = async (req, res) => {
   try {
     const { otp } = req.body;
 
-
+    // Basic OTP validation using utility
     const otpValidation = validateBasicOtp(otp);
     if (!otpValidation.isValid) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -125,7 +148,7 @@ const verifyOtp = async (req, res) => {
       });
     }
 
-
+    // Session validation using utility
     const sessionValidation = validateOtpSession(req, 'signup');
     if (!sessionValidation.isValid) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -154,16 +177,77 @@ const verifyOtp = async (req, res) => {
     }
 
 
+    // Generate referral code for new user
+    const userReferralCode = await generateReferralCode();
+
     const newUser = new User({
       fullName: tempUser.fullName,
       email: tempUser.email,
       phone: tempUser.phone,
       password: tempUser.password,
       isVerified: true,
+      referralCode: userReferralCode,
     });
     await newUser.save();
 
+    // Process referral if provided
+    if (tempUser.referralCode) {
+      try {
+        // Find the referrer by referral code
+        const referrer = await User.findOne({ referralCode: tempUser.referralCode });
 
+        if (referrer) {
+          // Create referral record
+          const referralRecord = new Referral({
+            referrer: referrer._id,
+            referred: newUser._id,
+            referralCode: tempUser.referralCode,
+            status: 'completed',
+            rewardGiven: true
+          });
+          await referralRecord.save();
+
+          // Add ₹100 to referrer's wallet
+          let referrerWallet = await Wallet.findOne({ userId: referrer._id });
+          if (!referrerWallet) {
+            referrerWallet = new Wallet({
+              userId: referrer._id,
+              balance: 0,
+              transactions: []
+            });
+          }
+
+          referrerWallet.balance += 100;
+          referrerWallet.transactions.push({
+            type: 'credit',
+            amount: 100,
+            reason: `Referral reward for ${newUser.fullName} joining`,
+            date: new Date()
+          });
+          await referrerWallet.save();
+
+          // Add ₹50 to new user's wallet
+          const newUserWallet = new Wallet({
+            userId: newUser._id,
+            balance: 50,
+            transactions: [{
+              type: 'credit',
+              amount: 50,
+              reason: 'Welcome bonus for using referral code',
+              date: new Date()
+            }]
+          });
+          await newUserWallet.save();
+
+          console.log(`Referral processed: ${referrer.fullName} got ₹100, ${newUser.fullName} got ₹50`);
+        }
+      } catch (referralError) {
+        console.error('Error processing referral:', referralError);
+        // Don't fail signup if referral processing fails
+      }
+    }
+
+    // Clean up
     await OTP.deleteOne({ _id: otpDoc._id });
     delete req.session.tempUser;
 
@@ -192,12 +276,12 @@ const resendOtp = async (req, res) => {
     }
 
     const otp = otpGenerator();
-    console.log("Resending OTP for signup:", otp);
+    console.log("Resending OTP:", otp);
 
-
+    // Delete old OTP
     await OTP.deleteMany({ email, purpose: "signup" });
 
-
+    // Save new OTP
     const otpDoc = new OTP({
       email,
       otp,
@@ -210,7 +294,7 @@ const resendOtp = async (req, res) => {
 
     await sendOtpEmail(email, fullName, otp, subjectContent, "resend");
 
-
+    // Create professional resend message
     const otpMessage = createOtpMessage(email, 'resend');
 
     return res.status(HttpStatus.OK).json({

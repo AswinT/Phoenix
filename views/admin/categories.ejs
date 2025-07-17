@@ -187,7 +187,7 @@
             ></button>
           </div>
           <div class="modal-body">
-            <form id="addCategoryForm" enctype="multipart/form-data">
+            <form id="addCategoryForm" enctype="multipart/form-data" novalidate>
               <div class="mb-3">
                 <label for="newCategoryName" class="form-label"
                   >Category Name</label
@@ -198,8 +198,9 @@
                   id="newCategoryName"
                   name="name"
                   placeholder="Enter category name"
-                  required
+                  novalidate
                 />
+                <div class="invalid-feedback" id="newCategoryNameError"></div>
               </div>
               <div class="mb-3">
                 <label for="newCategoryDescription" class="form-label"
@@ -211,8 +212,9 @@
                   name="description"
                   rows="3"
                   placeholder="Enter category description"
-                  required
+                  novalidate
                 ></textarea>
+                <div class="invalid-feedback" id="newCategoryDescriptionError"></div>
               </div>
               <div class="mb-3">
                 <label class="form-label">Category Image</label>
@@ -230,9 +232,9 @@
                     id="newCategoryImage"
                     name="image"
                     accept="image/*"
-                    required
                   />
                 </div>
+                <div class="invalid-feedback" id="newCategoryImageError"></div>
               </div>
               <div class="mb-3">
                 <label class="form-label d-flex align-items-center">
@@ -280,7 +282,7 @@
             ></button>
           </div>
           <div class="modal-body">
-            <form id="editCategoryForm" enctype="multipart/form-data">
+            <form id="editCategoryForm" enctype="multipart/form-data" novalidate>
               <input type="hidden" id="editCategoryId" name="id" />
               <div class="mb-3">
                 <label for="editCategoryName" class="form-label"
@@ -292,8 +294,9 @@
                   id="editCategoryName"
                   name="name"
                   placeholder="Enter category name"
-                  required
+                  novalidate
                 />
+                <div class="invalid-feedback" id="editCategoryNameError"></div>
               </div>
               <div class="mb-3">
                 <label for="editCategoryDescription" class="form-label"
@@ -305,8 +308,9 @@
                   name="description"
                   rows="3"
                   placeholder="Enter category description"
-                  required
+                  novalidate
                 ></textarea>
+                <div class="invalid-feedback" id="editCategoryDescriptionError"></div>
               </div>
               <div class="mb-3">
                 <label class="form-label">Category Image</label>
@@ -326,6 +330,7 @@
                     accept="image/*"
                   />
                 </div>
+                <div class="invalid-feedback" id="editCategoryImageError"></div>
               </div>
               <div class="mb-3">
                 <label class="form-label d-flex align-items-center">
@@ -429,9 +434,51 @@
         window.location.href = "/admin/categories";
       });
 
-      // Edit category modal population
+      // Modal reset and population functionality
+      const addCategoryModal = document.getElementById("addCategoryModal");
       const editCategoryModal = document.getElementById("editCategoryModal");
+
+      // Clear validation when add modal is opened
+      addCategoryModal.addEventListener("show.bs.modal", function () {
+        // Clear all validation states
+        validator.clearValidation('newCategoryName');
+        validator.clearValidation('newCategoryDescription');
+        validator.clearValidation('newCategoryImage');
+
+        // Reset form completely
+        const form = document.getElementById('addCategoryForm');
+        form.reset();
+
+        // Clear any remaining validation classes
+        form.querySelectorAll('.form-control').forEach(field => {
+          field.classList.remove('is-invalid', 'is-valid');
+        });
+
+        // Reset image preview and status text
+        document.getElementById('newImagePreview').src = '/api/placeholder/100/100';
+        document.getElementById('statusText').textContent = 'Listed';
+      });
+
+      // Clear validation when add modal is closed
+      addCategoryModal.addEventListener("hidden.bs.modal", function () {
+        validator.clearValidation('newCategoryName');
+        validator.clearValidation('newCategoryDescription');
+        validator.clearValidation('newCategoryImage');
+      });
+
+      // Edit category modal population
       editCategoryModal.addEventListener("show.bs.modal", function (event) {
+        // Clear validation first
+        validator.clearValidation('editCategoryName');
+        validator.clearValidation('editCategoryDescription');
+        validator.clearValidation('editCategoryImage');
+
+        // Clear any remaining validation classes
+        const form = document.getElementById('editCategoryForm');
+        form.querySelectorAll('.form-control').forEach(field => {
+          field.classList.remove('is-invalid', 'is-valid');
+        });
+
         const button = event.relatedTarget;
         const categoryId = button.getAttribute("data-category-id");
         const row = button.closest("tr");
@@ -452,108 +499,483 @@
           : "Unlisted";
       });
 
-      // Add Category Form Submission (Updated)
-document
-  .getElementById("addCategoryForm")
-  .addEventListener("submit", async function (e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-
-    try {
-      const response = await fetch("/admin/categories", {
-        method: "POST",
-        body: formData,
+      // Clear validation when edit modal is closed
+      editCategoryModal.addEventListener("hidden.bs.modal", function () {
+        validator.clearValidation('editCategoryName');
+        validator.clearValidation('editCategoryDescription');
+        validator.clearValidation('editCategoryImage');
       });
-      const data = await response.json();
 
-      if (response.ok) {
-        // Check if it's a warning about duplicate category
-        if (data.warning) {
-          Swal.fire({
-            title: "Category Exists",
-            text: data.message,
-            icon: "info",
-            confirmButtonText: "OK"
+      // Category Validation System
+      class CategoryValidator {
+        constructor() {
+          this.validationRules = {
+            name: {
+              required: true,
+              minLength: 2,
+              maxLength: 50,
+              pattern: /^[a-zA-Z0-9\s\-&'().,]+$/,
+              messages: {
+                required: 'Category name is required',
+                minLength: 'Category name must be at least 2 characters long',
+                maxLength: 'Category name must not exceed 50 characters',
+                pattern: 'Category name contains invalid characters'
+              }
+            },
+            description: {
+              required: true,
+              minLength: 10,
+              maxLength: 500,
+              messages: {
+                required: 'Description is required',
+                minLength: 'Description must be at least 10 characters long',
+                maxLength: 'Description must not exceed 500 characters'
+              }
+            },
+            image: {
+              required: true, // Only for add category
+              acceptedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
+              maxSize: 5 * 1024 * 1024, // 5MB
+              messages: {
+                required: 'Category image is required',
+                invalidType: 'Please upload a valid image file (JPEG, PNG, or WebP)',
+                tooLarge: 'Image file size must be less than 5MB'
+              }
+            }
+          };
+        }
+
+        validateField(fieldName, value, fileInput = null, isEdit = false) {
+          const rules = this.validationRules[fieldName];
+          if (!rules) return { isValid: true };
+
+          // Handle file validation
+          if (fieldName === 'image' && fileInput) {
+            const file = fileInput.files[0];
+            if (!file && !isEdit && rules.required) {
+              return { isValid: false, message: rules.messages.required };
+            }
+            if (file) {
+              if (!rules.acceptedTypes.includes(file.type)) {
+                return { isValid: false, message: rules.messages.invalidType };
+              }
+              if (file.size > rules.maxSize) {
+                return { isValid: false, message: rules.messages.tooLarge };
+              }
+            }
+            return { isValid: true };
+          }
+
+          // Handle text validation
+          if (rules.required && (!value || value.trim() === '')) {
+            return { isValid: false, message: rules.messages.required };
+          }
+
+          if (value && value.trim()) {
+            if (rules.minLength && value.trim().length < rules.minLength) {
+              return { isValid: false, message: rules.messages.minLength };
+            }
+            if (rules.maxLength && value.trim().length > rules.maxLength) {
+              return { isValid: false, message: rules.messages.maxLength };
+            }
+            if (rules.pattern && !rules.pattern.test(value.trim())) {
+              return { isValid: false, message: rules.messages.pattern };
+            }
+          }
+
+          return { isValid: true };
+        }
+
+        showError(fieldId, message) {
+          const field = document.getElementById(fieldId);
+          const errorDiv = document.getElementById(fieldId + 'Error');
+
+          field.classList.add('is-invalid');
+          field.classList.remove('is-valid');
+          errorDiv.textContent = message;
+          errorDiv.style.display = 'block';
+        }
+
+        showSuccess(fieldId) {
+          const field = document.getElementById(fieldId);
+          const errorDiv = document.getElementById(fieldId + 'Error');
+
+          field.classList.remove('is-invalid');
+          field.classList.add('is-valid');
+          errorDiv.textContent = '';
+          errorDiv.style.display = 'none';
+        }
+
+        clearValidation(fieldId) {
+          const field = document.getElementById(fieldId);
+          const errorDiv = document.getElementById(fieldId + 'Error');
+
+          field.classList.remove('is-invalid', 'is-valid');
+          errorDiv.textContent = '';
+          errorDiv.style.display = 'none';
+        }
+
+        validateForm(formId, isEdit = false) {
+          const form = document.getElementById(formId);
+          const formData = new FormData(form);
+          let isValid = true;
+
+          // Validate name
+          const nameField = form.querySelector('[name="name"]');
+          const nameResult = this.validateField('name', nameField.value);
+          if (!nameResult.isValid) {
+            this.showError(nameField.id, nameResult.message);
+            isValid = false;
+          } else {
+            this.showSuccess(nameField.id);
+          }
+
+          // Validate description
+          const descField = form.querySelector('[name="description"]');
+          const descResult = this.validateField('description', descField.value);
+          if (!descResult.isValid) {
+            this.showError(descField.id, descResult.message);
+            isValid = false;
+          } else {
+            this.showSuccess(descField.id);
+          }
+
+          // Validate image
+          const imageField = form.querySelector('[name="image"]');
+          const imageResult = this.validateField('image', null, imageField, isEdit);
+          if (!imageResult.isValid) {
+            this.showError(imageField.id, imageResult.message);
+            isValid = false;
+          } else {
+            this.showSuccess(imageField.id);
+          }
+
+          return isValid;
+        }
+      }
+
+      const validator = new CategoryValidator();
+
+      // Disable browser validation completely
+      document.addEventListener('DOMContentLoaded', function() {
+        // Disable HTML5 validation on all forms
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+          form.setAttribute('novalidate', 'true');
+
+          // Prevent any default form validation
+          form.addEventListener('invalid', function(e) {
+            e.preventDefault();
+          }, true);
+
+          // Prevent browser validation messages
+          form.addEventListener('submit', function(e) {
+            // Our custom validation will handle everything
+            if (!e.defaultPrevented) {
+              // This should not happen as we preventDefault in our handlers
+              e.preventDefault();
+            }
           });
+        });
+
+        // Disable validation on all inputs
+        const inputs = document.querySelectorAll('input, textarea, select');
+        inputs.forEach(input => {
+          input.addEventListener('invalid', function(e) {
+            e.preventDefault();
+          });
+        });
+      });
+
+      // Real-time validation for Add Category form
+      const addForm = document.getElementById('addCategoryForm');
+      const addNameField = document.getElementById('newCategoryName');
+      const addDescField = document.getElementById('newCategoryDescription');
+      const addImageField = document.getElementById('newCategoryImage');
+
+      // Add real-time validation listeners
+      addNameField.addEventListener('blur', () => {
+        const result = validator.validateField('name', addNameField.value);
+        if (!result.isValid) {
+          validator.showError('newCategoryName', result.message);
         } else {
-          // Regular success message
+          validator.showSuccess('newCategoryName');
+        }
+      });
+
+      addNameField.addEventListener('input', () => {
+        if (addNameField.classList.contains('is-invalid')) {
+          const result = validator.validateField('name', addNameField.value);
+          if (result.isValid) {
+            validator.showSuccess('newCategoryName');
+          }
+        }
+      });
+
+      addDescField.addEventListener('blur', () => {
+        const result = validator.validateField('description', addDescField.value);
+        if (!result.isValid) {
+          validator.showError('newCategoryDescription', result.message);
+        } else {
+          validator.showSuccess('newCategoryDescription');
+        }
+      });
+
+      addDescField.addEventListener('input', () => {
+        if (addDescField.classList.contains('is-invalid')) {
+          const result = validator.validateField('description', addDescField.value);
+          if (result.isValid) {
+            validator.showSuccess('newCategoryDescription');
+          }
+        }
+      });
+
+      addImageField.addEventListener('change', () => {
+        const result = validator.validateField('image', null, addImageField, false);
+        if (!result.isValid) {
+          validator.showError('newCategoryImage', result.message);
+        } else {
+          validator.showSuccess('newCategoryImage');
+        }
+      });
+
+      // Real-time validation for Edit Category form
+      const editForm = document.getElementById('editCategoryForm');
+      const editNameField = document.getElementById('editCategoryName');
+      const editDescField = document.getElementById('editCategoryDescription');
+      const editImageField = document.getElementById('editCategoryImage');
+
+      editNameField.addEventListener('blur', () => {
+        const result = validator.validateField('name', editNameField.value);
+        if (!result.isValid) {
+          validator.showError('editCategoryName', result.message);
+        } else {
+          validator.showSuccess('editCategoryName');
+        }
+      });
+
+      editNameField.addEventListener('input', () => {
+        if (editNameField.classList.contains('is-invalid')) {
+          const result = validator.validateField('name', editNameField.value);
+          if (result.isValid) {
+            validator.showSuccess('editCategoryName');
+          }
+        }
+      });
+
+      editDescField.addEventListener('blur', () => {
+        const result = validator.validateField('description', editDescField.value);
+        if (!result.isValid) {
+          validator.showError('editCategoryDescription', result.message);
+        } else {
+          validator.showSuccess('editCategoryDescription');
+        }
+      });
+
+      editDescField.addEventListener('input', () => {
+        if (editDescField.classList.contains('is-invalid')) {
+          const result = validator.validateField('description', editDescField.value);
+          if (result.isValid) {
+            validator.showSuccess('editCategoryDescription');
+          }
+        }
+      });
+
+      editImageField.addEventListener('change', () => {
+        const result = validator.validateField('image', null, editImageField, true);
+        if (!result.isValid) {
+          validator.showError('editCategoryImage', result.message);
+        } else {
+          validator.showSuccess('editCategoryImage');
+        }
+      });
+
+      // Add Category Form Submission with Validation
+      addForm.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        // Validate form before submission
+        if (!validator.validateForm('addCategoryForm', false)) {
+          return; // Stop submission if validation fails
+        }
+
+        const formData = new FormData(this);
+
+        try {
+          const response = await fetch("/admin/categories", {
+            method: "POST",
+            body: formData,
+          });
+          const data = await response.json();
+
+          if (response.ok) {
+            if (data.warning) {
+              Swal.fire({
+                title: "Category Exists",
+                text: data.message,
+                icon: "info",
+                confirmButtonText: "OK"
+              });
+            } else {
+              Swal.fire({
+                title: "Success!",
+                text: data.message,
+                icon: "success",
+                timer: 2000,
+                showConfirmButton: false,
+              }).then(() => {
+                window.location.reload();
+              });
+            }
+          } else {
+            // Handle server validation errors
+            if (data.errors && Array.isArray(data.errors)) {
+              let hasFieldErrors = false;
+              data.errors.forEach(error => {
+                // Try to map server errors to specific fields
+                if (error.toLowerCase().includes('name') || error.toLowerCase().includes('category name')) {
+                  validator.showError('newCategoryName', error);
+                  hasFieldErrors = true;
+                } else if (error.toLowerCase().includes('description')) {
+                  validator.showError('newCategoryDescription', error);
+                  hasFieldErrors = true;
+                } else if (error.toLowerCase().includes('image') || error.toLowerCase().includes('file')) {
+                  validator.showError('newCategoryImage', error);
+                  hasFieldErrors = true;
+                } else {
+                  // For unmapped errors, show on the first field as a fallback
+                  validator.showError('newCategoryName', error);
+                  hasFieldErrors = true;
+                }
+              });
+
+              // Only show SweetAlert if no field-specific errors were mapped
+              if (!hasFieldErrors) {
+                Swal.fire({
+                  title: "Error!",
+                  text: "Please check the form for errors",
+                  icon: "error",
+                });
+              }
+            } else if (data.error) {
+              // Single error message - try to map it or show on first field
+              if (data.error.toLowerCase().includes('name') || data.error.toLowerCase().includes('category name')) {
+                validator.showError('newCategoryName', data.error);
+              } else if (data.error.toLowerCase().includes('description')) {
+                validator.showError('newCategoryDescription', data.error);
+              } else if (data.error.toLowerCase().includes('image') || data.error.toLowerCase().includes('file')) {
+                validator.showError('newCategoryImage', data.error);
+              } else {
+                // Show on first field as fallback
+                validator.showError('newCategoryName', data.error);
+              }
+            } else {
+              // Last resort - show generic error on first field
+              validator.showError('newCategoryName', 'An error occurred while adding the category');
+            }
+          }
+        } catch (error) {
           Swal.fire({
-            title: "Success!",
-            text: data.message,
-            icon: "success",
-            timer: 2000,
-            showConfirmButton: false,
-          }).then(() => {
-            window.location.reload();
+            title: "Error!",
+            text: "Server Error",
+            icon: "error",
           });
         }
-      } else {
-        Swal.fire({
-          title: "Error!",
-          text: data.error || "Failed to add category",
-          icon: "error",
-        });
-      }
-    } catch (error) {
-      Swal.fire({
-        title: "Error!",
-        text: "Server Error",
-        icon: "error",
       });
-    }
-  });
 
-// Edit Category Form Submission (Same update pattern)
-document
-  .getElementById("editCategoryForm")
-  .addEventListener("submit", async function (e) {
-    e.preventDefault();
-    const categoryId = document.getElementById("editCategoryId").value;
-    const formData = new FormData(this);
+      // Edit Category Form Submission with Validation
+      editForm.addEventListener("submit", async function (e) {
+        e.preventDefault();
 
-    try {
-      const response = await fetch(`/admin/categories/${categoryId}`, {
-        method: "PUT",
-        body: formData,
-      });
-      const data = await response.json();
+        // Validate form before submission
+        if (!validator.validateForm('editCategoryForm', true)) {
+          return; // Stop submission if validation fails
+        }
 
-      if (response.ok) {
-        // Check if it's a warning about duplicate category
-        if (data.warning) {
-          Swal.fire({
-            title: "Category Exists",
-            text: data.message,
-            icon: "info",
-            confirmButtonText: "OK"
+        const categoryId = document.getElementById("editCategoryId").value;
+        const formData = new FormData(this);
+
+        try {
+          const response = await fetch(`/admin/categories/${categoryId}`, {
+            method: "PUT",
+            body: formData,
           });
-        } else {
-          // Regular success message
+          const data = await response.json();
+
+          if (response.ok) {
+            if (data.warning) {
+              Swal.fire({
+                title: "Category Exists",
+                text: data.message,
+                icon: "info",
+                confirmButtonText: "OK"
+              });
+            } else {
+              Swal.fire({
+                title: "Success!",
+                text: data.message,
+                icon: "success",
+                timer: 2000,
+                showConfirmButton: false,
+              }).then(() => {
+                window.location.reload();
+              });
+            }
+          } else {
+            // Handle server validation errors
+            if (data.errors && Array.isArray(data.errors)) {
+              let hasFieldErrors = false;
+              data.errors.forEach(error => {
+                // Try to map server errors to specific fields
+                if (error.toLowerCase().includes('name') || error.toLowerCase().includes('category name')) {
+                  validator.showError('editCategoryName', error);
+                  hasFieldErrors = true;
+                } else if (error.toLowerCase().includes('description')) {
+                  validator.showError('editCategoryDescription', error);
+                  hasFieldErrors = true;
+                } else if (error.toLowerCase().includes('image') || error.toLowerCase().includes('file')) {
+                  validator.showError('editCategoryImage', error);
+                  hasFieldErrors = true;
+                } else {
+                  // For unmapped errors, show on the first field as a fallback
+                  validator.showError('editCategoryName', error);
+                  hasFieldErrors = true;
+                }
+              });
+
+              // Only show SweetAlert if no field-specific errors were mapped
+              if (!hasFieldErrors) {
+                Swal.fire({
+                  title: "Error!",
+                  text: "Please check the form for errors",
+                  icon: "error",
+                });
+              }
+            } else if (data.error) {
+              // Single error message - try to map it or show on first field
+              if (data.error.toLowerCase().includes('name') || data.error.toLowerCase().includes('category name')) {
+                validator.showError('editCategoryName', data.error);
+              } else if (data.error.toLowerCase().includes('description')) {
+                validator.showError('editCategoryDescription', data.error);
+              } else if (data.error.toLowerCase().includes('image') || data.error.toLowerCase().includes('file')) {
+                validator.showError('editCategoryImage', data.error);
+              } else {
+                // Show on first field as fallback
+                validator.showError('editCategoryName', data.error);
+              }
+            } else {
+              // Last resort - show generic error on first field
+              validator.showError('editCategoryName', 'An error occurred while updating the category');
+            }
+          }
+        } catch (error) {
           Swal.fire({
-            title: "Success!",
-            text: data.message,
-            icon: "success",
-            timer: 2000,
-            showConfirmButton: false,
-          }).then(() => {
-            window.location.reload();
+            title: "Error!",
+            text: "Server Error",
+            icon: "error",
           });
         }
-      } else {
-        Swal.fire({
-          title: "Error!",
-          text: data.error || "Failed to update category",
-          icon: "error",
-        });
-      }
-    } catch (error) {
-      Swal.fire({
-        title: "Error!",
-        text: "Server Error",
-        icon: "error",
       });
-    }
-  });
 
       // Toggle List/Unlist
       const toggleSwitches = document.querySelectorAll(".toggle-status");

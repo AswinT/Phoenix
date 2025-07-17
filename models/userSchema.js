@@ -45,8 +45,15 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-
-
+    wallet: {
+      type: Number,
+      default: 0,
+    },
+    referralCode: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
     orderHistory: [
       {
         type: mongoose.Schema.Types.ObjectId,

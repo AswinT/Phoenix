@@ -4,17 +4,13 @@
 <section class="hero-section">
   <div class="container">
     <div class="hero-content text-white">
-      <h1 class="display-4 fw-bold mb-4">Discover Sound That Finds You</h1>
-      <p class="fs-5 mb-4">PREMIUM AUDIO EXPERIENCE</p>
+      <h1 class="display-4 fw-bold mb-4">Discover Sound That Moves You</h1>
+      <p class="fs-5 mb-4">PREMIUM HEADPHONE EXPERIENCE</p>
       <div class="d-flex flex-column flex-sm-row gap-3">
         <!-- <a href="/shopPage" class="btn btn-light px-4 py-2 fw-medium">Shop Now</a> -->
         <a href="/shopPage" class="btn btn-outline-light px-4 py-2 fw-medium">Explore Collections</a>
       </div>
     </div>
-  </div>
-  <!-- Scroll Indicator -->
-  <div class="scroll-indicator" onclick="document.querySelector('.py-5').scrollIntoView({behavior: 'smooth'})">
-    <i class="ri-arrow-down-line"></i>
   </div>
 </section>
 
@@ -69,12 +65,12 @@
                   </span>
                 <% } %>
                 <a href="/products/<%= product._id %>" class="text-decoration-none">
-                  <img src="<%= product.mainImage || '/api/placeholder/600/800' %>" alt="<%= product.title %>" class="product-image" />
+                  <img src="<%= product.mainImage || '/api/placeholder/600/800' %>" alt="<%= product.model %>" class="product-image" />
                 </a>
               </div>
               <div class="p-3">
                 <h3 class="fs-5 fw-semibold mb-1">
-                  <a href="/products/<%= product._id %>" class="text-dark text-decoration-none"><%= product.title %></a>
+                  <a href="/products/<%= product._id %>" class="text-dark text-decoration-none"><%= product.model %></a>
                 </h3>
                 <p class="text-muted small mb-2"><%= product.brand %></p>
                 <div class="d-flex justify-content-between align-items-center">
@@ -90,6 +86,9 @@
                     <% } %>
                   </div>
                   <div class="d-flex gap-2 align-items-center">
+                    <button class="btn-wishlist-home" data-product-id="<%= product._id %>">
+                      <i class="ri-heart-line"></i>
+                    </button>
                     <button class="add-to-cart border-0" data-product-id="<%= product._id %>">
                       <i class="ri-add-line"></i>
                     </button>
@@ -130,12 +129,12 @@
                   </span>
                 <% } %>
                 <a href="/products/<%= product._id %>" class="text-decoration-none">
-                  <img src="<%= product.mainImage || '/api/placeholder/600/800' %>" alt="<%= product.title %>" class="product-image" />
+                  <img src="<%= product.mainImage || '/api/placeholder/600/800' %>" alt="<%= product.model %>" class="product-image" />
                 </a>
               </div>
               <div class="p-3">
                 <h3 class="fs-5 fw-semibold mb-1">
-                  <a href="/products/<%= product._id %>" class="text-dark text-decoration-none"><%= product.title %></a>
+                  <a href="/products/<%= product._id %>" class="text-dark text-decoration-none"><%= product.model %></a>
                 </h3>
                 <p class="text-muted small mb-2"><%= product.brand %></p>
                 <div class="d-flex justify-content-between align-items-center">
@@ -151,6 +150,9 @@
                     <% } %>
                   </div>
                   <div class="d-flex gap-2 align-items-center">
+                    <button class="btn-wishlist-home" data-product-id="<%= product._id %>">
+                      <i class="ri-heart-line"></i>
+                    </button>
                     <button class="add-to-cart border-0" data-product-id="<%= product._id %>">
                       <i class="ri-add-line"></i>
                     </button>
@@ -165,6 +167,72 @@
           <p>No new arrivals available.</p>
         </div>
       <% } %>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials (unchanged) -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <h2 class="fs-1 fw-bold text-center mb-5">Customer Stories</h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="testimonial-card bg-white h-100">
+          <div class="mb-3">
+            <i class="ri-double-quotes-l fs-2 text-dark"></i>
+          </div>
+          <p class="text-muted mb-4">
+            "Phoenix has completely transformed my listening experience. Their curated headphone selections always deliver the perfect sound quality for my needs."
+          </p>
+          <div class="d-flex align-items-center">
+            <div class="user-avatar">
+              <i class="ri-user-line"></i>
+            </div>
+            <div class="ms-3">
+              <h4 class="fs-6 fw-semibold mb-0">Emily Richardson</h4>
+              <p class="small text-muted mb-0">Audio Engineer</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="testimonial-card bg-white h-100">
+          <div class="mb-3">
+            <i class="ri-double-quotes-l fs-2 text-dark"></i>
+          </div>
+          <p class="text-muted mb-4">
+            "I've discovered brands I never would have found elsewhere. Each headphone feels personally selected for my listening style. The quality and curation are unmatched."
+          </p>
+          <div class="d-flex align-items-center">
+            <div class="user-avatar">
+              <i class="ri-user-line"></i>
+            </div>
+            <div class="ms-3">
+              <h4 class="fs-6 fw-semibold mb-0">Michael Thornton</h4>
+              <p class="small text-muted mb-0">Music Enthusiast</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="testimonial-card bg-white h-100">
+          <div class="mb-3">
+            <i class="ri-double-quotes-l fs-2 text-dark"></i>
+          </div>
+          <p class="text-muted mb-4">
+            "The minimalist aesthetic and thoughtful selection process make Phoenix stand out. It's not just a headphone store; it's a destination for audiophiles seeking premium sound experiences."
+          </p>
+          <div class="d-flex align-items-center">
+            <div class="user-avatar">
+              <i class="ri-user-line"></i>
+            </div>
+            <div class="ms-3">
+              <h4 class="fs-6 fw-semibold mb-0">Sophia Nguyen</h4>
+              <p class="small text-muted mb-0">Tech Reviewer</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -195,13 +263,42 @@
 <%- include("../partials/user/footer") %>
 
 <style>
+  .btn-wishlist-home {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: #fff;
+    color: #000;
+    border: 2px solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
 
+  .btn-wishlist-home:hover {
+    background-color: #000;
+    color: #fff;
+  }
+
+  .btn-wishlist-home.wishlisted {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: #fff;
+  }
+
+  .btn-wishlist-home.wishlisted:hover {
+    background-color: #c82333;
+    border-color: #c82333;
+  }
 </style>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Cart functionality
+    // Cart and Wishlist functionality
     const cartCountElement = document.querySelector('.cart-count');
+    const wishlistCountElement = document.querySelector('.wishlist-count');
 
     // Add to cart functionality
     document.querySelectorAll('.add-to-cart').forEach(button => {
@@ -298,7 +395,111 @@
       });
     });
 
+    // Wishlist functionality
+    document.querySelectorAll('.btn-wishlist-home').forEach(button => {
+      button.addEventListener('click', async function() {
+        const productId = this.dataset.productId;
 
+        try {
+          const response = await fetch('/wishlist/toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId })
+          });
+
+          // Handle both success and error responses
+          const result = await response.json();
+          console.log('Wishlist response status:', response.status);
+          console.log('Wishlist response result:', result);
+
+          // Check if it's a 401 Unauthorized or authentication error
+          if (response.status === 401 || !result.success) {
+            // Debug logging
+            console.log('Wishlist authentication error detected');
+            console.log('Status:', response.status);
+            console.log('Result:', result);
+
+            // Show authentication required message and redirect
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'error',
+              title: result.message || 'Please log in to manage your wishlist',
+              showConfirmButton: false,
+              timer: 2000
+            }).then(() => {
+              console.log('Redirecting to login...');
+              window.location.href = '/login';
+            });
+          } else if (result.success) {
+            // Update button appearance
+            const icon = this.querySelector('i');
+            if (result.isWishlisted) {
+              icon.className = 'ri-heart-fill';
+              this.classList.add('wishlisted');
+            } else {
+              icon.className = 'ri-heart-line';
+              this.classList.remove('wishlisted');
+            }
+
+            // Update wishlist count
+            if (wishlistCountElement) {
+              wishlistCountElement.textContent = result.wishlistCount;
+              wishlistCountElement.dataset.count = result.wishlistCount;
+            }
+
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: result.message,
+              showConfirmButton: false,
+              timer: 1500
+            });
+          } else {
+            // Debug logging
+            console.log('Wishlist error response:', result);
+            console.log('Message:', result.message);
+            console.log('RequiresAuth:', result.requiresAuth);
+
+            // Check if it's an authentication error
+            if (result.message === 'Please log in to manage your wishlist' || result.requiresAuth) {
+              console.log('Authentication required - redirecting to login');
+              Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: result.message,
+                showConfirmButton: false,
+                timer: 2000
+              }).then(() => {
+                console.log('Redirecting to login...');
+                window.location.href = '/login';
+              });
+            } else {
+              console.log('Other error:', result.message);
+              Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: result.message,
+                showConfirmButton: false,
+                timer: 1500
+              });
+            }
+          }
+        } catch (error) {
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: 'Error managing wishlist',
+            showConfirmButton: false,
+            timer: 1500
+          });
+        }
+      });
+    });
   });
 </script>
 

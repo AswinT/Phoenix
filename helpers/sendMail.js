@@ -10,7 +10,7 @@ const sendOtpEmail = async (email, name, otp, subject, purpose = "signup") => {
     },
   });
 
-
+  // Generate professional HTML email template
   const generateEmailTemplate = (name, otp, purpose) => {
     let title, message, actionText;
 
@@ -175,7 +175,7 @@ const sendOtpEmail = async (email, name, otp, subject, purpose = "signup") => {
         <div class="email-container">
             <div class="header">
                 <div class="logo">🎧 PHOENIX</div>
-                <div class="tagline">Your Gateway to Premium Audio</div>
+                <div class="tagline">Your Gateway to Premium Sound</div>
             </div>
 
             <div class="content">
@@ -341,7 +341,7 @@ const sendContactEmail = async (contactData, type = "confirmation") => {
         <div class="email-container">
             <div class="header">
                 <div class="logo">🎧 PHOENIX</div>
-                <div class="tagline">Your Gateway to Premium Sound</div>
+                <div class="tagline">Premium Headphone Experience</div>
             </div>
 
             <div class="content">
@@ -364,7 +364,7 @@ const sendContactEmail = async (contactData, type = "confirmation") => {
                 </div>
 
                 <div class="message">
-                    In the meantime, feel free to explore our curated collection of headphones or check out our latest arrivals. We're here to help you find your perfect sound!
+                    In the meantime, feel free to explore our curated collection of headphones or check out our latest arrivals. We're here to help you find your next great listening experience!
                 </div>
             </div>
 
@@ -443,7 +443,7 @@ const sendContactEmail = async (contactData, type = "confirmation") => {
   }
 };
 
-
+// Helper function to get readable subject text
 const getSubjectText = (subject) => {
   const subjects = {
     general: "General Inquiry",

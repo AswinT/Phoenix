@@ -16,10 +16,7 @@ const getAddress = async (req, res) => {
     console.log("Error in rendering profile addresses", error);
     res
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .render("page-404", {
-        title: "Error",
-        message: "Internal server error"
-      });
+      .render("error", { message: "Internal server error" });
   }
 };
 

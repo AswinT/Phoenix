@@ -1,6 +1,6 @@
 const Wallet = require("../../models/walletSchema");
 const Order = require("../../models/orderSchema");
-const { calculateDiscount, getUnifiedPriceBreakdown } = require("../../helpers/offer-helper");
+const { calculateDiscount, getUnifiedPriceBreakdown } = require("../../utils/offer-helper");
 const { HttpStatus } = require("../../helpers/status-code");
 const { calculateRefundAmount, validateRefundForPaymentMethod } = require("../../helpers/money-calculator");
 
@@ -326,8 +326,22 @@ const processCancelRefund = async (userId, order, productId = null) => {
 const processReturnRefund = async (userId, order, productId = null) => {
   try {
     // **STEP 1: VALIDATION**
+    console.log(`🔄 PROCESSING RETURN REFUND:`);
+    console.log(`   User ID: ${userId}`);
+    console.log(`   Order ID: ${order._id}`);
+    console.log(`   Product ID: ${productId || 'Full Order'}`);
+    console.log(`   Payment Method: ${order.paymentMethod}`);
+    console.log(`   Payment Status: ${order.paymentStatus}`);
+    console.log(`   Order Total: ₹${order.total}`);
+
+    // Log all order items and their statuses
+    console.log(`   Order Items Status:`);
+    order.items.forEach((item, index) => {
+      console.log(`     Item ${index + 1}: ${item.title || item.model || 'Unknown'} - Status: ${item.status} - Product ID: ${item.product}`);
+    });
+
     if (!userId || !order) {
-      console.error('Invalid userId or order for return refund');
+      console.error('❌ Invalid userId or order for return refund');
       return false;
     }
 
@@ -373,9 +387,13 @@ const processReturnRefund = async (userId, order, productId = null) => {
     }
 
     if (!refundResult.success) {
-      console.log(`Return refund calculation failed: ${refundResult.reason}`);
+      console.log(`❌ Return refund calculation failed: ${refundResult.reason}`);
       return true; // No refund needed, but not an error
     }
+
+    console.log(`✅ Refund calculation successful:`);
+    console.log(`   Amount: ₹${refundResult.amount}`);
+    console.log(`   Reason: ${refundResult.reason}`);
 
     // **STEP 4: VALIDATE FOR PAYMENT METHOD**
     const validation = validateRefundForPaymentMethod(order, refundResult.amount);

@@ -34,10 +34,18 @@
       <a href="/orders" class="list-group-item list-group-item-action sidebar-nav-link" data-page="orders">
         <i class="bi bi-box me-2"></i> My Orders
       </a>
-      <a href="/wallet" class="list-group-item list-group-item-action sidebar-nav-link" data-page="wallet">
-        <i class="bi bi-wallet2 me-2"></i> Refund Credits
+      <a href="/wishlist" class="list-group-item list-group-item-action sidebar-nav-link" data-page="wishlist">
+        <i class="bi bi-heart me-2"></i> My Wishlist
       </a>
-
+      <a href="/wallet" class="list-group-item list-group-item-action sidebar-nav-link" data-page="wallet">
+        <i class="bi bi-wallet2 me-2"></i> Wallet
+      </a>
+      <a href="/user-coupons" class="list-group-item list-group-item-action sidebar-nav-link" data-page="coupons">
+        <i class="bi bi-ticket-perforated me-2"></i> Coupons
+      </a>
+      <a href="/referrals" class="list-group-item list-group-item-action sidebar-nav-link" data-page="referrals">
+        <i class="bi bi-share me-2"></i> Referrals
+      </a>
       <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#passwordChangeModal">
         <i class="bi bi-lock me-2"></i> Change Password
       </a>
@@ -398,7 +406,10 @@ document.addEventListener('DOMContentLoaded', function() {
     '/profile': 'profile',
     '/address': 'address',
     '/orders': 'orders',
-    '/wallet': 'wallet'
+    '/wishlist': 'wishlist',
+    '/wallet': 'wallet',
+    '/user-coupons': 'coupons',
+    '/referrals': 'referrals'
   };
 
   // Get the page identifier for current URL

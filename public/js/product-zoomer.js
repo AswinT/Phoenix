@@ -10,7 +10,9 @@ document.addEventListener('DOMContentLoaded', function() {
      initProductTabs();
    });
    
-   // Professional Image Magnifier with lens effect
+   /**
+    * Professional Image Magnifier with lens effect
+    */
    function initImageMagnifier() {
      const mainImage = document.getElementById('mainImage');
      const zoomContainer = document.getElementById('zoomContainer');
@@ -152,7 +154,9 @@ document.addEventListener('DOMContentLoaded', function() {
      });
    }
    
-   // Thumbnail Gallery Functionality
+   /**
+    * Thumbnail Gallery Functionality
+    */
    function initThumbnailGallery() {
      const thumbnails = document.querySelectorAll('.thumbnail');
      
@@ -174,7 +178,9 @@ document.addEventListener('DOMContentLoaded', function() {
      });
    }
    
-   // Product Tabs Initialization
+   /**
+    * Product Tabs Initialization
+    */
    function initProductTabs() {
      const tabEls = document.querySelectorAll('button[data-bs-toggle="tab"]');
      
@@ -210,7 +216,9 @@ document.addEventListener('DOMContentLoaded', function() {
      }
    }
    
-   // Image Change Function
+   /**
+    * Image Change Function
+    */
    function changeImage(thumbnail, imageSrc) {
      document.getElementById('mainImage').src = imageSrc;
      const thumbnails = document.querySelectorAll('.thumbnail');
@@ -218,7 +226,9 @@ document.addEventListener('DOMContentLoaded', function() {
      thumbnail.classList.add('active');
    }
    
-   // Quantity Selector Functions
+   /**
+    * Quantity Selector Functions 
+    */
    function incrementQuantity() {
      const quantityInput = document.getElementById('quantity');
      const currentValue = parseInt(quantityInput.value);

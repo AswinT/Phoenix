@@ -5,7 +5,7 @@
 }
 
 .users-table th {
-  background-color: rgba(0, 0, 0, 0.05); /* Light black header matching Phoenix theme */
+  background-color: rgba(67, 97, 238, 0.1); /* Light blue header matching theme */
   color: var(--primary);
   font-weight: 600;
   padding: 1rem;
@@ -20,7 +20,7 @@
 }
 
 .users-table tr:hover td {
-  background-color: rgba(255, 0, 0, 0.03); /* Very light red on hover */
+  background-color: rgba(67, 97, 238, 0.03); /* Very light blue on hover */
 }
 
 /* Status badges */
@@ -54,7 +54,7 @@
 }
 
 .btn-block:hover {
-  background-color: #cc0000;
+  background-color: #c82333;
 }
 
 .btn-unblock {
@@ -68,7 +68,7 @@
 }
 
 .btn-unblock:hover {
-  background-color: #333;
+  background-color: #5a6268;
 }
 
 /* Content card */
@@ -92,7 +92,7 @@
   padding-left: 2.5rem;
   height: 45px;
   border-radius: var(--border-radius);
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e0e0e0;
   width: 100%;
 }
 

@@ -88,6 +88,10 @@
                         <span class="badge bg-danger">Returned</span>
                       <% } else if (order.orderStatus === 'Partially Returned') { %>
                         <span class="badge bg-danger">Partially Returned</span>
+                      <% } else if (order.orderStatus === 'Pending Payment') { %>
+                        <span class="badge bg-danger">
+                          <i class="ri-error-warning-line"></i> Payment Pending
+                        </span>
                       <% } %>
                     </div>
                   </div>
@@ -151,6 +155,10 @@
                                   <span class="badge bg-danger">Returned</span>
                                 <% } else if (order.orderStatus === 'Partially Returned') { %>
                                   <span class="badge bg-danger">Partially Returned</span>
+                                <% } else if (order.orderStatus === 'Pending Payment') { %>
+                                  <span class="badge bg-danger">
+                                    <i class="ri-error-warning-line"></i> Payment Pending
+                                  </span>
                                 <% } %>
                               </div>
                             </div>
@@ -160,14 +168,23 @@
                       <div class="col-md-4">
                         <div class="order-actions d-flex flex-column gap-2">
                           <a href="/orders/<%= order._id %>" class="btn btn-dark btn-sm">View Order Details</a>
+                          <% if (order.orderStatus === 'Pending Payment') { %>
+                            <button class="btn btn-danger btn-sm" onclick="retryPayment('<%= order._id %>')">
+                              <i class="ri-refresh-line me-1"></i>Retry Payment
+                            </button>
+                          <% } %>
                           <% if (['Shipped', 'Delivered'].includes(order.orderStatus)) { %>
                             <a href="/orders/<%= order._id %>/track" class="btn btn-outline-dark btn-sm">Track Package</a>
                           <% } %>
-                          <a href="/orders/<%= order._id %>/invoice/download" class="btn btn-outline-dark btn-sm" onclick="downloadInvoice(event, '<%= order._id %>', '<%= order.orderNumber %>')">Download Invoice</a>
+                          <% if (order.orderStatus !== 'Pending Payment') { %>
+                            <a href="/orders/<%= order._id %>/invoice/download" class="btn btn-outline-dark btn-sm" onclick="downloadInvoice(event, '<%= order._id %>', '<%= order.orderNumber %>')">Download Invoice</a>
+                          <% } %>
                           <% if (order.orderStatus === 'Delivered' || order.orderStatus === 'Partially Returned') { %>
                             <a href="#" class="btn btn-outline-dark btn-sm">Write a Review</a>
                           <% } %>
-                          <button class="btn btn-outline-dark btn-sm" onclick="reorder('<%= order._id %>')">Buy Again</button>
+                          <% if (order.orderStatus !== 'Pending Payment') { %>
+                            <button class="btn btn-outline-dark btn-sm" onclick="reorder('<%= order._id %>')">Buy Again</button>
+                          <% } %>
                           <% if (['Placed', 'Processing'].includes(order.orderStatus)) { %>
                             <a href="/orders/<%= order._id %>" class="btn btn-outline-danger btn-sm">Cancel Order</a>
                           <% } %>
@@ -216,6 +233,10 @@
                                   case 'Refund Initiated':
                                     paymentStatusDisplay = 'Refund Initiated';
                                     paymentStatusClass = 'bg-warning';
+                                    break;
+                                  case 'Pending Payment':
+                                    paymentStatusDisplay = 'Payment Required';
+                                    paymentStatusClass = 'bg-danger';
                                     break;
                                   default:
                                     paymentStatusDisplay = order.paymentStatus || 'Unknown';
@@ -671,6 +692,16 @@
     toast.addEventListener('hidden.bs.toast', () => {
       toast.remove();
     });
+  }
+
+  // Function to retry payment
+  function retryPayment(orderId) {
+    showToast('Redirecting to payment...', 'info');
+
+    // Redirect to order details page where retry payment functionality is available
+    setTimeout(() => {
+      window.location.href = `/orders/${orderId}`;
+    }, 1000);
   }
 </script>
 

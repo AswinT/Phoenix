@@ -1,5 +1,6 @@
 const categoryController = require("../../controllers/userController/categoryController");
 const Product = require('../../models/productSchema');
+const { getActiveOfferForProduct, calculateDiscount } = require("../../utils/offer-helper");
 const { HttpStatus } = require("../../helpers/status-code");
 
 const pageNotFound = async (req, res) => {
@@ -28,15 +29,43 @@ const loadHomePage = async (req, res) => {
       .sort({ createdAt: -1  }) // Newest first
       .limit(LIMIT);
 
-    // Set final price to sale price for all products (no offers)
+    // Calculate offers for top selling products
     for (const product of topSellingProducts) {
-      product.finalPrice = product.salePrice;
+      const offer = await getActiveOfferForProduct(
+        product._id,
+        product.category._id,
+        product.regularPrice
+      );
+
+      const { discountPercentage, discountAmount, finalPrice } = calculateDiscount(
+        offer,
+        product.regularPrice
+      );
+
+      product.activeOffer = offer;
+      product.discountPercentage = discountPercentage;
+      product.discountAmount = discountAmount;
+      product.finalPrice = finalPrice;
       product.regularPrice = product.regularPrice || product.salePrice;
     }
 
-    // Set final price to sale price for all products (no offers)
+    // Calculate offers for new arrivals
     for (const product of newArrivals) {
-      product.finalPrice = product.salePrice;
+      const offer = await getActiveOfferForProduct(
+        product._id,
+        product.category._id,
+        product.regularPrice
+      );
+
+      const { discountPercentage, discountAmount, finalPrice } = calculateDiscount(
+        offer,
+        product.regularPrice
+      );
+
+      product.activeOffer = offer;
+      product.discountPercentage = discountPercentage;
+      product.discountAmount = discountAmount;
+      product.finalPrice = finalPrice;
       product.regularPrice = product.regularPrice || product.salePrice;
     }
 

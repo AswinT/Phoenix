@@ -22,25 +22,247 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="/styles/user/landingPageStyle.css" />
     <link rel="stylesheet" href="/styles/user/productDetails.css" />
-    <link rel="stylesheet" href="/styles/user/navbar-dark-theme.css" />
-    <link rel="stylesheet" href="/styles/shared/logo-styling.css" />
     <style>
-      /* Minimal styles - main styling handled by navbar-dark-theme.css */
+      /* Dark Navigation Bar Theme */
+      .navbar-dark-theme {
+        background-color: #1a1a1a !important;
+        border-bottom: 1px solid #333;
+      }
+
+      .navbar-dark-theme .navbar-brand {
+        color: #ffffff !important;
+      }
+
+      .navbar-dark-theme .navbar-brand:hover {
+        color: #f8f9fa !important;
+      }
+
+      .navbar-dark-theme .navbar-toggler {
+        border-color: #555;
+        color: #ffffff;
+      }
+
+      .navbar-dark-theme .navbar-toggler:focus {
+        box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25);
+      }
+
+      .navbar-dark-theme .navbar-toggler i {
+        color: #ffffff;
+      }
+
+      .dropdown-menu {
+        border-radius: 15px;
+        padding: 10px 0;
+        min-width: 220px;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+        background-color: #2a2a2a;
+        border: 1px solid #444;
+      }
+      .dropdown-item {
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        color: #ffffff;
+        font-weight: 500;
+        background-color: transparent;
+      }
+      .dropdown-item:hover {
+        background-color: #3a3a3a;
+        color: #ffffff;
+      }
+      .dropdown-item i {
+        margin-right: 12px;
+        font-size: 20px;
+        color: #cccccc;
+      }
+      .dropdown-divider {
+        margin: 5px 0;
+        border-color: #444;
+      }
       .user-dropdown {
         position: relative;
       }
-
+      .search-input {
+        position: relative;
+      }
+      .search-icon {
+        position: absolute;
+        top: 50%;
+        left: 10px;
+        transform: translateY(-50%);
+        color: #cccccc;
+      }
+      .ps-4 {
+        padding-left: 2.5rem !important;
+      }
+      .search-input input {
+        width: 200px;
+        background-color: #2a2a2a;
+        border: 1px solid #444;
+        color: #ffffff;
+      }
+      .search-input input::placeholder {
+        color: #999999;
+      }
+      .search-input input:focus {
+        background-color: #333333;
+        border-color: #666;
+        color: #ffffff;
+        box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.1);
+      }
+      .search-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #2a2a2a;
+        border: 1px solid #444;
+        border-radius: 0.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        max-height: 400px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+      }
+      .search-results.show {
+        display: block;
+      }
+      .search-result-item {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        border-bottom: 1px solid #444;
+        text-decoration: none;
+        color: #ffffff;
+        transition: background-color 0.2s ease;
+      }
+      .search-result-item:hover {
+        background-color: #3a3a3a;
+        color: #ffffff;
+      }
+      .search-result-item img {
+        width: 40px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 0.25rem;
+        margin-right: 15px;
+      }
+      .search-result-item .model {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #ffffff;
+      }
+      .search-result-item .brand {
+        font-size: 0.75rem;
+        color: #cccccc;
+      }
+      .no-results {
+        padding: 15px;
+        text-align: center;
+        color: #cccccc;
+        font-size: 0.9rem;
+      }
+      .mobile-search {
+        display: none;
+        width: 100%;
+        margin-bottom: 10px;
+      }
+      @media (max-width: 991.98px) {
+        .search-input.d-none.d-lg-block {
+          display: none !important;
+        }
+        .mobile-search {
+          display: block;
+        }
+        .search-results {
+          width: 100%;
+        }
+      }
+      .header-icons {
+        display: flex;
+        align-items: center;
+      }
       .icon-btn {
         position: relative;
+        padding: 0.5rem;
+        color: #ffffff;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 0.5rem;
+        transition: all 0.2s ease;
+      }
+      .icon-btn:hover {
+        color: #f8f9fa;
+        transform: scale(1.1);
+      }
+      .icon-btn .count {
+        position: absolute;
+        top: 0;
+        right: 0;
+        background-color: #dc3545;
+        color: white;
+        border-radius: 50%;
+        font-size: 0.7rem;
+        min-width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+      }
+      @media (max-width: 575.98px) {
+        .header-icons {
+          margin-top: 0.5rem;
+        }
+      }
+
+      /* Dark Navigation hover effects */
+      .navbar-dark-theme .nav-link {
+        transition: color 0.2s ease;
+        color: #cccccc !important;
+      }
+
+      .navbar-dark-theme .nav-link:hover {
+        color: #ffffff !important;
+        text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+      }
+
+      /* Active page indicator */
+      .navbar-dark-theme .nav-link.active {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+      }
+
+      /* Brand hover effect */
+      .navbar-dark-theme .navbar-brand {
+        transition: all 0.2s ease;
+      }
+
+      .navbar-dark-theme .navbar-brand:hover {
+        color: #ffffff !important;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+      }
+
+      /* Mobile responsive adjustments for dark theme */
+      @media (max-width: 991.98px) {
+        .navbar-dark-theme .navbar-collapse {
+          background-color: #1a1a1a;
+          border-top: 1px solid #333;
+          margin-top: 1rem;
+          padding-top: 1rem;
+        }
       }
     </style>
   </head>
   <body class="paper-texture">
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top compact-navbar">
-      <div class="container py-1">
-        <a class="navbar-brand compact-brand" href="/">
-          <img src="/assets/phoenix-logo.png" alt="Phoenix Logo" class="navbar-logo" />
-          <span class="ms-2 fw-bold brand-text">Phoenix</span>
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-dark-theme shadow-sm sticky-top">
+      <div class="container py-2">
+        <a class="navbar-brand" href="/">
+          <img src="/assets/phoenix-logo.png" alt="Phoenix Logo" />
+          <span class="ms-2 fw-bold fs-4">Phoenix</span>
         </a>
         <button
           class="navbar-toggler"
@@ -73,8 +295,9 @@
               <div class="search-input">
                 <input
                   type="text"
-                  class="form-control search-field"
+                  class="form-control ps-4 search-field"
                   placeholder="Search headphones..."
+                  style="border-radius: 0.5rem; padding-left: 2.5rem"
                 />
                 <div class="search-icon">
                   <i class="ri-search-line"></i>
@@ -85,8 +308,9 @@
             <div class="search-input d-none d-lg-block me-3">
               <input
                 type="text"
-                class="form-control search-field"
+                class="form-control ps-4 search-field"
                 placeholder="Search headphones..."
+                style="border-radius: 0.5rem; padding-left: 2.5rem"
               />
               <div class="search-icon">
                 <i class="ri-search-line"></i>
@@ -192,9 +416,9 @@
             item.href = `/products/${product._id}`;
             item.classList.add("search-result-item");
             item.innerHTML = `
-              <img src="${product.mainImage || "/api/placeholder/500/600"}" alt="${product.title}" />
+              <img src="${product.mainImage || "/api/placeholder/500/600"}" alt="${product.model}" />
               <div>
-                <div class="title">${product.title}</div>
+                <div class="model">${product.model}</div>
                 <div class="brand">${product.brand}</div>
               </div>
             `;

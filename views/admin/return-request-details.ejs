@@ -320,7 +320,7 @@
               <div style="font-weight: 600; color: #7b1fa2;">₹<%= totalRefundAmount %></div>
             </div>
             <div>
-              <div style="font-size: 0.85rem; color: #6b7280;">Total Refund Amount</div>
+              <div style="font-size: 0.85rem; color: #6b7280;">Total Wallet Credit</div>
               <div style="font-weight: 700; color: #10b981; font-size: 1.1rem;">₹<%= totalRefundAmount %></div>
             </div>
           </div>
@@ -408,9 +408,8 @@
                     onerror="this.src='/api/placeholder/60/75'"
                   >
                   <div class="product-details">
-                    <div class="product-name"><%= item.title || 'Unknown Product' %></div>
+                    <div class="product-name"><%= item.model || 'Unknown Product' %></div>
                     <div class="product-meta">
-                      <div>Model: <%= item.model_number || 'N/A' %></div>
                       <div>Brand: <%= item.brand || 'N/A' %></div>
                     </div>
                   </div>
@@ -504,7 +503,7 @@
       const action = approve ? 'approve' : 'reject';
       const title = approve ? 'Approve Return' : 'Reject Return';
       const text = approve
-        ? `Are you sure you want to approve this return and refund ₹<%= totalRefundAmount %> to the customer?`
+        ? `Are you sure you want to approve this return and refund ₹<%= totalRefundAmount %> to the customer's wallet?`
         : 'Are you sure you want to reject this return request?';
       const confirmButtonText = approve ? 'Yes, approve and refund!' : 'Yes, reject it!';
       const confirmButtonColor = approve ? '#28a745' : '#dc3545';

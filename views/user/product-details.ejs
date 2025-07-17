@@ -7,7 +7,7 @@
         <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Home</a></li>
         <li class="breadcrumb-item"><a href="/shopPage" class="text-decoration-none text-muted">Shop</a></li>
         <li class="breadcrumb-item"><a href="/shopPage" class="text-decoration-none text-muted"><%= product.category.name %></a></li>
-        <li class="breadcrumb-item active" aria-current="page"><%= product.title %></li>
+        <li class="breadcrumb-item active" aria-current="page"><%= product.model %></li>
       </ol>
     </nav>
   </div>
@@ -23,10 +23,10 @@
           <!-- Thumbnails - Vertical on left side -->
           <div class="col-2">
             <div class="d-flex flex-column thumbnails-container">
-              <img src="<%= product.mainImage || '/api/placeholder/600/800' %>" alt="<%= product.title %> - Main Image" class="thumbnail active" onclick="changeImage(this, '<%= product.mainImage || '/api/placeholder/600/800' %>')" />
+              <img src="<%= product.mainImage || '/api/placeholder/600/800' %>" alt="<%= product.model %> - Main" class="thumbnail active" onclick="changeImage(this, '<%= product.mainImage || '/api/placeholder/600/800' %>')" />
               <% if (product.subImages && product.subImages.length > 0) { %>
                 <% product.subImages.forEach((subImage, index) => { %>
-                  <img src="<%= subImage || '/api/placeholder/600/800' %>" alt="<%= product.title %> - Image <%= index + 1 %>" class="thumbnail" onclick="changeImage(this, '<%= subImage || '/api/placeholder/600/800' %>')" />
+                  <img src="<%= subImage || '/api/placeholder/600/800' %>" alt="<%= product.model %> - Image <%= index + 1 %>" class="thumbnail" onclick="changeImage(this, '<%= subImage || '/api/placeholder/600/800' %>')" />
                 <% }) %>
               <% } %>
             </div>
@@ -35,10 +35,10 @@
           <!-- Main Image -->
           <div class="col-10">
             <div class="mb-3 zoom-container" id="zoomContainer">
-              <% if (product.activeOffer && product.discountPercentage > 0) { %>
-                <span class="offer-badge"><%= product.discountPercentage %>% OFF</span>
+              <% if (product.discountPercentage > 0) { %>
+                <span class="offer-badge"><%= Math.round(product.discountPercentage) %>% OFF</span>
               <% } %>
-              <img src="<%= product.mainImage || '/api/placeholder/600/800' %>" alt="<%= product.title %>" class="main-image" id="mainImage" />
+              <img src="<%= product.mainImage || '/api/placeholder/600/800' %>" alt="<%= product.model %>" class="main-image" id="mainImage" />
             </div>
           </div>
         </div>
@@ -47,69 +47,57 @@
       <!-- Product Info -->
       <div class="col-lg-7">
         <div class="headphone-details">
-          <h1 class="fs-2 fw-bold mb-1"><%= product.title %></h1>
-          <p class="fs-5 mb-2">by <a href="#" class="text-decoration-none"><%= product.brand %></a></p>
-
-          <!-- Product Rating -->
-          <% if (product.reviewCount > 0) { %>
-            <div class="d-flex align-items-center mb-3">
-              <div class="rating-stars me-2">
-                <% for (let i = 1; i <= 5; i++) { %>
-                  <i class="<%= i <= Math.round(product.averageRating) ? 'ri-star-fill' : 'ri-star-line' %> text-warning"></i>
-                <% } %>
-              </div>
-              <span class="fw-bold me-2"><%= product.averageRating.toFixed(1) %></span>
-              <span class="text-muted">(<%= product.reviewCount %> review<%= product.reviewCount !== 1 ? 's' : '' %>)</span>
-              <a href="#reviews" class="ms-2 text-decoration-none" onclick="document.getElementById('reviews-tab').click()">
-                See all reviews
-              </a>
-            </div>
-          <% } else { %>
-            <div class="mb-3">
-              <span class="text-muted">No reviews yet</span>
-              <a href="#reviews" class="ms-2 text-decoration-none" onclick="document.getElementById('reviews-tab').click()">
-                Be the first to review
-              </a>
-            </div>
-          <% } %>
+          <h1 class="fs-2 fw-bold mb-1"><%= product.model %></h1>
+          <p class="fs-5 mb-3">by <a href="#" class="text-decoration-none"><%= product.brand %></a></p>
 
           <div class="headphone-meta">
             <div class="headphone-meta-item">
-              <i class="ri-battery-line headphone-meta-icon"></i>
-              <span> <%= product.battery_life %> hours</span>
-            </div>
-            <div class="headphone-meta-item">
-              <i class="ri-wireless-charging-line headphone-meta-icon"></i>
+              <i class="ri-bluetooth-line headphone-meta-icon"></i>
               <span><%= product.connectivity %></span>
-            </div>
-            <div class="headphone-meta-item">
-              <i class="ri-calendar-line headphone-meta-icon"></i>
-              <span>Released: <%= product.release_date ? new Date(product.release_date).toLocaleDateString() : 'N/A' %></span>
-            </div>
-            <div class="headphone-meta-item">
-              <i class="ri-barcode-line headphone-meta-icon"></i>
-              <span>Model: <%= product.model_number || 'N/A' %></span>
             </div>
           </div>
 
           <div class="price-section mb-4">
-            <% if (product.activeOffer && product.discountPercentage > 0) { %>
-              <div class="d-flex align-items-baseline gap-2">
-                <h2 class="fs-3 fw-bold mb-0 text-danger">₹<%= product.finalPrice.toFixed(2) %></h2>
-                <span class="fs-5 text-decoration-line-through text-muted">₹<%= product.regularPrice.toFixed(2) %></span>
-                <span class="badge bg-danger">-<%= Math.round(product.discountPercentage) %>% OFF</span>
-              </div>
-              <div class="offer-details mt-2">
-                <span class="text-success d-flex align-items-center gap-1">
-                  <i class="ri-price-tag-3-line"></i>
-                  <%= product.activeOffer.title %>
-                </span>
-                <small class="text-muted">
-                  You save: ₹<%= product.discountAmount.toFixed(2) %>
-                </small>
+            <% if (product.discountPercentage > 0) { %>
+              <!-- Best Offer Wins - Single Discount Display -->
+              <div class="price-container">
+                <div class="price-row d-flex align-items-center flex-wrap gap-2 mb-2">
+                  <span class="original-price">₹<%= product.regularPrice.toFixed(2) %></span>
+                  <h2 class="current-price mb-0">₹<%= product.finalPrice.toFixed(2) %></h2>
+                  <span class="discount-badge"><%= Math.round(product.discountPercentage) %>% off</span>
+                </div>
+
+                <div class="savings-info mb-2">
+                  <span class="savings-text">You save: <strong>₹<%= product.discountAmount.toFixed(2) %></strong></span>
+                </div>
+
+                <div class="offer-details">
+                  <% if (product.bestOfferType === 'offer' && product.activeOffer) { %>
+                    <!-- Best Offer Applied -->
+                    <div class="offer-tag d-flex align-items-center gap-1">
+                      <i class="ri-price-tag-3-line"></i>
+                      <span class="offer-title"><%= product.bestOfferTitle %></span>
+                    </div>
+                    <% if (product.bestOfferDescription) { %>
+                      <small class="offer-description text-muted d-block mt-1">
+                        <%= product.bestOfferDescription %>
+                      </small>
+                    <% } %>
+                  <% } else if (product.bestOfferType === 'sale') { %>
+                    <!-- Sale Price is Best -->
+                    <div class="sale-tag d-flex align-items-center gap-1">
+                      <i class="ri-price-tag-2-line"></i>
+                      <span class="sale-title">Special Sale Price</span>
+                    </div>
+                  <% } %>
+                </div>
               </div>
             <% } else { %>
-              <h2 class="fs-3 fw-bold mb-0 text-danger">₹<%= product.regularPrice.toFixed(2) %></h2>
+              <!-- Regular Price (No Discount) -->
+              <div class="price-container">
+                <h2 class="current-price mb-0">₹<%= product.regularPrice.toFixed(2) %></h2>
+                <small class="price-note text-muted">Inclusive of all taxes</small>
+              </div>
             <% } %>
           </div>
 
@@ -160,14 +148,13 @@
                       <%= locals.isWishlisted ? 'data-wishlisted="true"' : '' %>>
                 <i class="<%= locals.isWishlisted ? 'ri-heart-fill' : 'ri-heart-line' %>"></i>
               </button>
-
             </div>
           </div>
         </div>
 
         <!-- Social Sharing -->
         <div>
-          <p class="fw-medium mb-2">Share this product:</p>
+          <p class="fw-medium mb-2">Share this headphone:</p>
           <div class="d-flex gap-2">
             <a href="#" class="social-icon"><i class="ri-facebook-line"></i></a>
             <a href="#" class="social-icon"><i class="ri-twitter-x-line"></i></a>
@@ -196,38 +183,27 @@
         <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="description-tab">
           <div class="row">
             <div class="col-lg-12">
-              <h3 class="fs-4 fw-bold mb-4">About the Headphones</h3>
+              <h3 class="fs-4 fw-bold mb-4">About the Book</h3>
               <p class="mb-4"><%= product.description %></p>
             </div>
           </div>
         </div>
         <div class="tab-pane fade" id="details" role="tabpanel" aria-labelledby="details-tab">
-          <h3 class="fs-4 fw-bold mb-4">Headphone Specifications</h3>
-          <div class="headphone-specs">
+          <h3 class="fs-4 fw-bold mb-4">Book Specifications</h3>
+          <div class="book-specs">
             <div class="headphone-spec">
-              <span class="headphone-spec-label">Title</span>
-              <span class="headphone-spec-value"><%= product.title %></span>
+              <span class="headphone-spec-label">Model</span>
+              <span class="headphone-spec-value"><%= product.model %></span>
             </div>
             <div class="headphone-spec">
               <span class="headphone-spec-label">Brand</span>
               <span class="headphone-spec-value"><%= product.brand %></span>
             </div>
             <div class="headphone-spec">
-              <span class="headphone-spec-label">Release Date</span>
-              <span class="headphone-spec-value"><%= product.release_date ? new Date(product.release_date).toLocaleDateString() : 'N/A' %></span>
-            </div>
-            <div class="headphone-spec">
               <span class="headphone-spec-label">Connectivity</span>
               <span class="headphone-spec-value"><%= product.connectivity %></span>
             </div>
-            <div class="headphone-spec">
-              <span class="headphone-spec-label">Battery Life</span>
-              <span class="headphone-spec-value"><%= product.battery_life %> hours</span>
-            </div>
-            <div class="headphone-spec">
-              <span class="headphone-spec-label">Model Number</span>
-              <span class="headphone-spec-value"><%= product.model_number || 'N/A' %></span>
-            </div>
+
             <div class="headphone-spec">
               <span class="headphone-spec-label">Category</span>
               <span class="headphone-spec-value"><%= product.category.name %></span>
@@ -241,134 +217,11 @@
         <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
           <div class="row">
             <div class="col-lg-12">
-              <!-- Reviews Header -->
               <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                  <h3 class="fs-4 fw-bold mb-0">Customer Reviews</h3>
-                  <% if (product.reviewCount > 0) { %>
-                    <div class="d-flex align-items-center mt-2">
-                      <div class="rating-stars me-2">
-                        <% for (let i = 1; i <= 5; i++) { %>
-                          <i class="<%= i <= Math.round(product.averageRating) ? 'ri-star-fill' : 'ri-star-line' %> text-warning"></i>
-                        <% } %>
-                      </div>
-                      <span class="fw-bold me-2"><%= product.averageRating.toFixed(1) %></span>
-                      <span class="text-muted">(<%= product.reviewCount %> review<%= product.reviewCount !== 1 ? 's' : '' %>)</span>
-                    </div>
-                  <% } %>
-                </div>
-                <% if (locals.isAuthenticated && !userReview) { %>
-                  <button class="btn btn-outline-dark" id="writeReviewBtn">Write a Review</button>
-                <% } else if (!locals.isAuthenticated) { %>
-                  <a href="/login" class="btn btn-outline-dark">Login to Review</a>
-                <% } %>
+                <h3 class="fs-4 fw-bold mb-0">Customer Reviews</h3>
+                <button class="btn btn-outline-dark">Write a Review</button>
               </div>
-
-              <!-- Review Form (Hidden by default) -->
-              <% if (locals.isAuthenticated && !userReview) { %>
-                <div id="reviewForm" class="card mb-4" style="display: none;">
-                  <div class="card-body">
-                    <h5 class="card-title">Write Your Review</h5>
-                    <form id="submitReviewForm">
-                      <div class="mb-3">
-                        <label class="form-label">Rating</label>
-                        <div class="rating-input">
-                          <% for (let i = 5; i >= 1; i--) { %>
-                            <input type="radio" name="rating" value="<%= i %>" id="star<%= i %>" required>
-                            <label for="star<%= i %>" class="star-label">
-                              <i class="ri-star-fill"></i>
-                            </label>
-                          <% } %>
-                        </div>
-                      </div>
-                      <div class="mb-3">
-                        <label for="reviewText" class="form-label">Your Review</label>
-                        <textarea class="form-control" id="reviewText" name="reviewText" rows="4"
-                                  placeholder="Share your experience with this product..."
-                                  minlength="10" maxlength="1000" required></textarea>
-                        <div class="form-text">Minimum 10 characters required</div>
-                      </div>
-                      <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">Submit Review</button>
-                        <button type="button" class="btn btn-secondary" id="cancelReviewBtn">Cancel</button>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              <% } %>
-
-              <!-- User's Existing Review -->
-              <% if (userReview) { %>
-                <div class="alert alert-info">
-                  <h6>Your Review</h6>
-                  <div class="d-flex align-items-center mb-2">
-                    <div class="rating-stars me-2">
-                      <% for (let i = 1; i <= 5; i++) { %>
-                        <i class="<%= i <= userReview.rating ? 'ri-star-fill' : 'ri-star-line' %> text-warning"></i>
-                      <% } %>
-                    </div>
-                    <small class="text-muted">Reviewed on <%= new Date(userReview.createdAt).toLocaleDateString() %></small>
-                  </div>
-                  <p class="mb-2"><%= userReview.reviewText %></p>
-                  <button class="btn btn-sm btn-outline-danger" onclick="deleteReview('<%= userReview._id %>')">
-                    Delete Review
-                  </button>
-                </div>
-              <% } %>
-
-              <!-- Reviews List -->
-              <div id="reviewsList">
-                <% if (recentReviews && recentReviews.length > 0) { %>
-                  <% recentReviews.forEach(review => { %>
-                    <div class="review-item border-bottom pb-3 mb-3">
-                      <div class="d-flex align-items-start">
-                        <div class="review-avatar me-3">
-                          <% if (review.user.profileImage) { %>
-                            <img src="<%= review.user.profileImage %>" alt="<%= review.user.fullName %>"
-                                 class="rounded-circle" width="40" height="40">
-                          <% } else { %>
-                            <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center"
-                                 style="width: 40px; height: 40px;">
-                              <i class="ri-user-line text-white"></i>
-                            </div>
-                          <% } %>
-                        </div>
-                        <div class="flex-grow-1">
-                          <div class="d-flex justify-content-between align-items-start mb-2">
-                            <div>
-                              <h6 class="mb-1"><%= review.user.fullName %></h6>
-                              <div class="d-flex align-items-center">
-                                <div class="rating-stars me-2">
-                                  <% for (let i = 1; i <= 5; i++) { %>
-                                    <i class="<%= i <= review.rating ? 'ri-star-fill' : 'ri-star-line' %> text-warning"></i>
-                                  <% } %>
-                                </div>
-                                <% if (review.isVerifiedPurchase) { %>
-                                  <span class="badge bg-success">Verified Purchase</span>
-                                <% } %>
-                              </div>
-                            </div>
-                            <small class="text-muted"><%= review.formattedDate %></small>
-                          </div>
-                          <p class="mb-0"><%= review.reviewText %></p>
-                        </div>
-                      </div>
-                    </div>
-                  <% }) %>
-
-                  <% if (product.reviewCount > 3) { %>
-                    <div class="text-center">
-                      <button class="btn btn-outline-primary" id="loadMoreReviews">
-                        Load More Reviews (<%= product.reviewCount - 3 %> remaining)
-                      </button>
-                    </div>
-                  <% } %>
-                <% } else { %>
-                  <p class="text-muted text-center py-4">
-                    No reviews yet. Be the first to review this product!
-                  </p>
-                <% } %>
-              </div>
+              <p class="text-muted">No reviews yet. Be the first to review this headphone!</p>
             </div>
           </div>
         </div>
@@ -404,20 +257,28 @@
                   <h3 class="fs-5 fw-semibold mb-1">
                     <a href="/products/<%= relatedProduct._id %>" class="text-dark text-decoration-none"><%= relatedProduct.title %></a>
                   </h3>
-                  <p class="text-muted small mb-2"><%= relatedProduct.brand %></p>
+                  <p class="text-muted small mb-2"><%= relatedProduct.author %></p>
                   <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                      <% if (relatedProduct.activeOffer && relatedProduct.discountPercentage > 0) { %>
-                        <div class="d-flex align-items-center gap-2">
-                          <span class="fw-bold text-danger">₹<%= relatedProduct.finalPrice.toFixed(2) %></span>
-                          <span class="text-decoration-line-through text-muted small">₹<%= relatedProduct.regularPrice.toFixed(2) %></span>
+                    <div class="related-product-price">
+                      <% if (relatedProduct.discountPercentage > 0) { %>
+                        <div class="d-flex align-items-center gap-1 flex-wrap">
+                          <span class="related-original-price">₹<%= relatedProduct.regularPrice.toFixed(2) %></span>
+                          <span class="related-current-price">₹<%= relatedProduct.finalPrice.toFixed(2) %></span>
                         </div>
-                        <small class="text-success d-block"><%= relatedProduct.activeOffer.title %></small>
+                        <div class="related-discount-info mt-1">
+                          <span class="related-discount-badge"><%= Math.round(relatedProduct.discountPercentage) %>% off</span>
+                        </div>
+                        <% if (relatedProduct.bestOfferTitle) { %>
+                          <small class="related-offer-title d-block mt-1"><%= relatedProduct.bestOfferTitle %></small>
+                        <% } %>
                       <% } else { %>
-                        <span class="fw-bold">₹<%= relatedProduct.finalPrice.toFixed(2) %></span>
+                        <span class="related-current-price">₹<%= relatedProduct.finalPrice.toFixed(2) %></span>
                       <% } %>
                     </div>
                     <div class="d-flex gap-2 align-items-center">
+                      <button class="btn-wishlist-home <%= relatedProduct.isWishlisted ? 'wishlisted' : '' %>" data-product-id="<%= relatedProduct._id %>" <%= relatedProduct.isWishlisted ? 'data-wishlisted="true"' : '' %>>
+                        <i class="<%= relatedProduct.isWishlisted ? 'ri-heart-fill' : 'ri-heart-line' %>"></i>
+                      </button>
                       <button class="add-to-cart border-0" data-product-id="<%= relatedProduct._id %>" <%= relatedProduct.stock === 0 ? 'disabled' : '' %>>
                         <i class="ri-add-line"></i>
                       </button>
@@ -476,96 +337,62 @@
     margin-left: 0.5rem;
   }
 
-  .action-buttons {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-  }
-
-  .btn-wishlist {
-    background: none;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    padding: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
+  .btn-wishlist-home {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: #fff;
+    color: #000;
+    border: 2px solid #000;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 48px;
-    height: 48px;
-  }
-
-  .btn-wishlist:hover {
-    border-color: #e53935;
-    color: #e53935;
-  }
-
-  .btn-wishlist[data-wishlisted="true"] {
-    border-color: #e53935;
-    color: #e53935;
-  }
-
-  .btn-wishlist i {
-    font-size: 1.2rem;
-  }
-
-  /* Reviews Section Styles */
-  .rating-stars i {
-    font-size: 1rem;
-    margin-right: 2px;
-  }
-
-  .rating-input {
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: flex-end;
-    gap: 5px;
-  }
-
-  .rating-input input[type="radio"] {
-    display: none;
-  }
-
-  .rating-input .star-label {
+    transition: all 0.3s ease;
     cursor: pointer;
-    font-size: 1.5rem;
-    color: #ddd;
-    transition: color 0.2s ease;
   }
 
-  .rating-input .star-label:hover,
-  .rating-input .star-label:hover ~ .star-label,
-  .rating-input input[type="radio"]:checked ~ .star-label {
+  .btn-wishlist-home:hover {
+    background-color: #000;
+    color: #fff;
+  }
+
+  .btn-wishlist-home.wishlisted {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: #fff;
+  }
+
+  .btn-wishlist-home.wishlisted:hover {
+    background-color: #c82333;
+    border-color: #c82333;
+  }
+
+  /* Sale Tag Styling */
+  .sale-tag {
+    background: #fff3cd;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    border-left: 3px solid #ffc107;
+  }
+
+  .sale-tag i {
     color: #ffc107;
+    font-size: 1rem;
   }
 
-  .review-item {
-    transition: background-color 0.2s ease;
+  .sale-title {
+    color: #856404;
+    font-weight: 600;
+    font-size: 0.9rem;
   }
 
-  .review-item:hover {
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    padding: 15px;
-    margin: -15px;
-    margin-bottom: 15px;
+  /* Price Breakdown Styling */
+  .price-breakdown {
+    background: #f8f9fa;
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #e9ecef;
   }
-
-  .review-avatar img,
-  .review-avatar div {
-    object-fit: cover;
-  }
-
-  .rating-stars .ri-star-fill {
-    color: #ffc107;
-  }
-
-  .rating-stars .ri-star-line {
-    color: #dee2e6;
-  }
-
-
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -719,8 +546,18 @@
               timer: 1500
             });
           } else {
-            if (result.requiresAuth) {
-              window.location.href = result.redirectTo || '/login';
+            // Check if it's an authentication error
+            if (result.message === 'Please log in to manage your wishlist' || result.requiresAuth) {
+              Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: result.message,
+                showConfirmButton: false,
+                timer: 2000
+              }).then(() => {
+                window.location.href = '/login';
+              });
             } else {
               Swal.fire({
                 toast: true,
@@ -733,12 +570,11 @@
             }
           }
         } catch (error) {
-          console.error('Error toggling wishlist:', error);
           Swal.fire({
             toast: true,
             position: 'top-end',
             icon: 'error',
-            title: 'Error updating wishlist',
+            title: 'Error managing wishlist',
             showConfirmButton: false,
             timer: 1500
           });
@@ -748,6 +584,7 @@
 
     // Related products actions
     const relatedAddToCartButtons = document.querySelectorAll('.related-products .add-to-cart, .related-products .add-to-cart-btn');
+    const relatedWishlistButtons = document.querySelectorAll('.related-products .wishlist-btn, .related-products .btn-wishlist-home');
 
     relatedAddToCartButtons.forEach(button => {
       button.addEventListener('click', async function (e) {
@@ -813,194 +650,87 @@
       });
     });
 
+    relatedWishlistButtons.forEach(button => {
+      button.addEventListener('click', async function (e) {
+        e.preventDefault();
+        const productId = this.dataset.productId;
 
-  });
+        try {
+          const response = await fetch('/wishlist/toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId })
+          });
+          const result = await response.json();
 
-  // Review functionality
-  document.getElementById('writeReviewBtn')?.addEventListener('click', function() {
-    document.getElementById('reviewForm').style.display = 'block';
-    this.style.display = 'none';
-  });
+          if (result.success) {
+            const isWishlisted = result.isWishlisted;
+            this.dataset.wishlisted = isWishlisted;
 
-  // Test function to debug form data collection
-  window.testReviewForm = function() {
-    const form = document.getElementById('submitReviewForm');
-    if (!form) {
-      console.log('Review form not found');
-      return;
-    }
+            // Update button appearance based on button type
+            const icon = this.querySelector('i');
+            if (this.classList.contains('btn-wishlist-home')) {
+              // Home page style button
+              if (isWishlisted) {
+                icon.className = 'ri-heart-fill';
+                this.classList.add('wishlisted');
+              } else {
+                icon.className = 'ri-heart-line';
+                this.classList.remove('wishlisted');
+              }
+            } else {
+              // Regular wishlist button
+              icon.className = isWishlisted ? 'ri-heart-fill' : 'ri-heart-line';
+            }
 
-    const formData = new FormData(form);
-    console.log('Form test results:');
-    console.log('- Rating:', formData.get('rating'));
-    console.log('- Review Text:', formData.get('reviewText'));
+            wishlistCountElement.textContent = result.wishlistCount;
+            wishlistCountElement.dataset.count = result.wishlistCount;
 
-    // Check if any radio button is selected
-    const selectedRating = document.querySelector('input[name="rating"]:checked');
-    console.log('- Selected rating element:', selectedRating);
-    console.log('- Selected rating value:', selectedRating ? selectedRating.value : 'None');
-
-    // Check textarea value
-    const textarea = document.getElementById('reviewText');
-    console.log('- Textarea element:', textarea);
-    console.log('- Textarea value:', textarea ? textarea.value : 'Not found');
-  };
-
-  document.getElementById('cancelReviewBtn')?.addEventListener('click', function() {
-    document.getElementById('reviewForm').style.display = 'none';
-    document.getElementById('writeReviewBtn').style.display = 'block';
-  });
-
-  // Submit review form
-  document.getElementById('submitReviewForm')?.addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const formData = new FormData(this);
-    const reviewData = {
-      rating: formData.get('rating'),
-      reviewText: formData.get('reviewText')
-    };
-
-    // Debug logging
-    console.log('Review form submission:');
-    console.log('- Form element:', this);
-    console.log('- FormData entries:', Array.from(formData.entries()));
-    console.log('- Form data rating:', formData.get('rating'));
-    console.log('- Form data reviewText:', formData.get('reviewText'));
-    console.log('- Review data object:', reviewData);
-    console.log('- Product ID from URL:', '<%= product._id %>');
-
-    // Check selected radio button
-    const selectedRating = document.querySelector('input[name="rating"]:checked');
-    console.log('- Selected rating element:', selectedRating);
-    console.log('- Selected rating value:', selectedRating ? selectedRating.value : 'None');
-
-    // Validate data before sending
-    if (!reviewData.rating) {
-      console.error('Rating validation failed - no rating selected');
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Please select a rating'
-      });
-      return;
-    }
-
-    if (!reviewData.reviewText || reviewData.reviewText.trim().length < 10) {
-      console.error('Review text validation failed:', {
-        text: reviewData.reviewText,
-        length: reviewData.reviewText ? reviewData.reviewText.trim().length : 0
-      });
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Please write a review with at least 10 characters'
-      });
-      return;
-    }
-
-    try {
-      const response = await fetch(`/products/<%= product._id %>/reviews`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(reviewData)
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Review Submitted!',
-          text: 'Thank you for your review. The page will reload to show your review.',
-          confirmButtonText: 'OK'
-        }).then(() => {
-          window.location.reload();
-        });
-      } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: result.message || 'Failed to submit review'
-        });
-      }
-    } catch (error) {
-      console.error('Error submitting review:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to submit review. Please try again.'
-      });
-    }
-  });
-
-  // Load more reviews
-  document.getElementById('loadMoreReviews')?.addEventListener('click', async function() {
-    try {
-      const response = await fetch(`/products/<%= product._id %>/reviews?page=2`);
-      const result = await response.json();
-
-      if (result.success && result.reviews.length > 0) {
-        const reviewsList = document.getElementById('reviewsList');
-        const loadMoreBtn = this;
-
-        result.reviews.forEach(review => {
-          const reviewHtml = createReviewHTML(review);
-          loadMoreBtn.parentElement.insertAdjacentHTML('beforebegin', reviewHtml);
-        });
-
-        // Update or hide load more button
-        const remaining = result.pagination.totalReviews - (3 + result.reviews.length);
-        if (remaining > 0) {
-          loadMoreBtn.textContent = `Load More Reviews (${remaining} remaining)`;
-        } else {
-          loadMoreBtn.style.display = 'none';
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: result.message,
+              showConfirmButton: false,
+              timer: 1500
+            });
+          } else {
+            // Check if it's an authentication error
+            if (result.message === 'Please log in to manage your wishlist' || result.requiresAuth) {
+              Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: result.message,
+                showConfirmButton: false,
+                timer: 2000
+              }).then(() => {
+                window.location.href = '/login';
+              });
+            } else {
+              Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: result.message,
+                showConfirmButton: false,
+                timer: 1500
+              });
+            }
+          }
+        } catch (error) {
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'error',
+            title: 'Error managing wishlist',
+            showConfirmButton: false,
+            timer: 1500
+          });
         }
-      }
-    } catch (error) {
-      console.error('Error loading more reviews:', error);
-    }
+      });
+    });
   });
-
-  // Helper function to create review HTML
-  function createReviewHTML(review) {
-    const stars = Array.from({length: 5}, (_, i) =>
-      `<i class="${i < review.rating ? 'ri-star-fill' : 'ri-star-line'} text-warning"></i>`
-    ).join('');
-
-    const avatar = review.user.profileImage
-      ? `<img src="${review.user.profileImage}" alt="${review.user.fullName}" class="rounded-circle" width="40" height="40">`
-      : `<div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-           <i class="ri-user-line text-white"></i>
-         </div>`;
-
-    const verifiedBadge = review.isVerifiedPurchase
-      ? '<span class="badge bg-success">Verified Purchase</span>'
-      : '';
-
-    return `
-      <div class="review-item border-bottom pb-3 mb-3">
-        <div class="d-flex align-items-start">
-          <div class="review-avatar me-3">${avatar}</div>
-          <div class="flex-grow-1">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-              <div>
-                <h6 class="mb-1">${review.user.fullName}</h6>
-                <div class="d-flex align-items-center">
-                  <div class="rating-stars me-2">${stars}</div>
-                  ${verifiedBadge}
-                </div>
-              </div>
-              <small class="text-muted">${review.formattedDate}</small>
-            </div>
-            <p class="mb-0">${review.reviewText}</p>
-          </div>
-        </div>
-      </div>
-    `;
-  }
 
   window.changeImage = function(element, imageUrl) {
     document.querySelectorAll('.thumbnail').forEach(thumb => {
@@ -1010,52 +740,5 @@
     element.classList.add('active');
 
     document.getElementById('mainImage').src = imageUrl;
-  };
-
-  // Delete review function
-  window.deleteReview = async function(reviewId) {
-    const result = await Swal.fire({
-      title: 'Delete Review?',
-      text: 'Are you sure you want to delete your review? This action cannot be undone.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Yes, delete it!'
-    });
-
-    if (result.isConfirmed) {
-      try {
-        const response = await fetch(`/reviews/${reviewId}`, {
-          method: 'DELETE'
-        });
-
-        const deleteResult = await response.json();
-
-        if (deleteResult.success) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Deleted!',
-            text: 'Your review has been deleted.',
-            confirmButtonText: 'OK'
-          }).then(() => {
-            window.location.reload();
-          });
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: deleteResult.message || 'Failed to delete review'
-          });
-        }
-      } catch (error) {
-        console.error('Error deleting review:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Failed to delete review. Please try again.'
-        });
-      }
-    }
   };
 </script>

@@ -4,7 +4,7 @@ const contactValidator = (req, res, next) => {
   try {
     const { name, email, phone, subject, message } = req.body;
 
-
+    // Trim inputs
     const trimmedName = name?.trim();
     const trimmedEmail = email?.trim().toLowerCase();
     const trimmedPhone = phone?.trim();
@@ -12,7 +12,7 @@ const contactValidator = (req, res, next) => {
 
     const errors = [];
 
-
+    // Name validation
     if (!trimmedName) {
       errors.push("Full name is required");
     } else if (trimmedName.length < 2) {
@@ -23,7 +23,7 @@ const contactValidator = (req, res, next) => {
       errors.push("Full name can only contain letters and spaces");
     }
 
-
+    // Email validation
     if (!trimmedEmail) {
       errors.push("Email address is required");
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
@@ -32,7 +32,7 @@ const contactValidator = (req, res, next) => {
       errors.push("Email address must not exceed 100 characters");
     }
 
-
+    // Phone validation (optional)
     if (trimmedPhone) {
       if (!/^[0-9+\-\s()]+$/.test(trimmedPhone)) {
         errors.push("Phone number can only contain numbers, +, -, spaces, and parentheses");
@@ -43,7 +43,7 @@ const contactValidator = (req, res, next) => {
       }
     }
 
-
+    // Subject validation
     const validSubjects = ["general", "order", "recommendation", "feedback", "partnership", "other"];
     if (!subject) {
       errors.push("Subject is required");
@@ -51,7 +51,7 @@ const contactValidator = (req, res, next) => {
       errors.push("Please select a valid subject");
     }
 
-
+    // Message validation
     if (!trimmedMessage) {
       errors.push("Message is required");
     } else if (trimmedMessage.length < 10) {
@@ -60,7 +60,7 @@ const contactValidator = (req, res, next) => {
       errors.push("Message must not exceed 1000 characters");
     }
 
-
+    // If there are validation errors, return them
     if (errors.length > 0) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
@@ -69,7 +69,7 @@ const contactValidator = (req, res, next) => {
       });
     }
 
-
+    // Add sanitized data to request body
     req.body.name = trimmedName;
     req.body.email = trimmedEmail;
     req.body.phone = trimmedPhone || null;

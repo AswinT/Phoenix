@@ -25,7 +25,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
 
     <link rel="stylesheet" href="/styles/admin/sidebar.css" />
-    <link rel="stylesheet" href="/styles/shared/logo-styling.css" />
     <link rel="stylesheet" href="/styles/admin/responsive.css" />
     <link rel="stylesheet" href="/styles/admin/adminUserList.css" />
   </head>
@@ -56,7 +55,7 @@
           <!-- OVERVIEW -->
           <li class="nav-item">
             <a href="/admin/adminDashboard" class="nav-link" data-page="dashboard">
-              <i class="ri-dashboard-3-line"></i>
+              <i class="ri-dashboard-line"></i>
               <span class="nav-text">Dashboard</span>
             </a>
           </li>
@@ -64,13 +63,13 @@
           <!-- INVENTORY MANAGEMENT -->
           <li class="nav-item">
             <a href="/admin/getProducts" class="nav-link" data-page="products">
-              <i class="ri-headphone-line"></i>
+              <i class="ri-book-2-line"></i>
               <span class="nav-text">Products</span>
             </a>
           </li>
           <li class="nav-item">
             <a href="/admin/categories" class="nav-link" data-page="categories">
-              <i class="ri-sound-module-line"></i>
+              <i class="ri-price-tag-3-line"></i>
               <span class="nav-text">Categories</span>
             </a>
           </li>
@@ -78,13 +77,13 @@
           <!-- ORDER MANAGEMENT -->
           <li class="nav-item">
             <a href="/admin/getOrders" class="nav-link" data-page="orders">
-              <i class="ri-shopping-cart-line"></i>
+              <i class="ri-file-list-3-line"></i>
               <span class="nav-text">Orders</span>
             </a>
           </li>
           <li class="nav-item">
             <a href="/admin/return-management" class="nav-link" data-page="returns">
-              <i class="ri-refund-2-line"></i>
+              <i class="ri-arrow-go-back-line"></i>
               <span class="nav-text">Returns</span>
             </a>
           </li>
@@ -92,21 +91,37 @@
           <!-- USER MANAGEMENT -->
           <li class="nav-item">
             <a href="/admin/getUsers" class="nav-link" data-page="users">
-              <i class="ri-team-line"></i>
+              <i class="ri-user-line"></i>
               <span class="nav-text">Users</span>
             </a>
           </li>
 
+          <!-- MARKETING & PROMOTIONS -->
+          <li class="nav-item">
+            <a href="/admin/coupons" class="nav-link" data-page="coupons">
+              <i class="ri-coupon-2-line"></i>
+              <span class="nav-text">Coupons</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/admin/offers" class="nav-link" data-page="offers">
+              <i class="ri-gift-line"></i>
+              <span class="nav-text">Offers</span>
+            </a>
+          </li>
 
-
-
-
+          <!-- ANALYTICS -->
+          <li class="nav-item">
+            <a href="/admin/sales" class="nav-link" data-page="sales">
+              <i class="ri-bar-chart-line"></i>
+              <span class="nav-text">Sales</span>
+            </a>
+          </li>
         </ul>
       </div>
       <div class="sidebar-footer">
         <a href="/admin/adminLogout" class="logout-link">
-          <i class="ri-logout-box-line"></i>
-          <span>Logout</span>
+          <i class="ri-logout-box-line me-2"></i> Logout
         </a>
       </div>
     </div>
@@ -192,7 +207,10 @@
           '/admin/categories': 'categories',
           '/admin/getOrders': 'orders',
           '/admin/return-management': 'returns',
-          '/admin/getUsers': 'users'
+          '/admin/getUsers': 'users',
+          '/admin/coupons': 'coupons',
+          '/admin/offers': 'offers',
+          '/admin/sales': 'sales'
         };
 
         // Get the page identifier for current URL
@@ -224,6 +242,15 @@
           } else if (currentPath.includes('/admin/users') || currentPath.includes('/admin/getUsers')) {
             const usersLink = document.querySelector('[data-page="users"]');
             if (usersLink) usersLink.classList.add('active');
+          } else if (currentPath.includes('/admin/coupon')) {
+            const couponsLink = document.querySelector('[data-page="coupons"]');
+            if (couponsLink) couponsLink.classList.add('active');
+          } else if (currentPath.includes('/admin/offer')) {
+            const offersLink = document.querySelector('[data-page="offers"]');
+            if (offersLink) offersLink.classList.add('active');
+          } else if (currentPath.includes('/admin/sales')) {
+            const salesLink = document.querySelector('[data-page="sales"]');
+            if (salesLink) salesLink.classList.add('active');
           } else if (currentPath.includes('/admin/') && !currentPath.includes('/admin/adminLogin')) {
             // Default to dashboard for other admin pages
             const dashboardLink = document.querySelector('[data-page="dashboard"]');

@@ -50,7 +50,7 @@ const postForgotPassword = async (req, res) => {
       purpose: "password-reset",
       createdAt: new Date(), // Will expire in 5 minutes by default
     });
-
+    console.log(otp);
 
     await otpDoc.save();
 
@@ -59,7 +59,7 @@ const postForgotPassword = async (req, res) => {
 
     req.session.user_email = email;
 
-
+    // Create professional OTP message
     const otpMessage = createOtpMessage(email, 'forgot-password');
 
     return res.status(HttpStatus.OK).json({
@@ -93,7 +93,7 @@ const resendOtp = async (req, res) => {
       Math.floor(100000 + Math.random() * 900000).toString();
 
     const otp = otpGenerator();
-    console.log("Resending OTP for password reset:", otp);
+    console.log("New OTP generated:", otp);
 
     // Delete any existing OTP docs for this email
     await OTP.deleteMany({ email, purpose: "password-reset" });
@@ -104,14 +104,13 @@ const resendOtp = async (req, res) => {
       otp,
       purpose: "password-reset",
     });
-    console.log("Generated OTP for password reset:", otp);
 
     await otpDoc.save();
 
     let subjectContent = "New Password Reset Code - Phoenix";
     await sendOtpEmail(email, user.fullName, otp, subjectContent, "forgot-password");
 
-
+    // Create professional resend message
     const otpMessage = createOtpMessage(email, 'resend');
 
     return res.status(HttpStatus.OK).json({
@@ -130,7 +129,7 @@ const resendOtp = async (req, res) => {
 
 const getOtpForgotPassword = async (req, res) => {
   try {
-
+    // Get email from session and create masked version
     const email = req.session.user_email;
     const otpMessage = createOtpMessage(email, 'forgot-password');
 
@@ -151,7 +150,7 @@ const verifyOtp = async (req, res) => {
   try {
     const { otp } = req.body;
 
-
+    // Basic OTP validation using utility
     const otpValidation = validateBasicOtp(otp);
     if (!otpValidation.isValid) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -160,7 +159,7 @@ const verifyOtp = async (req, res) => {
       });
     }
 
-
+    // Session validation using utility
     const sessionValidation = validateOtpSession(req, "password-reset");
     if (!sessionValidation.isValid) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -170,8 +169,7 @@ const verifyOtp = async (req, res) => {
       });
     }
 
-
-    console.log("Verifying OTP for password reset:", otp);
+    console.log("Verifying OTP:", otp);
     const email = req.session.user_email;
 
     const user = await User.findOne({ email });
@@ -183,7 +181,7 @@ const verifyOtp = async (req, res) => {
       });
     }
 
-
+    // Find OTP document
     const otpDoc = await OTP.findOne({ email, purpose: "password-reset" });
 
     if (!otpDoc) {
@@ -200,7 +198,7 @@ const verifyOtp = async (req, res) => {
       });
     }
 
-
+    // Clear OTP after successful verification
     await OTP.deleteOne({ _id: otpDoc._id });
 
     return res.status(HttpStatus.OK).json({

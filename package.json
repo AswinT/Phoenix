@@ -8,10 +8,11 @@
   },
   "author": "Aswin T",
   "license": "ISC",
-  "description": "Phoenix - Premium Headphone E-Commerce Platform",
+  "description": "Phoenix - Premium Headphone Store",
   "dependencies": {
     "bcrypt": "^5.1.1",
     "cloudinary": "^2.6.0",
+    "csv-writer": "^1.6.0",
     "dotenv": "^16.5.0",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
@@ -24,8 +25,8 @@
     "nodemon": "^3.1.10",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
-    "pdfkit": "^0.17.1"
-  },
-  "devDependencies": {},
-  "keywords": []
+    "pdfkit": "^0.17.1",
+    "razorpay": "^2.9.6",
+    "xlsx": "^0.18.5"
+  }
 }

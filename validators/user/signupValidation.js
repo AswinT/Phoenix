@@ -1,95 +1,163 @@
-const signupValidator = (req, res, next) => {
-  const { fullName, email, phoneNumber, password, confirmPassword } = req.body;
-  const errors = {};
+const { createValidationMiddleware } = require('../../helpers/validation-helper');
 
-
-  req.body.fullName = fullName?.trim();
-  req.body.email = email?.toLowerCase().trim();
-
-
-  if (!req.body.fullName || req.body.fullName.length < 3) {
-    errors.fullName = "Full name must be at least 3 characters";
-  } else {
-    const nameWords = req.body.fullName.split(' ').filter(word => word.length > 0);
-    if (nameWords.length < 2) {
-      errors.fullName = "Please provide both first and last name";
-    } else if (!/^[A-Za-z\s'-]+$/.test(req.body.fullName)) {
-      errors.fullName = "Name contains invalid characters";
-    }
+// Custom validation function for full name (requires first and last name)
+const validateFullName = (value) => {
+  if (!value || value.trim().length < 3) {
+    return { isValid: false, message: "Full name must be at least 3 characters" };
   }
 
+  const trimmedName = value.trim();
+  const nameWords = trimmedName.split(' ').filter(word => word.length > 0);
 
+  if (nameWords.length < 2) {
+    return { isValid: false, message: "Please provide both first and last name" };
+  }
+
+  if (!/^[A-Za-z\s'-]+$/.test(trimmedName)) {
+    return { isValid: false, message: "Name contains invalid characters" };
+  }
+
+  return { isValid: true, sanitized: trimmedName };
+};
+
+// Custom validation function for email with disposable domain check
+const validateEmailWithDisposableCheck = (value) => {
+  if (!value) {
+    return { isValid: false, message: "Email is required" };
+  }
+
+  const email = value.toLowerCase().trim();
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  if (!email || !emailRegex.test(req.body.email)) {
-    errors.email = "Enter a valid email address";
-  } else {
 
-    const disposableDomains = ['mailinator.com', 'tempmail.com', 'temp-mail.org', 'guerrillamail.com', 'yopmail.com', 'sharklasers.com'];
-    const domain = req.body.email.split('@')[1];
-    if (disposableDomains.includes(domain)) {
-      errors.email = "Please use a non-disposable email address";
-    }
+  if (!emailRegex.test(email)) {
+    return { isValid: false, message: "Enter a valid email address" };
   }
 
+  // Block common disposable email domains
+  const disposableDomains = ['mailinator.com', 'tempmail.com', 'temp-mail.org', 'guerrillamail.com', 'yopmail.com', 'sharklasers.com'];
+  const domain = email.split('@')[1];
 
-  if (!phoneNumber) {
-    errors.phoneNumber = "Phone number is required";
-  } else {
-
-    const cleanPhone = phoneNumber.replace(/\D/g, '');
-    
-
-    if (cleanPhone.length !== 10 && (cleanPhone.length < 11 || cleanPhone.length > 15)) {
-      errors.phoneNumber = "Phone number must be 10 digits or include a valid country code";
-    } else if (!/^\d+$/.test(cleanPhone)) {
-      errors.phoneNumber = "Phone number must contain only digits";
-    }
-    
-
-    if (/^(.)\1+$/.test(cleanPhone) || /^0{10}$/.test(cleanPhone) || /^1{10}$/.test(cleanPhone)) {
-      errors.phoneNumber = "Please enter a valid phone number";
-    }
+  if (disposableDomains.includes(domain)) {
+    return { isValid: false, message: "Please use a non-disposable email address" };
   }
 
+  return { isValid: true, sanitized: email };
+};
 
-  if (!password) {
-    errors.password = "Password is required";
-  } else {
-    const minLength = password.length >= 8;
-    const hasUppercase = /[A-Z]/.test(password);
-    const hasLowercase = /[a-z]/.test(password);
-    const hasNumber = /\d/.test(password);
-    const hasSpecial = /[@$!%*?&_\-#]/.test(password);
-
-    if (!minLength || !hasUppercase || !hasLowercase || !hasNumber || !hasSpecial) {
-      let errorMsg = "Password must include: ";
-      const missing = [];
-      
-      if (!minLength) missing.push("at least 8 characters");
-      if (!hasUppercase) missing.push("uppercase letter");
-      if (!hasLowercase) missing.push("lowercase letter");
-      if (!hasNumber) missing.push("number");
-      if (!hasSpecial) missing.push("special character (@$!%*?&_-#)");
-      
-      errors.password = errorMsg + missing.join(", ");
-    }
-    
-
-    if (/123456|password|qwerty/i.test(password)) {
-      errors.password = "Password contains a common pattern and is not secure";
-    }
+// Custom validation function for phone number with enhanced checks
+const validatePhoneNumberEnhanced = (value) => {
+  if (!value) {
+    return { isValid: false, message: "Phone number is required" };
   }
 
+  // Remove any non-digit characters for normalization
+  const cleanPhone = value.replace(/\D/g, '');
+
+  // Allow 10 digits (standard US number) or international format with country code
+  if (cleanPhone.length !== 10 && (cleanPhone.length < 11 || cleanPhone.length > 15)) {
+    return { isValid: false, message: "Phone number must be 10 digits or include a valid country code" };
+  }
+
+  if (!/^\d+$/.test(cleanPhone)) {
+    return { isValid: false, message: "Phone number must contain only digits" };
+  }
+
+  // Check for obviously fake patterns
+  if (/^(.)\1+$/.test(cleanPhone) || /^0{10}$/.test(cleanPhone) || /^1{10}$/.test(cleanPhone)) {
+    return { isValid: false, message: "Please enter a valid phone number" };
+  }
+
+  return { isValid: true, sanitized: cleanPhone };
+};
+
+// Custom validation function for enhanced password requirements
+const validatePasswordEnhanced = (value) => {
+  if (!value) {
+    return { isValid: false, message: "Password is required" };
+  }
+
+  const minLength = value.length >= 8;
+  const hasUppercase = /[A-Z]/.test(value);
+  const hasLowercase = /[a-z]/.test(value);
+  const hasNumber = /\d/.test(value);
+  const hasSpecial = /[@$!%*?&_\-#]/.test(value);
+
+  if (!minLength || !hasUppercase || !hasLowercase || !hasNumber || !hasSpecial) {
+    let errorMsg = "Password must include: ";
+    const missing = [];
+
+    if (!minLength) missing.push("at least 8 characters");
+    if (!hasUppercase) missing.push("uppercase letter");
+    if (!hasLowercase) missing.push("lowercase letter");
+    if (!hasNumber) missing.push("number");
+    if (!hasSpecial) missing.push("special character (@$!%*?&_-#)");
+
+    return { isValid: false, message: errorMsg + missing.join(", ") };
+  }
+
+  // Check for common patterns
+  if (/123456|password|qwerty/i.test(value)) {
+    return { isValid: false, message: "Password contains a common pattern and is not secure" };
+  }
+
+  return { isValid: true, sanitized: value };
+};
+
+// Middleware to validate password confirmation
+const validatePasswordConfirmation = (req, res, next) => {
+  const { password, confirmPassword } = req.body;
 
   if (password !== confirmPassword) {
-    errors.confirmPassword = "Passwords do not match";
-  }
-
-  if (Object.keys(errors).length > 0) {
-    return res.status(400).json({ success: false, errors });
+    return res.status(400).json({
+      success: false,
+      message: 'Validation failed',
+      errors: ['Passwords do not match']
+    });
   }
 
   next();
 };
 
-module.exports = { signupValidator };
+// Main signup validation using createValidationMiddleware
+const signupValidator = createValidationMiddleware({
+  fullName: {
+    type: 'text',
+    fieldName: 'Full Name',
+    customValidator: validateFullName,
+    required: true
+  },
+  email: {
+    type: 'text',
+    fieldName: 'Email',
+    customValidator: validateEmailWithDisposableCheck,
+    required: true
+  },
+  phoneNumber: {
+    type: 'text',
+    fieldName: 'Phone Number',
+    customValidator: validatePhoneNumberEnhanced,
+    required: true
+  },
+  password: {
+    type: 'text',
+    fieldName: 'Password',
+    customValidator: validatePasswordEnhanced,
+    required: true
+  }
+});
+
+// Complete signup validation middleware chain
+const validateCompleteSignup = [
+  signupValidator,
+  validatePasswordConfirmation
+];
+
+module.exports = {
+  signupValidator,
+  validatePasswordConfirmation,
+  validateCompleteSignup,
+  validateFullName,
+  validateEmailWithDisposableCheck,
+  validatePhoneNumberEnhanced,
+  validatePasswordEnhanced
+};

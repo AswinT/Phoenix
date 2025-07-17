@@ -1,8 +1,11 @@
 const { HttpStatus } = require('./status-code');
 
+/**
+ * Central validation helper for API endpoints
+ * Provides reusable validation functions and patterns
+ */
 
-
-
+// Common validation patterns
 const VALIDATION_PATTERNS = {
   EMAIL: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
   PHONE: /^[6-9]\d{9}$/,
@@ -14,7 +17,7 @@ const VALIDATION_PATTERNS = {
   MONGODB_ID: /^[0-9a-fA-F]{24}$/
 };
 
-
+// Common validation rules
 const VALIDATION_RULES = {
   NAME: { min: 2, max: 50 },
   EMAIL: { max: 100 },
@@ -29,13 +32,17 @@ const VALIDATION_RULES = {
   ADDRESS: { min: 10, max: 200 }
 };
 
-
+/**
+ * Sanitize and trim input
+ */
 const sanitizeInput = (input) => {
   if (typeof input !== 'string') return input;
   return input.trim().replace(/\s+/g, ' ');
 };
 
-
+/**
+ * Validate email format
+ */
 const validateEmail = (email) => {
   if (!email) return { isValid: false, message: 'Email is required' };
   
@@ -52,7 +59,9 @@ const validateEmail = (email) => {
   return { isValid: true, sanitized };
 };
 
-
+/**
+ * Validate phone number
+ */
 const validatePhone = (phone) => {
   if (!phone) return { isValid: false, message: 'Phone number is required' };
   
@@ -66,7 +75,7 @@ const validatePhone = (phone) => {
     return { isValid: false, message: 'Invalid phone number format' };
   }
   
-
+  // Check for obviously fake patterns
   if (/^(.)\1+$/.test(cleaned) || /^0{10}$/.test(cleaned)) {
     return { isValid: false, message: 'Invalid phone number' };
   }
@@ -74,7 +83,9 @@ const validatePhone = (phone) => {
   return { isValid: true, sanitized: cleaned };
 };
 
-
+/**
+ * Validate name (full name, first name, etc.)
+ */
 const validateName = (name, fieldName = 'Name') => {
   if (!name) return { isValid: false, message: `${fieldName} is required` };
   
@@ -95,7 +106,9 @@ const validateName = (name, fieldName = 'Name') => {
   return { isValid: true, sanitized };
 };
 
-
+/**
+ * Validate password strength
+ */
 const validatePassword = (password) => {
   if (!password) return { isValid: false, message: 'Password is required' };
   
@@ -122,7 +135,9 @@ const validatePassword = (password) => {
   return { isValid: true };
 };
 
-
+/**
+ * Validate MongoDB ObjectId
+ */
 const validateObjectId = (id, fieldName = 'ID') => {
   if (!id) return { isValid: false, message: `${fieldName} is required` };
   
@@ -133,7 +148,9 @@ const validateObjectId = (id, fieldName = 'ID') => {
   return { isValid: true };
 };
 
-
+/**
+ * Validate price
+ */
 const validatePrice = (price, fieldName = 'Price') => {
   if (price === undefined || price === null) {
     return { isValid: false, message: `${fieldName} is required` };
@@ -156,7 +173,9 @@ const validatePrice = (price, fieldName = 'Price') => {
   return { isValid: true, sanitized: numPrice };
 };
 
-
+/**
+ * Validate quantity
+ */
 const validateQuantity = (quantity, fieldName = 'Quantity') => {
   if (quantity === undefined || quantity === null) {
     return { isValid: false, message: `${fieldName} is required` };
@@ -179,8 +198,15 @@ const validateQuantity = (quantity, fieldName = 'Quantity') => {
   return { isValid: true, sanitized: numQuantity };
 };
 
-
+/**
+ * Validate text field with custom rules
+ */
 const validateText = (text, rules, fieldName = 'Field') => {
+  // Check for custom validator first
+  if (rules.customValidator && typeof rules.customValidator === 'function') {
+    return rules.customValidator(text);
+  }
+
   if (!text && rules.required !== false) {
     return { isValid: false, message: `${fieldName} is required` };
   }
@@ -204,118 +230,22 @@ const validateText = (text, rules, fieldName = 'Field') => {
   return { isValid: true, sanitized };
 };
 
-
-const validateNumber = (number, rules, fieldName = 'Field') => {
-  if ((number === undefined || number === null || number === '') && rules.required !== false) {
-    return { isValid: false, message: `${fieldName} is required` };
-  }
-
-  if (number === undefined || number === null || number === '') {
-    return { isValid: true, sanitized: null };
-  }
-
-  const numValue = parseFloat(number);
-
-  if (isNaN(numValue)) {
-    return { isValid: false, message: `${fieldName} must be a valid number` };
-  }
-
-  if (rules.min !== undefined && numValue < rules.min) {
-    return { isValid: false, message: `${fieldName} must be at least ${rules.min}` };
-  }
-
-  if (rules.max !== undefined && numValue > rules.max) {
-    return { isValid: false, message: `${fieldName} must not exceed ${rules.max}` };
-  }
-
-  if (rules.integer && !Number.isInteger(numValue)) {
-    return { isValid: false, message: `${fieldName} must be a whole number` };
-  }
-
-  return { isValid: true, sanitized: numValue };
-};
-
-
+/**
+ * Create validation middleware
+ */
 const createValidationMiddleware = (validationRules) => {
   return (req, res, next) => {
-    try {
-
-      const errors = [];
-      const sanitizedData = {};
-
+    const errors = [];
+    const sanitizedData = {};
+    
     for (const [field, rules] of Object.entries(validationRules)) {
       const value = req.body[field];
-      console.log(`🔍 Validating field '${field}':`, { value, type: rules.type });
       let result;
 
-      switch (rules.type) {
-        case 'email':
-          result = validateEmail(value);
-          break;
-        case 'phone':
-          result = validatePhone(value);
-          break;
-        case 'name':
-          result = validateName(value, rules.fieldName || field);
-          break;
-        case 'password':
-          result = validatePassword(value);
-          break;
-        case 'objectId':
-          result = validateObjectId(value, rules.fieldName || field);
-          break;
-        case 'price':
-          result = validatePrice(value, rules.fieldName || field);
-          break;
-        case 'quantity':
-          result = validateQuantity(value, rules.fieldName || field);
-          break;
-        case 'text':
-          result = validateText(value, rules, rules.fieldName || field);
-          break;
-        default:
-          result = { isValid: true, sanitized: value };
-      }
-
-      if (!result.isValid) {
-        errors.push(result.message);
-      } else if (result.sanitized !== undefined) {
-        sanitizedData[field] = result.sanitized;
-      }
-    }
-
-    if (errors.length > 0) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        success: false,
-        message: 'Validation failed',
-        errors: errors
-      });
-    }
-
-    // Add sanitized data to request
-    req.validatedData = sanitizedData;
-    next();
-    } catch (validationError) {
-      console.error('Validation error:', validationError.message);
-      return res.status(500).json({
-        success: false,
-        message: 'Validation error occurred'
-      });
-    }
-  };
-};
-
-
-const createFieldValidationMiddleware = (validationRules) => {
-  return (req, res, next) => {
-    try {
-      const fieldErrors = {};
-      const sanitizedData = {};
-
-      for (const [field, rules] of Object.entries(validationRules)) {
-        const value = req.body[field];
-        let result;
-
+      // Check for custom validator first
+      if (rules.customValidator && typeof rules.customValidator === 'function') {
+        result = rules.customValidator(value);
+      } else {
         switch (rules.type) {
           case 'email':
             result = validateEmail(value);
@@ -341,38 +271,29 @@ const createFieldValidationMiddleware = (validationRules) => {
           case 'text':
             result = validateText(value, rules, rules.fieldName || field);
             break;
-          case 'number':
-            result = validateNumber(value, rules, rules.fieldName || field);
-            break;
           default:
             result = { isValid: true, sanitized: value };
         }
-
-        if (!result.isValid) {
-          fieldErrors[field] = result.message;
-        } else if (result.sanitized !== undefined) {
-          sanitizedData[field] = result.sanitized;
-        }
       }
 
-      if (Object.keys(fieldErrors).length > 0) {
-        return res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message: 'Validation failed',
-          fieldErrors: fieldErrors
-        });
+      if (!result.isValid) {
+        errors.push(result.message);
+      } else if (result.sanitized !== undefined) {
+        sanitizedData[field] = result.sanitized;
       }
-
-      // Add sanitized data to request
-      req.validatedData = sanitizedData;
-      next();
-    } catch (validationError) {
-      console.error('Validation error:', validationError.message);
-      return res.status(500).json({
+    }
+    
+    if (errors.length > 0) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message: 'Validation error occurred'
+        message: 'Validation failed',
+        errors: errors
       });
     }
+    
+    // Add sanitized data to request
+    req.validatedData = sanitizedData;
+    next();
   };
 };
 
@@ -388,7 +309,5 @@ module.exports = {
   validatePrice,
   validateQuantity,
   validateText,
-  validateNumber,
-  createValidationMiddleware,
-  createFieldValidationMiddleware
+  createValidationMiddleware
 };

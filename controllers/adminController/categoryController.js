@@ -61,16 +61,7 @@ const addCategory = async (req, res) => {
         folder: "categories",
         quality: 'auto:best',
         fetch_format: 'auto',
-        flags: 'preserve_transparency',
-        transformation: [
-          {
-            width: 400,
-            height: 400,
-            crop: 'fill',
-            gravity: 'center',
-            quality: 'auto:good'
-          }
-        ]
+        flags: 'preserve_transparency'
       });
       imageUrl = result.secure_url;
       // Delete local file after upload
@@ -124,16 +115,7 @@ const editCategory = async (req, res) => {
         folder: "categories",
         quality: 'auto:best',
         fetch_format: 'auto',
-        flags: 'preserve_transparency',
-        transformation: [
-          {
-            width: 400,
-            height: 400,
-            crop: 'fill',
-            gravity: 'center',
-            quality: 'auto:good'
-          }
-        ]
+        flags: 'preserve_transparency'
       });
       imageUrl = result.secure_url;
       // Delete local file

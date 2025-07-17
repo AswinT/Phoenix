@@ -11,7 +11,7 @@ const methodOverride = require('method-override');
 const morgan = require('morgan');
 
 const userMiddleware = require("./middlewares/userMiddleware");
-const cartMiddleware = require('./middlewares/cartMiddleware');
+const cartWishlistMiddleware = require('./middlewares/cartWishlistMiddleware');
 const { globalErrorHandler, notFoundHandler } = require("./middlewares/errorHandler");
 
 
@@ -51,7 +51,7 @@ app.use((req, res, next) => {
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(userMiddleware);
-app.use(cartMiddleware);
+app.use(cartWishlistMiddleware);
 
 app.use((req, res, next) => {
   res.set("Cache-Control", "no-store");
@@ -65,6 +65,7 @@ app.set("views", [
   path.join(__dirname, "views")
 ]);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/validators', express.static(path.join(__dirname, 'validators')));
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(methodOverride('_method'));
@@ -81,4 +82,4 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
 
-module.exports = app;
+module.exports.app;

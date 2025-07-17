@@ -1,8 +1,14 @@
-// Professional Authentication Handler
-// Handles unauthenticated user interactions with cart/wishlist
+/**
+ * Professional Authentication Handler
+ * Handles unauthenticated user interactions with cart/wishlist
+ */
 
 class AuthHandler {
-  // Handle authentication required responses
+  /**
+   * Handle authentication required responses
+   * @param {Object} result - Response from server
+   * @param {string} action - Action being performed (e.g., "add to cart", "add to wishlist")
+   */
   static handleAuthRequired(result, action = "perform this action") {
     if (result.requiresAuth || result.message?.includes('log in')) {
       this.showAuthRequiredDialog(action, result.redirectTo || '/login');
@@ -11,7 +17,11 @@ class AuthHandler {
     return false;
   }
 
-  // Show professional authentication required dialog
+  /**
+   * Show professional authentication required dialog
+   * @param {string} action - Action being performed
+   * @param {string} redirectUrl - URL to redirect to
+   */
   static showAuthRequiredDialog(action, redirectUrl = '/login') {
     Swal.fire({
       title: 'Sign In Required',
@@ -37,7 +47,11 @@ class AuthHandler {
     });
   }
 
-  // Handle successful cart/wishlist operations
+  /**
+   * Handle successful cart/wishlist operations
+   * @param {Object} result - Success response from server
+   * @param {string} action - Action performed
+   */
   static handleSuccess(result, action = "Operation completed") {
     // Update cart count if provided
     if (result.cartCount !== undefined) {
@@ -48,7 +62,14 @@ class AuthHandler {
       }
     }
 
-
+    // Update wishlist count if provided
+    if (result.wishlistCount !== undefined) {
+      const wishlistCountElement = document.querySelector('.wishlist-count');
+      if (wishlistCountElement) {
+        wishlistCountElement.textContent = result.wishlistCount;
+        wishlistCountElement.dataset.count = result.wishlistCount;
+      }
+    }
 
     // Show success toast
     Swal.fire({
@@ -62,7 +83,11 @@ class AuthHandler {
     });
   }
 
-  // Handle error responses
+  /**
+   * Handle error responses
+   * @param {Object} result - Error response from server
+   * @param {string} defaultMessage - Default error message
+   */
   static handleError(result, defaultMessage = "An error occurred") {
     Swal.fire({
       toast: true,
@@ -75,7 +100,13 @@ class AuthHandler {
     });
   }
 
-  // Generic handler for cart/wishlist API calls
+  /**
+   * Generic handler for cart/wishlist API calls
+   * @param {string} url - API endpoint
+   * @param {Object} data - Request data
+   * @param {string} successAction - Action description for success message
+   * @param {string} errorAction - Action description for error message
+   */
   static async handleApiCall(url, data, successAction, errorAction) {
     try {
       const response = await fetch(url, {
@@ -114,7 +145,11 @@ class AuthHandler {
     }
   }
 
-  // Add item to cart with professional handling
+  /**
+   * Add item to cart with professional handling
+   * @param {string} productId - Product ID to add
+   * @param {number} quantity - Quantity to add (default: 1)
+   */
   static async addToCart(productId, quantity = 1) {
     return await this.handleApiCall(
       '/cart/add',
@@ -124,7 +159,18 @@ class AuthHandler {
     );
   }
 
-
+  /**
+   * Toggle wishlist with professional handling
+   * @param {string} productId - Product ID to toggle
+   */
+  static async toggleWishlist(productId) {
+    return await this.handleApiCall(
+      '/wishlist/toggle',
+      { productId },
+      'Wishlist updated',
+      'update wishlist'
+    );
+  }
 }
 
 // Make AuthHandler globally available

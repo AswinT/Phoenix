@@ -9,18 +9,18 @@
   top: 1rem;
   left: 1rem;
   z-index: 1001;
-  background: var(--primary, #2D3142);
+  background: #000000; /* Dark theme mobile toggle */
   color: white;
   border: none;
   border-radius: 8px;
   padding: 0.75rem;
   font-size: 1.2rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
 }
 
 .mobile-toggle:hover {
-  background: var(--secondary, #4F5D75);
+  background: #1a1a1a; /* Slightly lighter black on hover */
   transform: scale(1.05);
 }
 
@@ -45,7 +45,7 @@
 /* Enhanced Sidebar Responsive Behavior */
 @media (max-width: 1200px) {
   .main-content {
-    padding: 1.5rem 0.75rem; /* Reduced horizontal padding by 50% (1.5rem -> 0.75rem), kept vertical padding at 1.5rem */
+    padding: 1.5rem;
   }
   
   /* Reduce stat card padding */
@@ -84,7 +84,8 @@
   /* Main content full width */
   .main-content {
     margin-left: 0;
-    padding: 4rem 0.5rem 1rem 0.5rem; /* Reduced horizontal padding by 50% (1rem -> 0.5rem), kept top padding at 4rem for mobile toggle */
+    padding: 1rem;
+    padding-top: 4rem; /* Space for mobile toggle */
   }
   
   /* Page header adjustments */
@@ -108,7 +109,8 @@
 @media (max-width: 768px) {
   /* Main content padding */
   .main-content {
-    padding: 4rem 0.375rem 0.75rem 0.375rem; /* Reduced horizontal padding by 50% (0.75rem -> 0.375rem), kept top padding at 4rem for mobile toggle */
+    padding: 0.75rem;
+    padding-top: 4rem;
   }
   
   /* Stats cards - 1 per row */
@@ -183,7 +185,8 @@
   
   /* Very compact main content */
   .main-content {
-    padding: 4rem 0.25rem 0.5rem 0.25rem; /* Reduced horizontal padding by 50% (0.5rem -> 0.25rem), kept top padding at 4rem for mobile toggle */
+    padding: 0.5rem;
+    padding-top: 4rem;
   }
   
   /* Compact stat cards */
@@ -336,7 +339,7 @@
   width: 2rem;
   height: 2rem;
   border: 3px solid #f3f3f3;
-  border-top: 3px solid var(--primary, #000000);
+  border-top: 3px solid var(--primary, #2D3142);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
