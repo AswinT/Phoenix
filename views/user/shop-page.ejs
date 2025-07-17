@@ -267,58 +267,82 @@
     <div class="row g-4">
       <!-- Filters Sidebar -->
       <div class="col-lg-3">
-        <div class="filters-container p-4 bg-light rounded-3 mb-4">
-          <h3 class="fs-5 fw-bold mb-4">Filters</h3>
-
-          <!-- Category Filter -->
-          <div class="mb-4">
-            <h4 class="fs-6 fw-semibold mb-3">Categories</h4>
-            <div class="form-check mb-2" data-category="all">
-              <input class="form-check-input" type="checkbox" value="all" id="allCategories" checked>
-              <label class="form-check-label" for="allCategories">
-                All Categories
-              </label>
+        <div class="filters-container">
+          <div class="filter-card">
+            <div class="filter-header">
+              <h3 class="filter-title">
+                <i class="ri-filter-3-line me-2"></i>Filters
+              </h3>
+              <button class="filter-toggle d-lg-none" onclick="toggleFilters()">
+                <i class="ri-arrow-down-s-line"></i>
+              </button>
             </div>
-            <% if (categories && categories.length > 0) { %>
-              <% categories.forEach(category => { %>
-                <div class="form-check mb-2" data-category="<%= category._id %>">
-                  <input class="form-check-input category-checkbox" type="checkbox" value="<%= category._id %>" id="cat_<%= category._id %>">
-                  <label class="form-check-label" for="cat_<%= category._id %>">
-                    <%= category.name %>
-                  </label>
+
+            <div class="filter-content" id="filterContent">
+              <!-- Category Filter -->
+              <div class="filter-section">
+                <h4 class="filter-section-title">
+                  <i class="ri-folder-line me-2"></i>Categories
+                </h4>
+                <div class="filter-options">
+                  <div class="filter-option" data-category="all">
+                    <input class="filter-checkbox" type="checkbox" value="all" id="allCategories" checked>
+                    <label class="filter-label" for="allCategories">
+                      <span class="checkmark"></span>
+                      All Categories
+                    </label>
+                  </div>
+                  <% if (categories && categories.length > 0) { %>
+                    <% categories.forEach(category => { %>
+                      <div class="filter-option" data-category="<%= category._id %>">
+                        <input class="filter-checkbox category-checkbox" type="checkbox" value="<%= category._id %>" id="cat_<%= category._id %>">
+                        <label class="filter-label" for="cat_<%= category._id %>">
+                          <span class="checkmark"></span>
+                          <%= category.name %>
+                        </label>
+                      </div>
+                    <% }) %>
+                  <% } %>
                 </div>
-              <% }) %>
-            <% } %>
-          </div>
+              </div>
 
-          <!-- Price Range Filter -->
-          <div class="mb-4">
-            <h4 class="fs-6 fw-semibold mb-3">Price Range</h4>
-            <div class="range-slider">
-              <input type="range" class="form-range custom-range" min="0" max="50000" id="priceRange" value="50000">
-              <div class="d-flex justify-content-between mt-2">
-                <span class="small text-muted" id="minPrice">₹0</span>
-                <span class="small text-muted" id="maxPrice">₹50000</span>
+              <!-- Price Range Filter -->
+              <div class="filter-section">
+                <h4 class="filter-section-title">
+                  <i class="ri-money-rupee-circle-line me-2"></i>Price Range
+                </h4>
+                <div class="price-filter">
+                  <div class="range-slider-container">
+                    <input type="range" class="custom-range" min="0" max="50000" id="priceRange" value="50000">
+                    <div class="range-labels">
+                      <span class="range-label" id="minPrice">₹0</span>
+                      <span class="range-label" id="maxPrice">₹50000</span>
+                    </div>
+                  </div>
+                  <div class="price-inputs">
+                    <div class="price-input-group">
+                      <span class="price-currency">₹</span>
+                      <input type="number" class="price-input" id="minPriceInput" placeholder="Min" min="0" max="50000" value="0">
+                    </div>
+                    <div class="price-separator">-</div>
+                    <div class="price-input-group">
+                      <span class="price-currency">₹</span>
+                      <input type="number" class="price-input" id="maxPriceInput" placeholder="Max" min="0" max="50000" value="50000">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Filter Actions -->
+              <div class="filter-actions">
+                <button class="btn-apply" onclick="applyFilters()">
+                  <i class="ri-check-line me-2"></i>Apply Filters
+                </button>
+                <button class="btn-reset" onclick="resetFilters()">
+                  <i class="ri-refresh-line me-2"></i>Reset
+                </button>
               </div>
             </div>
-            <div class="price-inputs d-flex gap-2 mt-3">
-              <div class="input-group input-group-sm">
-                <span class="input-group-text">₹</span>
-                <input type="number" class="form-control" id="minPriceInput" placeholder="Min" aria-label="Minimum price" min="0" max="50000" value="0">
-              </div>
-              <div class="input-group input-group-sm">
-                <span class="input-group-text">₹</span>
-                <input type="number" class="form-control" id="maxPriceInput" placeholder="Max" aria-label="Maximum price" min="0" max="50000" value="50000">
-              </div>
-            </div>
-          </div>
-
-          <!-- Filter Buttons -->
-          <div class="d-flex gap-2">
-            <button class="btn btn-dark flex-fill" onclick="applyFilters()">Apply Filters</button>
-            <button class="btn btn-outline-secondary flex-fill" onclick="resetFilters()">
-              <i class="ri-refresh-line me-1"></i>Reset
-            </button>
           </div>
         </div>
       </div>
@@ -326,26 +350,33 @@
       <!-- Products Grid -->
       <div class="col-lg-9">
         <!-- Sort and View Options -->
-        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
-          <div class="d-flex align-items-center mb-3 mb-md-0">
-            <span class="me-2 text-muted">Sort by:</span>
-            <select class="form-select form-select-sm" id="sortSelect" onchange="sortProducts()" style="width: auto;">
-              <option value="recommended" <%= sortOption === 'recommended' ? 'selected' : '' %>>Recommended</option>
-              <option value="price-asc" <%= sortOption === 'price-asc' ? 'selected' : '' %>>Price: low to high</option>
-              <option value="price-desc" <%= sortOption === 'price-desc' ? 'selected' : '' %>>Price: high to low</option>
-              <option value="date-desc" <%= sortOption === 'date-desc' ? 'selected' : '' %>>New arrivals</option>
-              <option value="stock-desc" <%= sortOption === 'stock-desc' ? 'selected' : '' %>>Best selling</option>
-              <option value="name-asc" <%= sortOption === 'name-asc' ? 'selected' : '' %>>Name: A to Z</option>
-              <option value="name-desc" <%= sortOption === 'name-desc' ? 'selected' : '' %>>Name: Z to A</option>
-            </select>
+        <div class="shop-controls">
+          <div class="sort-section">
+            <div class="sort-label">
+              <i class="ri-sort-desc me-2"></i>Sort by:
+            </div>
+            <div class="sort-dropdown">
+              <select class="custom-select" id="sortSelect" onchange="sortProducts()">
+                <option value="recommended" <%= sortOption === 'recommended' ? 'selected' : '' %>>Recommended</option>
+                <option value="price-asc" <%= sortOption === 'price-asc' ? 'selected' : '' %>>Price: Low to High</option>
+                <option value="price-desc" <%= sortOption === 'price-desc' ? 'selected' : '' %>>Price: High to Low</option>
+                <option value="date-desc" <%= sortOption === 'date-desc' ? 'selected' : '' %>>New Arrivals</option>
+                <option value="stock-desc" <%= sortOption === 'stock-desc' ? 'selected' : '' %>>Best Selling</option>
+                <option value="name-asc" <%= sortOption === 'name-asc' ? 'selected' : '' %>>Name: A to Z</option>
+                <option value="name-desc" <%= sortOption === 'name-desc' ? 'selected' : '' %>>Name: Z to A</option>
+              </select>
+              <i class="ri-arrow-down-s-line sort-arrow"></i>
+            </div>
           </div>
-          <div class="d-flex align-items-center">
-            <span class="me-2 text-muted d-none d-sm-block">View:</span>
-            <div class="btn-group" role="group" aria-label="View options">
-              <button type="button" class="btn btn-outline-secondary btn-sm active">
+          <div class="view-section">
+            <div class="view-label d-none d-sm-block">
+              <i class="ri-layout-grid-line me-2"></i>View:
+            </div>
+            <div class="view-options">
+              <button type="button" class="view-btn active" data-view="grid">
                 <i class="ri-grid-line"></i>
               </button>
-              <button type="button" class="btn btn-outline-secondary btn-sm">
+              <button type="button" class="view-btn" data-view="list">
                 <i class="ri-list-check"></i>
               </button>
             </div>
@@ -481,6 +512,501 @@
 <%- include("../partials/user/footer") %>
 
 <style>
+  /* ===== ENHANCED FILTER & SORT STYLING ===== */
+  
+  /* Filter Container */
+  .filters-container {
+    position: sticky;
+    top: 90px;
+    margin-bottom: 2rem;
+  }
+
+  .filter-card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .filter-card:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  }
+
+  /* Filter Header */
+  .filter-header {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    color: white;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .filter-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    letter-spacing: -0.02em;
+  }
+
+  .filter-toggle {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+  }
+
+  .filter-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Filter Content */
+  .filter-content {
+    padding: 1.5rem;
+  }
+
+  /* Filter Sections */
+  .filter-section {
+    margin-bottom: 2rem;
+  }
+
+  .filter-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .filter-section-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #2d2d2d;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    letter-spacing: -0.01em;
+  }
+
+  /* Filter Options */
+  .filter-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .filter-option {
+    position: relative;
+  }
+
+  .filter-checkbox {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .filter-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #4a5568;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    padding: 0.5rem 0;
+    user-select: none;
+  }
+
+  .filter-label:hover {
+    color: #2d2d2d;
+  }
+
+  .checkmark {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #d1d5db;
+    border-radius: 4px;
+    margin-right: 0.75rem;
+    position: relative;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .filter-checkbox:checked + .filter-label .checkmark {
+    background: #1a1a1a;
+    border-color: #1a1a1a;
+  }
+
+  .filter-checkbox:checked + .filter-label .checkmark::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  /* Price Filter */
+  .price-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .range-slider-container {
+    position: relative;
+  }
+
+  .custom-range {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(to right, #1a1a1a 0%, #1a1a1a 100%);
+    outline: none;
+    cursor: pointer;
+  }
+
+  .custom-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    cursor: pointer;
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+  }
+
+  .custom-range::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .custom-range::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    cursor: pointer;
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .range-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.75rem;
+  }
+
+  .range-label {
+    font-size: 0.85rem;
+    color: #6b7280;
+    font-weight: 500;
+  }
+
+  /* Price Inputs */
+  .price-inputs {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .price-input-group {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+  }
+
+  .price-input-group:focus-within {
+    border-color: #1a1a1a;
+    box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
+  }
+
+  .price-currency {
+    background: #e2e8f0;
+    color: #4a5568;
+    padding: 0.75rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  .price-input {
+    border: none;
+    background: transparent;
+    padding: 0.75rem;
+    font-size: 0.9rem;
+    color: #2d2d2d;
+    font-weight: 500;
+    width: 100%;
+    outline: none;
+  }
+
+  .price-input::placeholder {
+    color: #9ca3af;
+  }
+
+  .price-separator {
+    color: #6b7280;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  /* Filter Actions */
+  .filter-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #f1f5f9;
+  }
+
+  .btn-apply {
+    flex: 1;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    color: white;
+    border: none;
+    padding: 0.875rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-apply:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(26, 26, 26, 0.3);
+  }
+
+  .btn-reset {
+    flex: 1;
+    background: white;
+    color: #6b7280;
+    border: 1px solid #e2e8f0;
+    padding: 0.875rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-reset:hover {
+    background: #f8fafc;
+    border-color: #cbd5e0;
+    color: #4a5568;
+  }
+
+  /* Shop Controls */
+  .shop-controls {
+    background: white;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  /* Sort Section */
+  .sort-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .sort-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #4a5568;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  .sort-dropdown {
+    position: relative;
+  }
+
+  .custom-select {
+    appearance: none;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.75rem 2.5rem 0.75rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #2d2d2d;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 200px;
+  }
+
+  .custom-select:focus {
+    outline: none;
+    border-color: #1a1a1a;
+    box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
+  }
+
+  .sort-arrow {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b7280;
+    pointer-events: none;
+    font-size: 1.1rem;
+  }
+
+  /* View Section */
+  .view-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .view-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #4a5568;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  .view-options {
+    display: flex;
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 0.25rem;
+    border: 1px solid #e2e8f0;
+  }
+
+  .view-btn {
+    background: transparent;
+    border: none;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+  }
+
+  .view-btn:hover {
+    color: #4a5568;
+    background: rgba(26, 26, 26, 0.05);
+  }
+
+  .view-btn.active {
+    background: #1a1a1a;
+    color: white;
+    box-shadow: 0 2px 4px rgba(26, 26, 26, 0.1);
+  }
+
+  /* Mobile Responsive */
+  @media (max-width: 991.98px) {
+    .filters-container {
+      position: relative;
+      top: 0;
+      margin-bottom: 1.5rem;
+    }
+
+    .filter-content {
+      display: none;
+    }
+
+    .filter-content.show {
+      display: block;
+    }
+
+    .shop-controls {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1.5rem;
+    }
+
+    .sort-section,
+    .view-section {
+      justify-content: space-between;
+    }
+
+    .custom-select {
+      min-width: auto;
+      flex: 1;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .filter-header {
+      padding: 1rem 1.25rem;
+    }
+
+    .filter-content {
+      padding: 1.25rem;
+    }
+
+    .filter-actions {
+      flex-direction: column;
+    }
+
+    .shop-controls {
+      padding: 1rem;
+    }
+
+    .sort-section,
+    .view-section {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.75rem;
+    }
+
+    .view-section {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .price-inputs {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .price-separator {
+      display: none;
+    }
+  }
+
   /* Existing styles unchanged, added original-price */
   .product-actions {
     position: absolute;
@@ -786,6 +1312,20 @@
 
     // Redirect to shop page without any filters
     window.location.href = '/shopPage';
+  }
+
+  // Toggle filters on mobile
+  function toggleFilters() {
+    const filterContent = document.getElementById('filterContent');
+    const filterToggle = document.querySelector('.filter-toggle i');
+    
+    if (filterContent.classList.contains('show')) {
+      filterContent.classList.remove('show');
+      filterToggle.className = 'ri-arrow-down-s-line';
+    } else {
+      filterContent.classList.add('show');
+      filterToggle.className = 'ri-arrow-up-s-line';
+    }
   }
 
   // All Categories checkbox logic
