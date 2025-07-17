@@ -29,7 +29,7 @@
       </div>
       <div class="col-lg-6">
         <div class="about-image-container">
-          <img src="/assets/phoenix-logo.png" alt="Phoenix Story" class="img-fluid rounded shadow-sm" />
+          <img src="/assets/phoenix-logo.png" alt="Phoenix Story" class="about-logo rounded shadow-sm" />
         </div>
       </div>
     </div>
@@ -189,6 +189,15 @@
 <style>
   .about-image-container {
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .about-logo {
+    max-width: 300px;
+    width: 100%;
+    height: auto;
   }
   
   .about-image-container::before {
@@ -242,6 +251,10 @@
   }
   
   @media (max-width: 768px) {
+    .about-logo {
+      max-width: 200px;
+    }
+    
     .curator-card {
       padding: 2rem !important;
     }
@@ -252,6 +265,12 @@
     
     .philosophy-card {
       padding: 2rem !important;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .about-logo {
+      max-width: 150px;
     }
   }
 </style>
