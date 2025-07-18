@@ -762,7 +762,7 @@ const createRazorpayOrder = async (req, res) => {
       key: process.env.RAZORPAY_KEY_ID,
       amount: amountInPaise,  // Amount in paise
       currency: "INR",
-      name: "Chapterless",
+      name: "Phoenix",
       description: `Order Total: ₹${checkoutTotal.toFixed(2)}`,
       prefill: {
         name: address.fullName,

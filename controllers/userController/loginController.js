@@ -69,7 +69,7 @@ const postLogin = async (req, res) => {
 
       return res.status(HttpStatus.OK).json({
         success: true,
-        message: "Welcome to Chapterless",
+        message: "Welcome to Phoenix",
       });
     });
   } catch (error) {
