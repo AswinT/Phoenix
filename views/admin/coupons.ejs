@@ -1207,5 +1207,15 @@
         new bootstrap.Tooltip(tooltipTriggerEl);
       });
     }
+
+    // Auto-capitalize coupon codes for both add and edit forms
+    const couponCodeFields = document.querySelectorAll('#couponCode, #editCouponCode');
+    couponCodeFields.forEach(field => {
+      if (field) {
+        field.addEventListener('input', function() {
+          this.value = this.value.toUpperCase();
+        });
+      }
+    });
   });
 </script>

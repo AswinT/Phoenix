@@ -268,13 +268,16 @@ function setupValidation(errorHandler) {
    * Add validation hints for coupon fields
    */
   function addCouponValidationHints(form) {
-    const couponCode = form.querySelector('[name="couponCode"]');
-    if (couponCode) {
-      couponCode.addEventListener('input', function() {
-        this.value = this.value.toUpperCase();
-      });
-      addFieldHint(couponCode, 'Use uppercase letters, numbers, hyphens, and underscores only');
-    }
+    // Handle both add and edit coupon code fields
+    const couponCodeFields = form.querySelectorAll('[name="couponCode"], #couponCode, #editCouponCode');
+    couponCodeFields.forEach(couponCode => {
+      if (couponCode) {
+        couponCode.addEventListener('input', function() {
+          this.value = this.value.toUpperCase();
+        });
+        addFieldHint(couponCode, 'Use uppercase letters, numbers, hyphens, and underscores only');
+      }
+    });
 
     // Usage limit hints
     const globalLimit = form.querySelector('[name="usageLimitGlobal"]');
