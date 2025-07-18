@@ -1,0 +1,361 @@
+/* Sales Analysis Section */
+.section-header {
+  margin-bottom: 1.5rem;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+/* Sales Analysis Cards */
+.sales-card {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  box-shadow: var(--box-shadow);
+  transition: all 0.3s ease;
+  height: 100%;
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.sales-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.sales-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #4361EE, #7209B7);
+}
+
+.sales-card.today::before {
+  background: linear-gradient(90deg, #4361EE, #7209B7);
+}
+
+.sales-card.week::before {
+  background: linear-gradient(90deg, #28a745, #20c997);
+}
+
+.sales-card.month::before {
+  background: linear-gradient(90deg, #FFC107, #FF8C00);
+}
+
+.sales-card.aov::before {
+  background: linear-gradient(90deg, #DC3545, #E91E63);
+}
+
+.sales-card.category::before {
+  background: linear-gradient(90deg, #6F42C1, #8E44AD);
+}
+
+.sales-card.conversion::before {
+  background: linear-gradient(90deg, #17A2B8, #3498DB);
+}
+
+.sales-card.growth::before {
+  background: linear-gradient(90deg, #28a745, #2ECC71);
+}
+
+.sales-card.payment-methods::before {
+  background: linear-gradient(90deg, #FD7E14, #FF6B35);
+}
+
+.sales-card.regions::before {
+  background: linear-gradient(90deg, #6610F2, #9C27B0);
+}
+
+.sales-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.sales-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-right: 1rem;
+  background: linear-gradient(135deg, #4361EE, #7209B7);
+  color: white;
+  flex-shrink: 0;
+}
+
+.sales-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4F5D75;
+  margin: 0;
+}
+
+.sales-content {
+  flex: 1;
+}
+
+.sales-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #2D3142;
+  margin: 0.5rem 0;
+}
+
+.sales-trend {
+  display: flex;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.sales-trend.positive {
+  color: #28a745;
+}
+
+.sales-trend.negative {
+  color: #DC3545;
+}
+
+.sales-trend i {
+  margin-right: 0.25rem;
+  font-size: 1rem;
+}
+
+/* Category Card Specific Styles */
+.category-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2D3142;
+  margin: 0;
+}
+
+.category-sales {
+  font-size: 0.9rem;
+  color: #4F5D75;
+  margin: 0.25rem 0 1rem 0;
+}
+
+.category-progress {
+  margin-top: 1rem;
+}
+
+.progress {
+  height: 8px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #6F42C1, #8E44AD);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 0.8rem;
+  color: #4F5D75;
+}
+
+/* Conversion Card Specific Styles */
+.conversion-rate {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2D3142;
+  margin: 0;
+}
+
+.conversion-details {
+  font-size: 0.9rem;
+  color: #4F5D75;
+  margin: 0.25rem 0 1rem 0;
+}
+
+/* Growth Card Specific Styles */
+.growth-rate {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #28a745;
+  margin: 0;
+}
+
+.growth-period {
+  font-size: 0.9rem;
+  color: #4F5D75;
+  margin: 0.25rem 0 1rem 0;
+}
+
+.mini-chart {
+  margin-top: 1rem;
+}
+
+.chart-bars {
+  display: flex;
+  align-items: end;
+  gap: 4px;
+  height: 40px;
+}
+
+.bar {
+  flex: 1;
+  background: linear-gradient(180deg, #28a745, #2ECC71);
+  border-radius: 2px;
+  min-height: 8px;
+  transition: all 0.3s ease;
+}
+
+.bar:hover {
+  opacity: 0.8;
+}
+
+/* Payment Methods Card Specific Styles */
+.payment-method {
+  margin-bottom: 1rem;
+}
+
+.payment-method:last-child {
+  margin-bottom: 0;
+}
+
+.method-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.method-name {
+  font-size: 0.9rem;
+  color: #2D3142;
+  font-weight: 500;
+}
+
+.method-percentage {
+  font-size: 0.9rem;
+  color: #4F5D75;
+  font-weight: 600;
+}
+
+.method-bar {
+  height: 6px;
+  background-color: #f0f0f0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.method-progress {
+  height: 100%;
+  background: linear-gradient(90deg, #FD7E14, #FF6B35);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Regions Card Specific Styles */
+.region-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.region-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.region-item:first-child {
+  padding-top: 0;
+}
+
+.region-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.region-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2D3142;
+}
+
+.region-sales {
+  font-size: 0.8rem;
+  color: #4F5D75;
+  margin-top: 0.25rem;
+}
+
+.region-trend {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+}
+
+.region-trend.positive {
+  background-color: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+}
+
+.region-trend.negative {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #DC3545;
+}
+
+/* Responsive Design for Sales Cards */
+@media (max-width: 768px) {
+  .sales-card {
+    padding: 1rem;
+  }
+  
+  .sales-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.25rem;
+  }
+  
+  .sales-value {
+    font-size: 1.5rem;
+  }
+  
+  .conversion-rate,
+  .growth-rate {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .sales-header {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+  
+  .sales-icon {
+    margin-right: 0;
+    margin-bottom: 0.5rem;
+  }
+  
+  .region-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .region-trend {
+    align-self: flex-end;
+  }
+}
