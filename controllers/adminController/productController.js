@@ -60,7 +60,13 @@ const getProducts = async (req, res) => {
       categoryFilter,
       sortBy,
       limit,
+      successMessage: req.session.successMessage,
+      errorMessage: req.session.errorMessage
     });
+    
+    // Clear messages after rendering
+    delete req.session.successMessage;
+    delete req.session.errorMessage;
   } catch (error) {
     console.error('Error fetching products:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Internal Server Error' });
@@ -167,7 +173,7 @@ const addProduct = async (req, res) => {
     await product.save();
     res.status(HttpStatus.CREATED).json({
       success: true,
-      message: 'Product added successfully'
+      message: 'Product added successfully!'
     });
   } catch (error) {
     console.error('Error adding product:', error);

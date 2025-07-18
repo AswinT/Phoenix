@@ -1,6 +1,23 @@
 <%- include('../partials/admin/sidebar') %>
 
 <div class="main-content">
+  <!-- Success/Error Messages -->
+  <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="ri-check-circle-line"></i>
+      <%= successMessage %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <% } %>
+  
+  <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="ri-error-warning-line"></i>
+      <%= errorMessage %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <% } %>
+
   <div class="page-header">
     <div>
       <h1 class="page-title">Product Management</h1>

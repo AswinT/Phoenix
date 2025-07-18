@@ -59,7 +59,7 @@ function setupValidation(errorHandler) {
     // Add real-time validation
     errorHandler.addRealTimeValidation(form);
 
-    // Override form submission
+    // Both add and edit forms use AJAX submission
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
 
@@ -92,42 +92,36 @@ function setupValidation(errorHandler) {
           })()
         },
         onSuccess: (data) => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Success!',
-            text: `Product ${isEditForm ? 'updated' : 'added'} successfully`,
-            timer: 2000,
-            showConfirmButton: false
-          }).then(() => {
-            if (!isEditForm) {
-              form.reset();
-              // Clear any validation states after reset
-              errorHandler.clearAllErrors(form);
-            }
-            // Optionally redirect or refresh
-            if (data.redirect) {
-              window.location.href = data.redirect;
-            }
-          });
+          if (isEditForm) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Success!',
+              text: 'Product updated successfully',
+              timer: 2000,
+              showConfirmButton: false
+            }).then(() => {
+              if (data.redirect) {
+                window.location.href = data.redirect;
+              }
+            });
+          } else {
+            // For add product, show success message and redirect to products page
+            Swal.fire({
+              icon: 'success',
+              title: 'Success!',
+              text: 'Product added successfully!',
+              timer: 2000,
+              showConfirmButton: false
+            }).then(() => {
+              window.location.href = '/admin/getProducts';
+            });
+          }
         }
       });
     });
 
     // Add specific validation hints for product fields
     addProductValidationHints(form);
-
-    // Also add click event listener to submit button as backup
-    const submitButton = form.querySelector('[type="submit"]');
-    if (submitButton) {
-      submitButton.addEventListener('click', function(e) {
-        // Prevent default form submission
-        e.preventDefault();
-
-        // Trigger form submit event (which should be handled by our submit listener)
-        const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
-        form.dispatchEvent(submitEvent);
-      });
-    }
   }
 
   /**
