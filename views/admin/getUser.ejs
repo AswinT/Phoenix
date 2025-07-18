@@ -1,28 +1,29 @@
 <%- include('../partials/admin/sidebar') %>
+
 <div class="main-content">
   <div class="page-header">
     <div>
       <h1 class="page-title">Manage Users</h1>
-      <p class="text-muted mb-0">View and manage user accounts</p>
+      <p class="page-subtitle">View and manage user accounts</p>
     </div>
-    <div class="d-flex align-items-center">
-      <div class="search-container me-2">
-        <i class="ri-search-line search-icon"></i>
+    <div class="header-actions">
+      <div class="search-container">
         <input type="text" id="userSearch" class="search-input" placeholder="Search users..."
                value="<%= typeof searchTerm !== 'undefined' ? searchTerm : '' %>">
+        <i class="ri-search-line search-icon"></i>
       </div>
     </div>
   </div>
 
-  <!-- Users Table Card -->
   <div class="content-card">
     <% if (users.length === 0) { %>
       <div class="text-center p-4">
-        <p class="mb-0">No users found. Please try another search term.</p>
+        <i class="ri-user-line fs-1 d-block mb-2 text-muted"></i>
+        <p class="mb-0 text-muted">No users found. Please try another search term.</p>
       </div>
     <% } else { %>
       <div class="table-responsive">
-        <table class="users-table" id="usersTable">
+        <table class="table" id="usersTable">
           <thead>
             <tr>
               <th>ID</th>
@@ -68,7 +69,7 @@
       </div>
 
       <!-- Pagination -->
-      <div class="d-flex justify-content-between align-items-center p-3">
+      <div class="d-flex justify-content-between align-items-center mt-3">
         <div class="text-muted small">Showing <%= startIdx + 1 %>-<%= endIdx %> of <%= totalUsers %> users</div>
         <nav aria-label="User pagination">
           <ul class="pagination mb-0">
@@ -94,9 +95,10 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
 <script>
   // Search functionality with debounce
-const userSearch = document.getElementById('userSearch');
+  const userSearch = document.getElementById('userSearch');
   
   // Debounce function to prevent excessive requests
   function debounce(func, wait) {
@@ -182,14 +184,14 @@ const userSearch = document.getElementById('userSearch');
           .then(data => {
             // Update button state based on response
             if (isBlocked) {
-              buttonRef.textContent = 'Block User';
+              buttonRef.textContent = 'Block';
               buttonRef.classList.remove('btn-unblock');
               buttonRef.classList.add('btn-block');
               buttonRef.closest('tr').querySelector('.status-badge').textContent = 'Active';
               buttonRef.closest('tr').querySelector('.status-badge').classList.remove('blocked');
               buttonRef.closest('tr').querySelector('.status-badge').classList.add('active');
             } else {
-              buttonRef.textContent = 'Unblock User';
+              buttonRef.textContent = 'Unblock';
               buttonRef.classList.remove('btn-block');
               buttonRef.classList.add('btn-unblock');
               buttonRef.closest('tr').querySelector('.status-badge').textContent = 'Blocked';
@@ -224,19 +226,4 @@ const userSearch = document.getElementById('userSearch');
       });
     });
   });
-  
-  // Simple toast notification function (keeping this as a fallback)
-  function showToast(message, type = 'info') {
-    if (typeof Toastify === 'function') {
-      Toastify({
-        text: message,
-        duration: 3000,
-        gravity: "top",
-        position: "right",
-        backgroundColor: type === 'success' ? "#28a745" : type === 'error' ? "#dc3545" : "#4361EE"
-      }).showToast();
-    } else {
-      alert(message);
-    }
-  }
-// </script>
+</script>
