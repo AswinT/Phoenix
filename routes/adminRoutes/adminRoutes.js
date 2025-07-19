@@ -158,9 +158,8 @@ adminRoute.put('/offers/:id', validateUpdateOffer, offerController.updateOffer);
 adminRoute.put('/offers/:id/toggle-status', offerController.toggleOfferStatus);
 
 //Sales Management
-
-adminRoute.get('/sales',salesController.getSales)
-adminRoute.get('/sales/export/excel', salesController.exportToExcel)
-adminRoute.get('/sales/export/pdf', salesController.exportToPDF)
+adminRoute.get('/sales', salesController.getSales);
+adminRoute.get('/sales/export/excel', salesController.exportToExcel);
+adminRoute.get('/sales/export/pdf', salesController.exportToPDF);
 
 module.exports = adminRoute;

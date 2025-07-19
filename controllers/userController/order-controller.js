@@ -5,8 +5,11 @@ const Cart = require("../../models/cartSchema"); // Added Cart import
 const Offer = require("../../models/offerSchema"); // Added Offer import
 const PDFDocument = require('pdfkit');
 const path = require('path');
-const { getActiveOfferForProduct, calculateDiscount, getItemPriceDetails } = require("../../utils/offer-helper");
+const { getActiveOfferForProduct, calculateDiscount, getItemPriceDetails, reapplyCouponBenefitsAfterCancellation } = require("../../utils/offer-helper");
 const { processCancelRefund, processReturnRefund } = require("./wallet-controller");
+const Wallet = require("../../models/walletSchema");
+const Address = require("../../models/addressSchema");
+const Coupon = require("../../models/couponSchema");
 
 const { HttpStatus } = require("../../helpers/status-code");
 
@@ -1460,12 +1463,32 @@ const cancelOrderItem = async (req, res) => {
       }
     }
     // If only active items remain, keep the current order status
-
+    
     // Restore product stock
     await Product.findByIdAndUpdate(
       productId,
       { $inc: { stock: orderItem.quantity } }
     );
+    
+    // **NEW: Check if order has a coupon and reapply benefits if needed**
+    if (order.couponCode && order.couponDiscount > 0 && hasActiveItems) {
+      // Get active items
+      const activeItems = order.items.filter(item => item.status === 'Active');
+      
+      // Check if we need to reapply benefits (one item left or less than half of original items)
+      const shouldReapply = activeItems.length === 1 || activeItems.length <= Math.floor(order.items.length / 2);
+      
+      if (shouldReapply) {
+        // Fetch the coupon to get its details
+        const coupon = await Coupon.findOne({ code: order.couponCode });
+        
+        if (coupon) {
+          // Reapply coupon benefits to remaining items
+          reapplyCouponBenefitsAfterCancellation(order, coupon);
+          console.log(`Coupon benefits reapplied for order ${order._id} after cancelling item ${productId}`);
+        }
+      }
+    }
 
     // Handle refund if payment was made - cancelled items should refund immediately
 

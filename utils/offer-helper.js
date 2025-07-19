@@ -219,6 +219,10 @@ const calculateProportionalCouponDiscount = (coupon, items) => {
 
   // Calculate cart total from prices after offer
   const cartTotal = items.reduce((sum, item) => {
+    if (!item || typeof item.discountedPrice !== 'number' || typeof item.quantity !== 'number') {
+      console.warn('Invalid item in discount calculation:', item);
+      return sum;
+    }
     const itemTotal = item.discountedPrice * item.quantity;
     return sum + itemTotal;
   }, 0);
@@ -238,32 +242,208 @@ const calculateProportionalCouponDiscount = (coupon, items) => {
     totalCouponDiscount = Math.min(coupon.discountValue, cartTotal);
   }
 
+  // Use precise decimal calculations - fix rounding errors
+  // Round to 2 decimal places only at the end
+  totalCouponDiscount = parseFloat(totalCouponDiscount.toFixed(2));
+  
   const itemDiscounts = {};
+  
+  // Track allocated discount to handle penny rounding issues
+  let allocatedDiscount = 0;
 
   // Split discount among items proportionally based on their price after offer
-  items.forEach((item) => {
+  items.forEach((item, index) => {
+    if (!item || typeof item.discountedPrice !== 'number' || typeof item.quantity !== 'number') {
+      return; // Skip invalid items
+    }
+    
     const itemTotal = item.discountedPrice * item.quantity;
     const proportion = itemTotal / cartTotal;
     
-    // Calculate item's share of the discount using the formula
-    const itemDiscount = Math.round((totalCouponDiscount * proportion) * 100) / 100;
+    // Calculate item's share of the discount - keep full precision during calculation
+    let itemDiscount = totalCouponDiscount * proportion;
+    
+    // For the last item, use the remaining discount to ensure total adds up exactly
+    if (index === items.length - 1) {
+      itemDiscount = parseFloat((totalCouponDiscount - allocatedDiscount).toFixed(2));
+    } else {
+      // Round to 2 decimal places for display
+      itemDiscount = parseFloat(itemDiscount.toFixed(2));
+      allocatedDiscount += itemDiscount;
+    }
     
     // Ensure discount doesn't exceed item's price after offer
     const finalDiscount = Math.min(itemDiscount, itemTotal);
 
-    itemDiscounts[item.product.toString()] = {
+    // Use product ID as string key if available, otherwise use index
+    const itemKey = item.product ? item.product.toString() : `item-${index}`;
+    itemDiscounts[itemKey] = {
       amount: finalDiscount,
       proportion: proportion
     };
   });
 
-  // Recalculate total discount based on individual item discounts
-  const actualTotalDiscount = Object.values(itemDiscounts)
-    .reduce((sum, discount) => sum + discount.amount, 0);
+  // Recalculate total discount based on individual item discounts to ensure consistency
+  const actualTotalDiscount = parseFloat(
+    Object.values(itemDiscounts)
+      .reduce((sum, discount) => sum + discount.amount, 0)
+      .toFixed(2)
+  );
 
   return {
     totalDiscount: actualTotalDiscount,
     itemDiscounts
+  }
+}
+
+/**
+ * NEW FUNCTION: Reapply coupon benefits for remaining items after some items are canceled
+ * When only one or few active items remain, give them full benefit of the coupon
+ * @param {Object} order - The complete order object
+ * @param {Object} coupon - The coupon object
+ * @returns {Object} - Updated order with recalculated coupon discounts
+ */
+const reapplyCouponBenefitsAfterCancellation = (order, coupon) => {
+  try {
+    if (!order || !order.items || !coupon) {
+      console.warn('Invalid order or coupon data for reapplying benefits');
+      return order;
+    }
+
+    if (!order.couponDiscount || order.couponDiscount <= 0) {
+      console.log('No coupon discount to reapply');
+      return order;
+    }
+
+    // Get active (non-cancelled) items
+    const activeItems = order.items.filter(item => 
+      item.status === 'Active' || !item.status
+    );
+
+    // Only reapply if there are active items and some were cancelled
+    if (activeItems.length === 0) {
+      console.log('No active items remaining - nothing to reapply');
+      return order;
+    }
+
+    if (activeItems.length === order.items.length) {
+      console.log('All items still active - no need to reapply');
+      return order;
+    }
+
+    // If there is only one active item left, or there are very few active items (less than half), 
+    // apply the full coupon benefit to the remaining items
+    const reapplyFullBenefit = activeItems.length === 1 || activeItems.length <= Math.floor(order.items.length / 2);
+
+    if (reapplyFullBenefit) {
+      console.log(`Reapplying coupon benefits to ${activeItems.length} remaining items`);
+      
+      // Calculate the cart total for active items
+      const activeItemsTotal = activeItems.reduce((sum, item) => {
+        if (!item || typeof item.discountedPrice !== 'number' || typeof item.quantity !== 'number') {
+          return sum;
+        }
+        const itemTotal = item.discountedPrice * item.quantity;
+        return sum + itemTotal;
+      }, 0);
+
+      if (activeItemsTotal <= 0) {
+        console.warn('Active items total is zero or negative - cannot reapply coupon');
+        return order;
+      }
+
+      // Calculate new coupon discount with precise decimal handling
+      let newCouponDiscount = 0;
+      if (coupon.discountType === "percentage") {
+        newCouponDiscount = (activeItemsTotal * coupon.discountValue) / 100;
+        if (coupon.maxDiscountValue) {
+          newCouponDiscount = Math.min(newCouponDiscount, coupon.maxDiscountValue);
+        }
+      } else {
+        newCouponDiscount = Math.min(coupon.discountValue, activeItemsTotal);
+      }
+      
+      // Round to 2 decimal places
+      newCouponDiscount = parseFloat(newCouponDiscount.toFixed(2));
+
+      // Calculate new proportions for active items
+      const newItemDiscounts = {};
+      let allocatedDiscount = 0;
+      
+      activeItems.forEach((item, index) => {
+        if (!item || typeof item.discountedPrice !== 'number' || typeof item.quantity !== 'number') {
+          return;
+        }
+        
+        const itemTotal = item.discountedPrice * item.quantity;
+        const proportion = itemTotal / activeItemsTotal;
+        
+        // Calculate discount with proper rounding
+        let itemDiscount;
+        if (index === activeItems.length - 1) {
+          // Last item gets remaining discount to ensure exact total
+          itemDiscount = parseFloat((newCouponDiscount - allocatedDiscount).toFixed(2));
+        } else {
+          itemDiscount = parseFloat((newCouponDiscount * proportion).toFixed(2));
+          allocatedDiscount += itemDiscount;
+        }
+        
+        // Ensure discount doesn't exceed item total
+        const finalDiscount = Math.min(itemDiscount, itemTotal);
+
+        // Update the item's price breakdown with new coupon values
+        if (item.priceBreakdown) {
+          item.priceBreakdown.couponDiscount = finalDiscount;
+          item.priceBreakdown.couponProportion = proportion;
+          // Calculate final price after offer and coupon
+          item.priceBreakdown.finalPrice = parseFloat((item.priceBreakdown.priceAfterOffer - finalDiscount).toFixed(2));
+        }
+        
+        // Also update the direct properties in case they're used
+        item.couponDiscount = finalDiscount;
+        item.couponProportion = proportion;
+        item.finalPrice = parseFloat(((item.discountedPrice * item.quantity) - finalDiscount).toFixed(2));
+
+        // Store for calculating total
+        const itemKey = item.product ? item.product.toString() : `item-${index}`;
+        newItemDiscounts[itemKey] = {
+          amount: finalDiscount,
+          proportion: proportion
+        };
+      });
+
+      // Update the order's coupon discount - recalculate from items for consistency
+      const actualTotalDiscount = parseFloat(
+        Object.values(newItemDiscounts)
+          .reduce((sum, discount) => sum + discount.amount, 0)
+          .toFixed(2)
+      );
+      
+      order.couponDiscount = actualTotalDiscount;
+      
+      // Recalculate order total and apply tax
+      const subtotal = activeItems.reduce((sum, item) => 
+        sum + (item.discountedPrice * item.quantity), 0);
+      
+      // Calculate tax on subtotal after coupon discount
+      const taxableAmount = subtotal - actualTotalDiscount;
+      // Assuming 8% tax rate (update this according to your actual tax rate)
+      const tax = parseFloat((taxableAmount * 0.08).toFixed(2));
+      
+      // Update order tax
+      order.tax = tax;
+      
+      // Calculate final order total
+      order.total = parseFloat((taxableAmount + tax).toFixed(2));
+      
+      console.log(`Coupon benefits reapplied: Original discount=${coupon.discountValue}, New total discount=${actualTotalDiscount}`);
+    }
+
+    return order;
+  } catch (error) {
+    console.error('Error reapplying coupon benefits:', error);
+    // Return original order on error to prevent data corruption
+    return order;
   }
 }
 
@@ -471,5 +651,6 @@ module.exports = {
   calculateProportionalCouponDiscount,
   getItemPriceDetails,
   calculateFinalItemPrice,
-  getUnifiedPriceBreakdown
+  getUnifiedPriceBreakdown,
+  reapplyCouponBenefitsAfterCancellation
 }

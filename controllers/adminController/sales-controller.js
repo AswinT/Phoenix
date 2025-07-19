@@ -10,12 +10,21 @@ const getSales = async (req, res) => {
 
     // Determine the report type
     let reportType = req.query.reportType || 'monthly';
+    
+    // Get pagination parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 25;
 
     // Check if custom date range is provided
     if (req.query.fromDate && req.query.toDate) {
       startDate = new Date(req.query.fromDate);
+      // Ensure start date is set to beginning of day
+      startDate.setHours(0, 0, 0, 0);
+      
       endDate = new Date(req.query.toDate);
-      endDate.setHours(23, 59, 59, 999); // End of day
+      // Ensure end date is set to end of day
+      endDate.setHours(23, 59, 59, 999);
+      
       reportType = 'custom';
     } else if (req.query.quickFilter) {
       // Handle quick filter options
@@ -36,17 +45,14 @@ const getSales = async (req, res) => {
       reportType = 'monthly';
     }
 
-    // Get pagination parameters
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 25;
-
     // Calculate summary stats for selected date range
     const summaryStats = await calculateSummaryStats(startDate, endDate);
 
     // Get detailed sales data with pagination
     const salesTableData = await getSalesTableData(startDate, endDate, page, limit);
 
-    res.render('sales', {
+    return res.render('admin/sales', {
+      title: 'Sales Report',
       summaryStats,
       salesTableData,
       currentPage: page,
@@ -58,54 +64,92 @@ const getSales = async (req, res) => {
       reportType: reportType
     });
   } catch (error) {
-    console.log('Error in getSales:', error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).render('error', { message: 'Internal server error' });
+    console.error('Error in getSales:', error);
+    
+    return res.render('error', { 
+      message: 'Failed to load sales data: ' + error.message,
+      title: 'Error'
+    });
   }
 };
 
 // Helper function to calculate summary statistics
 const calculateSummaryStats = async (startDate, endDate) => {
   try {
-    // Get all completed orders in the date range
-    const orders = await Order.find({
+    // Get all orders in the date range
+    const allOrders = await Order.find({
       createdAt: { $gte: startDate, $lte: endDate },
-      orderStatus: { $in: ['Delivered', 'Shipped', 'Processing'] }, // Only count successful orders
       isDeleted: false
     });
-
-    // Calculate totals
-    const totalOrders = orders.length;
-    const totalSales = orders.reduce((sum, order) => sum + (order.total || 0), 0);
-    const totalDiscounts = orders.reduce((sum, order) => {
+    
+    // Categorize orders by status
+    const completedOrders = allOrders.filter(order => 
+      ['Delivered', 'Shipped', 'Processing'].includes(order.orderStatus)
+    );
+    
+    const cancelledOrders = allOrders.filter(order => 
+      ['Cancelled', 'Partially Cancelled'].includes(order.orderStatus)
+    );
+    
+    const returnedOrders = allOrders.filter(order => 
+      ['Returned', 'Partially Returned'].includes(order.orderStatus)
+    );
+    
+    // Calculate totals (only count completed orders for sales)
+    const totalOrders = allOrders.length;
+    const totalSales = completedOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+    
+    // Calculate discounts (offer + coupon)
+    const totalDiscounts = completedOrders.reduce((sum, order) => {
       const offerDiscount = order.discount || 0;
       const couponDiscount = order.couponDiscount || 0;
       return sum + offerDiscount + couponDiscount;
     }, 0);
 
-    // Calculate average order value
-    const avgOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
+    // Calculate average order value (for completed orders only)
+    const avgOrderValue = completedOrders.length > 0 ? totalSales / completedOrders.length : 0;
+
+    // Calculate cancellation rate
+    const cancellationRate = totalOrders > 0 ? (cancelledOrders.length / totalOrders) * 100 : 0;
+    
+    // Calculate return rate
+    const returnRate = totalOrders > 0 ? (returnedOrders.length / totalOrders) * 100 : 0;
 
     // Format numbers for display
     return {
       totalSales: formatCurrency(totalSales),
       totalOrders: totalOrders.toLocaleString(),
+      completedOrders: completedOrders.length.toLocaleString(),
+      cancelledOrders: cancelledOrders.length.toLocaleString(),
+      returnedOrders: returnedOrders.length.toLocaleString(),
       totalDiscounts: formatCurrency(totalDiscounts),
       avgOrderValue: formatCurrency(avgOrderValue),
+      cancellationRate: cancellationRate.toFixed(1) + '%',
+      returnRate: returnRate.toFixed(1) + '%',
       // Raw values for calculations
       totalSalesRaw: totalSales,
       totalDiscountsRaw: totalDiscounts,
-      avgOrderValueRaw: avgOrderValue
+      avgOrderValueRaw: avgOrderValue,
+      cancellationRateRaw: cancellationRate,
+      returnRateRaw: returnRate
     };
   } catch (error) {
     console.error('Error calculating summary stats:', error);
     return {
       totalSales: '₹0',
       totalOrders: '0',
+      completedOrders: '0',
+      cancelledOrders: '0',
+      returnedOrders: '0',
       totalDiscounts: '₹0',
       avgOrderValue: '₹0',
+      cancellationRate: '0%',
+      returnRate: '0%',
       totalSalesRaw: 0,
       totalDiscountsRaw: 0,
-      avgOrderValueRaw: 0
+      avgOrderValueRaw: 0,
+      cancellationRateRaw: 0,
+      returnRateRaw: 0
     };
   }
 };
@@ -118,40 +162,48 @@ const getQuickFilterDates = (filter) => {
   switch (filter) {
     case 'today':
       startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
       break;
     case 'yesterday':
       const yesterday = new Date(now);
       yesterday.setDate(yesterday.getDate() - 1);
       startDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
-      endDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 23, 59, 59);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 23, 59, 59, 999);
       break;
     case 'last7days':
       startDate = new Date(now);
-      startDate.setDate(startDate.getDate() - 7);
-      endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+      startDate.setDate(startDate.getDate() - 6); // Include today (-6 gives 7 days total)
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
       break;
     case 'last30days':
       startDate = new Date(now);
-      startDate.setDate(startDate.getDate() - 30);
-      endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+      startDate.setDate(startDate.getDate() - 29); // Include today (-29 gives 30 days total)
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
       break;
     case 'thismonth':
       startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
       break;
     case 'lastmonth':
       startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      endDate = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
       break;
     case 'thisyear':
       startDate = new Date(now.getFullYear(), 0, 1);
-      endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
       break;
     default:
       // Default to current month
       startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
   }
 
   return { startDate, endDate };
@@ -166,7 +218,8 @@ const getReportTypeDates = (reportType) => {
     case 'daily':
       // Today
       startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
       break;
     case 'weekly':
       // This week (Monday to Sunday)
@@ -180,17 +233,20 @@ const getReportTypeDates = (reportType) => {
     case 'monthly':
       // This month
       startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
       break;
     case 'yearly':
       // This year
       startDate = new Date(now.getFullYear(), 0, 1);
-      endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
       break;
     default:
       // Default to current month
       startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
   }
 
   return { startDate, endDate };
@@ -277,7 +333,6 @@ const getSalesTableData = async (startDate, endDate, page, limit) => {
     // Get orders with pagination
     const orders = await Order.find({
       createdAt: { $gte: startDate, $lte: endDate },
-      orderStatus: { $in: ['Delivered', 'Shipped', 'Processing', 'Placed'] },
       isDeleted: false
     })
     .populate('user', 'fullName email')
@@ -285,12 +340,9 @@ const getSalesTableData = async (startDate, endDate, page, limit) => {
     .skip(skip)
     .limit(limit);
 
-
-
     // Get total count for pagination
     const totalOrders = await Order.countDocuments({
       createdAt: { $gte: startDate, $lte: endDate },
-      orderStatus: { $in: ['Delivered', 'Shipped', 'Processing', 'Placed'] },
       isDeleted: false
     });
 
@@ -317,6 +369,18 @@ const getSalesTableData = async (startDate, endDate, page, limit) => {
           break;
         case 'Placed':
           statusBadge = '<span class="badge bg-primary">Placed</span>';
+          break;
+        case 'Cancelled':
+          statusBadge = '<span class="badge bg-danger">Cancelled</span>';
+          break;
+        case 'Partially Cancelled':
+          statusBadge = '<span class="badge bg-danger">Partially Cancelled</span>';
+          break;
+        case 'Returned':
+          statusBadge = '<span class="badge bg-secondary">Returned</span>';
+          break;
+        case 'Partially Returned':
+          statusBadge = '<span class="badge bg-secondary">Partially Returned</span>';
           break;
         default:
           statusBadge = '<span class="badge bg-secondary">Unknown</span>';
@@ -346,7 +410,7 @@ const getSalesTableData = async (startDate, endDate, page, limit) => {
 
     // Calculate pagination info
     const totalPages = Math.ceil(totalOrders / limit);
-    const showingStart = skip + 1;
+    const showingStart = totalOrders === 0 ? 0 : skip + 1;
     const showingEnd = Math.min(skip + limit, totalOrders);
 
     return {
@@ -394,92 +458,152 @@ const exportToExcel = async (req, res) => {
     const now = new Date();
     let startDate, endDate;
 
+    // Determine the report type
+    let reportType = req.query.reportType || 'monthly';
+
     if (req.query.fromDate && req.query.toDate) {
       startDate = new Date(req.query.fromDate);
+      startDate.setHours(0, 0, 0, 0);
+      
       endDate = new Date(req.query.toDate);
       endDate.setHours(23, 59, 59, 999);
+      
+      reportType = 'custom';
     } else if (req.query.quickFilter) {
       const { startDate: qStart, endDate: qEnd } = getQuickFilterDates(req.query.quickFilter);
       startDate = qStart;
       endDate = qEnd;
+      reportType = 'custom'; // Quick filters are essentially custom ranges
+    } else if (req.query.reportType) {
+      const { startDate: rStart, endDate: rEnd } = getReportTypeDates(req.query.reportType);
+      startDate = rStart;
+      endDate = rEnd;
+      reportType = req.query.reportType;
     } else {
+      // Default to current month
       startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+      reportType = 'monthly';
     }
 
-    // Get all sales data (no pagination for export)
-    const salesData = await getSalesTableData(startDate, endDate, 1, 10000);
+    try {
+      // Get all sales data (no pagination for export)
+      const salesData = await getSalesTableData(startDate, endDate, 1, 10000);
+      
+      if (!salesData || !salesData.orders) {
+        throw new Error('Failed to get sales data for export');
+      }
 
-    // Prepare data for Excel
-    const excelData = salesData.orders.map(order => ({
-      'Date': order.date,
-      'Order Number': order.orderNumber,
-      'Customer Name': order.customerName,
-      'Total Items': order.totalItems,
-      'Gross Amount': order.grossAmountRaw,
-      'Discount': order.discountRaw,
-      'Coupon Code': order.couponCode,
-      'Net Amount': order.netAmountRaw,
-      'Payment Method': order.paymentMethod,
-      'Status': order.status.replace(/<[^>]*>/g, '') // Remove HTML tags
-    }));
+      // Prepare data for Excel
+      const excelData = salesData.orders.map(order => ({
+        'Date': order.date,
+        'Order Number': order.orderNumber,
+        'Customer Name': order.customerName,
+        'Total Items': order.totalItems,
+        'Gross Amount': order.grossAmountRaw,
+        'Discount': order.discountRaw,
+        'Coupon Code': order.couponCode,
+        'Net Amount': order.netAmountRaw,
+        'Payment Method': order.paymentMethod,
+        'Status': order.status.replace(/<[^>]*>/g, '') // Remove HTML tags
+      }));
 
-    // Create workbook and worksheet
-    const workbook = XLSX.utils.book_new();
-    const worksheet = XLSX.utils.json_to_sheet(excelData);
+      // Create workbook and worksheet
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
 
-    // Add worksheet to workbook
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sales Report');
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Sales Report');
 
-    // Generate buffer
-    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+      // Generate buffer
+      const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
 
-    // Set response headers
-    const filename = `sales-report-${startDate.toISOString().split('T')[0]}-to-${endDate.toISOString().split('T')[0]}.xlsx`;
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      // Set response headers
+      const filename = `sales-report-${startDate.toISOString().split('T')[0]}-to-${endDate.toISOString().split('T')[0]}.xlsx`;
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
-    // Send the file
-    res.send(buffer);
+      // Send the file
+      res.send(buffer);
+    } catch (error) {
+      console.error('Error in Excel processing:', error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).render('admin/error', { 
+        message: 'Failed to export to Excel: ' + error.message 
+      });
+    }
   } catch (error) {
     console.error('Error exporting to Excel:', error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Failed to export to Excel' });
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).render('admin/error', { 
+      message: 'Failed to export to Excel: ' + error.message 
+    });
   }
 };
 
-// Export to PDF function (simple HTML to PDF)
+// Export to PDF function
 const exportToPDF = async (req, res) => {
   try {
     // Get the same date range logic as getSales
     const now = new Date();
     let startDate, endDate;
 
+    // Determine the report type
+    let reportType = req.query.reportType || 'monthly';
+
     if (req.query.fromDate && req.query.toDate) {
       startDate = new Date(req.query.fromDate);
+      startDate.setHours(0, 0, 0, 0);
+      
       endDate = new Date(req.query.toDate);
       endDate.setHours(23, 59, 59, 999);
+      
+      reportType = 'custom';
     } else if (req.query.quickFilter) {
       const { startDate: qStart, endDate: qEnd } = getQuickFilterDates(req.query.quickFilter);
       startDate = qStart;
       endDate = qEnd;
+      reportType = 'custom'; // Quick filters are essentially custom ranges
+    } else if (req.query.reportType) {
+      const { startDate: rStart, endDate: rEnd } = getReportTypeDates(req.query.reportType);
+      startDate = rStart;
+      endDate = rEnd;
+      reportType = req.query.reportType;
     } else {
+      // Default to current month
       startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+      reportType = 'monthly';
     }
 
-    // Get sales data and summary stats
-    const salesData = await getSalesTableData(startDate, endDate, 1, 10000);
-    const summaryStats = await calculateSummaryStats(startDate, endDate);
+    try {
+      // Get all sales data for PDF
+      const salesData = await getSalesTableData(startDate, endDate, 1, 10000);
+      
+      if (!salesData || !salesData.orders) {
+        throw new Error('Failed to get sales data for export');
+      }
 
-    // Generate HTML content for PDF
-    const htmlContent = generatePDFHTML(salesData, summaryStats, startDate, endDate);
+      // Calculate summary stats for the date range
+      const summaryStats = await calculateSummaryStats(startDate, endDate);
 
-    // Return HTML with print-to-PDF functionality
-    res.setHeader('Content-Type', 'text/html');
-    res.send(htmlContent);
+      // Generate HTML for PDF
+      const htmlContent = generatePDFHTML(salesData, summaryStats, startDate, endDate);
+
+      // Set response headers for inline display
+      res.setHeader('Content-Type', 'text/html');
+      res.send(htmlContent);
+    } catch (error) {
+      console.error('Error in PDF processing:', error);
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).render('admin/error', { 
+        message: 'Failed to export to PDF: ' + error.message 
+      });
+    }
   } catch (error) {
     console.error('Error exporting to PDF:', error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Failed to export to PDF' });
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).render('admin/error', { 
+      message: 'Failed to export to PDF: ' + error.message 
+    });
   }
 };
 

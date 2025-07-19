@@ -444,17 +444,58 @@
                         </small>
                       <% } %>
                       <% if (item.couponDiscount > 0) { %>
-                        <small class="text-success d-block">
-                          Extra <%= (item.couponProportion * 100).toFixed(1) %>% of total coupon applied
+                        <small class="text-success d-block coupon-info">
+                          <i class="bi bi-ticket-perforated me-1"></i>
+                          <span data-bs-toggle="tooltip" title="Coupon discount applied to this item">
+                            -₹<%= typeof item.couponDiscount === 'number' ? item.couponDiscount.toFixed(2) : '0.00' %> coupon applied
+                          </span>
+                          <% 
+                          // Safely calculate percentage with fallbacks
+                          const couponProportion = item.couponProportion || item.priceBreakdown?.couponProportion || 0;
+                          let percentValue = 0;
+                          
+                          // Only calculate if proportion is valid
+                          if (couponProportion > 0) {
+                            percentValue = Math.round(couponProportion * 100);
+                            // Cap at 100% for display
+                            percentValue = Math.min(percentValue, 100); 
+                          }
+                          %>
+                          <i class="bi bi-info-circle ms-1" 
+                             data-bs-toggle="tooltip" 
+                             title="This represents <%= percentValue %>% of the total coupon discount"></i>
                         </small>
                       <% } %>
                       <% if (item.finalPrice !== item.discountedPrice) { %>
-                        <p class="mb-0 mt-1 fw-medium text-success">
-                          Final price: <%= item.formattedFinalPrice %>
+                        <p class="mb-0 mt-1 fw-bold text-success">
+                          <i class="bi bi-tag-fill me-1"></i>Final price: <%= item.formattedFinalPrice %>
                         </p>
                       <% } %>
                     <% } else { %>
                       <p class="fw-medium mb-0"><%= item.formattedPrice %></p>
+                      <% if (item.couponDiscount > 0) { %>
+                        <small class="text-success d-block coupon-info">
+                          <i class="bi bi-ticket-perforated me-1"></i>
+                          <span data-bs-toggle="tooltip" title="Coupon discount applied to this item">
+                            -₹<%= typeof item.couponDiscount === 'number' ? item.couponDiscount.toFixed(2) : '0.00' %> coupon applied
+                          </span>
+                          <% 
+                          // Safely calculate percentage with fallbacks
+                          const couponProportion = item.couponProportion || item.priceBreakdown?.couponProportion || 0;
+                          let percentValue = 0;
+                          
+                          // Only calculate if proportion is valid
+                          if (couponProportion > 0) {
+                            percentValue = Math.round(couponProportion * 100);
+                            // Cap at 100% for display
+                            percentValue = Math.min(percentValue, 100); 
+                          }
+                          %>
+                          <i class="bi bi-info-circle ms-1" 
+                             data-bs-toggle="tooltip" 
+                             title="This represents <%= percentValue %>% of the total coupon discount"></i>
+                        </small>
+                      <% } %>
                     <% } %>
                   </div>
                 </div>
@@ -935,7 +976,13 @@
               <% } %>
 
               <% if (order.couponDiscount && order.couponDiscount > 0) { %>
-              <dt class="col-7">Coupon Discount<%= order.couponCode ? ` (${order.couponCode})` : '' %>:</dt>
+              <dt class="col-7">
+                <div class="d-flex align-items-center">
+                  <span>Coupon Discount<%= order.couponCode ? ` (${order.couponCode})` : '' %>:</span>
+                  <i class="bi bi-info-circle ms-2" data-bs-toggle="tooltip" data-bs-html="true" 
+                    title="<%= order.couponCode %> coupon is distributed proportionally across items based on their price."></i>
+                </div>
+              </dt>
               <dd class="col-5 text-success">-<%= order.formattedCouponDiscount %></dd>
               <% } %>
 
@@ -1127,7 +1174,6 @@
             </div>
           </div>
         </div>
-      </div>
       </div>
     </div>
   </div>
@@ -1913,6 +1959,12 @@
         console.log('Razorpay SDK loaded successfully');
       }
     }, 1000);
+  });
+
+  // Initialize Bootstrap tooltips
+  document.addEventListener('DOMContentLoaded', function() {
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
   });
 </script>
 
