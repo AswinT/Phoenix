@@ -178,6 +178,7 @@ router.post("/checkout/remove-coupon", isAuthenticated, checkoutController.remov
 router.post('/checkout/create-razorpay-order', isAuthenticated, checkoutController.createRazorpayOrder);
 router.post('/checkout/verify-payment', isAuthenticated, checkoutController.verifyRazorpayPayment);
 router.post('/checkout/payment-failure', isAuthenticated, checkoutController.handlePaymentFailure);
+router.get('/checkout/payment-callback', isAuthenticated, checkoutController.handlePaymentCallback);
 
 // Payment retry routes
 router.post('/orders/:orderId/retry-payment', isAuthenticated, checkoutController.retryPayment);

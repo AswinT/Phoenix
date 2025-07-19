@@ -997,7 +997,8 @@ const handlePaymentFailure = async (req, res) => {
               error_code: error_code,
               orderId: pendingPaymentOrder._id,
               orderNumber: pendingPaymentOrder.orderNumber,
-              canRetry: true
+              canRetry: true,
+              redirectUrl: `/orders/${pendingPaymentOrder._id}` // Add redirect URL to order details
             });
           }
         } catch (orderError) {
@@ -1014,11 +1015,16 @@ const handlePaymentFailure = async (req, res) => {
     res.status(200).json({
       success: false,
       message: error_description || "Payment failed. Please try again.",
-      error_code: error_code
+      error_code: error_code,
+      redirectUrl: "/orders" // Redirect to orders page if no specific order created
     });
   } catch (error) {
     console.error("Error handling payment failure:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    res.status(500).json({ 
+      success: false, 
+      message: "Internal server error",
+      redirectUrl: "/orders" // Redirect to orders page on error
+    });
   }
 };
 
@@ -1751,6 +1757,130 @@ const verifyRetryPayment = async (req, res) => {
   }
 };
 
+// Handle payment callback from Razorpay
+const handlePaymentCallback = async (req, res) => {
+  try {
+    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.query;
+
+    console.log('Payment callback received:', {
+      payment_id: razorpay_payment_id,
+      order_id: razorpay_order_id,
+      signature: razorpay_signature,
+      query: req.query
+    });
+
+    // If payment was successful (has payment_id and signature)
+    if (razorpay_payment_id && razorpay_signature) {
+      // Verify the payment signature
+      const expectedSignature = crypto
+        .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+        .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+        .digest("hex");
+
+      const isAuthentic = expectedSignature === razorpay_signature;
+
+      if (isAuthentic) {
+        // Payment successful - redirect to success page
+        console.log('Payment verified successfully, redirecting to success');
+        
+        // Try to find the order by razorpay order ID
+        const order = await Order.findOne({ 
+          razorpayOrderId: razorpay_order_id,
+          user: req.session.user_id 
+        });
+
+        if (order) {
+          return res.redirect(`/order-success/${order._id}`);
+        } else {
+          // If order not found, redirect to orders page
+          return res.redirect('/orders');
+        }
+      } else {
+        console.log('Payment signature verification failed');
+        // Invalid signature - treat as failure
+        return handlePaymentFailureRedirect(req, res, 'Invalid payment signature');
+      }
+    } else {
+      // Payment failed or was cancelled
+      console.log('Payment failed or cancelled, handling failure');
+      return handlePaymentFailureRedirect(req, res, 'Payment was cancelled or failed');
+    }
+  } catch (error) {
+    console.error("Error handling payment callback:", error);
+    return handlePaymentFailureRedirect(req, res, 'Payment processing error');
+  }
+};
+
+// Helper function to handle payment failure redirects
+const handlePaymentFailureRedirect = async (req, res, reason) => {
+  try {
+    const userId = req.session.user_id;
+    
+    // Check if there's a pending order in session
+    const pendingOrder = req.session.pendingOrder;
+    
+    if (pendingOrder && userId) {
+      // Create order with "Pending Payment" status
+      const address = await Address.findById(pendingOrder.addressId);
+      
+      if (address) {
+        const pendingPaymentOrder = new Order({
+          user: userId,
+          orderNumber: pendingOrder.orderNumber,
+          items: pendingOrder.orderItems.map(item => ({
+            ...item,
+            status: "Active"
+          })),
+          shippingAddress: {
+            userId: address.userId,
+            fullName: address.fullName,
+            phone: address.phone,
+            pincode: address.pincode,
+            district: address.district,
+            state: address.state,
+            street: address.street,
+            landmark: address.landmark,
+            isDefault: address.isDefault,
+          },
+          paymentMethod: "Razorpay",
+          paymentStatus: "Pending Payment",
+          orderStatus: "Pending Payment",
+          subtotal: pendingOrder.subtotal,
+          shipping: 0,
+          tax: pendingOrder.tax,
+          discount: pendingOrder.offerDiscount,
+          couponCode: pendingOrder.couponCode,
+          couponDiscount: pendingOrder.couponDiscount,
+          total: pendingOrder.total,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          paymentRetryAttempts: 1,
+          lastPaymentAttempt: new Date(),
+          paymentFailureReason: reason
+        });
+
+        await pendingPaymentOrder.save();
+        console.log('Pending payment order created:', pendingPaymentOrder.orderNumber);
+
+        // Set success message for the order details page
+        req.session.errorMessage = `Payment failed: ${reason}. Your order has been saved and you can retry payment anytime.`;
+        
+        // Redirect to the order details page where user can retry payment
+        return res.redirect(`/orders/${pendingPaymentOrder._id}`);
+      }
+    }
+    
+    // Fallback: redirect to orders page with error message
+    req.session.errorMessage = `Payment failed: ${reason}. Please try placing your order again.`;
+    return res.redirect('/orders');
+    
+  } catch (error) {
+    console.error('Error in handlePaymentFailureRedirect:', error);
+    req.session.errorMessage = 'Payment failed. Please try again.';
+    return res.redirect('/orders');
+  }
+};
+
 module.exports = {
   getCheckout,
   placeOrder,
@@ -1760,6 +1890,7 @@ module.exports = {
   createRazorpayOrder,
   verifyRazorpayPayment,
   handlePaymentFailure,
+  handlePaymentCallback,
   getCurrentCartTotal,
   retryPayment,
   verifyRetryPayment
