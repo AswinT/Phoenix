@@ -93,9 +93,9 @@
           <div class="sales-content">
             <h3 class="sales-title">Today's Sales</h3>
             <p class="sales-value">₹<%= dashboardStats.todaySales || '0' %></p>
-            <div class="sales-trend positive">
-              <i class="ri-arrow-up-line"></i>
-              <span>+12.5% vs yesterday</span>
+            <div class="sales-trend <%= dashboardStats.todayGrowth?.isPositive ? 'positive' : 'negative' %>">
+              <i class="ri-arrow-<%= dashboardStats.todayGrowth?.isPositive ? 'up' : 'down' %>-line"></i>
+              <span><%= dashboardStats.todayGrowth?.isPositive ? '+' : '-' %><%= dashboardStats.todayGrowth?.percentage || '0' %>% vs yesterday</span>
             </div>
           </div>
         </div>
@@ -110,9 +110,9 @@
           <div class="sales-content">
             <h3 class="sales-title">This Week</h3>
             <p class="sales-value">₹<%= dashboardStats.weekSales || '0' %></p>
-            <div class="sales-trend positive">
-              <i class="ri-arrow-up-line"></i>
-              <span>+8.3% vs last week</span>
+            <div class="sales-trend <%= dashboardStats.weekGrowth?.isPositive ? 'positive' : 'negative' %>">
+              <i class="ri-arrow-<%= dashboardStats.weekGrowth?.isPositive ? 'up' : 'down' %>-line"></i>
+              <span><%= dashboardStats.weekGrowth?.isPositive ? '+' : '-' %><%= dashboardStats.weekGrowth?.percentage || '0' %>% vs last week</span>
             </div>
           </div>
         </div>
@@ -127,9 +127,9 @@
           <div class="sales-content">
             <h3 class="sales-title">This Month</h3>
             <p class="sales-value">₹<%= dashboardStats.monthSales || '0' %></p>
-            <div class="sales-trend positive">
-              <i class="ri-arrow-up-line"></i>
-              <span>+15.7% vs last month</span>
+            <div class="sales-trend <%= dashboardStats.monthGrowth?.isPositive ? 'positive' : 'negative' %>">
+              <i class="ri-arrow-<%= dashboardStats.monthGrowth?.isPositive ? 'up' : 'down' %>-line"></i>
+              <span><%= dashboardStats.monthGrowth?.isPositive ? '+' : '-' %><%= dashboardStats.monthGrowth?.percentage || '0' %>% vs last month</span>
             </div>
           </div>
         </div>
@@ -144,9 +144,9 @@
           <div class="sales-content">
             <h3 class="sales-title">Avg Order Value</h3>
             <p class="sales-value">₹<%= dashboardStats.avgOrderValue || '0' %></p>
-            <div class="sales-trend positive">
-              <i class="ri-arrow-up-line"></i>
-              <span>+5.2% improvement</span>
+            <div class="sales-trend <%= dashboardStats.avgOrderValueGrowth?.isPositive ? 'positive' : 'negative' %>">
+              <i class="ri-arrow-<%= dashboardStats.avgOrderValueGrowth?.isPositive ? 'up' : 'down' %>-line"></i>
+              <span><%= dashboardStats.avgOrderValueGrowth?.isPositive ? '+' : '-' %><%= dashboardStats.avgOrderValueGrowth?.percentage || '0' %>% improvement</span>
             </div>
           </div>
         </div>
@@ -239,28 +239,28 @@
             <div class="payment-method">
               <div class="method-info">
                 <span class="method-name">Credit/Debit Cards</span>
-                <span class="method-percentage">65%</span>
+                <span class="method-percentage"><%= dashboardStats.paymentMethods?.cards || '65' %>%</span>
               </div>
               <div class="method-bar">
-                <div class="method-progress" style="width: 65%"></div>
+                <div class="method-progress" style="width: <%= dashboardStats.paymentMethods?.cards || '65' %>%"></div>
               </div>
             </div>
             <div class="payment-method">
               <div class="method-info">
                 <span class="method-name">UPI/Digital Wallets</span>
-                <span class="method-percentage">25%</span>
+                <span class="method-percentage"><%= dashboardStats.paymentMethods?.upi || '25' %>%</span>
               </div>
               <div class="method-bar">
-                <div class="method-progress" style="width: 25%"></div>
+                <div class="method-progress" style="width: <%= dashboardStats.paymentMethods?.upi || '25' %>%"></div>
               </div>
             </div>
             <div class="payment-method">
               <div class="method-info">
                 <span class="method-name">Cash on Delivery</span>
-                <span class="method-percentage">10%</span>
+                <span class="method-percentage"><%= dashboardStats.paymentMethods?.cod || '10' %>%</span>
               </div>
               <div class="method-bar">
-                <div class="method-progress" style="width: 10%"></div>
+                <div class="method-progress" style="width: <%= dashboardStats.paymentMethods?.cod || '10' %>%"></div>
               </div>
             </div>
           </div>
@@ -280,30 +280,38 @@
             <div class="region-item">
               <div class="region-info">
                 <span class="region-name">Mumbai</span>
-                <span class="region-sales">₹<%= dashboardStats.regions?.mumbai || '28,450' %></span>
+                <span class="region-sales">₹<%= dashboardStats.regions?.mumbai || '0' %></span>
               </div>
-              <div class="region-trend positive">+12%</div>
+              <div class="region-trend <%= (dashboardStats.regions?.mumbaiGrowth || 12) >= 0 ? 'positive' : 'negative' %>">
+                <%= (dashboardStats.regions?.mumbaiGrowth || 12) >= 0 ? '+' : '' %><%= dashboardStats.regions?.mumbaiGrowth || '12' %>%
+              </div>
             </div>
             <div class="region-item">
               <div class="region-info">
                 <span class="region-name">Delhi</span>
-                <span class="region-sales">₹<%= dashboardStats.regions?.delhi || '22,180' %></span>
+                <span class="region-sales">₹<%= dashboardStats.regions?.delhi || '0' %></span>
               </div>
-              <div class="region-trend positive">+8%</div>
+              <div class="region-trend <%= (dashboardStats.regions?.delhiGrowth || 8) >= 0 ? 'positive' : 'negative' %>">
+                <%= (dashboardStats.regions?.delhiGrowth || 8) >= 0 ? '+' : '' %><%= dashboardStats.regions?.delhiGrowth || '8' %>%
+              </div>
             </div>
             <div class="region-item">
               <div class="region-info">
                 <span class="region-name">Bangalore</span>
-                <span class="region-sales">₹<%= dashboardStats.regions?.bangalore || '19,670' %></span>
+                <span class="region-sales">₹<%= dashboardStats.regions?.bangalore || '0' %></span>
               </div>
-              <div class="region-trend positive">+15%</div>
+              <div class="region-trend <%= (dashboardStats.regions?.bangaloreGrowth || 15) >= 0 ? 'positive' : 'negative' %>">
+                <%= (dashboardStats.regions?.bangaloreGrowth || 15) >= 0 ? '+' : '' %><%= dashboardStats.regions?.bangaloreGrowth || '15' %>%
+              </div>
             </div>
             <div class="region-item">
               <div class="region-info">
                 <span class="region-name">Chennai</span>
-                <span class="region-sales">₹<%= dashboardStats.regions?.chennai || '16,890' %></span>
+                <span class="region-sales">₹<%= dashboardStats.regions?.chennai || '0' %></span>
               </div>
-              <div class="region-trend negative">-3%</div>
+              <div class="region-trend <%= (dashboardStats.regions?.chennaiGrowth || -3) >= 0 ? 'positive' : 'negative' %>">
+                <%= (dashboardStats.regions?.chennaiGrowth || -3) >= 0 ? '+' : '' %><%= dashboardStats.regions?.chennaiGrowth || '-3' %>%
+              </div>
             </div>
           </div>
         </div>

@@ -129,30 +129,36 @@ const addProduct = async (req, res) => {
     // Upload sub images (up to 3)
     const subImages = [];
     const processedPaths = new Set(); // Track processed file paths to avoid duplicates
-    if (req.files && req.files.subImages && req.files.subImages.length > 0) {
-      for (const file of req.files.subImages) {
-        console.log(`Processing sub image: ${file.path}, original name: ${file.originalname}`);
+    
+    // Process each sub-image field individually
+    for (let i = 1; i <= 3; i++) {
+      const fieldName = `subImage${i}`;
+      if (req.files && req.files[fieldName] && req.files[fieldName].length > 0) {
+        const file = req.files[fieldName][0];
+        console.log(`Processing ${fieldName}: ${file.path}, original name: ${file.originalname}`);
+        
         if (processedPaths.has(file.path)) {
           console.log(`Skipping duplicate sub image path: ${file.path}`);
           continue;
         }
+        
         if (!fs.existsSync(file.path)) {
           console.warn(`Sub image not found at ${file.path}, skipping...`);
           continue;
         }
+        
         const result = await cloudinary.uploader.upload(file.path, {
           folder: 'products/sub',
           quality: 'auto:best',
           fetch_format: 'auto',
           flags: 'preserve_transparency'
         });
+        
         subImages.push(result.secure_url);
         processedPaths.add(file.path); // Mark this path as processed
         fs.unlinkSync(file.path); // Delete local file
       }
     }
-
-
 
     const product = new Product({
       model: model.trim(),
@@ -290,24 +296,54 @@ const updateProduct = async (req, res) => {
       }
     }
 
-    const subImages = product.subImages || [];
-    const processedPaths = new Set();
-    if (req.files && req.files.subImages && req.files.subImages.length > 0) {
-      for (const file of req.files.subImages) {
-        console.log('Processing sub image:', file.path);
-        if (processedPaths.has(file.path)) continue;
+    // Preserve existing sub images
+    const subImages = [...product.subImages] || [];
+    
+    // Handle each subImage individually
+    for (let i = 1; i <= 3; i++) {
+      const fieldName = `subImage${i}`;
+      
+      if (req.files && req.files[fieldName] && req.files[fieldName].length > 0) {
+        const file = req.files[fieldName][0];
+        console.log(`Processing ${fieldName}:`, file.path);
+        
         if (!fs.existsSync(file.path)) {
-          console.warn('Sub image not found:', file.path);
+          console.warn(`${fieldName} not found at:`, file.path);
           continue;
         }
+        
+        // Upload the new image
         const result = await cloudinary.uploader.upload(file.path, {
           folder: 'products/sub',
           quality: 'auto:best',
           fetch_format: 'auto',
           flags: 'preserve_transparency'
         });
-        subImages.push(result.secure_url);
-        processedPaths.add(file.path);
+        
+        // Calculate the index (0-based)
+        const index = i - 1;
+        
+        // Delete old image if it exists at this index
+        if (index < subImages.length && subImages[index]) {
+          const publicId = subImages[index].split('/').pop().split('.')[0];
+          try {
+            await cloudinary.uploader.destroy(`products/sub/${publicId}`);
+            console.log(`Deleted old image at index ${index}`);
+          } catch (err) {
+            console.error(`Failed to delete old image: ${err.message}`);
+          }
+        }
+        
+        // Replace image at index or add it
+        if (index < subImages.length) {
+          subImages[index] = result.secure_url;
+          console.log(`Replaced image at index ${index}`);
+        } else {
+          subImages.push(result.secure_url);
+          console.log(`Added new image at index ${index}`);
+        }
+        
+        // Clean up the local file
         fs.unlinkSync(file.path);
       }
     }
