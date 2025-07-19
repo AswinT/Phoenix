@@ -6,17 +6,13 @@
 
 // Wait for DOM and dependencies to load
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('🔧 Product validation script loaded');
-  
   // Wait for ValidationErrorHandler to be available
   function waitForDependencies() {
     if (typeof window.ValidationErrorHandler === 'undefined' || typeof Swal === 'undefined') {
-      console.log('⏳ Waiting for dependencies...');
       setTimeout(waitForDependencies, 100);
       return;
     }
     
-    console.log('✅ Dependencies loaded, initializing product validation');
     initializeProductValidation();
   }
   
@@ -31,23 +27,19 @@ function initializeProductValidation() {
   const editProductForm = document.getElementById('editProductForm');
   
   if (addProductForm) {
-    console.log('🆕 Setting up add product form validation');
     setupProductFormValidation(addProductForm, false, errorHandler);
   }
   
   if (editProductForm) {
-    console.log('✏️ Setting up edit product form validation');
     setupProductFormValidation(editProductForm, true, errorHandler);
   }
 }
 
 function setupProductFormValidation(form, isEditForm, errorHandler) {
   if (!form) {
-    console.error('❌ Product form not found');
+    console.error('Product form not found');
     return;
   }
-  
-  console.log(`🔧 Setting up ${isEditForm ? 'edit' : 'add'} product form validation`);
   
   // Add real-time validation
   errorHandler.addRealTimeValidation(form);
@@ -55,14 +47,12 @@ function setupProductFormValidation(form, isEditForm, errorHandler) {
   // Override form submission
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
-    console.log(`📤 ${isEditForm ? 'Edit' : 'Add'} product form submitted`);
     
     // Perform client-side validation if available
     if (typeof validateProductForm === 'function') {
       const validationResult = validateProductForm(form);
       
       if (!validationResult.isValid) {
-        console.log('❌ Client-side validation failed');
         displayClientSideErrors(form, validationResult.errors);
         return;
       }
@@ -75,8 +65,6 @@ function setupProductFormValidation(form, isEditForm, errorHandler) {
     const url = isEditForm
       ? `/admin/products/${form.getAttribute('data-product-id')}`
       : '/admin/products';
-    
-    console.log(`🌐 Submitting to: ${url}`);
     
     // Handle form submission with proper success message
     await errorHandler.handleFormSubmission(form, url, {
@@ -91,9 +79,6 @@ function setupProductFormValidation(form, isEditForm, errorHandler) {
         })()
       },
       onSuccess: (data) => {
-        console.log('✅ Product operation successful:', data);
-        console.log('🎯 Showing SUCCESS toast notification');
-
         // Show SweetAlert2 SUCCESS toast notification
         Swal.fire({
           toast: true,
@@ -112,22 +97,15 @@ function setupProductFormValidation(form, isEditForm, errorHandler) {
           if (!isEditForm) {
             form.reset();
             errorHandler.clearAllErrors(form);
-            console.log('🔄 Form reset after successful add');
-          } else {
-            console.log('✏️ Edit form kept with updated data');
           }
           
           // Handle redirect if provided
           if (data.redirect) {
-            console.log('🔄 Redirecting to:', data.redirect);
             window.location.href = data.redirect;
           }
         });
       },
       onError: (error) => {
-        console.error('❌ Product operation failed:', error);
-        console.log('🚨 Showing ERROR toast notification');
-
         // Show ERROR toast notification
         Swal.fire({
           toast: true,
@@ -145,14 +123,10 @@ function setupProductFormValidation(form, isEditForm, errorHandler) {
       }
     });
   });
-  
-  console.log(`✅ ${isEditForm ? 'Edit' : 'Add'} product form validation setup complete`);
 }
 
 // Helper function for client-side validation errors (if needed)
 function displayClientSideErrors(form, errors) {
-  console.log('🚨 Displaying client-side errors:', errors);
-  
   // Show validation errors using SweetAlert2
   Swal.fire({
     icon: 'warning',
@@ -205,5 +179,3 @@ function validateProductForm(form) {
     errors: errors
   };
 }
-
-console.log('📝 Product validation script initialized');

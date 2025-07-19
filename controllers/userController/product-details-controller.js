@@ -17,10 +17,6 @@ const productDetails = async (req, res) => {
     }
 
     // **INDEPENDENT OFFER COMPARISON LOGIC (NO COMBINING)**
-    console.log(`🏷️ CALCULATING BEST OFFER FOR PRODUCT: ${product.model}`);
-    console.log(`   Regular Price: ₹${product.regularPrice}`);
-    console.log(`   Sale Price: ₹${product.salePrice}`);
-
     // Step 1: Calculate all possible pricing options INDEPENDENTLY
     const pricingOptions = [];
 
@@ -38,8 +34,6 @@ const productDetails = async (req, res) => {
         discountPercentage: saleDiscountPercentage,
         offer: null
       });
-
-      console.log(`   Sale Option: ₹${product.salePrice} (${saleDiscountPercentage.toFixed(1)}% off regular price)`);
     }
 
     // Option 2: Best Available Offer applied DIRECTLY to Regular Price (NOT sale price)
@@ -64,8 +58,6 @@ const productDetails = async (req, res) => {
         discountPercentage: offerDiscountPercentage,  // This matches admin panel configuration
         offer: activeOffer
       });
-
-      console.log(`   Offer Option: ₹${offerFinalPrice} (${offerDiscountPercentage.toFixed(1)}% off regular price) - ${activeOffer.title}`);
     }
 
     // Option 3: Regular Price (no discount)
@@ -83,9 +75,6 @@ const productDetails = async (req, res) => {
     const bestOption = pricingOptions.reduce((best, current) => {
       return current.finalPrice < best.finalPrice ? current : best;
     });
-
-    console.log(`   🏆 BEST OPTION: ${bestOption.type} - ₹${bestOption.finalPrice} (${bestOption.discountPercentage.toFixed(1)}% off)`);
-    console.log(`   📊 DISCOUNT MATCHES ADMIN PANEL: ${bestOption.discountPercentage.toFixed(1)}%`);
 
     // Step 3: Apply the best option to the product
     product.finalPrice = bestOption.finalPrice;
@@ -195,16 +184,6 @@ const productDetails = async (req, res) => {
       }
     }
 
-    // Log the product data for debugging
-    console.log('Product details with offer:', {
-      model: product.model,
-      regularPrice: product.regularPrice,
-      finalPrice: product.finalPrice,
-      discountPercentage: product.discountPercentage,
-      hasOffer: !!product.activeOffer,
-      offerTitle: product.activeOffer?.title
-    });
-
     res.render("product-details", {
       product,
       relatedProducts,
@@ -222,4 +201,3 @@ const productDetails = async (req, res) => {
 };
 
 module.exports = { productDetails };
-

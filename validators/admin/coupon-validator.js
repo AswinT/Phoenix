@@ -7,13 +7,10 @@ const { createValidationMiddleware } = require('../../helpers/validation-helper'
 
 // Custom validation function for discount based on type and max discount
 const validateCouponDiscount = (req, res, next) => {
-  console.log('🔍 VALIDATING COUPON DISCOUNT:', req.body);
-
   const { discountValue, discountType, maxDiscountValue } = req.body;
   const value = parseFloat(discountValue);
 
   if (isNaN(value) || value <= 0) {
-    console.log('❌ DISCOUNT VALIDATION FAILED: Invalid discount value');
     return res.status(400).json({
       success: false,
       message: 'Validation failed',

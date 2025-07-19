@@ -115,8 +115,6 @@ const getCouponDetails = async (req, res) => {
 
 const createCoupon = async (req, res) => {
   try {
-    console.log('🎫 CREATE COUPON REQUEST:', req.body);
-
     const {
       code,
       couponCode,
@@ -138,15 +136,6 @@ const createCoupon = async (req, res) => {
     // Handle both field name formats for backward compatibility
     const finalCode = code || couponCode;
     const finalDescription = description || couponDescription;
-
-    console.log('🔍 PROCESSED FIELDS:', {
-      finalCode,
-      finalDescription,
-      discountType,
-      discountValue,
-      startDate,
-      expiryDate
-    });
 
     // Validate required fields
     if (!finalCode || !discountType || !discountValue || !startDate || !expiryDate) {
@@ -194,11 +183,9 @@ const createCoupon = async (req, res) => {
 
     await coupon.save();
 
-    console.log('✅ COUPON CREATED SUCCESSFULLY:', coupon.code);
-
     res.status(HttpStatus.CREATED).json({ success: true, message: 'Coupon created successfully' });
   } catch (error) {
-    console.error('❌ ERROR CREATING COUPON:', error);
+    console.error('Error creating coupon:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Internal server error' });
   }
 };

@@ -96,18 +96,6 @@ const calculateDashboardStats = async () => {
     });
     const pendingGrowth = calculateGrowthPercentage(currentMonthPendingOrders, previousMonthPendingOrders);
 
-    // Debug logging to help verify calculations
-    console.log('Dashboard Stats Debug (Fixed Logic):');
-    console.log('Users - Total:', totalUsers, 'Current Month:', currentMonthUsers, 'Previous Month:', previousMonthUsers);
-    console.log('Orders - Total:', totalOrders, 'Current Month:', currentMonthOrders, 'Previous Month:', previousMonthOrders);
-    console.log('Sales - Total:', totalSales, 'Current Month:', currentMonthSales, 'Previous Month:', previousMonthSales);
-    console.log('Pending - Total:', pendingOrders, 'Current Month:', currentMonthPendingOrders, 'Previous Month:', previousMonthPendingOrders);
-    console.log('Growth Calculations (Current vs Previous Month):');
-    console.log('Users Growth:', usersGrowth);
-    console.log('Orders Growth:', ordersGrowth);
-    console.log('Sales Growth:', salesGrowth);
-    console.log('Pending Growth:', pendingGrowth);
-
     return {
       totalUsers: {
         value: totalUsers.toLocaleString('en-IN'),
@@ -172,14 +160,6 @@ const calculateGrowthPercentage = (current, previous) => {
 const formatCurrency = (amount) => {
   return '₹' + Math.round(amount).toLocaleString('en-IN');
 };
-
-
-
-
-
-
-
-
 
 module.exports = {
   getDashboard

@@ -1375,26 +1375,21 @@ const placeOrder = async (req, res) => {
       orderNumber: order.orderNumber,
     });
   } catch (error) {
-    console.error("Error placing order:", error);
-
     // Comprehensive rollback mechanism
     try {
       // Rollback stock updates if they were made
       if (stockUpdates && stockUpdates.length > 0) {
-        console.log('Rolling back stock updates...');
         for (const update of stockUpdates) {
           await Product.findByIdAndUpdate(
             update.productId,
             { stock: update.originalStock },
             { new: true }
           );
-          console.log(`Restored stock for ${update.productTitle}: ${update.originalStock}`);
         }
       }
 
       // Rollback wallet deduction if it was made
       if (error.walletDeducted && wallet) {
-        console.log('Rolling back wallet deduction...');
         wallet.balance = Number(wallet.balance) + Number(total);
 
         // Remove the transaction record
@@ -1403,12 +1398,10 @@ const placeOrder = async (req, res) => {
         );
 
         await wallet.save();
-        console.log(`Restored wallet balance: ₹${wallet.balance}`);
       }
 
       // Rollback coupon usage if it was updated
       if (error.couponUpdated && appliedCoupon) {
-        console.log('Rolling back coupon usage...');
         appliedCoupon.usedCount = Math.max(0, appliedCoupon.usedCount - 1);
 
         const userUsageIndex = appliedCoupon.usedBy.findIndex(
@@ -1423,12 +1416,10 @@ const placeOrder = async (req, res) => {
         }
 
         await appliedCoupon.save();
-        console.log('Restored coupon usage');
       }
 
     } catch (rollbackError) {
       console.error('Error during rollback:', rollbackError);
-      // Log rollback failure but don't throw - we still need to respond to user
     }
 
     // Determine appropriate error status and message
