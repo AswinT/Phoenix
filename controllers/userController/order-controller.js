@@ -635,7 +635,7 @@ const viewInvoice = async (req, res) => {
       _id: orderId,
       user: userId,
       isDeleted: false
-    }).lean();
+    }).populate('items.product');
 
     if (!order) {
       return res.status(HttpStatus.NOT_FOUND).render('error', {
@@ -720,7 +720,7 @@ const downloadInvoice = async (req, res) => {
       _id: orderId,
       user: userId,
       isDeleted: false
-    }).lean();
+    }).populate('items.product');
 
     if (!order) {
       return res.status(HttpStatus.NOT_FOUND).send('Order not found or you do not have access to this order');
