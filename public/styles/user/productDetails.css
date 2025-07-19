@@ -345,51 +345,116 @@ body {
  /* Main image container */
  .zoom-container {
    position: relative;
-   overflow: hidden;
-   cursor: zoom-in;
-   border-radius: 0.5rem;
    width: 100%;
-   max-width: 100%;
-   background-color: #fff;
-   border: 1px solid rgba(0, 0, 0, 0.1);
+   height: 0;
+   padding-bottom: 133.33%; /* Aspect ratio for headphones image */
+   overflow: hidden;
+   border-radius: 0.5rem;
+   cursor: zoom-in;
+   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
  }
  
  .zoom-container img {
-   display: block;
+   position: absolute;
    width: 100%;
-   height: auto;
-   transition: transform 0.3s ease;
+   height: 100%;
+   object-fit: cover;
+   transition: all 0.3s ease;
  }
  
  /* Magnifier glass */
  .img-magnifier-glass {
    position: absolute;
-   border: 2px solid #000;
+   border: 1px solid #ddd;
    border-radius: 50%;
    cursor: none;
-   width: 100px;
-   height: 100px;
+   width: 150px;
+   height: 150px;
    display: none;
    background-repeat: no-repeat;
+   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
    z-index: 2;
-   box-shadow: 0 0 0 7px rgba(255, 255, 255, 0.85), 
-               0 0 7px 7px rgba(0, 0, 0, 0.25);
  }
  
  /* Zoom result container */
  .img-zoom-result {
    position: absolute;
    top: 0;
-   right: -280px;
-   width: 250px;
-   height: 250px;
-   border: 1px solid #d1d1d1;
-   background-color: #fff;
-   display: none;
-   z-index: 999;
+   left: 100%;
+   margin-left: 20px;
+   border: 2px solid #ddd;
+   width: 400px; /* Larger size */
+   height: 400px; /* Larger size */
+   overflow: hidden;
    background-repeat: no-repeat;
-   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-   border-radius: 4px;
+   display: none;
+   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+   z-index: 100;
+   border-radius: 8px;
+   background-position: center;
+ }
+ 
+ /* Zoom controls */
+ .zoom-controls {
+   position: absolute;
+   bottom: 15px;
+   right: 15px;
+   display: none;
+   z-index: 101;
+ }
+ 
+ .zoom-level-container {
+   display: flex;
+   align-items: center;
+   background-color: rgba(255, 255, 255, 0.8);
+   border-radius: 20px;
+   padding: 5px 10px;
+   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+ }
+ 
+ .zoom-level-indicator {
+   margin: 0 10px;
+   font-weight: bold;
+   color: #333;
+   font-size: 14px;
+   min-width: 45px;
+   text-align: center;
+ }
+ 
+ .zoom-btn {
+   width: 24px;
+   height: 24px;
+   border-radius: 50%;
+   border: none;
+   background-color: #000;
+   color: white;
+   font-size: 16px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   cursor: pointer;
+   transition: all 0.2s ease;
+ }
+ 
+ .zoom-btn:hover {
+   background-color: #333;
+   transform: scale(1.1);
+ }
+ 
+ /* Full screen zoom for mobile devices */
+ .fullscreen-mobile {
+   position: fixed;
+   top: 50%;
+   left: 50%;
+   transform: translate(-50%, -50%);
+   width: 90vw;
+   height: 90vw; 
+   max-height: 90vh;
+   margin: 0;
+   z-index: 9999;
+   border: none;
+   border-radius: 0;
+   background-color: #fff;
  }
  
  /* Zoom indicator icon */
@@ -437,32 +502,37 @@ body {
  @media (max-width: 991.98px) {
    .img-zoom-result {
      position: fixed;
-     top: 50%;
-     left: 50%;
-     transform: translate(-50%, -50%);
-     width: 80vw;
-     height: 80vw;
-     max-width: 400px;
-     max-height: 400px;
-     z-index: 1050;
+     top: auto;
+     left: auto;
+     bottom: 20px;
+     right: 20px;
+     width: 250px;
+     height: 250px;
+     margin: 0;
      border-radius: 8px;
-     box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.75);
+     z-index: 1000;
    }
-   
+
    .img-zoom-result::before {
-     content: '×';
+     content: "";
      position: absolute;
-     top: -30px;
-     right: 0;
-     color: #fff;
-     font-size: 24px;
-     font-weight: bold;
-     cursor: pointer;
+     top: -10px;
+     right: -10px;
+     width: 30px;
+     height: 30px;
+     border-radius: 50%;
+     background-color: rgba(0, 0, 0, 0.5);
+     color: white;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-size: 18px;
+     z-index: 1001;
    }
    
    .img-magnifier-glass {
-     width: 80px;
-     height: 80px;
+     width: 100px;
+     height: 100px;
    }
  }
  
@@ -471,15 +541,28 @@ body {
      flex-direction: row;
      overflow-x: auto;
      padding-bottom: 10px;
-     -webkit-overflow-scrolling: touch;
-     scroll-behavior: smooth;
-     gap: 8px;
+     margin-bottom: 10px;
+     gap: 10px;
+     display: flex;
+     justify-content: flex-start;
+     max-width: 100%;
    }
    
    .thumbnail {
      width: 60px;
-     height: 80px;
+     height: 60px;
      flex-shrink: 0;
-     margin-bottom: 0 !important;
+     margin-bottom: 0;
+   }
+
+   /* Make zoom result fill more screen on mobile */
+   .fullscreen-mobile {
+     width: 90vw;
+     height: 90vh;
+     max-width: none;
+     max-height: none;
+     top: 50%;
+     left: 50%;
+     transform: translate(-50%, -50%);
    }
  }
