@@ -1,12 +1,4 @@
-/**
- * Frontend Validation Adapter
- * Provides UX-focused frontend validation that works alongside backend validation
- * This replaces the blocking frontend validation with helpful hints and real-time feedback
- */
-
-// Function to initialize validation when everything is ready
 function initializeValidation() {
-  // Check if ValidationErrorHandler is available
   const errorHandler = window.ValidationErrorHandler;
 
   if (!errorHandler) {
@@ -14,7 +6,6 @@ function initializeValidation() {
     return;
   }
 
-  // Check if DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => setupValidation(errorHandler));
   } else {
@@ -24,55 +15,41 @@ function initializeValidation() {
 
 function setupValidation(errorHandler) {
 
-  /**
-   * Enhanced form submission handler for admin forms
-   */
   function setupAdminFormValidation() {
-    // Product forms
     const productForms = document.querySelectorAll('#addProductForm, #editProductForm');
 
     productForms.forEach(form => {
       setupProductFormValidation(form);
     });
 
-    // Offer forms
     const offerForms = document.querySelectorAll('#addOfferForm, #editOfferForm');
     offerForms.forEach(form => {
       setupOfferFormValidation(form);
     });
 
-    // Coupon forms
     const couponForms = document.querySelectorAll('#addCouponForm, #editCouponForm');
     couponForms.forEach(form => {
       setupCouponFormValidation(form);
     });
   }
 
-  /**
-   * Setup product form validation
-   */
   function setupProductFormValidation(form) {
     if (!form) return;
 
     const isEditForm = form.id === 'editProductForm';
 
-    // Add real-time validation
     errorHandler.addRealTimeValidation(form);
 
-    // Both add and edit forms use AJAX submission
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
 
-      // Perform comprehensive client-side validation before submission
       const validationResult = validateProductForm(form);
 
       if (!validationResult.isValid) {
-        // Display validation errors and prevent submission
         displayClientSideErrors(form, validationResult.errors);
         return;
       }
 
-      // Clear any existing client-side errors before server submission
       errorHandler.clearAllErrors(form);
 
       const url = isEditForm
@@ -80,9 +57,8 @@ function setupValidation(errorHandler) {
         : '/admin/products';
 
       await errorHandler.handleFormSubmission(form, url, {
-        method: 'POST', // Always POST with method override
+        method: 'POST',
         fetchOptions: {
-          // Add method override for PUT requests
           body: (() => {
             const formData = new FormData(form);
             if (isEditForm) {
@@ -105,7 +81,6 @@ function setupValidation(errorHandler) {
               }
             });
           } else {
-            // For add product, show success message and redirect to products page
             Swal.fire({
               icon: 'success',
               title: 'Success!',
@@ -120,13 +95,9 @@ function setupValidation(errorHandler) {
       });
     });
 
-    // Add specific validation hints for product fields
     addProductValidationHints(form);
   }
 
-  /**
-   * Setup offer form validation
-   */
   function setupOfferFormValidation(form) {
     if (!form) return;
 
@@ -165,9 +136,6 @@ function setupValidation(errorHandler) {
     addOfferValidationHints(form);
   }
 
-  /**
-   * Setup coupon form validation
-   */
   function setupCouponFormValidation(form) {
     if (!form) return;
 
@@ -206,17 +174,12 @@ function setupValidation(errorHandler) {
     addCouponValidationHints(form);
   }
 
-  /**
-   * Add validation hints for product fields
-   */
   function addProductValidationHints(form) {
-    // Model field hints
     const modelField = form.querySelector('#model');
     if (modelField) {
       addFieldHint(modelField, '3-100 characters, alphanumeric with basic punctuation');
     }
 
-    // Price comparison hints
     const regularPrice = form.querySelector('#regularPrice');
     const salePrice = form.querySelector('#salePrice');
     
@@ -238,9 +201,6 @@ function setupValidation(errorHandler) {
     }
   }
 
-  /**
-   * Add validation hints for offer fields
-   */
   function addOfferValidationHints(form) {
     const discountValue = form.querySelector('[name="discountValue"]');
     const discountType = form.querySelector('[name="discountType"]');
@@ -264,11 +224,7 @@ function setupValidation(errorHandler) {
     }
   }
 
-  /**
-   * Add validation hints for coupon fields
-   */
   function addCouponValidationHints(form) {
-    // Handle both add and edit coupon code fields
     const couponCodeFields = form.querySelectorAll('[name="couponCode"], #couponCode, #editCouponCode');
     couponCodeFields.forEach(couponCode => {
       if (couponCode) {
@@ -279,7 +235,6 @@ function setupValidation(errorHandler) {
       }
     });
 
-    // Usage limit hints
     const globalLimit = form.querySelector('[name="usageLimitGlobal"]');
     const perUserLimit = form.querySelector('[name="usageLimitPerUser"]');
     
@@ -300,9 +255,6 @@ function setupValidation(errorHandler) {
     }
   }
 
-  /**
-   * Add a hint below a field
-   */
   function addFieldHint(field, hintText) {
     const formGroup = field.closest('.mb-3') || field.closest('.form-group') || field.parentElement;
     let hintElement = formGroup.querySelector('.field-hint');
@@ -317,9 +269,6 @@ function setupValidation(errorHandler) {
     hintElement.textContent = hintText;
   }
 
-  /**
-   * Show a temporary hint with different styles
-   */
   function showFieldHint(field, message, type = 'info') {
     const formGroup = field.closest('.mb-3') || field.closest('.form-group') || field.parentElement;
     let hintElement = formGroup.querySelector('.temp-hint');
@@ -335,9 +284,6 @@ function setupValidation(errorHandler) {
     hintElement.className = `temp-hint mt-1 text-${type === 'warning' ? 'warning' : 'info'}`;
   }
 
-  /**
-   * Clear temporary hint
-   */
   function clearFieldHint(field) {
     const formGroup = field.closest('.mb-3') || field.closest('.form-group') || field.parentElement;
     const hintElement = formGroup.querySelector('.temp-hint');
@@ -347,22 +293,15 @@ function setupValidation(errorHandler) {
     }
   }
 
-  /**
-   * Comprehensive client-side validation for product form
-   * @param {HTMLFormElement} form - The product form to validate
-   * @returns {Object} - { isValid: boolean, errors: Object }
-   */
   function validateProductForm(form) {
     const errors = {};
     let isValid = true;
 
-    // Helper function to add error
     const addError = (fieldName, message) => {
       errors[fieldName] = message;
       isValid = false;
     };
 
-    // Get form values
     const formData = new FormData(form);
     const values = {
       model: formData.get('model')?.trim() || '',
@@ -377,7 +316,6 @@ function setupValidation(errorHandler) {
       mainImage: formData.get('mainImage')
     };
 
-    // 1. Model validation
     if (!values.model) {
       addError('model', 'Model is required');
     } else if (values.model.length < 3) {
@@ -388,7 +326,6 @@ function setupValidation(errorHandler) {
       addError('model', 'Model contains invalid characters');
     }
 
-    // 2. Brand validation
     if (!values.brand) {
       addError('brand', 'Brand is required');
     } else if (values.brand.length < 2) {
@@ -397,7 +334,6 @@ function setupValidation(errorHandler) {
       addError('brand', 'Brand must not exceed 50 characters');
     }
 
-    // 3. Description validation
     if (!values.description) {
       addError('description', 'Description is required');
     } else if (values.description.length < 20) {
@@ -406,12 +342,10 @@ function setupValidation(errorHandler) {
       addError('description', 'Description must not exceed 2000 characters');
     }
 
-    // 4. Category validation
     if (!values.category) {
       addError('category', 'Category is required');
     }
 
-    // 5. Regular Price validation
     if (!values.regularPrice) {
       addError('regularPrice', 'Regular Price is required');
     } else {
@@ -423,7 +357,6 @@ function setupValidation(errorHandler) {
       }
     }
 
-    // 6. Sale Price validation
     if (!values.salePrice) {
       addError('salePrice', 'Sale Price is required');
     } else {
@@ -438,7 +371,6 @@ function setupValidation(errorHandler) {
       }
     }
 
-    // 7. Stock validation
     if (!values.stock) {
       addError('stock', 'Stock is required');
     } else {
@@ -450,7 +382,6 @@ function setupValidation(errorHandler) {
       }
     }
 
-    // 8. Connectivity validation
     if (!values.connectivity) {
       addError('connectivity', 'Connectivity type is required');
     } else {
@@ -460,7 +391,6 @@ function setupValidation(errorHandler) {
       }
     }
 
-    // 9. Manufacturer validation
     if (!values.manufacturer) {
       addError('manufacturer', 'Manufacturer is required');
     } else if (values.manufacturer.length < 2) {
@@ -469,36 +399,24 @@ function setupValidation(errorHandler) {
       addError('manufacturer', 'Manufacturer must not exceed 50 characters');
     }
 
-    // 10. Main Image validation
     if (!values.mainImage || values.mainImage.size === 0) {
       addError('mainImage', 'Main image is required');
     } else {
-      // Validate file type
       const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
       if (!allowedTypes.includes(values.mainImage.type)) {
         addError('mainImage', 'Main image must be a valid image file (JPEG, PNG, GIF, WebP)');
       }
-      // Validate file size (5MB limit)
       else if (values.mainImage.size > 5 * 1024 * 1024) {
         addError('mainImage', 'Main image must be smaller than 5MB');
       }
     }
 
-
-
     return { isValid, errors };
   }
 
-  /**
-   * Display client-side validation errors
-   * @param {HTMLFormElement} form - The form element
-   * @param {Object} errors - Object with field names as keys and error messages as values
-   */
   function displayClientSideErrors(form, errors) {
-    // Clear all existing errors first
     errorHandler.clearAllErrors(form);
 
-    // Display each error
     Object.keys(errors).forEach(fieldName => {
       const field = form.querySelector(`[name="${fieldName}"]`) ||
                    form.querySelector(`#${fieldName}`);
@@ -507,7 +425,6 @@ function setupValidation(errorHandler) {
       }
     });
 
-    // Scroll to first error field
     const firstErrorField = form.querySelector('.is-invalid');
     if (firstErrorField) {
       firstErrorField.scrollIntoView({
@@ -517,7 +434,6 @@ function setupValidation(errorHandler) {
       firstErrorField.focus();
     }
 
-    // Show summary notification
     const errorCount = Object.keys(errors).length;
     if (typeof Swal !== 'undefined') {
       Swal.fire({
@@ -529,9 +445,7 @@ function setupValidation(errorHandler) {
     }
   }
 
-  // Initialize validation
   setupAdminFormValidation();
 }
 
-// Start the initialization process
 initializeValidation();

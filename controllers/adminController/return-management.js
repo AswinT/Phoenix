@@ -4,19 +4,8 @@ const { processReturnRefund } = require("../userController/wallet-controller");
 const { calculateExactRefundAmount } = require("../../helpers/money-calculator");
 const { HttpStatus } = require('../../helpers/status-code');
 
-/**
- * ENHANCED RETURN MANAGEMENT - PRODUCTION OPTIMIZED
- * Handles return requests with detailed refund calculations and tax handling
- */
-
-/**
- * Calculate estimated refund amount for return requests (OPTIMIZED)
- * @param {Object} order - Order object with items
- * @returns {Object} Refund calculation summary
- */
 const calculateEstimatedRefund = (order) => {
   try {
-    // **OPTIMIZED: Early validation and filtering**
     if (!order?.items?.length) {
       return { total: 0, base: 0, tax: 0, breakdown: [] };
     }
@@ -26,13 +15,11 @@ const calculateEstimatedRefund = (order) => {
       return { total: 0, base: 0, tax: 0, breakdown: [] };
     }
 
-    // **OPTIMIZED: Single calculation pass**
     const isFullOrderReturn = returnRequestedItems.length === order.items.length;
     let totalRefund = 0;
     let totalBase = 0;
     let totalTax = 0;
 
-    // ACCURATE CALCULATION - Using Money Calculator
     for (const item of returnRequestedItems) {
       totalRefund += calculateExactRefundAmount(item, order);
     }
@@ -46,18 +33,12 @@ const calculateEstimatedRefund = (order) => {
     return { total: 0 };
   }
 };
-
-/**
- * Get all orders with return requests for admin management
- */
 const getReturnRequests = async (req, res) => {
   try {
-    // Pagination parameters
     const page = Number.parseInt(req.query.page) || 1;
-    const limit = 10; // Orders per page
+    const limit = 10;
     const skip = (page - 1) * limit;
 
-    // Build query for orders with return requests
     const query = {
       isDeleted: false,
       $or: [
@@ -66,7 +47,6 @@ const getReturnRequests = async (req, res) => {
       ]
     };
 
-    // Handle status filter
     const status = req.query.status || "";
     if (status === "pending") {
       query.orderStatus = 'Return Requested';
@@ -75,23 +55,18 @@ const getReturnRequests = async (req, res) => {
       query['items.status'] = 'Return Requested';
     }
 
-    // Fetch total number of orders with return requests
     const totalOrders = await Order.countDocuments(query);
 
-    // Fetch orders with return requests
     const orders = await Order.find(query)
       .populate("user", "fullName email")
-      .sort({ updatedAt: -1 }) // Sort by most recent updates
+      .sort({ updatedAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean();
 
-    // Process orders to extract return request information
     const processedOrders = orders.map(order => {
       const returnRequestedItems = order.items.filter(item => item.status === 'Return Requested');
 
-      // **CRITICAL FIX: Apply same total correction as user controller**
-      // Recalculate correct total to ensure consistency
       let recalculatedSubtotal = 0;
       order.items.forEach(item => {
         if (item.priceBreakdown) {
@@ -104,15 +79,12 @@ const getReturnRequests = async (req, res) => {
       const useStoredSubtotal = order.subtotal && Math.abs(order.subtotal - recalculatedSubtotal) < 0.01;
       const displaySubtotal = useStoredSubtotal ? order.subtotal : recalculatedSubtotal;
 
-      // Recalculate correct total
       const correctTotal = displaySubtotal - (order.discount || 0) - (order.couponDiscount || 0) + (order.tax || 0);
       const useStoredTotal = order.total && Math.abs(order.total - correctTotal) < 0.01;
       const displayTotal = useStoredTotal ? order.total : correctTotal;
 
-      // Update order.total for accurate refund calculations
       order.total = displayTotal;
 
-      // **CALCULATE ESTIMATED REFUND WITH CORRECTED TOTAL**
       const estimatedRefund = calculateEstimatedRefund(order);
 
       return {
@@ -129,14 +101,12 @@ const getReturnRequests = async (req, res) => {
         customerEmail: order.user ? order.user.email : "N/A",
         hasIndividualReturns: returnRequestedItems.length > 0 && order.orderStatus === 'Delivered',
         hasFullOrderReturn: order.orderStatus === 'Return Requested',
-        estimatedRefund: estimatedRefund // **NEW: Include refund breakdown with corrected total**
+        estimatedRefund: estimatedRefund
       };
     });
 
-    // Calculate total pages
     const totalPages = Math.ceil(totalOrders / limit);
 
-    // Pagination data
     const pagination = {
       currentPage: page,
       totalPages,
@@ -147,16 +117,13 @@ const getReturnRequests = async (req, res) => {
       pages: Array.from({ length: totalPages }, (_, i) => i + 1),
     };
 
-    // Prepare filter values
     const filters = {
       status: status || "",
     };
 
-    // Get error message from session and clear it
     const errorMessage = req.session.errorMessage;
     delete req.session.errorMessage;
 
-    // Render the return management view
     res.render("admin/return-management", {
       orders: processedOrders,
       pagination,
@@ -170,10 +137,6 @@ const getReturnRequests = async (req, res) => {
     res.redirect('/admin/dashboard');
   }
 };
-
-/**
- * Get detailed view of a specific return request
- */
 const getReturnRequestDetails = async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -188,17 +151,13 @@ const getReturnRequestDetails = async (req, res) => {
       });
     }
 
-    // Filter items with return requests
     const returnRequestedItems = order.items.filter(item => item.status === 'Return Requested');
 
     if (returnRequestedItems.length === 0) {
-      // If no return requests found, redirect with a message
       req.session.errorMessage = 'No pending return requests found for this order.';
       return res.redirect('/admin/return-management');
     }
 
-    // **CRITICAL FIX: Apply same total correction as user controller**
-    // Recalculate correct total to ensure consistency
     let recalculatedSubtotal = 0;
     order.items.forEach(item => {
       if (item.priceBreakdown) {
@@ -211,15 +170,12 @@ const getReturnRequestDetails = async (req, res) => {
     const useStoredSubtotal = order.subtotal && Math.abs(order.subtotal - recalculatedSubtotal) < 0.01;
     const displaySubtotal = useStoredSubtotal ? order.subtotal : recalculatedSubtotal;
 
-    // Recalculate correct total
     const correctTotal = displaySubtotal - (order.discount || 0) - (order.couponDiscount || 0) + (order.tax || 0);
     const useStoredTotal = order.total && Math.abs(order.total - correctTotal) < 0.01;
     const displayTotal = useStoredTotal ? order.total : correctTotal;
 
-    // Update order.total for accurate refund calculations
     order.total = displayTotal;
 
-    // Format order data
     order.formattedDate = new Date(order.createdAt).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
@@ -227,7 +183,6 @@ const getReturnRequestDetails = async (req, res) => {
     });
     order.formattedTotal = `₹${displayTotal.toFixed(2)}`;
 
-    // **FIXED: Use same calculation as wallet controller with corrected total**
     const estimatedRefund = calculateEstimatedRefund(order);
     const totalRefundAmount = estimatedRefund.total;
 
@@ -244,10 +199,6 @@ const getReturnRequestDetails = async (req, res) => {
     res.redirect('/admin/return-management');
   }
 };
-
-/**
- * Process individual return request (approve/reject)
- */
 const processReturnRequest = async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -261,7 +212,6 @@ const processReturnRequest = async (req, res) => {
       });
     }
 
-    // Find items with return requests
     const returnRequestedItems = order.items.filter(item => item.status === 'Return Requested');
 
     if (returnRequestedItems.length === 0) {
@@ -275,24 +225,20 @@ const processReturnRequest = async (req, res) => {
 
     for (const item of returnRequestedItems) {
       if (approved) {
-        // Approve return
         item.status = 'Returned';
         item.returnedAt = now;
 
-        // Restore product stock
         await Product.findByIdAndUpdate(
           item.product,
           { $inc: { stock: item.quantity } }
         );
       } else {
-        // Reject return
         item.status = 'Active';
         item.returnRequestedAt = null;
         item.returnReason = null;
       }
     }
 
-    // Update order status
     const hasActiveItems = order.items.some(i => i.status === 'Active');
     const hasReturnRequestedItems = order.items.some(i => i.status === 'Return Requested');
 
@@ -302,20 +248,10 @@ const processReturnRequest = async (req, res) => {
       order.orderStatus = 'Delivered';
     }
 
-    // Process refund if approved
     if (approved) {
-      console.log('Processing return refund for order:', orderId, {
-        paymentStatus: order.paymentStatus,
-        userId: order.user,
-        returnedItems: order.items.filter(i => i.status === 'Returned').length
-      });
-
-      // Process refund based on payment method and status
       let refundProcessed = false;
 
       if (order.paymentMethod === 'COD') {
-        // For COD orders, only process refund if order was delivered (cash was paid)
-        // Check multiple indicators that the order was delivered and cash was collected
         const wasDeliveredAndPaid = order.paymentStatus === 'Paid' ||
                                     order.orderStatus === 'Delivered' ||
                                     order.deliveredAt ||
@@ -329,44 +265,33 @@ const processReturnRequest = async (req, res) => {
           const refundSuccess = await processReturnRefund(order.user, order);
           if (refundSuccess) {
             refundProcessed = true;
-            console.log('COD return refund processed successfully');
           } else {
-            console.error('Failed to process COD return refund');
             return res.status(500).json({
               success: false,
               message: 'Failed to process refund. Please try again.'
             });
           }
         } else {
-          console.log('COD order not delivered/paid yet - no refund needed');
-          refundProcessed = true; // No refund needed, but mark as processed
+          refundProcessed = true;
         }
       } else {
-        // **ENHANCED REFUND PROCESSING WITH TAX HANDLING**
         if (order.paymentStatus === 'Paid' || order.paymentStatus === 'Partially Refunded') {
-          console.log('Processing online payment return refund with enhanced logic');
-
           const refundSuccess = await processReturnRefund(order.user, order);
           if (refundSuccess) {
             refundProcessed = true;
-            console.log('Enhanced online payment return refund processed successfully');
           } else {
-            console.error('Failed to process enhanced online payment return refund');
             return res.status(500).json({
               success: false,
               message: 'Failed to process refund with tax calculation. Please try again.'
             });
           }
         } else {
-          console.log('Order not paid - no refund needed');
-          refundProcessed = true; // No refund needed, but mark as processed
+          refundProcessed = true;
         }
       }
 
-      // Update payment status based on refund processing
       if (refundProcessed) {
         if (order.paymentMethod === 'COD' && order.paymentStatus !== 'Paid') {
-          // COD order not delivered yet - set to failed
           order.paymentStatus = 'Failed';
         } else if (hasActiveItems) {
           order.paymentStatus = 'Partially Refunded';
@@ -393,13 +318,9 @@ const processReturnRequest = async (req, res) => {
     });
   }
 };
-
-/**
- * Bulk approve/reject return requests
- */
 const bulkProcessReturns = async (req, res) => {
   try {
-    const { orderIds, action } = req.body; // action: 'approve' or 'reject'
+    const { orderIds, action } = req.body;
 
     if (!orderIds || !Array.isArray(orderIds) || orderIds.length === 0) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -421,24 +342,20 @@ const bulkProcessReturns = async (req, res) => {
 
         for (const item of returnRequestedItems) {
           if (approved) {
-            // Approve return
             item.status = 'Returned';
             item.returnedAt = new Date();
 
-            // Restore product stock
             await Product.findByIdAndUpdate(
               item.product,
               { $inc: { stock: item.quantity } }
             );
           } else {
-            // Reject return
             item.status = 'Active';
             item.returnRequestedAt = null;
             item.returnReason = null;
           }
         }
 
-        // Update order status
         const hasActiveItems = order.items.some(i => i.status === 'Active');
         const hasReturnRequestedItems = order.items.some(i => i.status === 'Return Requested');
 
@@ -448,13 +365,10 @@ const bulkProcessReturns = async (req, res) => {
           order.orderStatus = 'Delivered';
         }
 
-        // Process refund if approved - handle all payment methods
         if (approved) {
           let refundProcessed = false;
 
           if (order.paymentMethod === 'COD') {
-            // For COD orders, only process refund if order was delivered (cash was paid)
-            // Check multiple indicators that the order was delivered and cash was collected
             const wasDeliveredAndPaid = order.paymentStatus === 'Paid' ||
                                         order.orderStatus === 'Delivered' ||
                                         order.deliveredAt ||
@@ -465,28 +379,24 @@ const bulkProcessReturns = async (req, res) => {
                                         );
 
             if (wasDeliveredAndPaid) {
-              console.log('Processing COD return refund with enhanced tax logic');
               const refundSuccess = await processReturnRefund(order.user, order);
               if (refundSuccess) {
                 refundProcessed = true;
-                console.log('Enhanced COD return refund processed successfully');
               }
             } else {
-              refundProcessed = true; // No refund needed for unpaid COD
+              refundProcessed = true;
             }
           } else {
-            // For online payment methods
             if (order.paymentStatus === 'Paid' || order.paymentStatus === 'Partially Refunded') {
               const refundSuccess = await processReturnRefund(order.user, order);
               if (refundSuccess) {
                 refundProcessed = true;
               }
             } else {
-              refundProcessed = true; // No refund needed for unpaid orders
+              refundProcessed = true;
             }
           }
 
-          // Update payment status based on refund processing
           if (refundProcessed) {
             if (order.paymentMethod === 'COD' && order.paymentStatus !== 'Paid') {
               order.paymentStatus = 'Failed';
