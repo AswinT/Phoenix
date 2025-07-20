@@ -284,25 +284,34 @@
                 <h4 class="filter-section-title">
                   <i class="ri-folder-line me-2"></i>Categories
                 </h4>
-                <div class="filter-options">
-                  <div class="filter-option" data-category="all">
-                    <input class="filter-checkbox" type="checkbox" value="all" id="allCategories" checked>
-                    <label class="filter-label" for="allCategories">
-                      <span class="checkmark"></span>
-                      All Categories
-                    </label>
-                  </div>
-                  <% if (categories && categories.length > 0) { %>
-                    <% categories.forEach(category => { %>
-                      <div class="filter-option" data-category="<%= category._id %>">
-                        <input class="filter-checkbox category-checkbox" type="checkbox" value="<%= category._id %>" id="cat_<%= category._id %>">
-                        <label class="filter-label" for="cat_<%= category._id %>">
-                          <span class="checkmark"></span>
-                          <%= category.name %>
-                        </label>
-                      </div>
-                    <% }) %>
-                  <% } %>
+                <div class="filter-dropdown-container">
+                  <select class="filter-dropdown" id="categorySelect" multiple>
+                    <option value="">All Categories</option>
+                    <% if (categories && categories.length > 0) { %>
+                      <% categories.forEach(category => { %>
+                        <option value="<%= category._id %>"><%= category.name %></option>
+                      <% }) %>
+                    <% } %>
+                  </select>
+                  <i class="ri-arrow-down-s-line dropdown-arrow"></i>
+                </div>
+              </div>
+
+              <!-- Brand Filter -->
+              <div class="filter-section">
+                <h4 class="filter-section-title">
+                  <i class="ri-price-tag-3-line me-2"></i>Brands
+                </h4>
+                <div class="filter-dropdown-container">
+                  <select class="filter-dropdown" id="brandSelect" multiple>
+                    <option value="">All Brands</option>
+                    <% if (brands && brands.length > 0) { %>
+                      <% brands.forEach(brand => { %>
+                        <option value="<%= brand %>"><%= brand %></option>
+                      <% }) %>
+                    <% } %>
+                  </select>
+                  <i class="ri-arrow-down-s-line dropdown-arrow"></i>
                 </div>
               </div>
 
@@ -312,13 +321,6 @@
                   <i class="ri-money-rupee-circle-line me-2"></i>Price Range
                 </h4>
                 <div class="price-filter">
-                  <div class="range-slider-container">
-                    <input type="range" class="custom-range" min="0" max="50000" id="priceRange" value="50000">
-                    <div class="range-labels">
-                      <span class="range-label" id="minPrice">₹0</span>
-                      <span class="range-label" id="maxPrice">₹50000</span>
-                    </div>
-                  </div>
                   <div class="price-inputs">
                     <div class="price-input-group">
                       <span class="price-currency">₹</span>
@@ -593,65 +595,61 @@
     letter-spacing: -0.01em;
   }
 
-  /* Filter Options */
-  .filter-options {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .filter-option {
+  /* Filter Dropdown Styles */
+  .filter-dropdown-container {
     position: relative;
   }
 
-  .filter-checkbox {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-  }
-
-  .filter-label {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
+  .filter-dropdown {
+    width: 100%;
+    appearance: none;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.75rem 2.5rem 0.75rem 1rem;
     font-size: 0.9rem;
-    color: #4a5568;
     font-weight: 500;
+    color: #2d2d2d;
+    cursor: pointer;
     transition: all 0.2s ease;
-    padding: 0.5rem 0;
-    user-select: none;
+    min-height: 45px;
   }
 
-  .filter-label:hover {
+  .filter-dropdown:focus {
+    outline: none;
+    border-color: #1a1a1a;
+    box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
+  }
+
+  .filter-dropdown:hover {
+    border-color: #cbd5e0;
+  }
+
+  .dropdown-arrow {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b7280;
+    pointer-events: none;
+    font-size: 1.1rem;
+    transition: transform 0.2s ease;
+  }
+
+  .filter-dropdown:focus + .dropdown-arrow {
+    transform: translateY(-50%) rotate(180deg);
+  }
+
+  /* Multi-select dropdown styling */
+  .filter-dropdown option {
+    padding: 0.5rem;
+    font-size: 0.9rem;
     color: #2d2d2d;
   }
 
-  .checkmark {
-    width: 18px;
-    height: 18px;
-    border: 2px solid #d1d5db;
-    border-radius: 4px;
-    margin-right: 0.75rem;
-    position: relative;
-    transition: all 0.2s ease;
-    flex-shrink: 0;
-  }
-
-  .filter-checkbox:checked + .filter-label .checkmark {
+  .filter-dropdown option:checked {
     background: #1a1a1a;
-    border-color: #1a1a1a;
-  }
-
-  .filter-checkbox:checked + .filter-label .checkmark::after {
-    content: '';
-    position: absolute;
-    left: 5px;
-    top: 2px;
-    width: 4px;
-    height: 8px;
-    border: solid white;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
+    color: white;
   }
 
   /* Price Filter */
@@ -659,60 +657,6 @@
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
-  }
-
-  .range-slider-container {
-    position: relative;
-  }
-
-  .custom-range {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 6px;
-    border-radius: 3px;
-    background: linear-gradient(to right, #1a1a1a 0%, #1a1a1a 100%);
-    outline: none;
-    cursor: pointer;
-  }
-
-  .custom-range::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #1a1a1a;
-    cursor: pointer;
-    border: 3px solid white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    transition: all 0.2s ease;
-  }
-
-  .custom-range::-webkit-slider-thumb:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  }
-
-  .custom-range::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #1a1a1a;
-    cursor: pointer;
-    border: 3px solid white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  }
-
-  .range-labels {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 0.75rem;
-  }
-
-  .range-label {
-    font-size: 0.85rem;
-    color: #6b7280;
-    font-weight: 500;
   }
 
   /* Price Inputs */
@@ -1007,7 +951,7 @@
     }
   }
 
-  /* Existing styles unchanged, added original-price */
+  /* Product styles */
   .product-actions {
     position: absolute;
     bottom: 0;
@@ -1115,59 +1059,6 @@
     border-color: #c82333;
   }
 
-  .custom-range {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 6px;
-    border-radius: 5px;
-    background: #d3d3d3;
-    outline: none;
-  }
-
-  .custom-range::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: #000;
-    cursor: pointer;
-  }
-
-  .custom-range::-moz-range-thumb {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: #000;
-    cursor: pointer;
-    border: none;
-  }
-
-  .custom-range::-webkit-slider-runnable-track {
-    width: 100%;
-    height: 6px;
-    cursor: pointer;
-    background: #d3d3d3;
-    border-radius: 5px;
-  }
-
-  .custom-range::-moz-range-track {
-    width: 100%;
-    height: 6px;
-    cursor: pointer;
-    background: #d3d3d3;
-    border-radius: 5px;
-  }
-
-  .custom-range:focus::-webkit-slider-runnable-track {
-    background: #d3d3d3;
-  }
-
-  .form-check-input:checked {
-    background-color: #000;
-    border-color: #000;
-  }
-
   @media (max-width: 767.98px) {
     .product-actions {
       opacity: 1;
@@ -1204,51 +1095,9 @@
     border-radius: 2px;
     z-index: 1;
   }
-
-  /* Reset button styling */
-  .btn-outline-secondary {
-    border-color: #6c757d;
-    color: #6c757d;
-    transition: all 0.3s ease;
-  }
-
-  .btn-outline-secondary:hover {
-    background-color: #6c757d;
-    border-color: #6c757d;
-    color: #fff;
-  }
-
-  .btn-outline-secondary:focus {
-    box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.25);
-  }
 </style>
 
 <script>
-  // Initialize price range
-  document.getElementById('priceRange').addEventListener('input', function() {
-    const max = parseInt(this.max);
-    const value = parseInt(this.value);
-    document.getElementById('maxPrice').textContent = `₹${value}`;
-    document.getElementById('maxPriceInput').value = value;
-    document.getElementById('minPriceInput').max = value;
-  });
-
-  document.getElementById('minPriceInput').addEventListener('input', function() {
-    const min = parseInt(this.value);
-    const max = parseInt(document.getElementById('maxPriceInput').value);
-    if (min > max) document.getElementById('maxPriceInput').value = min;
-    document.getElementById('priceRange').value = max;
-    document.getElementById('minPrice').textContent = `₹${min}`;
-  });
-
-  document.getElementById('maxPriceInput').addEventListener('input', function() {
-    const max = parseInt(this.value);
-    const min = parseInt(document.getElementById('minPriceInput').value);
-    if (max < min) document.getElementById('minPriceInput').value = max;
-    document.getElementById('priceRange').value = max;
-    document.getElementById('maxPrice').textContent = `₹${max}`;
-  });
-
   // Filter functions for server-side filtering and pagination
   function applyFilters() {
     const url = new URL(window.location.href);
@@ -1256,14 +1105,28 @@
 
     params.set('page', '1');
 
-    const selectedCategories = Array.from(document.querySelectorAll('.category-checkbox:checked'))
-      .map(cb => cb.value)
-      .filter(value => value !== 'all');
+    // Handle category filters from dropdown
+    const categorySelect = document.getElementById('categorySelect');
+    const selectedCategories = Array.from(categorySelect.selectedOptions)
+      .map(option => option.value)
+      .filter(value => value !== '');
 
     params.delete('category');
 
     if (selectedCategories.length > 0) {
       selectedCategories.forEach(cat => params.append('category', cat));
+    }
+
+    // Handle brand filters from dropdown
+    const brandSelect = document.getElementById('brandSelect');
+    const selectedBrands = Array.from(brandSelect.selectedOptions)
+      .map(option => option.value)
+      .filter(value => value !== '');
+
+    params.delete('brand');
+
+    if (selectedBrands.length > 0) {
+      selectedBrands.forEach(brand => params.append('brand', brand));
     }
 
     const minPrice = parseInt(document.getElementById('minPriceInput').value) || 0;
@@ -1288,24 +1151,17 @@
 
   // Reset all filters function
   function resetFilters() {
-    // Reset all category checkboxes
-    const allCategoriesCheckbox = document.getElementById('allCategories');
-    const categoryCheckboxes = document.querySelectorAll('.category-checkbox');
-
-    if (allCategoriesCheckbox) {
-      allCategoriesCheckbox.checked = true;
-    }
-
-    categoryCheckboxes.forEach(cb => {
-      cb.checked = false;
-    });
+    // Reset category dropdown
+    const categorySelect = document.getElementById('categorySelect');
+    categorySelect.selectedIndex = 0; // Select "All Categories"
+    
+    // Reset brand dropdown
+    const brandSelect = document.getElementById('brandSelect');
+    brandSelect.selectedIndex = 0; // Select "All Brands"
 
     // Reset price range
     document.getElementById('minPriceInput').value = 0;
     document.getElementById('maxPriceInput').value = 50000;
-    document.getElementById('priceRange').value = 50000;
-    document.getElementById('minPrice').textContent = '₹0';
-    document.getElementById('maxPrice').textContent = '₹50000';
 
     // Reset sort to recommended
     document.getElementById('sortSelect').value = 'recommended';
@@ -1328,61 +1184,52 @@
     }
   }
 
-  // All Categories checkbox logic
+  // Initialize filters from URL parameters
   document.addEventListener('DOMContentLoaded', function() {
-    const allCategoriesCheckbox = document.getElementById('allCategories');
-    const categoryCheckboxes = document.querySelectorAll('.category-checkbox');
-
-    if (allCategoriesCheckbox) {
-      allCategoriesCheckbox.addEventListener('change', function() {
-        if (this.checked) {
-          categoryCheckboxes.forEach(cb => {
-            cb.checked = false;
-          });
-        }
-      });
-    }
-
-    categoryCheckboxes.forEach(cb => {
-      cb.addEventListener('change', function() {
-        if (this.checked && allCategoriesCheckbox) {
-          allCategoriesCheckbox.checked = false;
-        }
-
-        const anyChecked = Array.from(categoryCheckboxes).some(cb => cb.checked);
-        if (!anyChecked && allCategoriesCheckbox) {
-          allCategoriesCheckbox.checked = true;
-        }
-      });
-    });
-
     const urlParams = new URLSearchParams(window.location.search);
+    
+    // Set category selections
     const categoryParams = urlParams.getAll('category');
-
+    const categorySelect = document.getElementById('categorySelect');
+    
     if (categoryParams.length > 0) {
-      if (allCategoriesCheckbox) {
-        allCategoriesCheckbox.checked = false;
-      }
-
-      categoryCheckboxes.forEach(cb => {
-        if (categoryParams.includes(cb.value)) {
-          cb.checked = true;
+      // Clear default selection
+      categorySelect.selectedIndex = -1;
+      
+      // Select the categories from URL
+      Array.from(categorySelect.options).forEach(option => {
+        if (categoryParams.includes(option.value)) {
+          option.selected = true;
         }
       });
     }
 
+    // Set brand selections
+    const brandParams = urlParams.getAll('brand');
+    const brandSelect = document.getElementById('brandSelect');
+    
+    if (brandParams.length > 0) {
+      // Clear default selection
+      brandSelect.selectedIndex = -1;
+      
+      // Select the brands from URL
+      Array.from(brandSelect.options).forEach(option => {
+        if (brandParams.includes(option.value)) {
+          option.selected = true;
+        }
+      });
+    }
+
+    // Set price values
     const minPrice = urlParams.get('minPrice');
     const maxPrice = urlParams.get('maxPrice');
 
     if (minPrice) {
       document.getElementById('minPriceInput').value = minPrice;
-      document.getElementById('minPrice').textContent = `₹${minPrice}`;
     }
 
     if (maxPrice) {
       document.getElementById('maxPriceInput').value = maxPrice;
-      document.getElementById('priceRange').value = maxPrice;
-      document.getElementById('maxPrice').textContent = `₹${maxPrice}`;
     }
 
     const sortValue = urlParams.get('sort');
@@ -1407,7 +1254,6 @@
           });
           const result = await response.json();
 
-          // Check if it's a 401 Unauthorized or authentication error
           if (response.status === 401 || !result.success) {
             console.log('Shop cart authentication error - redirecting to login');
             Swal.fire({
@@ -1435,7 +1281,6 @@
               timer: 1500
             });
           } else {
-            // Check if it's an authentication error
             if (result.message === 'Please log in to add items to your cart' || result.requiresAuth) {
               Swal.fire({
                 toast: true,
@@ -1484,7 +1329,6 @@
           });
           const result = await response.json();
 
-          // Check if it's a 401 Unauthorized or authentication error
           if (response.status === 401 || !result.success) {
             console.log('Shop wishlist authentication error - redirecting to login');
             Swal.fire({
@@ -1498,7 +1342,6 @@
               window.location.href = '/login';
             });
           } else if (result.success) {
-            // Update button appearance
             const icon = this.querySelector('i');
             if (result.isWishlisted) {
               icon.className = 'ri-heart-fill';
@@ -1508,7 +1351,6 @@
               this.classList.remove('wishlisted');
             }
 
-            // Update wishlist count
             if (wishlistCountElement) {
               wishlistCountElement.textContent = result.wishlistCount;
               wishlistCountElement.dataset.count = result.wishlistCount;
@@ -1523,7 +1365,6 @@
               timer: 1500
             });
           } else {
-            // Check if it's an authentication error
             if (result.message === 'Please log in to manage your wishlist' || result.requiresAuth) {
               Swal.fire({
                 toast: true,

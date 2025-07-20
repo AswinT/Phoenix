@@ -19,6 +19,15 @@ const shopPage = async (req, res) => {
       }
     }
 
+    const brandFilter = req.query.brand;
+    if (brandFilter) {
+      if (Array.isArray(brandFilter)) {
+        query.brand = { $in: brandFilter };
+      } else {
+        query.brand = brandFilter;
+      }
+    }
+
     const minPrice = parseInt(req.query.minPrice) || 0;
     const maxPrice = parseInt(req.query.maxPrice) || 50000;
 
@@ -166,6 +175,9 @@ const shopPage = async (req, res) => {
 
     const categories = await Category.find({ isListed: true });
 
+    // Get unique brands from all listed products
+    const brands = await Product.distinct('brand', { isListed: true, isDeleted: false });
+
     let queryParams = new URLSearchParams();
 
     for (const [key, value] of Object.entries(req.query)) {
@@ -183,11 +195,13 @@ const shopPage = async (req, res) => {
     res.render('shop-page', {
       products: paginatedProducts,
       categories,
+      brands,
       pagination: paginationData,
       currentPage: page,
       totalPages,
       totalProducts,
       categoryId,
+      brandFilter,
       minPrice,
       maxPrice,
       sortOption,
