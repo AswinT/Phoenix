@@ -58,15 +58,21 @@ const shopPage = async (req, res) => {
     const priceBuffer = Math.max(100, maxPrice * 0.2); // 20% buffer for offers
     query.salePrice = { $gte: Math.max(0, minPrice - priceBuffer), $lte: maxPrice + priceBuffer };
 
-    // Get products with rough price filter
+    // Get products with rough price filter and ensure category is listed
     const allProducts = await Product.find(query)
-      .populate('category')
+      .populate({
+        path: 'category',
+        match: { isListed: true } // Only populate if category is listed
+      })
       .sort(sortQuery)
       .limit(1000); // Reasonable limit to prevent performance issues
 
+    // Filter out products where category population failed (unlisted categories)
+    const validProducts = allProducts.filter(product => product.category !== null);
+
     // Apply independent offer comparison logic for shop page products
     const productsWithOffers = [];
-    for (const product of allProducts) {
+    for (const product of validProducts) {
       // Step 1: Calculate all possible pricing options INDEPENDENTLY
       const pricingOptions = [];
 

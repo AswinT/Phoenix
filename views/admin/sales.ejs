@@ -238,6 +238,17 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <script>
+// Set max date to today for date inputs to prevent future date selection
+document.addEventListener('DOMContentLoaded', function() {
+  const today = new Date().toISOString().split('T')[0];
+  const fromDateInput = document.getElementById('fromDate');
+  const toDateInput = document.getElementById('toDate');
+  
+  // Set max attribute to today's date
+  fromDateInput.setAttribute('max', today);
+  toDateInput.setAttribute('max', today);
+});
+
 // Mobile navigation is handled by the sidebar partial
 
 // Helper function for pagination
@@ -252,10 +263,18 @@ function goToPage(page) {
 document.getElementById('reportType').addEventListener('change', function() {
   const reportType = this.value;
   const customRange = reportType === 'custom';
+  const today = new Date().toISOString().split('T')[0];
 
   // Enable/disable date inputs based on selection
-  document.getElementById('fromDate').disabled = !customRange;
-  document.getElementById('toDate').disabled = !customRange;
+  const fromDateInput = document.getElementById('fromDate');
+  const toDateInput = document.getElementById('toDate');
+  
+  fromDateInput.disabled = !customRange;
+  toDateInput.disabled = !customRange;
+  
+  // Ensure max date is set even when enabling/disabling
+  fromDateInput.setAttribute('max', today);
+  toDateInput.setAttribute('max', today);
 
   // If not custom, clear the quick filter and apply the report type
   if (!customRange) {

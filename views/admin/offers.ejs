@@ -213,7 +213,7 @@
                     <div class="form-check">
                       <input class="form-check-input product-checkbox" type="checkbox" name="applicableProducts" value="<%= product._id %>" id="addProduct_<%= product._id %>">
                       <label class="form-check-label" for="addProduct_<%= product._id %>">
-                        <%= product.title %>
+                        <%= product.title || product.model %>
                       </label>
                     </div>
                   <% }) %>
@@ -340,7 +340,7 @@
                     <div class="form-check">
                       <input class="form-check-input edit-product-checkbox" type="checkbox" name="applicableProducts" value="<%= product._id %>" id="editProduct_<%= product._id %>">
                       <label class="form-check-label" for="editProduct_<%= product._id %>">
-                        <%= product.title %>
+                        <%= product.title || product.model %>
                       </label>
                     </div>
                   <% }) %>

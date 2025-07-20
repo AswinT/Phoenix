@@ -62,7 +62,7 @@
     <div class="row justify-content-center">
       <div class="col-lg-8 text-center">
         <h1 class="display-5 fw-bold mb-2">Your Cart</h1>
-        <p class="text-muted mb-0">Review and modify your selected stories</p>
+        <p class="text-muted mb-0">Review and modify your selected products</p>
       </div>
     </div>
   </div>
@@ -80,7 +80,7 @@
             <i class="ri-shopping-cart-line" style="font-size: 4rem; color: #ccc;"></i>
           </div>
           <h3 class="fs-4 fw-semibold mb-3">Your cart is empty</h3>
-          <p class="text-muted mb-4">Looks like you haven't found your story yet</p>
+          <p class="text-muted mb-4">Looks like you haven't found your perfect headphones yet</p>
           <a href="/shopPage" class="btn btn-dark px-4 py-2">Continue Shopping</a>
         </div>
 
@@ -103,15 +103,15 @@
                   </div>
                 </div>
                 <div class="col-md-6 col-8 mb-3 mb-md-0">
-                  <h3 class="fs-5 fw-semibold mb-1"><%= item.product.title %></h3>
-                  <p class="text-muted small mb-1"><%= item.product.author %></p>
-                  <p class="small mb-0"><%= item.product.format || 'Hardcover' %></p>
+                  <h3 class="fs-5 fw-semibold mb-1"><%= item.product.model %></h3>
+                  <p class="text-muted small mb-1"><%= item.product.brand %></p>
+                  <p class="small mb-0"><%= item.product.connectivity %></p>
                   <% if (item.product.activeOffer) { %>
                     <p class="offer-title mt-1"><i class="ri-price-tag-3-line"></i> <%= item.product.activeOffer.title %></p>
                   <% } %>
                   <span class="stock-status <%= item.product.stock > 10 ? 'in-stock' : item.product.stock > 0 ? 'low-stock' : 'out-of-stock' %>">
                     <i class="ri-<%= item.product.stock > 10 ? 'checkbox-circle-line' : item.product.stock > 0 ? 'alert-line' : 'close-circle-line' %> me-1"></i>
-                    <%= item.product.stock > 10 ? `In Stock (${item.product.stock} copies available)` : item.product.stock > 0 ? `Low Stock (${item.product.stock} copies left)` : 'Out of Stock' %>
+                    <%= item.product.stock > 10 ? `In Stock (${item.product.stock} units available)` : item.product.stock > 0 ? `Low Stock (${item.product.stock} units left)` : 'Out of Stock' %>
                   </span>
                 </div>
                 <div class="col-md-2 col-6 text-md-center">
@@ -221,14 +221,14 @@
               <% } %>
               
               <a href="/products/<%= product._id %>" class="text-decoration-none">
-                <img src="<%= product.mainImage || '/api/placeholder/600/800' %>" alt="<%= product.title %>" class="product-image" />
+                <img src="<%= product.mainImage || '/api/placeholder/600/800' %>" alt="<%= product.model %>" class="product-image" />
               </a>
             </div>
             <div class="p-3">
               <h3 class="fs-5 fw-semibold mb-1">
-                <a href="/products/<%= product._id %>" class="text-dark text-decoration-none"><%= product.title %></a>
+                <a href="/products/<%= product._id %>" class="text-dark text-decoration-none"><%= product.model %></a>
               </h3>
-              <p class="text-muted small mb-2"><%= product.author %></p>
+              <p class="text-muted small mb-2"><%= product.brand %></p>
               <div class="d-flex justify-content-between align-items-center">
                 <div>
                   <% if (product.activeOffer && product.discountPercentage > 0) { %>

@@ -143,11 +143,11 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form id="addCouponForm">
+        <form id="addCouponForm" data-validation="true">
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="couponCode" class="form-label">Coupon Code*</label>
-              <input type="text" class="form-control" id="couponCode" name="couponCode" placeholder="e.g. SUMMER20" required>
+              <input type="text" class="form-control" id="couponCode" name="couponCode" placeholder="e.g. SUMMER20">
               <small class="text-muted">Must be unique and uppercase</small>
             </div>
             <div class="col-md-6 mb-3">
@@ -167,7 +167,7 @@
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="discountType" class="form-label">Discount Type*</label>
-              <select class="form-select" id="discountType" name="discountType" required>
+              <select class="form-select" id="discountType" name="discountType">
                 <option value="percentage">Percentage Discount</option>
                 <option value="fixed">Fixed Amount Discount</option>
               </select>
@@ -176,7 +176,7 @@
               <label for="discountValue" class="form-label">Discount Value*</label>
               <div class="input-group">
                 <span class="input-group-text discount-symbol">%</span>
-                <input type="number" class="form-control" id="discountValue" name="discountValue" min="0" step="1" required>
+                <input type="number" class="form-control" id="discountValue" name="discountValue" min="0" step="1">
               </div>
             </div>
           </div>
@@ -205,11 +205,11 @@
           <div class="row">
             <div class="col-md-6 mb-3">
               <label for="startDate" class="form-label">Start Date*</label>
-              <input type="date" class="form-control" id="startDate" name="startDate" required>
+              <input type="date" class="form-control" id="startDate" name="startDate">
             </div>
             <div class="col-md-6 mb-3">
               <label for="expiryDate" class="form-label">Expiry Date*</label>
-              <input type="date" class="form-control" id="expiryDate" name="expiryDate" required>
+              <input type="date" class="form-control" id="expiryDate" name="expiryDate">
             </div>
           </div>
 
@@ -622,7 +622,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
-<!-- Add validation script -->
+<!-- Load ValidationErrorHandler before coupon validation -->
+<script src="/js/validation-error-handler.js"></script>
 <script src="/validators/admin/coupon-validation.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
@@ -869,88 +870,94 @@
     });
 
     // Create coupon
-    document.getElementById('createCouponBtn').addEventListener('click', function() {
+    document.getElementById('createCouponBtn').addEventListener('click', function(e) {
+      e.preventDefault();
       const form = document.getElementById('addCouponForm');
-      if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
+      window.ValidationErrorHandler.clearAllErrors(form);
+      if (window.validateCouponForm && window.validateCouponForm(form)) {
+        // Only submit if validation passes
+        const addAllCategories = document.getElementById('addAllCategories');
+        const addCategoryCheckboxes = document.querySelectorAll('.category-checkbox');
+        const couponData = {
+          couponCode: document.getElementById('couponCode').value.toUpperCase(),
+          isActive: document.getElementById('couponStatus').value === 'true',
+          couponDescription: document.getElementById('couponDescription').value,
+          discountType: document.getElementById('discountType').value,
+          discountValue: parseFloat(document.getElementById('discountValue').value),
+          maxDiscountValue: document.getElementById('discountType').value === 'percentage' && document.getElementById('maxDiscountValue').value
+            ? parseFloat(document.getElementById('maxDiscountValue').value)
+            : null,
+          minOrderAmount: parseFloat(document.getElementById('minOrderAmount').value) || 0,
+          startDate: document.getElementById('startDate').value,
+          expiryDate: document.getElementById('expiryDate').value,
+          usageLimitGlobal: document.getElementById('usageLimitGlobal').value
+            ? parseInt(document.getElementById('usageLimitGlobal').value)
+            : null,
+          usageLimitPerUser: parseInt(document.getElementById('usageLimitPerUser').value) || 1,
+          applicableCategories: addAllCategories.checked
+            ? []
+            : Array.from(addCategoryCheckboxes)
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.value),
+          applicableProducts: [],
+        };
+        fetch('/admin/coupons', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(couponData),
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            Swal.fire({
+              title: 'Success!',
+              text: 'Coupon created successfully.',
+              icon: 'success',
+              confirmButtonColor: '#3085d6',
+            }).then(() => {
+              window.location.reload();
+            });
+          } else {
+            // Show backend errors inline if possible
+            if (data.errors) {
+              window.ValidationErrorHandler.displayFieldErrors(data.errors, '#addCouponForm');
+            } else {
+              // fallback
+              window.ValidationErrorHandler.displayGeneralErrors([data.message || 'Failed to create coupon.']);
+            }
+          }
+        })
+        .catch(error => {
+          window.ValidationErrorHandler.displayGeneralErrors(['Failed to create coupon.']);
+        });
       }
-
-      const addAllCategories = document.getElementById('addAllCategories');
-      const addCategoryCheckboxes = document.querySelectorAll('.category-checkbox');
-
-      const couponData = {
-        couponCode: document.getElementById('couponCode').value.toUpperCase(),
-        isActive: document.getElementById('couponStatus').value === 'true',
-        couponDescription: document.getElementById('couponDescription').value,
-        discountType: document.getElementById('discountType').value,
-        discountValue: parseFloat(document.getElementById('discountValue').value),
-        maxDiscountValue: document.getElementById('discountType').value === 'percentage' && document.getElementById('maxDiscountValue').value
-          ? parseFloat(document.getElementById('maxDiscountValue').value)
-          : null,
-        minOrderAmount: parseFloat(document.getElementById('minOrderAmount').value) || 0,
-        startDate: document.getElementById('startDate').value,
-        expiryDate: document.getElementById('expiryDate').value,
-        usageLimitGlobal: document.getElementById('usageLimitGlobal').value
-          ? parseInt(document.getElementById('usageLimitGlobal').value)
-          : null,
-        usageLimitPerUser: parseInt(document.getElementById('usageLimitPerUser').value) || 1,
-        applicableCategories: addAllCategories.checked
-          ? []
-          : Array.from(addCategoryCheckboxes)
-              .filter(checkbox => checkbox.checked)
-              .map(checkbox => checkbox.value),
-        applicableProducts: [],
-      };
-
-      fetch('/admin/coupons', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(couponData),
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          Swal.fire({
-            title: 'Success!',
-            text: 'Coupon created successfully.',
-            icon: 'success',
-            confirmButtonColor: '#3085d6',
-          }).then(() => {
-            window.location.reload();
-          });
-        } else {
-          Swal.fire('Error!', data.message, 'error');
-        }
-      })
-      .catch(error => {
-        Swal.fire('Error!', 'Failed to create coupon.', 'error');
-      });
     });
 
     // Update coupon
     document.getElementById('updateCouponBtn').addEventListener('click', function() {
       const form = document.getElementById('editCouponForm');
-      if (!form.checkValidity()) {
-        form.reportValidity();
+      window.ValidationErrorHandler.clearAllErrors(form);
+      
+      // Use our custom validation function
+      if (!window.validateCouponForm || !window.validateCouponForm(form)) {
         return;
       }
 
       const couponId = document.getElementById('editCouponId').value;
       const couponData = {
-        code: document.getElementById('editCouponCode').value.toUpperCase(),
+        couponCode: document.getElementById('editCouponCode').value.toUpperCase(),
         isActive: document.getElementById('editCouponStatus').value === 'true',
-        description: document.getElementById('editCouponDescription').value,
+        couponDescription: document.getElementById('editCouponDescription').value,
         discountType: document.getElementById('editDiscountType').value,
         discountValue: parseFloat(document.getElementById('editDiscountValue').value),
         maxDiscountValue: document.getElementById('editDiscountType').value === 'percentage' && document.getElementById('editMaxDiscountValue').value 
           ? parseFloat(document.getElementById('editMaxDiscountValue').value) 
           : null,
         minOrderAmount: parseFloat(document.getElementById('editMinOrderAmount').value) || 0,
-        startDate: new Date(document.getElementById('editStartDate').value),
-        expiryDate: new Date(document.getElementById('editExpiryDate').value),
+        startDate: document.getElementById('editStartDate').value,
+        expiryDate: document.getElementById('editExpiryDate').value,
         usageLimitGlobal: document.getElementById('editUsageLimitGlobal').value 
           ? parseInt(document.getElementById('editUsageLimitGlobal').value) 
           : null,

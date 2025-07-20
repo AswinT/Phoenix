@@ -160,7 +160,7 @@ const getOffers = async (req, res) => {
     const totalOffers = await Offer.countDocuments(query);
     const offersData = await Offer.find(query)
       .populate("applicableCategories", "name")
-      .populate("applicableProducts", "title")
+      .populate("applicableProducts", "model")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -198,7 +198,7 @@ const getOffers = async (req, res) => {
             offer.applicableProducts.length === 1 &&
             offer.applicableProducts[0]
           ) {
-            offer.appliesToDisplay = `${offer.applicableProducts[0].title} (Product)`;
+            offer.appliesToDisplay = `${offer.applicableProducts[0].model} (Product)`;
           }
           break;
         case "all_categories":
@@ -226,7 +226,7 @@ const getOffers = async (req, res) => {
       .select("name _id")
       .lean();
     const products = await Product.find({ isDeleted: false, isListed: true })
-      .select("model _id")
+      .select({ _id: 1, title: "$model" })
       .lean();
 
     const totalPages = Math.ceil(totalOffers / limit);
@@ -275,7 +275,7 @@ const getOfferDetails = async (req, res) => {
 
     const offer = await Offer.findById(offerId)
       .populate("applicableCategories", "name _id")
-      .populate("applicableProducts", "title _id")
+      .populate("applicableProducts", "model _id")
       .lean();
 
     if (!offer) {

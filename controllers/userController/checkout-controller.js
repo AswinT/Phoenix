@@ -683,7 +683,7 @@ const createRazorpayOrder = async (req, res) => {
       tax: checkoutTax,
       finalTotal: checkoutTotal,
       orderItems: orderItems.map(item => ({
-        title: item.title,
+        title: item.model || item.title || 'Unknown Product',
         originalPrice: item.price,
         discountedPrice: item.discountedPrice,
         quantity: item.quantity,

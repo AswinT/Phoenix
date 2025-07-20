@@ -91,8 +91,8 @@ const calculateIndividualItemRefund = (targetItemId, order, allItems) => {
   return {
     success: true,
     amount: refundAmount,
-    reason: `Refund for cancelled item: ${itemToRefund.title}`,
-    itemTitle: itemToRefund.title,
+    reason: `Refund for cancelled item: ${itemToRefund.model || itemToRefund.title || 'Unknown Product'}`,
+    itemTitle: itemToRefund.model || itemToRefund.title || 'Unknown Product',
     itemId: itemToRefund._id || itemToRefund.product
   };
 };
@@ -132,7 +132,7 @@ const calculateReturnRefund = (order, returnedItems) => {
     const itemRefund = calculateItemProportion(item, order, order.items);
     totalRefund += itemRefund;
     refundedItems.push({
-      title: item.title,
+      title: item.model || item.title || 'Unknown Product',
       amount: itemRefund
     });
   }
@@ -165,7 +165,7 @@ const calculateCancellationRefund = (order, activeItems, allItems) => {
     const itemRefund = calculateItemProportion(item, order, allItems);
     totalRefund += itemRefund;
     refundedItems.push({
-      title: item.title,
+      title: item.model || item.title || 'Unknown Product',
       amount: itemRefund
     });
   }
@@ -286,7 +286,7 @@ const getRefundBreakdown = (item, order) => {
     const refundAmount = calculateExactRefundAmount(item, order);
 
     return {
-      itemTitle: item.title || 'Unknown Item',
+      itemTitle: item.model || item.title || 'Unknown Item',
       originalPrice: item.price || 0,
       quantity: item.quantity || 1,
       refundAmount: refundAmount,

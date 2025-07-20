@@ -146,15 +146,33 @@
       </div>
     </div>
     <script>
-      // Handle query parameter for blocked user
+      // Handle query parameters for various error states
       const urlParams = new URLSearchParams(window.location.search);
       const error = urlParams.get("error");
+      
       if (error === "blocked") {
         Swal.fire({
           icon: "error",
           title: "Account Blocked",
-          text: "Your account is blocked. Please contact support.",
+          text: "Your account has been blocked by the administrator. Please contact support for assistance.",
           confirmButtonText: "OK",
+          confirmButtonColor: "#d33"
+        });
+      } else if (error === "account_not_found") {
+        Swal.fire({
+          icon: "warning",
+          title: "Account Not Found",
+          text: "Your account could not be found. Please sign up or contact support.",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#f39c12"
+        });
+      } else if (error === "auth_error") {
+        Swal.fire({
+          icon: "error",
+          title: "Authentication Error",
+          text: "There was an error with your session. Please log in again.",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#d33"
         });
       }
 

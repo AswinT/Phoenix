@@ -250,14 +250,14 @@
                     <span class="product-tag">New</span>
                   <% } %>
                   <a href="/products/<%= relatedProduct._id %>" class="text-decoration-none">
-                    <img src="<%= relatedProduct.mainImage || '/api/placeholder/600/800' %>" alt="<%= relatedProduct.title %>" class="product-image" />
+                    <img src="<%= relatedProduct.mainImage || '/api/placeholder/600/800' %>" alt="<%= relatedProduct.model %>" class="product-image" />
                   </a>
                 </div>
                 <div class="p-3">
                   <h3 class="fs-5 fw-semibold mb-1">
-                    <a href="/products/<%= relatedProduct._id %>" class="text-dark text-decoration-none"><%= relatedProduct.title %></a>
+                    <a href="/products/<%= relatedProduct._id %>" class="text-dark text-decoration-none"><%= relatedProduct.model %></a>
                   </h3>
-                  <p class="text-muted small mb-2"><%= relatedProduct.author %></p>
+                  <p class="text-muted small mb-2"><%= relatedProduct.brand %></p>
                   <div class="d-flex justify-content-between align-items-center">
                     <div class="related-product-price">
                       <% if (relatedProduct.discountPercentage > 0) { %>

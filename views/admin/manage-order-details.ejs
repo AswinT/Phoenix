@@ -1007,7 +1007,9 @@
                         <div class="product-details">
                           <div class="product-name"><%= item.model || 'Unknown Product' %></div>
                           <div class="product-meta">
+                            <% if (item.brand) { %>
                             <div>Brand: <%= item.brand %></div>
+                            <% } %>
                           </div>
                         </div>
                       </div>

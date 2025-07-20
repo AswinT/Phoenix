@@ -19,6 +19,7 @@ const cartController = require('../../controllers/userController/cart-controller
 const wishlistController = require('../../controllers/userController/wishlist-controller');
 
 const { isAuthenticated, isNotAuthenticated, preventBackButtonCache } = require('../../middlewares/authMiddleware');
+const checkBlockedUser = require('../../middlewares/checkBlockedUser');
 
 const { searchProducts } = require('../../controllers/userController/searchController');
 
@@ -40,9 +41,9 @@ const referralController = require('../../controllers/userController/referral-co
 
 const contactController = require('../../controllers/userController/contact-controller');
 
-// Public routes
-router.get("/", userController.loadHomePage);
-router.get("/pageNotFound", userController.pageNotFound);
+// Public routes (with blocked user check for logged-in users)
+router.get("/", checkBlockedUser, userController.loadHomePage);
+router.get("/pageNotFound", checkBlockedUser, userController.pageNotFound);
 
 // Auth routes
 router.get("/signup", isNotAuthenticated, preventBackButtonCache, signupController.getSignup);
@@ -74,9 +75,9 @@ router.get("/logout", isAuthenticated, logoutController.logout);
 router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 router.get("/auth/google/callback", googleController.googleController);
 
-// Product routes
-router.get('/shopPage', shopPageController.shopPage);
-router.get('/products/:id', productDetailsController.productDetails);
+// Product routes (with blocked user check for logged-in users)
+router.get('/shopPage', checkBlockedUser, shopPageController.shopPage);
+router.get('/products/:id', checkBlockedUser, productDetailsController.productDetails);
 
 // Cart routes with validation
 const cartValidator = require('../../validators/user/cart-validator');
@@ -128,9 +129,9 @@ router.post('/wishlist/clear',
   wishlistController.clearWishlist
 );
 
-// Search route with validation
+// Search route with validation (with blocked user check for logged-in users)
 const searchValidator = require('../../validators/user/search-validator');
-router.get('/search', searchValidator.validateSearchQuery, searchProducts);
+router.get('/search', checkBlockedUser, searchValidator.validateSearchQuery, searchProducts);
 
 
 router.get('/profile', isAuthenticated, profileController.getProfile);
@@ -211,12 +212,12 @@ router.get('/wallet', isAuthenticated, walletController.getWallet);
 router.get('/referrals', isAuthenticated, referralController.getReferrals);
 router.post('/validate-referral', referralController.validateReferral);
 
-// Contact routes
+// Contact routes (with blocked user check for logged-in users)
 const contactValidator = require('../../validators/user/contact-validator');
-router.get('/contact', contactController.getContact);
-router.post('/contact', contactValidator.contactValidator, contactController.postContact);
+router.get('/contact', checkBlockedUser, contactController.getContact);
+router.post('/contact', checkBlockedUser, contactValidator.contactValidator, contactController.postContact);
 
-// About us route
-router.get('/about', userController.getAboutPage);
+// About us route (with blocked user check for logged-in users)
+router.get('/about', checkBlockedUser, userController.getAboutPage);
 
 module.exports = router;

@@ -195,8 +195,10 @@ const updateCoupon = async (req, res) => {
     const couponId = req.params.id;
     const {
       code,
+      couponCode,
       isActive,
       description,
+      couponDescription,
       discountType,
       discountValue,
       maxDiscountValue,
@@ -209,8 +211,12 @@ const updateCoupon = async (req, res) => {
       applicableProducts,
     } = req.body;
 
+    // Handle both field name formats for backward compatibility
+    const finalCode = code || couponCode;
+    const finalDescription = description || couponDescription;
+
     // Validate required fields
-    if (!code || !discountType || !discountValue || !startDate || !expiryDate) {
+    if (!finalCode || !discountType || !discountValue || !startDate || !expiryDate) {
       return res.status(HttpStatus.BAD_REQUEST).json({ message: 'All required fields must be provided' });
     }
 
@@ -221,7 +227,7 @@ const updateCoupon = async (req, res) => {
     }
 
     // Check if coupon code already exists (excluding current coupon)
-    const existingCoupon = await Coupon.findOne({ code: code.toUpperCase(), _id: { $ne: couponId } });
+    const existingCoupon = await Coupon.findOne({ code: finalCode.toUpperCase(), _id: { $ne: couponId } });
     if (existingCoupon) {
       return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Coupon code already exists' });
     }
@@ -242,9 +248,9 @@ const updateCoupon = async (req, res) => {
     }
 
     // Update coupon
-    coupon.code = code.toUpperCase();
+    coupon.code = finalCode.toUpperCase();
     coupon.isActive = isActive;
-    coupon.description = description || '';
+    coupon.description = finalDescription || '';
     coupon.discountType = discountType;
     coupon.discountValue = discountValue;
     coupon.maxDiscountValue = discountType === 'percentage' ? maxDiscountValue : null;

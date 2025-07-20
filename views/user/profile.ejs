@@ -145,7 +145,7 @@
               <span class="input-group-text bg-light border-end-0">
                 <i class="bi bi-envelope-plus"></i>
               </span>
-              <input type="email" class="form-control border-start-0" id="newEmail" name="email" placeholder="Enter your new email address" required />
+              <input type="email" class="form-control border-start-0" id="newEmail" name="email" placeholder="Enter your new email address" />
             </div>
             <div id="newEmailError" class="text-danger small mt-1"></div>
           </div>
@@ -647,7 +647,7 @@ const currentEmail = document.getElementById("currentEmail").value.trim();
 newEmailInput.addEventListener("input", function () {
   const email = this.value.trim();
   if (!email) {
-    clearValidation(this, newEmailError);
+    setInvalid(this, newEmailError, "This field is needed");
   } else if (email.toLowerCase() === currentEmail.toLowerCase()) {
     setInvalid(this, newEmailError, "New email must be different from current email");
   } else if (!validateEmail(email)) {
@@ -662,6 +662,22 @@ newEmailInput.addEventListener("input", function () {
   }
 });
 
+// Add blur event to show validation message when field loses focus
+newEmailInput.addEventListener("blur", function () {
+  const email = this.value.trim();
+  if (!email) {
+    setInvalid(this, newEmailError, "This field is needed");
+  }
+});
+
+// Add focus event to clear validation when field gains focus (if empty)
+newEmailInput.addEventListener("focus", function () {
+  const email = this.value.trim();
+  if (!email && this.classList.contains("is-invalid")) {
+    clearValidation(this, newEmailError);
+  }
+});
+
 // Email update form submission
 document.getElementById("emailUpdateForm").addEventListener("submit", async function (event) {
   event.preventDefault();
@@ -669,12 +685,15 @@ document.getElementById("emailUpdateForm").addEventListener("submit", async func
   const email = newEmailInput.value.trim();
   let isValid = true;
 
-  if (!email || !validateEmail(email)) {
-    setInvalid(newEmailInput, newEmailError, "Valid email is required (non-disposable)");
-    isValid = false;
+  if (!email) {
+  setInvalid(newEmailInput, newEmailError, "This field is needed");
+  isValid = false;
+  } else if (!validateEmail(email)) {
+  setInvalid(newEmailInput, newEmailError, "Valid email is required (non-disposable)");
+  isValid = false;
   } else if (email.toLowerCase() === currentEmail.toLowerCase()) {
-    setInvalid(newEmailInput, newEmailError, "New email must be different from current email");
-    сValid = false;
+  setInvalid(newEmailInput, newEmailError, "New email must be different from current email");
+  isValid = false;
   }
 
   if (!isValid) return;

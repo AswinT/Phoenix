@@ -103,14 +103,14 @@
                             <div class="order-item-image">
                               <img 
                                 src="<%= item.image || 'https://via.placeholder.com/120x160' %>" 
-                                alt="<%= item.title || 'Product' %>" 
+                                alt="<%= item.model || item.title || 'Product' %>" 
                                 class="img-fluid rounded"
                                 onerror="this.src='https://via.placeholder.com/120x160'"
                               >
                             </div>
                             <div class="order-item-details">
                               <h5 class="fs-6 fw-semibold mb-1">
-                                <%= item.title || 'Unknown Product' %>
+                                <%= item.model || item.title || 'Unknown Product' %>
                                 <% if (item.status === 'Cancelled') { %>
                                   <span class="item-status cancelled">Cancelled</span>
                                 <% } else if (item.status === 'Returned') { %>

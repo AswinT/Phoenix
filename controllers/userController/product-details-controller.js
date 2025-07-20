@@ -12,7 +12,7 @@ const productDetails = async (req, res) => {
     const productId = req.params.id;
 
     const product = await Product.findById(productId).populate("category");
-    if (!product || !product.isListed || product.isDeleted) {
+    if (!product || !product.isListed || product.isDeleted || !product.category || !product.category.isListed) {
       return res.status(HttpStatus.NOT_FOUND).render("pageNotFound");
     }
 

@@ -1,4 +1,5 @@
 const Category = require("../../models/categorySchema");
+const Product = require("../../models/productSchema");
 const cloudinary = require("../../config/cloudinary");
 const fs = require("fs");
 const { HttpStatus } = require("../../helpers/status-code");
@@ -122,13 +123,38 @@ const editCategory = async (req, res) => {
       fs.unlinkSync(req.file.path);
     }
 
+    // Check if isListed status is changing
+    const newIsListed = isListed === "on";
+    const isListedStatusChanged = category.isListed !== newIsListed;
+
+    // Update category
     category.name = name;
     category.description = description;
     category.image = imageUrl;
-    category.isListed = isListed === "on";
+    category.isListed = newIsListed;
 
     await category.save();
-    res.json({ message: "Category updated successfully" });
+
+    // If category listing status changed, update all products in this category
+    if (isListedStatusChanged) {
+      const updateResult = await Product.updateMany(
+        { 
+          category: id,
+          isDeleted: false // Only update non-deleted products
+        },
+        { 
+          isListed: newIsListed 
+        }
+      );
+
+      console.log(`Category ${category.name} ${newIsListed ? 'listed' : 'unlisted'}. Updated ${updateResult.modifiedCount} products.`);
+      
+      res.json({ 
+        message: `Category updated successfully. ${updateResult.modifiedCount} products were ${newIsListed ? 'listed' : 'unlisted'} automatically.`
+      });
+    } else {
+      res.json({ message: "Category updated successfully" });
+    }
   } catch (error) {
     console.error("Error editing category:", error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: "Server Error" });
@@ -144,12 +170,29 @@ const toggleCategoryStatus = async (req, res) => {
       return res.status(HttpStatus.NOT_FOUND).json({ error: "Category not found" });
     }
 
+    // Store the old status for comparison
+    const oldIsListed = category.isListed;
+    
+    // Toggle category status
     category.isListed = !category.isListed;
     await category.save();
+
+    // Update all products in this category to match the category's listing status
+    const updateResult = await Product.updateMany(
+      { 
+        category: id,
+        isDeleted: false // Only update non-deleted products
+      },
+      { 
+        isListed: category.isListed 
+      }
+    );
+
+    console.log(`Category ${category.name} ${category.isListed ? 'listed' : 'unlisted'}. Updated ${updateResult.modifiedCount} products.`);
+
     res.json({
-      message: `Category ${
-        category.isListed ? "listed" : "unlisted"
-      } successfully`,
+      message: `Category ${category.isListed ? "listed" : "unlisted"} successfully. ${updateResult.modifiedCount} products were ${category.isListed ? 'listed' : 'unlisted'} automatically.`,
+      productsUpdated: updateResult.modifiedCount
     });
   } catch (error) {
     console.error("Error toggling category status:", error);

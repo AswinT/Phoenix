@@ -403,7 +403,7 @@
                 <div class="product-cell">
                   <img
                     src="<%= item.image || '/api/placeholder/60/75' %>"
-                    alt="<%= item.title || 'Product' %>"
+                    alt="<%= item.model || item.title || 'Product' %>"
                     class="product-image"
                     onerror="this.src='/api/placeholder/60/75'"
                   >

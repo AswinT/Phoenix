@@ -14,7 +14,13 @@ const getCart = async (req, res) => {
     }
 
     const userId = req.session.user_id;
-    const cart = await Cart.findOne({ user: userId }).populate("items.product");
+    const cart = await Cart.findOne({ user: userId }).populate({
+      path: "items.product",
+      populate: {
+        path: "category",
+        match: { isListed: true }
+      }
+    });
     const wishlist = await Wishlist.findOne({ user: userId });
 
     let cartItems = [];
@@ -24,9 +30,12 @@ const getCart = async (req, res) => {
     let wishlistCount = 0;
 
     if (cart && cart.items.length > 0) {
-      // Filter valid products
+      // Filter valid products (product must be listed and category must be listed)
       cartItems = cart.items.filter(
-        (item) => item.product && item.product.isListed
+        (item) => item.product && 
+                  item.product.isListed && 
+                  item.product.category && 
+                  item.product.category.isListed
       );
 
       // Calculate discounted prices and totals
@@ -113,9 +122,9 @@ const addToCart = async (req, res) => {
 
     const userId = req.session.user_id;
     const { productId, quantity } = req.body;
-    const product = await Product.findById(productId);
+    const product = await Product.findById(productId).populate('category');
 
-    if (!product || !product.isListed || product.isDeleted) {
+    if (!product || !product.isListed || product.isDeleted || !product.category || !product.category.isListed) {
       return res
         .status(HttpStatus.NOT_FOUND)
         .json({ success: false, message: "Product not found or unavailable" });

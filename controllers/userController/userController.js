@@ -18,16 +18,32 @@ const loadHomePage = async (req, res) => {
     const LIMIT = 4;
 
     // Top selling (assumed based on stock, ideally use soldCount)
-    const topSellingProducts = await Product.find({ isListed: true, isDeleted: false })
-      .populate('category')  // Populate category for offer calculation
+    const topSellingProductsRaw = await Product.find({ isListed: true, isDeleted: false })
+      .populate({
+        path: 'category',
+        match: { isListed: true } // Only populate if category is listed
+      })
       .sort({ stock: -1 }) // Highest stock
-      .limit(LIMIT);
+      .limit(LIMIT * 2); // Get more to account for filtering
+
+    // Filter out products with unlisted categories
+    const topSellingProducts = topSellingProductsRaw
+      .filter(product => product.category !== null)
+      .slice(0, LIMIT);
 
     // New arrivals (based on dateAdded)
-    const newArrivals = await Product.find({ isListed: true, isDeleted: false })
-      .populate('category')  // Populate category for offer calculation
+    const newArrivalsRaw = await Product.find({ isListed: true, isDeleted: false })
+      .populate({
+        path: 'category',
+        match: { isListed: true } // Only populate if category is listed
+      })
       .sort({ createdAt: -1  }) // Newest first
-      .limit(LIMIT);
+      .limit(LIMIT * 2); // Get more to account for filtering
+
+    // Filter out products with unlisted categories
+    const newArrivals = newArrivalsRaw
+      .filter(product => product.category !== null)
+      .slice(0, LIMIT);
 
     // Calculate offers for top selling products
     for (const product of topSellingProducts) {
