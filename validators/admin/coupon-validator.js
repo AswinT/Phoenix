@@ -1,15 +1,7 @@
 const { createValidationMiddleware } = require('../../helpers/validation-helper');
-
-/**
- * Backend validation for Admin Coupon Management
- * Converts frontend validation logic to backend using createValidationMiddleware
- */
-
-// Custom validation function for discount based on type and max discount
 const validateCouponDiscount = (req, res, next) => {
   const { discountValue, discountType, maxDiscountValue } = req.body;
   const value = parseFloat(discountValue);
-
   if (isNaN(value) || value <= 0) {
     return res.status(400).json({
       success: false,
@@ -17,7 +9,6 @@ const validateCouponDiscount = (req, res, next) => {
       errors: ['Please enter a valid discount value']
     });
   }
-
   if (discountType === 'percentage') {
     if (value < 1 || value > 90) {
       return res.status(400).json({
@@ -26,8 +17,6 @@ const validateCouponDiscount = (req, res, next) => {
         errors: ['Percentage must be between 1% and 90%']
       });
     }
-
-    // Validate max discount for percentage type
     if (maxDiscountValue) {
       const maxValue = parseFloat(maxDiscountValue);
       if (!maxValue && value > 50) {
@@ -63,16 +52,12 @@ const validateCouponDiscount = (req, res, next) => {
       });
     }
   }
-
   next();
 };
-
-// Custom validation function for minimum order amount
 const validateMinOrderAmount = (req, res, next) => {
   const { minOrderAmount, discountValue, discountType } = req.body;
   const minOrderValue = parseFloat(minOrderAmount);
   const discountVal = parseFloat(discountValue);
-
   if (isNaN(minOrderValue) || minOrderValue < 0) {
     return res.status(400).json({
       success: false,
@@ -80,7 +65,6 @@ const validateMinOrderAmount = (req, res, next) => {
       errors: ['Minimum order amount must be ₹0 or greater']
     });
   }
-
   if (minOrderValue > 1000000) {
     return res.status(400).json({
       success: false,
@@ -88,8 +72,6 @@ const validateMinOrderAmount = (req, res, next) => {
       errors: ['Minimum order amount cannot exceed ₹1,000,000']
     });
   }
-
-  // Fixed discount validation
   if (discountType === 'fixed' && discountVal >= minOrderValue) {
     return res.status(400).json({
       success: false,
@@ -97,15 +79,11 @@ const validateMinOrderAmount = (req, res, next) => {
       errors: ['Minimum order amount must be greater than the discount amount']
     });
   }
-
   next();
 };
-
-// Custom validation function for coupon dates
 const validateCouponDates = (req, res, next) => {
   const { startDate, expiryDate } = req.body;
   const isEdit = req.method === 'PUT';
-
   if (!startDate) {
     return res.status(400).json({
       success: false,
@@ -113,7 +91,6 @@ const validateCouponDates = (req, res, next) => {
       errors: ['Start date is required']
     });
   }
-
   if (!expiryDate) {
     return res.status(400).json({
       success: false,
@@ -121,12 +98,10 @@ const validateCouponDates = (req, res, next) => {
       errors: ['End date is required']
     });
   }
-
   const startDateObj = new Date(startDate);
   const endDateObj = new Date(expiryDate);
   const now = new Date();
   now.setHours(0, 0, 0, 0);
-
   if (!isEdit && startDateObj < now) {
     return res.status(400).json({
       success: false,
@@ -134,7 +109,6 @@ const validateCouponDates = (req, res, next) => {
       errors: ['Start date cannot be in the past']
     });
   }
-
   if (startDateObj >= endDateObj) {
     return res.status(400).json({
       success: false,
@@ -142,8 +116,6 @@ const validateCouponDates = (req, res, next) => {
       errors: ['End date must be after start date']
     });
   }
-
-  // Maximum duration check - 1 year
   const oneYear = 365 * 24 * 60 * 60 * 1000;
   if (endDateObj - startDateObj > oneYear) {
     return res.status(400).json({
@@ -152,14 +124,10 @@ const validateCouponDates = (req, res, next) => {
       errors: ['Coupon duration cannot exceed 1 year']
     });
   }
-
   next();
 };
-
-// Custom validation function for usage limits
 const validateUsageLimits = (req, res, next) => {
   const { usageLimitGlobal, usageLimitPerUser } = req.body;
-
   if (usageLimitGlobal) {
     const globalLimit = parseInt(usageLimitGlobal);
     if (isNaN(globalLimit) || globalLimit < 1) {
@@ -177,7 +145,6 @@ const validateUsageLimits = (req, res, next) => {
       });
     }
   }
-
   const perUserLimit = parseInt(usageLimitPerUser);
   if (isNaN(perUserLimit) || perUserLimit < 1) {
     return res.status(400).json({
@@ -193,8 +160,6 @@ const validateUsageLimits = (req, res, next) => {
       errors: ['Per user limit cannot exceed 10,000']
     });
   }
-
-  // Check if global limit is less than per user limit
   if (usageLimitGlobal) {
     const globalLimit = parseInt(usageLimitGlobal);
     if (globalLimit < perUserLimit) {
@@ -205,13 +170,8 @@ const validateUsageLimits = (req, res, next) => {
       });
     }
   }
-
   next();
 };
-
-/**
- * Validate add/update coupon request
- */
 const validateCouponData = createValidationMiddleware({
   couponCode: {
     type: 'text',
@@ -262,11 +222,6 @@ const validateCouponData = createValidationMiddleware({
     required: false
   }
 });
-
-/**
- * Complete coupon validation middleware chain
- * Use this for both create and update operations
- */
 const validateCompleteCoupon = [
   validateCouponData,
   validateCouponDiscount,
@@ -274,17 +229,8 @@ const validateCompleteCoupon = [
   validateCouponDates,
   validateUsageLimits
 ];
-
-/**
- * Validation for coupon creation
- */
 const validateCreateCoupon = validateCompleteCoupon;
-
-/**
- * Validation for coupon update
- */
 const validateUpdateCoupon = validateCompleteCoupon;
-
 module.exports = {
   validateCouponData,
   validateCouponDiscount,

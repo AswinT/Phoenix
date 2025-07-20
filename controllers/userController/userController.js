@@ -2,7 +2,6 @@ const categoryController = require("../../controllers/userController/categoryCon
 const Product = require('../../models/productSchema');
 const { getActiveOfferForProduct, calculateDiscount } = require("../../utils/offer-helper");
 const { HttpStatus } = require("../../helpers/status-code");
-
 const pageNotFound = async (req, res) => {
   try {
     res.render("page-404");
@@ -10,81 +9,62 @@ const pageNotFound = async (req, res) => {
     res.redirect("/pageNotFound");
   }
 };
-
 const loadHomePage = async (req, res) => {
   try {
     const categories = await categoryController.getCategories();
-
     const LIMIT = 4;
-
-    // Top selling (assumed based on stock, ideally use soldCount)
     const topSellingProductsRaw = await Product.find({ isListed: true, isDeleted: false })
       .populate({
         path: 'category',
-        match: { isListed: true } // Only populate if category is listed
+        match: { isListed: true }
       })
-      .sort({ stock: -1 }) // Highest stock
-      .limit(LIMIT * 2); // Get more to account for filtering
-
-    // Filter out products with unlisted categories
+      .sort({ stock: -1 })
+      .limit(LIMIT * 2);
     const topSellingProducts = topSellingProductsRaw
       .filter(product => product.category !== null)
       .slice(0, LIMIT);
-
-    // New arrivals (based on dateAdded)
     const newArrivalsRaw = await Product.find({ isListed: true, isDeleted: false })
       .populate({
         path: 'category',
-        match: { isListed: true } // Only populate if category is listed
+        match: { isListed: true }
       })
-      .sort({ createdAt: -1  }) // Newest first
-      .limit(LIMIT * 2); // Get more to account for filtering
-
-    // Filter out products with unlisted categories
+      .sort({ createdAt: -1  })
+      .limit(LIMIT * 2);
     const newArrivals = newArrivalsRaw
       .filter(product => product.category !== null)
       .slice(0, LIMIT);
-
-    // Calculate offers for top selling products
     for (const product of topSellingProducts) {
       const offer = await getActiveOfferForProduct(
         product._id,
         product.category._id,
         product.regularPrice
       );
-
       const { discountPercentage, discountAmount, finalPrice } = calculateDiscount(
         offer,
         product.regularPrice
       );
-
       product.activeOffer = offer;
       product.discountPercentage = discountPercentage;
       product.discountAmount = discountAmount;
       product.finalPrice = finalPrice;
       product.regularPrice = product.regularPrice || product.salePrice;
     }
-
-    // Calculate offers for new arrivals
     for (const product of newArrivals) {
       const offer = await getActiveOfferForProduct(
         product._id,
         product.category._id,
         product.regularPrice
       );
-
       const { discountPercentage, discountAmount, finalPrice } = calculateDiscount(
         offer,
         product.regularPrice
       );
-
       product.activeOffer = offer;
       product.discountPercentage = discountPercentage;
       product.discountAmount = discountAmount;
       product.finalPrice = finalPrice;
       product.regularPrice = product.regularPrice || product.salePrice;
     }
-
     return res.render("home", {
       categories,
       topSellingProducts,
@@ -97,7 +77,6 @@ const loadHomePage = async (req, res) => {
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server Error");
   }
 };
-
 const getAboutPage = async (req, res) => {
   try {
     res.render("about");
@@ -106,7 +85,6 @@ const getAboutPage = async (req, res) => {
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server Error");
   }
 };
-
 module.exports = {
   loadHomePage,
   pageNotFound,

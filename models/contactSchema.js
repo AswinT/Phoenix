@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-
 const contactSchema = new mongoose.Schema(
   {
     name: {
@@ -45,11 +44,8 @@ const contactSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
-// Index for searching and sorting
 contactSchema.index({ email: 1 });
 contactSchema.index({ status: 1 });
 contactSchema.index({ createdAt: -1 });
 contactSchema.index({ subject: 1 });
-
 module.exports = mongoose.model("Contact", contactSchema);

@@ -1,6 +1,5 @@
 require("dotenv").config();
 const nodemailer = require("nodemailer");
-
 const sendOtpEmail = async (email, name, otp, subject, purpose = "signup") => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -9,11 +8,8 @@ const sendOtpEmail = async (email, name, otp, subject, purpose = "signup") => {
       pass: process.env.EMAIL_PASS,
     },
   });
-
-  // Generate professional HTML email template
   const generateEmailTemplate = (name, otp, purpose) => {
     let title, message, actionText;
-
     switch (purpose) {
       case "resend":
         title = "New Verification Code";
@@ -35,7 +31,6 @@ const sendOtpEmail = async (email, name, otp, subject, purpose = "signup") => {
         message = "Thank you for joining Phoenix. Use this verification code to complete your account setup:";
         actionText = "Once verified, you'll have access to thousands of headphones and exclusive offers!";
     }
-
     return `
     <!DOCTYPE html>
     <html lang="en">
@@ -177,23 +172,18 @@ const sendOtpEmail = async (email, name, otp, subject, purpose = "signup") => {
                 <div class="logo">🎧 PHOENIX</div>
                 <div class="tagline">Your Gateway to Premium Sound</div>
             </div>
-
             <div class="content">
                 <div class="greeting">Hello ${name}!</div>
                 <div class="message">${message}</div>
-
                 <div class="otp-container">
                     <div class="otp-label">Verification Code</div>
                     <div class="otp-code">${otp}</div>
                 </div>
-
                 <div class="action-text">${actionText}</div>
-
                 <div class="security-note">
                     <strong>🔒 Security Notice:</strong> This code is valid for 1 minute only. Never share this code with anyone. If you didn't request this code, please ignore this email.
                 </div>
             </div>
-
             <div class="footer">
                 <div class="footer-text">
                     Need help? Contact our support team at <strong>support@phoenix.com</strong>
@@ -212,20 +202,16 @@ const sendOtpEmail = async (email, name, otp, subject, purpose = "signup") => {
     </html>
     `;
   };
-
   const htmlContent = generateEmailTemplate(name, otp, purpose);
-
   const mailOptions = {
     from: '"Phoenix - Your Headphone Store" <noreply@phoenix.com>',
     to: email,
     subject,
     html: htmlContent,
-    text: `Hello ${name}, Your verification code for Phoenix is: ${otp}. This code will expire in 1 minute.`, // Fallback text
+    text: `Hello ${name}, Your verification code for Phoenix is: ${otp}. This code will expire in 1 minute.`,
   };
-
   await transporter.sendMail(mailOptions);
 };
-
 const sendContactEmail = async (contactData, type = "confirmation") => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -234,9 +220,7 @@ const sendContactEmail = async (contactData, type = "confirmation") => {
       pass: process.env.EMAIL_PASS,
     },
   });
-
   if (type === "confirmation") {
-    // Send confirmation email to user
     const confirmationTemplate = `
     <!DOCTYPE html>
     <html lang="en">
@@ -343,13 +327,11 @@ const sendContactEmail = async (contactData, type = "confirmation") => {
                 <div class="logo">🎧 PHOENIX</div>
                 <div class="tagline">Premium Headphone Experience</div>
             </div>
-
             <div class="content">
                 <div class="greeting">Hello ${contactData.name}!</div>
                 <div class="message">
                     Thank you for reaching out to us! We've received your message and our team will get back to you within 24 hours.
                 </div>
-
                 <div class="contact-details">
                     <h4>📋 Your Message Details:</h4>
                     <p><strong>Subject:</strong> ${getSubjectText(contactData.subject)}</p>
@@ -362,12 +344,10 @@ const sendContactEmail = async (contactData, type = "confirmation") => {
                         minute: '2-digit'
                     })}</p>
                 </div>
-
                 <div class="message">
                     In the meantime, feel free to explore our curated collection of headphones or check out our latest arrivals. We're here to help you find your next great listening experience!
                 </div>
             </div>
-
             <div class="footer">
                 <div class="footer-text">
                     Need immediate assistance? Contact us at <strong>hello@phoenix.com</strong> or call <strong>+91 1234567890</strong>
@@ -385,7 +365,6 @@ const sendContactEmail = async (contactData, type = "confirmation") => {
     </body>
     </html>
     `;
-
     const mailOptions = {
       from: '"Phoenix - Your Headphone Store" <noreply@phoenix.com>',
       to: contactData.email,
@@ -393,10 +372,8 @@ const sendContactEmail = async (contactData, type = "confirmation") => {
       html: confirmationTemplate,
       text: `Hello ${contactData.name}, Thank you for contacting Phoenix! We've received your message about "${getSubjectText(contactData.subject)}" and will get back to you within 24 hours.`,
     };
-
     await transporter.sendMail(mailOptions);
   } else if (type === "admin") {
-    // Send notification email to admin
     const adminTemplate = `
     <!DOCTYPE html>
     <html lang="en">
@@ -430,7 +407,6 @@ const sendContactEmail = async (contactData, type = "confirmation") => {
     </body>
     </html>
     `;
-
     const adminMailOptions = {
       from: '"Phoenix Contact Form" <noreply@phoenix.com>',
       to: process.env.ADMIN_EMAIL || process.env.EMAIL,
@@ -438,12 +414,9 @@ const sendContactEmail = async (contactData, type = "confirmation") => {
       html: adminTemplate,
       text: `New contact form submission from ${contactData.name} (${contactData.email}) about ${getSubjectText(contactData.subject)}: ${contactData.message}`,
     };
-
     await transporter.sendMail(adminMailOptions);
   }
 };
-
-// Helper function to get readable subject text
 const getSubjectText = (subject) => {
   const subjects = {
     general: "General Inquiry",
@@ -455,5 +428,4 @@ const getSubjectText = (subject) => {
   };
   return subjects[subject] || subject;
 };
-
 module.exports = { sendOtpEmail, sendContactEmail };

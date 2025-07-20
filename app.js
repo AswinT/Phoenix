@@ -9,26 +9,17 @@ const adminRoute = require("./routes/adminRoutes/adminRoutes")
 const passport = require("./config/passport");
 const methodOverride = require('method-override');
 const morgan = require('morgan');
-
 const userMiddleware = require("./middlewares/userMiddleware");
 const cartWishlistMiddleware = require('./middlewares/cartWishlistMiddleware');
 const { globalErrorHandler, notFoundHandler } = require("./middlewares/errorHandler");
-
-
 connectDB();
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 morgan.token('timestamp', () => {
   return new Date().toISOString();
 });
-
 const morganFormat = ':timestamp :method :url :status :res[content-length] - :response-time ms';
-
 app.use(morgan(morganFormat));
-
-
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -46,18 +37,14 @@ app.use((req, res, next) => {
   res.locals.user = req.session.user_id ? { id: req.session.user_id } : null;
   next();
 });
-
-
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(userMiddleware);
 app.use(cartWishlistMiddleware);
-
 app.use((req, res, next) => {
   res.set("Cache-Control", "no-store");
   next();
 });
-
 app.set("view engine", "ejs");
 app.set("views", [
   path.join(__dirname, "views/user"),
@@ -67,20 +54,14 @@ app.set("views", [
 ]);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/validators', express.static(path.join(__dirname, 'validators')));
-
 app.use(express.static(path.join(__dirname, "public")));
 app.use(methodOverride('_method'));
-
 app.use("/", userRouter);
 app.use("/admin", adminRoute);
-
 app.use(notFoundHandler);
 app.use(globalErrorHandler);
-
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
-
 module.exports.app;

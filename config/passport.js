@@ -2,7 +2,6 @@ const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const User = require("../models/userSchema");
 require("dotenv").config();
-
 passport.use(
   new GoogleStrategy(
     {
@@ -12,11 +11,8 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        // Check for existing user by googleId
         let user = await User.findOne({ googleId: profile.id });
-
         if (user) {
-          // Check if user is blocked
           if (user.isBlocked) {
             return done(null, false, {
               message: "Your account is blocked. Please contact support.",
@@ -24,30 +20,24 @@ passport.use(
           }
           return done(null, user);
         }
-
-        // Check for existing user by email to avoid duplicates
         user = await User.findOne({ email: profile.emails[0].value });
-
         if (user) {
-          // Link Google account to existing user
           if (user.isBlocked) {
             return done(null, false, {
               message: "Your account is blocked. Please contact support.",
             });
           }
           user.googleId = profile.id;
-          user.isVerified = true; // Mark as verified
+          user.isVerified = true;
           await user.save();
           return done(null, user);
         }
-
-        // Create new user
         const newUser = new User({
           fullName: profile.displayName,
           email: profile.emails[0].value,
           googleId: profile.id,
           isVerified: true,
-          isBlocked: false, // Explicitly set to false
+          isBlocked: false,
         });
         await newUser.save();
         return done(null, newUser);
@@ -58,16 +48,14 @@ passport.use(
     }
   )
 );
-
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
-
 passport.deserializeUser(async (id, done) => {
   try {
     const user = await User.findById(id);
     if (!user) {
-      return done(null, false); // User not found
+      return done(null, false);
     }
     if (user.isBlocked) {
       return done(null, false, {
@@ -80,5 +68,4 @@ passport.deserializeUser(async (id, done) => {
     done(err, null);
   }
 });
-
 module.exports = passport;

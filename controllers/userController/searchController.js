@@ -6,7 +6,6 @@ const searchProducts = async (req, res) => {
     if (query.length < 2) {
       return res.json([]);
     }
-
     const productsRaw = await Product.find({
       isListed: true,
       isDeleted: false,
@@ -17,28 +16,23 @@ const searchProducts = async (req, res) => {
     })
       .populate({
         path: 'category',
-        match: { isListed: true }, // Only populate if category is listed
+        match: { isListed: true },
         select: 'isListed'
       })
       .select('model brand mainImage _id category')
-      .limit(20); // Get more to account for filtering
-
-    // Filter out products with unlisted categories
+      .limit(20);
     const products = productsRaw
       .filter(product => product.category !== null)
-      .slice(0, 10) // Limit to 10 results for performance
+      .slice(0, 10)
       .map(product => ({
         _id: product._id,
         model: product.model,
         brand: product.brand,
         mainImage: product.mainImage
       }));
-
     res.json(products);
   } catch (error) {
-    console.error(`Error in searchProducts: ${error}`);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server Error' });
   }
 };
-
 module.exports = { searchProducts };

@@ -1,6 +1,5 @@
 // models/offerSchema.js
 const mongoose = require("mongoose")
-
 const offerSchema = new mongoose.Schema(
   {
     title: {
@@ -23,7 +22,6 @@ const offerSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
-    // Applicability fields
     appliesTo: {
       type: String,
       enum: ["all_products", "specific_products", "all_categories", "specific_categories"],
@@ -31,14 +29,12 @@ const offerSchema = new mongoose.Schema(
     },
     applicableProducts: [
       {
-        // Used if appliesTo is 'specific_products'
         type: mongoose.Schema.Types.ObjectId,
         ref: "Product",
       },
     ],
     applicableCategories: [
       {
-        // Used if appliesTo is 'specific_categories'
         type: mongoose.Schema.Types.ObjectId,
         ref: "Category",
       },
@@ -64,28 +60,19 @@ const offerSchema = new mongoose.Schema(
     timestamps: true,
   },
 )
-
-// Index for searching and sorting
 offerSchema.index({ title: "text" })
 offerSchema.index({ isActive: 1, endDate: 1, startDate: 1 })
 offerSchema.index({ appliesTo: 1 })
-
-// Custom validation
 offerSchema.pre("validate", function (next) {
-  // Validate dates
   if (this.startDate && this.endDate && this.startDate >= this.endDate) {
     return next(new Error("End date must be after start date."))
   }
-
-  // Validate discount values
   if (this.discountType === "percentage" && (this.discountValue <= 0 || this.discountValue > 100)) {
     return next(new Error("Percentage discount must be between 1 and 100."))
   }
   if (this.discountType === "fixed" && this.discountValue <= 0) {
     return next(new Error("Fixed discount must be greater than 0."))
   }
-
-  // Validate specific products/categories
   if (this.appliesTo === "specific_products" && (!this.applicableProducts || this.applicableProducts.length === 0)) {
     return next(new Error("Please select at least one product for a product-specific offer."))
   }
@@ -95,8 +82,6 @@ offerSchema.pre("validate", function (next) {
   ) {
     return next(new Error("Please select at least one category for a category-specific offer."))
   }
-
-  // Clear irrelevant arrays based on appliesTo
   if (this.appliesTo === "all_products" || this.appliesTo === "all_categories") {
     this.applicableProducts = []
     this.applicableCategories = []
@@ -107,8 +92,6 @@ offerSchema.pre("validate", function (next) {
   if (this.appliesTo === "specific_categories") {
     this.applicableProducts = []
   }
-
   next()
 })
-
 module.exports = mongoose.model("Offer", offerSchema)

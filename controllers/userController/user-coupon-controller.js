@@ -1,18 +1,14 @@
 const Coupon = require("../../models/couponSchema");
 const User = require("../../models/userSchema");
 const { HttpStatus } = require("../../helpers/status-code");
-
 const getUserCoupons = async (req, res) => {
   try {
-    // Check if user is authenticated
     const userId = req.session.user_id;
     if (!userId) {
       return res
         .status(HttpStatus.UNAUTHORIZED)
         .json({ success: false, message: "Please log in to view coupons" });
     }
-
-    // Verify user exists and is not blocked
     const user = await User.findById(userId).lean();
     if (!user) {
       return res
@@ -24,16 +20,10 @@ const getUserCoupons = async (req, res) => {
         .status(HttpStatus.FORBIDDEN)
         .json({ success: false, message: "Your account is blocked" });
     }
-
-    // Pagination parameters
     const page = parseInt(req.query.page) || 1;
-    const limit = 6; // Coupons per page
+    const limit = 6;
     const skip = (page - 1) * limit;
-
-    // Current date for expiry check
     const currentDate = new Date();
-
-    // Fetch all active coupons (for counting)
     const coupons = await Coupon.find({
       isActive: true,
       startDate: { $lte: currentDate },
@@ -42,17 +32,13 @@ const getUserCoupons = async (req, res) => {
       .populate("applicableCategories", "name")
       .populate("applicableProducts", "title")
       .lean();
-
-    // Filter coupons based on usage limits
     const filteredCoupons = coupons.filter((coupon) => {
-      // Check global usage limit
       if (
         coupon.usageLimitGlobal &&
         coupon.usedCount >= coupon.usageLimitGlobal
       ) {
         return false;
       }
-      // Check per-user usage limit
       const userUsage = coupon.usedBy.find(
         (usage) => usage.userId.toString() === userId.toString()
       );
@@ -61,24 +47,16 @@ const getUserCoupons = async (req, res) => {
       }
       return true;
     });
-
-    // Calculate pagination details
     const totalCoupons = filteredCoupons.length;
     const totalPages = Math.ceil(totalCoupons / limit);
     const start = totalCoupons > 0 ? skip + 1 : 0;
     const end = Math.min(skip + limit, totalCoupons);
-
-    // Validate page number
     if (page < 1 || (page > totalPages && totalPages > 0)) {
       return res
         .status(HttpStatus.NOT_FOUND)
         .json({ success: false, message: "Page not found" });
     }
-
-    // Slice coupons for the current page
     const paginatedCoupons = filteredCoupons.slice(skip, skip + limit);
-
-    // Format coupons for display
     const formattedCoupons = paginatedCoupons.map((coupon) => {
       const userUsage = coupon.usedBy.find(
         (usage) => usage.userId.toString() === userId.toString()
@@ -103,7 +81,6 @@ const getUserCoupons = async (req, res) => {
               .map((prod) => prod.title)
               .join(", ")}`
           : "Applicable on all products";
-
       return {
         ...coupon,
         discountDisplay,
@@ -122,13 +99,9 @@ const getUserCoupons = async (req, res) => {
             : "",
       };
     });
-
-    // Sort coupons by expiry date (ascending)
     formattedCoupons.sort(
       (a, b) => new Date(a.expiryDate) - new Date(b.expiryDate)
     );
-
-    // Pagination metadata
     const pagination = {
       currentPage: page,
       totalPages,
@@ -141,7 +114,6 @@ const getUserCoupons = async (req, res) => {
       end,
       totalCoupons,
     };
-
     res.render("user-coupons", {
       coupons: formattedCoupons,
       user,
@@ -158,5 +130,4 @@ const getUserCoupons = async (req, res) => {
       .json({ success: false, message: "Internal server error" });
   }
 };
-
 module.exports = { getUserCoupons };

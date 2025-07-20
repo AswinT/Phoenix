@@ -1,5 +1,4 @@
 const Category = require("../../models/categorySchema");
-
 const getCategories = async (req, res) => {
   try {
     const categories = await Category.find({ isListed: true }).sort({
@@ -11,7 +10,6 @@ const getCategories = async (req, res) => {
     throw error;
   }
 };
-
 module.exports = {
   getCategories,
 };

@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-
 const addressSchema = new mongoose.Schema(
   {
     userId: {
@@ -48,7 +47,6 @@ const addressSchema = new mongoose.Schema(
   },
   { _id: false, timestamps: true }
 );
-
 const orderItemSchema = new mongoose.Schema(
   {
     product: {
@@ -79,7 +77,6 @@ const orderItemSchema = new mongoose.Schema(
       required: true,
       min: 1,
     },
-    // Price breakdown fields
     priceBreakdown: {
       originalPrice: {
         type: Number,
@@ -122,7 +119,6 @@ const orderItemSchema = new mongoose.Schema(
         min: 0
       }
     },
-    // Updated status field to include Return Requested
     status: {
       type: String,
       enum: [
@@ -134,7 +130,6 @@ const orderItemSchema = new mongoose.Schema(
       default: "Active",
       required: true
     },
-    // Fields for cancellation or return
     cancelledAt: {
       type: Date,
     },
@@ -153,8 +148,6 @@ const orderItemSchema = new mongoose.Schema(
   },
   { _id: false }
 );
-
-// Main Order Schema
 const orderSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
@@ -242,7 +235,6 @@ const orderSchema = new mongoose.Schema({
   razorpayPaymentId: {
     type: String,
   },
-  // Payment retry tracking
   paymentRetryAttempts: {
     type: Number,
     default: 0,
@@ -253,7 +245,6 @@ const orderSchema = new mongoose.Schema({
   paymentFailureReason: {
     type: String,
   },
-  // Store original Razorpay order for retry
   originalRazorpayOrderId: {
     type: String,
   },
@@ -297,11 +288,8 @@ const orderSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
-
-// Auto update updatedAt
 orderSchema.pre("save", function (next) {
   this.updatedAt = Date.now();
   next();
 });
-
 module.exports = mongoose.model("Order", orderSchema);

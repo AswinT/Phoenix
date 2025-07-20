@@ -1,9 +1,5 @@
 const { createValidationMiddleware, validateObjectId, validateText } = require('../../helpers/validation-helper');
 const { HttpStatus } = require('../../helpers/status-code');
-
-/**
- * Validate place order request
- */
 const validatePlaceOrder = createValidationMiddleware({
   addressId: {
     type: 'objectId',
@@ -22,10 +18,6 @@ const validatePlaceOrder = createValidationMiddleware({
     max: 20
   }
 });
-
-/**
- * Validate cancel order request
- */
 const validateCancelOrder = createValidationMiddleware({
   orderId: {
     type: 'objectId',
@@ -38,10 +30,6 @@ const validateCancelOrder = createValidationMiddleware({
     max: 500
   }
 });
-
-/**
- * Validate return order request
- */
 const validateReturnOrder = createValidationMiddleware({
   orderId: {
     type: 'objectId',
@@ -55,21 +43,15 @@ const validateReturnOrder = createValidationMiddleware({
     max: 500
   }
 });
-
-/**
- * Validate order ownership
- */
 const validateOrderOwnership = (req, res, next) => {
   try {
     const userId = req.session.user_id || req.user?._id;
-    
     if (!userId) {
       return res.status(HttpStatus.UNAUTHORIZED).json({
         success: false,
         message: 'Please login to manage orders'
       });
     }
-    
     req.validatedData = { ...req.validatedData, userId };
     next();
   } catch (error) {
@@ -80,10 +62,6 @@ const validateOrderOwnership = (req, res, next) => {
     });
   }
 };
-
-/**
- * Validate Razorpay payment verification
- */
 const validateRazorpayPayment = createValidationMiddleware({
   razorpay_order_id: {
     type: 'text',
@@ -107,20 +85,12 @@ const validateRazorpayPayment = createValidationMiddleware({
     max: 200
   }
 });
-
-/**
- * Validate reorder request
- */
 const validateReorder = createValidationMiddleware({
   orderId: {
     type: 'objectId',
     fieldName: 'Order ID'
   }
 });
-
-/**
- * Validate order status update (admin)
- */
 const validateOrderStatusUpdate = createValidationMiddleware({
   orderId: {
     type: 'objectId',
@@ -139,16 +109,10 @@ const validateOrderStatusUpdate = createValidationMiddleware({
     max: 500
   }
 });
-
-/**
- * Validate order search/filter parameters
- */
 const validateOrderSearch = (req, res, next) => {
   try {
     const { page, limit, status, startDate, endDate, search } = req.query;
     const sanitizedQuery = {};
-    
-    // Validate page number
     if (page) {
       const pageNum = parseInt(page);
       if (isNaN(pageNum) || pageNum < 1) {
@@ -159,8 +123,6 @@ const validateOrderSearch = (req, res, next) => {
       }
       sanitizedQuery.page = pageNum;
     }
-    
-    // Validate limit
     if (limit) {
       const limitNum = parseInt(limit);
       if (isNaN(limitNum) || limitNum < 1 || limitNum > 100) {
@@ -171,8 +133,6 @@ const validateOrderSearch = (req, res, next) => {
       }
       sanitizedQuery.limit = limitNum;
     }
-    
-    // Validate status
     if (status) {
       const validStatuses = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled', 'returned'];
       if (!validStatuses.includes(status)) {
@@ -183,8 +143,6 @@ const validateOrderSearch = (req, res, next) => {
       }
       sanitizedQuery.status = status;
     }
-    
-    // Validate dates
     if (startDate) {
       const start = new Date(startDate);
       if (isNaN(start.getTime())) {
@@ -195,7 +153,6 @@ const validateOrderSearch = (req, res, next) => {
       }
       sanitizedQuery.startDate = start;
     }
-    
     if (endDate) {
       const end = new Date(endDate);
       if (isNaN(end.getTime())) {
@@ -206,8 +163,6 @@ const validateOrderSearch = (req, res, next) => {
       }
       sanitizedQuery.endDate = end;
     }
-    
-    // Validate search term
     if (search) {
       const sanitizedSearch = search.trim();
       if (sanitizedSearch.length > 100) {
@@ -218,7 +173,6 @@ const validateOrderSearch = (req, res, next) => {
       }
       sanitizedQuery.search = sanitizedSearch;
     }
-    
     req.validatedQuery = sanitizedQuery;
     next();
   } catch (error) {
@@ -229,7 +183,6 @@ const validateOrderSearch = (req, res, next) => {
     });
   }
 };
-
 module.exports = {
   validatePlaceOrder,
   validateCancelOrder,

@@ -1,7 +1,6 @@
 const { HttpStatus } = require('../../helpers/status-code');
 const Contact = require('../../models/contactSchema');
 const { sendContactEmail } = require('../../helpers/sendMail');
-
 const getContact = async (req, res) => {
   try {
     res.render("contact");
@@ -12,12 +11,9 @@ const getContact = async (req, res) => {
     });
   }
 };
-
 const postContact = async (req, res) => {
   try {
     const { name, email, phone, subject, message } = req.body;
-
-    // Create new contact message in database
     const contactMessage = new Contact({
       name,
       email,
@@ -25,10 +21,7 @@ const postContact = async (req, res) => {
       subject,
       message,
     });
-
     await contactMessage.save();
-
-    // Send confirmation email to user
     try {
       await sendContactEmail({
         name,
@@ -39,10 +32,7 @@ const postContact = async (req, res) => {
       }, "confirmation");
     } catch (emailError) {
       console.error("Failed to send confirmation email:", emailError);
-      // Continue execution even if email fails
     }
-
-    // Send notification email to admin
     try {
       await sendContactEmail({
         name,
@@ -53,14 +43,11 @@ const postContact = async (req, res) => {
       }, "admin");
     } catch (emailError) {
       console.error("Failed to send admin notification email:", emailError);
-      // Continue execution even if email fails
     }
-
     return res.status(HttpStatus.OK).json({
       success: true,
       message: "✅ Thanks for contacting us! We'll get back to you soon.",
     });
-
   } catch (error) {
     console.error("Error in postContact:", error);
     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
@@ -69,7 +56,6 @@ const postContact = async (req, res) => {
     });
   }
 };
-
 module.exports = {
   getContact,
   postContact,

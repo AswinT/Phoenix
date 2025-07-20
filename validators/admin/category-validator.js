@@ -1,8 +1,4 @@
 const { createValidationMiddleware } = require('../../helpers/validation-helper');
-
-/**
- * Category validation configuration
- */
 const categoryValidationConfig = {
   name: {
     type: 'text',
@@ -12,7 +8,6 @@ const categoryValidationConfig = {
     max: 50,
     required: true,
     customValidator: (value) => {
-      // Check for valid category name patterns
       if (value.trim().length < 2) {
         return { isValid: false, message: 'Category name must be at least 2 characters long' };
       }
@@ -22,7 +17,6 @@ const categoryValidationConfig = {
       if (!/^[a-zA-Z0-9\s\-&'().,]+$/.test(value)) {
         return { isValid: false, message: 'Category name contains invalid characters' };
       }
-      // Check for common headphone category patterns
       const validCategoryPatterns = [
         /over.?ear/i,
         /on.?ear/i,
@@ -46,11 +40,9 @@ const categoryValidationConfig = {
         /active/i,
         /passive/i
       ];
-      
       return { isValid: true, sanitized: value.trim() };
     }
   },
-  
   description: {
     type: 'text',
     fieldName: 'Description',
@@ -68,17 +60,8 @@ const categoryValidationConfig = {
     }
   }
 };
-
-/**
- * Validate category data middleware
- */
 const validateCategoryData = createValidationMiddleware(categoryValidationConfig);
-
-/**
- * Validate category image
- */
 const validateCategoryImage = (req, res, next) => {
-  // For add category, image is required
   if (req.method === 'POST' && !req.file) {
     return res.status(400).json({
       success: false,
@@ -86,12 +69,9 @@ const validateCategoryImage = (req, res, next) => {
       errors: ['Category image is required']
     });
   }
-  
-  // For edit category, image is optional
   if (req.file) {
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    
+    const maxSize = 5 * 1024 * 1024;
     if (!allowedTypes.includes(req.file.mimetype)) {
       return res.status(400).json({
         success: false,
@@ -99,7 +79,6 @@ const validateCategoryImage = (req, res, next) => {
         errors: ['Please upload a valid image file (JPEG, PNG, or WebP)']
       });
     }
-    
     if (req.file.size > maxSize) {
       return res.status(400).json({
         success: false,
@@ -108,13 +87,8 @@ const validateCategoryImage = (req, res, next) => {
       });
     }
   }
-  
   next();
 };
-
-/**
- * Client-side validation helper for categories
- */
 const getCategoryValidationRules = () => {
   return {
     name: {
@@ -140,9 +114,9 @@ const getCategoryValidationRules = () => {
       }
     },
     image: {
-      required: true, // Only for add category
+      required: true,
       acceptedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
-      maxSize: 5 * 1024 * 1024, // 5MB
+      maxSize: 5 * 1024 * 1024,
       messages: {
         required: 'Category image is required',
         invalidType: 'Please upload a valid image file (JPEG, PNG, or WebP)',
@@ -151,7 +125,6 @@ const getCategoryValidationRules = () => {
     }
   };
 };
-
 module.exports = {
   validateCategoryData,
   validateCategoryImage,

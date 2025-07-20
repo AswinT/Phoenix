@@ -1,17 +1,7 @@
 const { createValidationMiddleware } = require('../../helpers/validation-helper');
-
-/**
- * Backend validation for Admin Product Management
- * Converts frontend validation logic to backend using createValidationMiddleware
- */
-
-
-
-// Custom validation function for price comparison
 const validatePriceComparison = (req, res, next) => {
   const regularPrice = parseFloat(req.body.regularPrice);
   const salePrice = parseFloat(req.body.salePrice);
-
   if (!isNaN(regularPrice) && !isNaN(salePrice)) {
     if (salePrice > regularPrice) {
       return res.status(400).json({
@@ -20,7 +10,6 @@ const validatePriceComparison = (req, res, next) => {
         errors: ['Sale price cannot be greater than regular price']
       });
     }
-
     if (salePrice < regularPrice * 0.1) {
       return res.status(400).json({
         success: false,
@@ -29,15 +18,8 @@ const validatePriceComparison = (req, res, next) => {
       });
     }
   }
-
   next();
 };
-
-
-
-/**
- * Validate add/update product request
- */
 const validateProductData = createValidationMiddleware({
   model: {
     type: 'text',
@@ -70,12 +52,10 @@ const validateProductData = createValidationMiddleware({
       if (!value || value.trim() === '') {
         return { isValid: false, message: 'Connectivity type is required' };
       }
-
       const allowedValues = ['Wired', 'Wireless'];
       if (!allowedValues.includes(value)) {
         return { isValid: false, message: 'Connectivity must be either "Wired" or "Wireless"' };
       }
-
       return { isValid: true, sanitized: value };
     }
   },
@@ -109,15 +89,11 @@ const validateProductData = createValidationMiddleware({
       return { isValid: true, sanitized: num };
     }
   },
-
   category: {
     type: 'objectId',
     fieldName: 'Category'
   }
 });
-
-
-
 module.exports = {
   validateProductData,
   validatePriceComparison

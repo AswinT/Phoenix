@@ -2,8 +2,6 @@ const Offer = require("../../models/offerSchema");
 const Category = require("../../models/categorySchema");
 const Product = require("../../models/productSchema");
 const { HttpStatus } = require('../../helpers/status-code');
-
-// Helper to format date for display
 const formatDateForDisplay = (date) => {
   if (!date) return "";
   return new Date(date).toLocaleDateString("en-GB", {
@@ -12,8 +10,6 @@ const formatDateForDisplay = (date) => {
     year: "numeric",
   });
 };
-
-// Helper to format date for input type="date" (YYYY-MM-DD format)
 const formatDateForInput = (date) => {
   if (!date) return "";
   const d = new Date(date);
@@ -22,23 +18,17 @@ const formatDateForInput = (date) => {
   const day = `0${d.getDate()}`.slice(-2);
   return `${year}-${month}-${day}`;
 };
-
-// Validation helper
 const validateOfferData = (data) => {
   const errors = [];
-
-  // Required field validations
   if (!data.title || !data.title.trim()) {
     errors.push("Offer title is required");
   }
-
   if (
     !data.discountType ||
     !["percentage", "fixed"].includes(data.discountType)
   ) {
     errors.push("Valid discount type is required");
   }
-
   if (
     !data.discountValue ||
     isNaN(data.discountValue) ||
@@ -46,46 +36,36 @@ const validateOfferData = (data) => {
   ) {
     errors.push("Valid discount value is required");
   }
-
   if (
     data.discountType === "percentage" &&
     (Number(data.discountValue) < 1 || Number(data.discountValue) > 100)
   ) {
     errors.push("Percentage discount must be between 1 and 100");
   }
-
   if (data.discountType === "fixed" && Number(data.discountValue) <= 0) {
     errors.push("Fixed discount must be greater than 0");
   }
-
   if (!data.startDate) {
     errors.push("Start date is required");
   }
-
   if (!data.endDate) {
     errors.push("End date is required");
   }
-
   if (data.startDate && data.endDate) {
     const startDate = new Date(data.startDate);
     const endDate = new Date(data.endDate);
-
     if (startDate >= endDate) {
       errors.push("End date must be after start date");
     }
-
-    // Only check if start date is in the past for new offers (not edits)
     if (!data.isEdit) {
       const now = new Date();
       now.setHours(0, 0, 0, 0);
       startDate.setHours(0, 0, 0, 0);
-
       if (startDate < now) {
         errors.push("Start date cannot be in the past");
       }
     }
   }
-
   if (
     !data.appliesTo ||
     ![
@@ -97,8 +77,6 @@ const validateOfferData = (data) => {
   ) {
     errors.push("Valid application type is required");
   }
-
-  // Specific validations for product/category selection
   if (data.appliesTo === "specific_products") {
     if (!data.applicableProducts || data.applicableProducts.length === 0) {
       errors.push(
@@ -106,7 +84,6 @@ const validateOfferData = (data) => {
       );
     }
   }
-
   if (data.appliesTo === "specific_categories") {
     if (!data.applicableCategories || data.applicableCategories.length === 0) {
       errors.push(
@@ -114,16 +91,13 @@ const validateOfferData = (data) => {
       );
     }
   }
-
   return errors;
 };
-
 const getOffers = async (req, res) => {
   try {
     const page = Number.parseInt(req.query.page) || 1;
     const limit = 10;
     const skip = (page - 1) * limit;
-
     const query = {};
     const filters = {
       status: req.query.status || "all",
@@ -131,11 +105,9 @@ const getOffers = async (req, res) => {
       application: req.query.application || "all",
       search: req.query.search || "",
     };
-
     if (filters.search) {
       query.title = { $regex: filters.search, $options: "i" };
     }
-
     const now = new Date();
     if (filters.status !== "all") {
       if (filters.status === "active") {
@@ -148,15 +120,12 @@ const getOffers = async (req, res) => {
         query.endDate = { $lt: now };
       }
     }
-
     if (filters.type !== "all") {
       query.discountType = filters.type;
     }
-
     if (filters.application !== "all") {
       query.appliesTo = filters.application;
     }
-
     const totalOffers = await Offer.countDocuments(query);
     const offersData = await Offer.find(query)
       .populate("applicableCategories", "name")
@@ -165,11 +134,9 @@ const getOffers = async (req, res) => {
       .skip(skip)
       .limit(limit)
       .lean();
-
     offersData.forEach((offer) => {
       offer.displayStartDate = formatDateForDisplay(offer.startDate);
       offer.displayEndDate = formatDateForDisplay(offer.endDate);
-
       if (!offer.isActive) {
         offer.currentStatus = "Inactive";
         offer.statusClass = "inactive";
@@ -183,7 +150,6 @@ const getOffers = async (req, res) => {
         offer.currentStatus = "Active";
         offer.statusClass = "active";
       }
-
       switch (offer.appliesTo) {
         case "all_products":
           offer.appliesToDisplay = "All Products";
@@ -221,14 +187,12 @@ const getOffers = async (req, res) => {
           offer.appliesToDisplay = "N/A";
       }
     });
-
     const categories = await Category.find({ isListed: true })
       .select("name _id")
       .lean();
     const products = await Product.find({ isDeleted: false, isListed: true })
       .select({ _id: 1, title: "$model" })
       .lean();
-
     const totalPages = Math.ceil(totalOffers / limit);
     const pagination = {
       currentPage: page,
@@ -243,7 +207,6 @@ const getOffers = async (req, res) => {
       totalOffers,
       limit,
     };
-
     res.render("offers", {
       title: "Manage Offers",
       offers: offersData,
@@ -262,32 +225,25 @@ const getOffers = async (req, res) => {
       });
   }
 };
-
 const getOfferDetails = async (req, res) => {
   try {
     const offerId = req.params.id;
-
     if (!offerId.match(/^[0-9a-fA-F]{24}$/)) {
       return res
         .status(HttpStatus.BAD_REQUEST)
         .json({ success: false, message: "Invalid offer ID" });
     }
-
     const offer = await Offer.findById(offerId)
       .populate("applicableCategories", "name _id")
       .populate("applicableProducts", "model _id")
       .lean();
-
     if (!offer) {
       return res
         .status(HttpStatus.NOT_FOUND)
         .json({ success: false, message: "Offer not found" });
     }
-
-    // Format dates properly for HTML date inputs
     offer.startDate = formatDateForInput(offer.startDate);
     offer.endDate = formatDateForInput(offer.endDate);
-
     if (offer.applicableCategories) {
       offer.applicableCategories = offer.applicableCategories.map((cat) => ({
         ...cat,
@@ -300,7 +256,6 @@ const getOfferDetails = async (req, res) => {
         _id: prod._id.toString(),
       }));
     }
-
     res.status(HttpStatus.OK).json(offer);
   } catch (error) {
     console.error("Error fetching offer details:", error);
@@ -313,7 +268,6 @@ const getOfferDetails = async (req, res) => {
       });
   }
 };
-
 const createOffer = async (req, res) => {
   try {
     const {
@@ -328,11 +282,8 @@ const createOffer = async (req, res) => {
       startDate,
       endDate,
     } = req.body;
-
-    // Normalize arrays
     let productIds = [];
     let categoryIds = [];
-
     if (appliesTo === "specific_products") {
       if (Array.isArray(applicableProducts)) {
         productIds = applicableProducts.filter((id) => id && id.trim());
@@ -340,7 +291,6 @@ const createOffer = async (req, res) => {
         productIds = [applicableProducts.trim()];
       }
     }
-
     if (appliesTo === "specific_categories") {
       if (Array.isArray(applicableCategories)) {
         categoryIds = applicableCategories.filter((id) => id && id.trim());
@@ -348,8 +298,6 @@ const createOffer = async (req, res) => {
         categoryIds = [applicableCategories.trim()];
       }
     }
-
-    // Prepare validation data
     const validationData = {
       title,
       discountType,
@@ -361,8 +309,6 @@ const createOffer = async (req, res) => {
       applicableCategories: categoryIds,
       isEdit: false,
     };
-
-    // Validate data
     const validationErrors = validateOfferData(validationData);
     if (validationErrors.length > 0) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -370,27 +316,21 @@ const createOffer = async (req, res) => {
         message: validationErrors.join(". "),
       });
     }
-
-    // Check for duplicate title
     const existingOffer = await Offer.findOne({
       title: { $regex: new RegExp(`^${title.trim()}$`, "i") },
     });
-
     if (existingOffer) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message: "An offer with this title already exists",
       });
     }
-
-    // Verify products exist
     if (productIds.length > 0) {
       const existingProducts = await Product.find({
         _id: { $in: productIds },
         isDeleted: false,
         isListed: true,
       }).select("_id");
-
       if (existingProducts.length !== productIds.length) {
         return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
@@ -398,14 +338,11 @@ const createOffer = async (req, res) => {
         });
       }
     }
-
-    // Verify categories exist
     if (categoryIds.length > 0) {
       const existingCategories = await Category.find({
         _id: { $in: categoryIds },
         isListed: true,
       }).select("_id");
-
       if (existingCategories.length !== categoryIds.length) {
         return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
@@ -414,7 +351,6 @@ const createOffer = async (req, res) => {
         });
       }
     }
-
     const offerData = {
       title: title.trim(),
       description: description ? description.trim() : "",
@@ -428,23 +364,19 @@ const createOffer = async (req, res) => {
       applicableProducts: productIds,
       applicableCategories: categoryIds,
     };
-
     const newOffer = new Offer(offerData);
     await newOffer.save();
-
     res
       .status(HttpStatus.CREATED)
       .json({ success: true, message: "Offer created successfully" });
   } catch (error) {
     console.error("Error creating offer:", error);
-
     if (error.name === "ValidationError") {
       const messages = Object.values(error.errors)
         .map((val) => val.message)
         .join(". ");
       return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: messages });
     }
-
     if (error.code === 11000) {
       return res
         .status(HttpStatus.BAD_REQUEST)
@@ -453,7 +385,6 @@ const createOffer = async (req, res) => {
           message: "An offer with this title already exists",
         });
     }
-
     res
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .json({
@@ -462,17 +393,14 @@ const createOffer = async (req, res) => {
       });
   }
 };
-
 const updateOffer = async (req, res) => {
   try {
     const offerId = req.params.id;
-
     if (!offerId.match(/^[0-9a-fA-F]{24}$/)) {
       return res
         .status(HttpStatus.BAD_REQUEST)
         .json({ success: false, message: "Invalid offer ID" });
     }
-
     const {
       title,
       isActive,
@@ -485,19 +413,14 @@ const updateOffer = async (req, res) => {
       startDate,
       endDate,
     } = req.body;
-
-    // Check if offer exists
     const offerToUpdate = await Offer.findById(offerId);
     if (!offerToUpdate) {
       return res
         .status(HttpStatus.NOT_FOUND)
         .json({ success: false, message: "Offer not found" });
     }
-
-    // Normalize arrays
     let productIds = [];
     let categoryIds = [];
-
     if (appliesTo === "specific_products") {
       if (Array.isArray(applicableProducts)) {
         productIds = applicableProducts.filter((id) => id && id.trim());
@@ -505,7 +428,6 @@ const updateOffer = async (req, res) => {
         productIds = [applicableProducts.trim()];
       }
     }
-
     if (appliesTo === "specific_categories") {
       if (Array.isArray(applicableCategories)) {
         categoryIds = applicableCategories.filter((id) => id && id.trim());
@@ -513,8 +435,6 @@ const updateOffer = async (req, res) => {
         categoryIds = [applicableCategories.trim()];
       }
     }
-
-    // Prepare validation data
     const validationData = {
       title,
       discountType,
@@ -524,10 +444,8 @@ const updateOffer = async (req, res) => {
       appliesTo,
       applicableProducts: productIds,
       applicableCategories: categoryIds,
-      isEdit: true, // This is an edit operation
+      isEdit: true,
     };
-
-    // Validate data
     const validationErrors = validateOfferData(validationData);
     if (validationErrors.length > 0) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -535,28 +453,22 @@ const updateOffer = async (req, res) => {
         message: validationErrors.join(". "),
       });
     }
-
-    // Check for duplicate title (excluding current offer)
     const existingOffer = await Offer.findOne({
       title: { $regex: new RegExp(`^${title.trim()}$`, "i") },
       _id: { $ne: offerId },
     });
-
     if (existingOffer) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message: "An offer with this title already exists",
       });
     }
-
-    // Verify products exist
     if (productIds.length > 0) {
       const existingProducts = await Product.find({
         _id: { $in: productIds },
         isDeleted: false,
         isListed: true,
       }).select("_id");
-
       if (existingProducts.length !== productIds.length) {
         return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
@@ -564,14 +476,11 @@ const updateOffer = async (req, res) => {
         });
       }
     }
-
-    // Verify categories exist
     if (categoryIds.length > 0) {
       const existingCategories = await Category.find({
         _id: { $in: categoryIds },
         isListed: true,
       }).select("_id");
-
       if (existingCategories.length !== categoryIds.length) {
         return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
@@ -580,8 +489,6 @@ const updateOffer = async (req, res) => {
         });
       }
     }
-
-    // Update offer
     offerToUpdate.title = title.trim();
     offerToUpdate.description = description ? description.trim() : "";
     offerToUpdate.discountType = discountType;
@@ -592,21 +499,18 @@ const updateOffer = async (req, res) => {
     offerToUpdate.isActive = isActive === "true" || isActive === true;
     offerToUpdate.applicableProducts = productIds;
     offerToUpdate.applicableCategories = categoryIds;
-
     await offerToUpdate.save();
     res
       .status(HttpStatus.OK)
       .json({ success: true, message: "Offer updated successfully" });
   } catch (error) {
     console.error("Error updating offer:", error);
-
     if (error.name === "ValidationError") {
       const messages = Object.values(error.errors)
         .map((val) => val.message)
         .join(". ");
       return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: messages });
     }
-
     if (error.code === 11000) {
       return res
         .status(HttpStatus.BAD_REQUEST)
@@ -615,7 +519,6 @@ const updateOffer = async (req, res) => {
           message: "An offer with this name already exists",
         });
     }
-
     res
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .json({
@@ -624,28 +527,22 @@ const updateOffer = async (req, res) => {
       });
   }
 };
-
 const toggleOfferStatus = async (req, res) => {
   try {
     const offerId = req.params.id;
-
     if (!offerId.match(/^[0-9a-fA-F]{24}$/)) {
       return res
         .status(HttpStatus.BAD_REQUEST)
         .json({ success: false, message: "Invalid offer ID" });
     }
-
     const offer = await Offer.findById(offerId);
-
     if (!offer) {
       return res
         .status(HttpStatus.NOT_FOUND)
         .json({ success: false, message: "Offer not found" });
     }
-
     offer.isActive = !offer.isActive;
     await offer.save();
-
     const now = new Date();
     let currentStatusText;
     if (!offer.isActive) {
@@ -657,7 +554,6 @@ const toggleOfferStatus = async (req, res) => {
     } else {
       currentStatusText = "Active";
     }
-
     res.status(HttpStatus.OK).json({
       success: true,
       message: `Offer status changed. It is now ${currentStatusText.toLowerCase()}`,
@@ -674,7 +570,6 @@ const toggleOfferStatus = async (req, res) => {
       });
   }
 };
-
 module.exports = {
   getOffers,
   getOfferDetails,

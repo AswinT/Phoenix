@@ -1,61 +1,45 @@
 function initializeValidation() {
   const errorHandler = window.ValidationErrorHandler;
-
   if (!errorHandler) {
     setTimeout(initializeValidation, 100);
     return;
   }
-
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => setupValidation(errorHandler));
   } else {
     setupValidation(errorHandler);
   }
 }
-
 function setupValidation(errorHandler) {
-
   function setupAdminFormValidation() {
     const productForms = document.querySelectorAll('#addProductForm, #editProductForm');
-
     productForms.forEach(form => {
       setupProductFormValidation(form);
     });
-
     const offerForms = document.querySelectorAll('#addOfferForm, #editOfferForm');
     offerForms.forEach(form => {
       setupOfferFormValidation(form);
     });
-
     const couponForms = document.querySelectorAll('#addCouponForm, #editCouponForm');
     couponForms.forEach(form => {
       setupCouponFormValidation(form);
     });
   }
-
   function setupProductFormValidation(form) {
     if (!form) return;
-
     const isEditForm = form.id === 'editProductForm';
-
     errorHandler.addRealTimeValidation(form);
-
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
-
       const validationResult = validateProductForm(form);
-
       if (!validationResult.isValid) {
         displayClientSideErrors(form, validationResult.errors);
         return;
       }
-
       errorHandler.clearAllErrors(form);
-
       const url = isEditForm
         ? `/admin/products/${form.getAttribute('data-product-id')}`
         : '/admin/products';
-
       await errorHandler.handleFormSubmission(form, url, {
         method: 'POST',
         fetchOptions: {
@@ -94,24 +78,17 @@ function setupValidation(errorHandler) {
         }
       });
     });
-
     addProductValidationHints(form);
   }
-
   function setupOfferFormValidation(form) {
     if (!form) return;
-
     const isEditForm = form.id === 'editOfferForm';
-    
     errorHandler.addRealTimeValidation(form);
-
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
-
       const url = isEditForm 
         ? `/admin/offers/${form.getAttribute('data-offer-id')}`
         : '/admin/offers';
-
       await errorHandler.handleFormSubmission(form, url, {
         method: isEditForm ? 'PUT' : 'POST',
         onSuccess: (data) => {
@@ -132,24 +109,17 @@ function setupValidation(errorHandler) {
         }
       });
     });
-
     addOfferValidationHints(form);
   }
-
   function setupCouponFormValidation(form) {
     if (!form) return;
-
     const isEditForm = form.id === 'editCouponForm';
-    
     errorHandler.addRealTimeValidation(form);
-
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
-
       const url = isEditForm 
         ? `/admin/coupons/${form.getAttribute('data-coupon-id')}`
         : '/admin/coupons';
-
       await errorHandler.handleFormSubmission(form, url, {
         method: isEditForm ? 'PUT' : 'POST',
         onSuccess: (data) => {
@@ -170,24 +140,19 @@ function setupValidation(errorHandler) {
         }
       });
     });
-
     addCouponValidationHints(form);
   }
-
   function addProductValidationHints(form) {
     const modelField = form.querySelector('#model');
     if (modelField) {
       addFieldHint(modelField, '3-100 characters, alphanumeric with basic punctuation');
     }
-
     const regularPrice = form.querySelector('#regularPrice');
     const salePrice = form.querySelector('#salePrice');
-    
     if (regularPrice && salePrice) {
       salePrice.addEventListener('input', function() {
         const regPrice = parseFloat(regularPrice.value);
         const salePriceVal = parseFloat(this.value);
-        
         if (!isNaN(regPrice) && !isNaN(salePriceVal)) {
           if (salePriceVal > regPrice) {
             showFieldHint(this, 'Sale price should be less than regular price', 'warning');
@@ -200,16 +165,13 @@ function setupValidation(errorHandler) {
       });
     }
   }
-
   function addOfferValidationHints(form) {
     const discountValue = form.querySelector('[name="discountValue"]');
     const discountType = form.querySelector('[name="discountType"]');
-    
     if (discountValue && discountType) {
       function updateDiscountHint() {
         const type = discountType.value;
         const value = parseFloat(discountValue.value);
-        
         if (type === 'percentage' && value > 50) {
           showFieldHint(discountValue, 'High percentage discounts may require approval', 'info');
         } else if (type === 'fixed' && value > 5000) {
@@ -218,12 +180,10 @@ function setupValidation(errorHandler) {
           clearFieldHint(discountValue);
         }
       }
-      
       discountValue.addEventListener('input', updateDiscountHint);
       discountType.addEventListener('change', updateDiscountHint);
     }
   }
-
   function addCouponValidationHints(form) {
     const couponCodeFields = form.querySelectorAll('[name="couponCode"], #couponCode, #editCouponCode');
     couponCodeFields.forEach(couponCode => {
@@ -234,74 +194,59 @@ function setupValidation(errorHandler) {
         addFieldHint(couponCode, 'Use uppercase letters, numbers, hyphens, and underscores only');
       }
     });
-
     const globalLimit = form.querySelector('[name="usageLimitGlobal"]');
     const perUserLimit = form.querySelector('[name="usageLimitPerUser"]');
-    
     if (globalLimit && perUserLimit) {
       function validateUsageLimits() {
         const global = parseInt(globalLimit.value);
         const perUser = parseInt(perUserLimit.value);
-        
         if (!isNaN(global) && !isNaN(perUser) && global < perUser) {
           showFieldHint(globalLimit, 'Global limit should be greater than or equal to per user limit', 'warning');
         } else {
           clearFieldHint(globalLimit);
         }
       }
-      
       globalLimit.addEventListener('input', validateUsageLimits);
       perUserLimit.addEventListener('input', validateUsageLimits);
     }
   }
-
   function addFieldHint(field, hintText) {
     const formGroup = field.closest('.mb-3') || field.closest('.form-group') || field.parentElement;
     let hintElement = formGroup.querySelector('.field-hint');
-    
     if (!hintElement) {
       hintElement = document.createElement('small');
       hintElement.className = 'field-hint text-muted mt-1';
       hintElement.style.display = 'block';
       formGroup.appendChild(hintElement);
     }
-    
     hintElement.textContent = hintText;
   }
-
   function showFieldHint(field, message, type = 'info') {
     const formGroup = field.closest('.mb-3') || field.closest('.form-group') || field.parentElement;
     let hintElement = formGroup.querySelector('.temp-hint');
-    
     if (!hintElement) {
       hintElement = document.createElement('small');
       hintElement.className = 'temp-hint mt-1';
       hintElement.style.display = 'block';
       formGroup.appendChild(hintElement);
     }
-    
     hintElement.textContent = message;
     hintElement.className = `temp-hint mt-1 text-${type === 'warning' ? 'warning' : 'info'}`;
   }
-
   function clearFieldHint(field) {
     const formGroup = field.closest('.mb-3') || field.closest('.form-group') || field.parentElement;
     const hintElement = formGroup.querySelector('.temp-hint');
-    
     if (hintElement) {
       hintElement.remove();
     }
   }
-
   function validateProductForm(form) {
     const errors = {};
     let isValid = true;
-
     const addError = (fieldName, message) => {
       errors[fieldName] = message;
       isValid = false;
     };
-
     const formData = new FormData(form);
     const values = {
       model: formData.get('model')?.trim() || '',
@@ -315,7 +260,6 @@ function setupValidation(errorHandler) {
       manufacturer: formData.get('manufacturer')?.trim() || '',
       mainImage: formData.get('mainImage')
     };
-
     if (!values.model) {
       addError('model', 'Model is required');
     } else if (values.model.length < 3) {
@@ -325,7 +269,6 @@ function setupValidation(errorHandler) {
     } else if (!/^[a-zA-Z0-9\s\-:,.'&()]+$/.test(values.model)) {
       addError('model', 'Model contains invalid characters');
     }
-
     if (!values.brand) {
       addError('brand', 'Brand is required');
     } else if (values.brand.length < 2) {
@@ -333,7 +276,6 @@ function setupValidation(errorHandler) {
     } else if (values.brand.length > 50) {
       addError('brand', 'Brand must not exceed 50 characters');
     }
-
     if (!values.description) {
       addError('description', 'Description is required');
     } else if (values.description.length < 20) {
@@ -341,11 +283,9 @@ function setupValidation(errorHandler) {
     } else if (values.description.length > 2000) {
       addError('description', 'Description must not exceed 2000 characters');
     }
-
     if (!values.category) {
       addError('category', 'Category is required');
     }
-
     if (!values.regularPrice) {
       addError('regularPrice', 'Regular Price is required');
     } else {
@@ -356,7 +296,6 @@ function setupValidation(errorHandler) {
         addError('regularPrice', 'Regular Price must not exceed 1,000,000');
       }
     }
-
     if (!values.salePrice) {
       addError('salePrice', 'Sale Price is required');
     } else {
@@ -370,7 +309,6 @@ function setupValidation(errorHandler) {
         addError('salePrice', 'Sale Price must be less than Regular Price');
       }
     }
-
     if (!values.stock) {
       addError('stock', 'Stock is required');
     } else {
@@ -381,7 +319,6 @@ function setupValidation(errorHandler) {
         addError('stock', 'Stock must not exceed 10,000');
       }
     }
-
     if (!values.connectivity) {
       addError('connectivity', 'Connectivity type is required');
     } else {
@@ -390,7 +327,6 @@ function setupValidation(errorHandler) {
         addError('connectivity', 'Connectivity must be either "Wired" or "Wireless"');
       }
     }
-
     if (!values.manufacturer) {
       addError('manufacturer', 'Manufacturer is required');
     } else if (values.manufacturer.length < 2) {
@@ -398,7 +334,6 @@ function setupValidation(errorHandler) {
     } else if (values.manufacturer.length > 50) {
       addError('manufacturer', 'Manufacturer must not exceed 50 characters');
     }
-
     if (!values.mainImage || values.mainImage.size === 0) {
       addError('mainImage', 'Main image is required');
     } else {
@@ -410,13 +345,10 @@ function setupValidation(errorHandler) {
         addError('mainImage', 'Main image must be smaller than 5MB');
       }
     }
-
     return { isValid, errors };
   }
-
   function displayClientSideErrors(form, errors) {
     errorHandler.clearAllErrors(form);
-
     Object.keys(errors).forEach(fieldName => {
       const field = form.querySelector(`[name="${fieldName}"]`) ||
                    form.querySelector(`#${fieldName}`);
@@ -424,7 +356,6 @@ function setupValidation(errorHandler) {
         errorHandler.showFieldError(field, errors[fieldName]);
       }
     });
-
     const firstErrorField = form.querySelector('.is-invalid');
     if (firstErrorField) {
       firstErrorField.scrollIntoView({
@@ -433,7 +364,6 @@ function setupValidation(errorHandler) {
       });
       firstErrorField.focus();
     }
-
     const errorCount = Object.keys(errors).length;
     if (typeof Swal !== 'undefined') {
       Swal.fire({
@@ -444,8 +374,6 @@ function setupValidation(errorHandler) {
       });
     }
   }
-
   setupAdminFormValidation();
 }
-
 initializeValidation();

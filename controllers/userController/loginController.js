@@ -2,6 +2,7 @@ const User = require("../../models/userSchema");
 const bcrypt = require("bcrypt");
 const { HttpStatus } = require("../../helpers/status-code");
 
+// Show login page
 const getLogin = async (req, res) => {
   try {
     res.header(
@@ -10,7 +11,6 @@ const getLogin = async (req, res) => {
     );
     res.header("Pragma", "no-cache");
     res.header("Expires", "0");
-
     res.render("login");
   } catch (error) {
     console.log(error);
@@ -20,44 +20,39 @@ const getLogin = async (req, res) => {
     });
   }
 };
-
+// Handle user login
 const postLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
-
+    // Check if user exists
     const existingUser = await User.findOne({ email });
-
     if (!existingUser) {
       return res.status(HttpStatus.NOT_FOUND).json({
         success: false,
         message: "Email Not found",
       });
     }
-
+    // Check if account is blocked
     if (existingUser.isBlocked) {
       return res.status(HttpStatus.FORBIDDEN).json({
         success: false,
         message: "Your account is blocked. Please contact support.",
       });
     }
-
+    // Verify password
     const verifiedPassword = await bcrypt.compare(
       password,
       existingUser.password
     );
-
     if (!verifiedPassword) {
       return res.status(HttpStatus.UNAUTHORIZED).json({
         success: false,
         message: "Invalid Email or Password",
       });
     }
-
-    // Set user session
+    // Create user session
     req.session.user_id = existingUser._id;
     req.session.user_email = existingUser.email;
-
-    // Ensure session is saved before sending response
     req.session.save((err) => {
       if (err) {
         console.error("Session save error:", err);
@@ -66,7 +61,6 @@ const postLogin = async (req, res) => {
           message: "Session error",
         });
       }
-
       return res.status(HttpStatus.OK).json({
         success: true,
         message: "Welcome to Phoenix",
@@ -80,7 +74,6 @@ const postLogin = async (req, res) => {
     });
   }
 };
-
 module.exports = {
   getLogin,
   postLogin,

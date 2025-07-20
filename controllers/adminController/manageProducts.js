@@ -1,6 +1,5 @@
 const Product = require('../../models/productSchema');
 const { HttpStatus } = require('../../helpers/status-code');
-
 const getAddProduct = async (req,res) => {
      try {
           res.render('manageProducts.ejs')
@@ -10,6 +9,4 @@ const getAddProduct = async (req,res) => {
           })
      }
 }
-
-
 module.exports = {getAddProduct}

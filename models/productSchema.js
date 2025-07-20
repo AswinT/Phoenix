@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-
 const productSchema = new mongoose.Schema({
   model:
   { type: String,
@@ -28,5 +27,4 @@ const productSchema = new mongoose.Schema({
   isDeleted: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
 });
-
 module.exports = mongoose.model("Product", productSchema);

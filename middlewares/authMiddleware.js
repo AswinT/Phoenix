@@ -1,33 +1,23 @@
-// middlewares/authMiddleware.js
 const User = require('../models/userSchema');
 
-/**
- * Middleware to check if user is authenticated and not blocked
- * Redirects to login if not authenticated (for page requests)
- * Returns JSON error for API requests
- * Logs out and redirects blocked users
- */
+// Check if user is logged in and valid
 const isAuthenticated = async (req, res, next) => {
+     // User has session - verify account status
      if (req.session && req.session.user_id) {
        try {
-         // Check if user exists and is not blocked
          const user = await User.findById(req.session.user_id).lean();
-         
+         // Account not found - clean up session
          if (!user) {
-           // User not found, clear session and redirect
            req.session.destroy((err) => {
              if (err) {
                console.error('Error destroying session:', err);
              }
            });
-           
-           // Check if this is an API request
            const isApiRequest = req.headers['content-type']?.includes('application/json') ||
                                 req.headers['x-requested-with'] === 'XMLHttpRequest' ||
                                 req.path.includes('/api/') ||
                                 req.path.includes('/orders/') ||
                                 req.path.includes('/checkout/');
-
            if (isApiRequest) {
              return res.status(401).json({
                success: false,
@@ -36,25 +26,20 @@ const isAuthenticated = async (req, res, next) => {
                redirectTo: '/login'
              });
            }
-
            return res.redirect('/login?error=account_not_found');
          }
-
+         // Account blocked - clean up session
          if (user.isBlocked) {
-           // User is blocked, clear session and redirect with error
            req.session.destroy((err) => {
              if (err) {
                console.error('Error destroying session:', err);
              }
            });
-
-           // Check if this is an API request
            const isApiRequest = req.headers['content-type']?.includes('application/json') ||
                                 req.headers['x-requested-with'] === 'XMLHttpRequest' ||
                                 req.path.includes('/api/') ||
                                 req.path.includes('/orders/') ||
                                 req.path.includes('/checkout/');
-
            if (isApiRequest) {
              return res.status(403).json({
                success: false,
@@ -63,28 +48,21 @@ const isAuthenticated = async (req, res, next) => {
                redirectTo: '/login?error=blocked'
              });
            }
-
            return res.redirect('/login?error=blocked');
          }
-
-         // User is valid and not blocked, continue
          return next();
        } catch (error) {
          console.error('Error checking user status:', error);
-         
-         // On database error, clear session and redirect
          req.session.destroy((err) => {
            if (err) {
              console.error('Error destroying session:', err);
            }
          });
-
          const isApiRequest = req.headers['content-type']?.includes('application/json') ||
                               req.headers['x-requested-with'] === 'XMLHttpRequest' ||
                               req.path.includes('/api/') ||
                               req.path.includes('/orders/') ||
                               req.path.includes('/checkout/');
-
          if (isApiRequest) {
            return res.status(500).json({
              success: false,
@@ -93,19 +71,14 @@ const isAuthenticated = async (req, res, next) => {
              redirectTo: '/login'
            });
          }
-
          return res.redirect('/login?error=auth_error');
        }
      }
-
-     // No session, user not authenticated
-     // Check if this is an API request (JSON or AJAX)
      const isApiRequest = req.headers['content-type']?.includes('application/json') ||
                           req.headers['x-requested-with'] === 'XMLHttpRequest' ||
                           req.path.includes('/api/') ||
                           req.path.includes('/orders/') ||
                           req.path.includes('/checkout/');
-
      if (isApiRequest) {
        return res.status(401).json({
          success: false,
@@ -114,32 +87,22 @@ const isAuthenticated = async (req, res, next) => {
          redirectTo: '/login'
        });
      }
-
      return res.redirect('/login');
    };
-   
-   /**
-    * Middleware to check if user is already logged in
-    * Redirects to home if authenticated
-    */
+   // Redirect logged in users away from auth pages
    const isNotAuthenticated = (req, res, next) => {
      if (req.session && req.session.user_id) {
        return res.redirect('/');
      }
      return next();
    };
-   
-   /**
-    * Middleware to prevent caching for pages that should not be accessible via back button
-    * after logout
-    */
+   // Prevent browser back button cache
    const preventBackButtonCache = (req, res, next) => {
      res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
      res.header('Pragma', 'no-cache');
      res.header('Expires', '0');
      next();
    };
-   
    module.exports = {
      isAuthenticated,
      isNotAuthenticated,

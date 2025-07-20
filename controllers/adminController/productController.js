@@ -3,9 +3,6 @@ const Category = require('../../models/categorySchema');
 const cloudinary = require('../../config/cloudinary');
 const fs = require('fs');
 const { HttpStatus } = require('../../helpers/status-code');
-
-// Get Products Page
-// Updated getProducts function to show all products in admin panel
 const getProducts = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -14,42 +11,28 @@ const getProducts = async (req, res) => {
     const categoryFilter = req.query.category || '';
     const sortBy = req.query.sort || 'newest';
     const skip = (page - 1) * limit;
-
-    // Changed query to include all products for admin panel
-    // This should include both listed and unlisted products
-    const query = { isDeleted: false }; // Only exclude permanently deleted products
-
-    // Add search filters if provided
+    const query = { isDeleted: false };
     if (search) {
       query.$or = [
         { model: { $regex: search, $options: 'i' } },
         { brand: { $regex: search, $options: 'i' } },
       ];
     }
-
-    // Add category filter if provided
     if (categoryFilter) {
       query.category = categoryFilter;
     }
-
-    // Sorting
-    let sortOption = { createdAt: -1 }; // Default: newest first
+    let sortOption = { createdAt: -1 };
     if (sortBy === 'oldest') sortOption = { createdAt: 1 };
     else if (sortBy === 'price-low') sortOption = { salePrice: 1 };
     else if (sortBy === 'price-high') sortOption = { salePrice: -1 };
     else if (sortBy === 'stock-high') sortOption = { stock: -1 };
-
-    // Count and fetch products
     const totalProducts = await Product.countDocuments(query);
     const products = await Product.find(query)
       .populate('category')
       .sort(sortOption)
       .skip(skip)
       .limit(limit);
-
-    // Fetch all categories for filter dropdown
     const categories = await Category.find({ isListed: true });
-
     res.render('getProducts', {
       products,
       categories,
@@ -63,8 +46,6 @@ const getProducts = async (req, res) => {
       successMessage: req.session.successMessage,
       errorMessage: req.session.errorMessage
     });
-    
-    // Clear messages after rendering
     delete req.session.successMessage;
     delete req.session.errorMessage;
   } catch (error) {
@@ -72,8 +53,6 @@ const getProducts = async (req, res) => {
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Internal Server Error' });
   }
 };
-
-// Add Product
 const addProduct = async (req, res) => {
   try {
     const {
@@ -88,8 +67,6 @@ const addProduct = async (req, res) => {
       manufacturer,
       isListed,
     } = req.body;
-
-    // Validate category exists
     const categoryExists = await Category.findById(category);
     if (!categoryExists) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -98,11 +75,7 @@ const addProduct = async (req, res) => {
         errors: ['Invalid category selected']
       });
     }
-
-    // Log file information for debugging
     console.log('Uploaded Files:', req.files);
-
-    // Upload main image
     let mainImageUrl = '';
     if (req.files && req.files.mainImage && req.files.mainImage.length > 0) {
       const file = req.files.mainImage[0];
@@ -117,7 +90,7 @@ const addProduct = async (req, res) => {
         flags: 'preserve_transparency'
       });
       mainImageUrl = result.secure_url;
-      fs.unlinkSync(file.path); // Delete local file
+      fs.unlinkSync(file.path);
     } else {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
@@ -125,41 +98,32 @@ const addProduct = async (req, res) => {
         errors: ['Main image is required']
       });
     }
-
-    // Upload sub images (up to 3)
     const subImages = [];
-    const processedPaths = new Set(); // Track processed file paths to avoid duplicates
-    
-    // Process each sub-image field individually
+    const processedPaths = new Set();
     for (let i = 1; i <= 3; i++) {
       const fieldName = `subImage${i}`;
       if (req.files && req.files[fieldName] && req.files[fieldName].length > 0) {
         const file = req.files[fieldName][0];
         console.log(`Processing ${fieldName}: ${file.path}, original name: ${file.originalname}`);
-        
         if (processedPaths.has(file.path)) {
           console.log(`Skipping duplicate sub image path: ${file.path}`);
           continue;
         }
-        
         if (!fs.existsSync(file.path)) {
           console.warn(`Sub image not found at ${file.path}, skipping...`);
           continue;
         }
-        
         const result = await cloudinary.uploader.upload(file.path, {
           folder: 'products/sub',
           quality: 'auto:best',
           fetch_format: 'auto',
           flags: 'preserve_transparency'
         });
-        
         subImages.push(result.secure_url);
-        processedPaths.add(file.path); // Mark this path as processed
-        fs.unlinkSync(file.path); // Delete local file
+        processedPaths.add(file.path);
+        fs.unlinkSync(file.path);
       }
     }
-
     const product = new Product({
       model: model.trim(),
       brand: brand.trim(),
@@ -175,7 +139,6 @@ const addProduct = async (req, res) => {
       isListed: isListed === 'on',
       isDeleted: false,
     });
-
     await product.save();
     res.status(HttpStatus.CREATED).json({
       success: true,
@@ -204,8 +167,6 @@ const addProduct = async (req, res) => {
     }
   }
 };
-
-// Toggle Product Status
 const toggleProductStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -213,7 +174,6 @@ const toggleProductStatus = async (req, res) => {
     if (!product) {
       return res.status(HttpStatus.NOT_FOUND).json({ error: 'Product not found' });
     }
-
     product.isListed = !product.isListed;
     await product.save();
     res.json({
@@ -224,26 +184,20 @@ const toggleProductStatus = async (req, res) => {
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server Error' });
   }
 };
-
-// Get Edit Product Page
 const getEditProduct = async (req, res) => {
   try {
     const productId = req.params.id;
     const product = await Product.findById(productId).populate('category');
     const categories = await Category.find({ isListed: true });
-
     if (!product || product.isDeleted) {
       return res.status(HttpStatus.NOT_FOUND).json({ error: 'Product not found' });
     }
-
     res.render('editProduct', { product, categories });
   } catch (error) {
     console.error('Error fetching product for edit:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server Error' });
   }
 };
-
-// Update Product
 const updateProduct = async (req, res) => {
   console.log('Update request received for productId:', req.params.id);
   try {
@@ -260,24 +214,20 @@ const updateProduct = async (req, res) => {
       manufacturer,
       isListed,
     } = req.body;
-
     console.log('Request body:', req.body);
     console.log('Uploaded files:', req.files);
-
     const product = await Product.findById(productId);
     console.log('Product found:', product);
     if (!product || product.isDeleted) {
       console.log('Product not found or deleted');
       return res.status(HttpStatus.NOT_FOUND).json({ error: 'Product not found' });
     }
-
     const categoryExists = await Category.findById(category);
     console.log('Category exists:', categoryExists);
     if (!categoryExists) {
       console.log('Invalid category');
       return res.status(HttpStatus.BAD_REQUEST).json({ error: 'Invalid category' });
     }
-
     let mainImageUrl = product.mainImage;
     if (req.files && req.files.mainImage && req.files.mainImage.length > 0) {
       const file = req.files.mainImage[0];
@@ -295,35 +245,23 @@ const updateProduct = async (req, res) => {
         await cloudinary.uploader.destroy(`products/${publicId}`);
       }
     }
-
-    // Preserve existing sub images
     const subImages = [...product.subImages] || [];
-    
-    // Handle each subImage individually
     for (let i = 1; i <= 3; i++) {
       const fieldName = `subImage${i}`;
-      
       if (req.files && req.files[fieldName] && req.files[fieldName].length > 0) {
         const file = req.files[fieldName][0];
         console.log(`Processing ${fieldName}:`, file.path);
-        
         if (!fs.existsSync(file.path)) {
           console.warn(`${fieldName} not found at:`, file.path);
           continue;
         }
-        
-        // Upload the new image
         const result = await cloudinary.uploader.upload(file.path, {
           folder: 'products/sub',
           quality: 'auto:best',
           fetch_format: 'auto',
           flags: 'preserve_transparency'
         });
-        
-        // Calculate the index (0-based)
         const index = i - 1;
-        
-        // Delete old image if it exists at this index
         if (index < subImages.length && subImages[index]) {
           const publicId = subImages[index].split('/').pop().split('.')[0];
           try {
@@ -333,8 +271,6 @@ const updateProduct = async (req, res) => {
             console.error(`Failed to delete old image: ${err.message}`);
           }
         }
-        
-        // Replace image at index or add it
         if (index < subImages.length) {
           subImages[index] = result.secure_url;
           console.log(`Replaced image at index ${index}`);
@@ -342,12 +278,9 @@ const updateProduct = async (req, res) => {
           subImages.push(result.secure_url);
           console.log(`Added new image at index ${index}`);
         }
-        
-        // Clean up the local file
         fs.unlinkSync(file.path);
       }
     }
-
     product.model = model;
     product.brand = brand;
     product.description = description;
@@ -360,7 +293,6 @@ const updateProduct = async (req, res) => {
     product.mainImage = mainImageUrl;
     product.subImages = subImages;
     product.isListed = isListed === 'on';
-
     await product.save();
     console.log('Product updated:', product._id);
     res.status(HttpStatus.OK).json({
@@ -376,7 +308,6 @@ const updateProduct = async (req, res) => {
     }
   }
 };
-// Soft Delete Product
 const softDeleteProduct = async (req, res) => {
   console.log('Soft delete request received for productId:', req.params.id);
   try {
@@ -387,7 +318,6 @@ const softDeleteProduct = async (req, res) => {
       console.log('Product not found');
       return res.status(HttpStatus.NOT_FOUND).json({ error: 'Product not found' });
     }
-
     product.isDeleted = true;
     await product.save();
     console.log('Product soft deleted:', product._id);
@@ -400,5 +330,4 @@ const softDeleteProduct = async (req, res) => {
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server Error' });
   }
 };
-
 module.exports = { getProducts, addProduct, toggleProductStatus, getEditProduct, updateProduct, softDeleteProduct };

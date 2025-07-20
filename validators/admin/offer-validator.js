@@ -1,15 +1,7 @@
 const { createValidationMiddleware } = require('../../helpers/validation-helper');
-
-/**
- * Backend validation for Admin Offer Management
- * Converts frontend validation logic to backend using createValidationMiddleware
- */
-
-// Custom validation function for discount based on type
 const validateDiscountValue = (req, res, next) => {
   const { discountValue, discountType } = req.body;
   const value = parseFloat(discountValue);
-
   if (isNaN(value) || value <= 0) {
     return res.status(400).json({
       success: false,
@@ -17,7 +9,6 @@ const validateDiscountValue = (req, res, next) => {
       errors: ['Please enter a valid discount value']
     });
   }
-
   if (discountType === 'percentage') {
     if (value < 1 || value > 100) {
       return res.status(400).json({
@@ -35,15 +26,11 @@ const validateDiscountValue = (req, res, next) => {
       });
     }
   }
-
   next();
 };
-
-// Custom validation function for offer dates
 const validateOfferDates = (req, res, next) => {
   const { startDate, endDate } = req.body;
   const isEdit = req.method === 'PUT';
-
   if (!startDate) {
     return res.status(400).json({
       success: false,
@@ -51,7 +38,6 @@ const validateOfferDates = (req, res, next) => {
       errors: ['Start date is required']
     });
   }
-
   if (!endDate) {
     return res.status(400).json({
       success: false,
@@ -59,12 +45,10 @@ const validateOfferDates = (req, res, next) => {
       errors: ['End date is required']
     });
   }
-
   const startDateObj = new Date(startDate);
   const endDateObj = new Date(endDate);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-
   if (!isEdit && startDateObj < today) {
     return res.status(400).json({
       success: false,
@@ -72,7 +56,6 @@ const validateOfferDates = (req, res, next) => {
       errors: ['Start date cannot be in the past']
     });
   }
-
   if (startDateObj >= endDateObj) {
     return res.status(400).json({
       success: false,
@@ -80,14 +63,10 @@ const validateOfferDates = (req, res, next) => {
       errors: ['End date must be after start date']
     });
   }
-
   next();
 };
-
-// Custom validation function for applicable items
 const validateApplicableItems = (req, res, next) => {
   const { appliesTo, applicableProducts, applicableCategories } = req.body;
-
   if (appliesTo === 'specific_products') {
     if (!applicableProducts || (Array.isArray(applicableProducts) && applicableProducts.length === 0)) {
       return res.status(400).json({
@@ -105,13 +84,8 @@ const validateApplicableItems = (req, res, next) => {
       });
     }
   }
-
   next();
 };
-
-/**
- * Validate add/update offer request
- */
 const validateOfferData = createValidationMiddleware({
   title: {
     type: 'text',
@@ -156,28 +130,14 @@ const validateOfferData = createValidationMiddleware({
     required: true
   }
 });
-
-/**
- * Complete offer validation middleware chain
- * Use this for both create and update operations
- */
 const validateCompleteOffer = [
   validateOfferData,
   validateDiscountValue,
   validateOfferDates,
   validateApplicableItems
 ];
-
-/**
- * Validation for offer creation
- */
 const validateCreateOffer = validateCompleteOffer;
-
-/**
- * Validation for offer update
- */
 const validateUpdateOffer = validateCompleteOffer;
-
 module.exports = {
   validateOfferData,
   validateDiscountValue,

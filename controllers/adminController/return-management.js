@@ -3,27 +3,22 @@ const Product = require("../../models/productSchema");
 const { processReturnRefund } = require("../userController/wallet-controller");
 const { calculateExactRefundAmount } = require("../../helpers/money-calculator");
 const { HttpStatus } = require('../../helpers/status-code');
-
 const calculateEstimatedRefund = (order) => {
   try {
     if (!order?.items?.length) {
       return { total: 0, base: 0, tax: 0, breakdown: [] };
     }
-
     const returnRequestedItems = order.items.filter(item => item.status === 'Return Requested');
     if (returnRequestedItems.length === 0) {
       return { total: 0, base: 0, tax: 0, breakdown: [] };
     }
-
     const isFullOrderReturn = returnRequestedItems.length === order.items.length;
     let totalRefund = 0;
     let totalBase = 0;
     let totalTax = 0;
-
     for (const item of returnRequestedItems) {
       totalRefund += calculateExactRefundAmount(item, order);
     }
-
     return {
       total: Number(totalRefund.toFixed(2)),
       itemCount: returnRequestedItems.length
@@ -38,7 +33,6 @@ const getReturnRequests = async (req, res) => {
     const page = Number.parseInt(req.query.page) || 1;
     const limit = 10;
     const skip = (page - 1) * limit;
-
     const query = {
       isDeleted: false,
       $or: [
@@ -46,7 +40,6 @@ const getReturnRequests = async (req, res) => {
         { 'items.status': 'Return Requested' }
       ]
     };
-
     const status = req.query.status || "";
     if (status === "pending") {
       query.orderStatus = 'Return Requested';
@@ -54,19 +47,15 @@ const getReturnRequests = async (req, res) => {
       query.orderStatus = 'Delivered';
       query['items.status'] = 'Return Requested';
     }
-
     const totalOrders = await Order.countDocuments(query);
-
     const orders = await Order.find(query)
       .populate("user", "fullName email")
       .sort({ updatedAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean();
-
     const processedOrders = orders.map(order => {
       const returnRequestedItems = order.items.filter(item => item.status === 'Return Requested');
-
       let recalculatedSubtotal = 0;
       order.items.forEach(item => {
         if (item.priceBreakdown) {
@@ -75,18 +64,13 @@ const getReturnRequests = async (req, res) => {
           recalculatedSubtotal += item.price * item.quantity;
         }
       });
-
       const useStoredSubtotal = order.subtotal && Math.abs(order.subtotal - recalculatedSubtotal) < 0.01;
       const displaySubtotal = useStoredSubtotal ? order.subtotal : recalculatedSubtotal;
-
       const correctTotal = displaySubtotal - (order.discount || 0) - (order.couponDiscount || 0) + (order.tax || 0);
       const useStoredTotal = order.total && Math.abs(order.total - correctTotal) < 0.01;
       const displayTotal = useStoredTotal ? order.total : correctTotal;
-
       order.total = displayTotal;
-
       const estimatedRefund = calculateEstimatedRefund(order);
-
       return {
         ...order,
         returnRequestedItems,
@@ -104,9 +88,7 @@ const getReturnRequests = async (req, res) => {
         estimatedRefund: estimatedRefund
       };
     });
-
     const totalPages = Math.ceil(totalOrders / limit);
-
     const pagination = {
       currentPage: page,
       totalPages,
@@ -116,14 +98,11 @@ const getReturnRequests = async (req, res) => {
       nextPage: page + 1,
       pages: Array.from({ length: totalPages }, (_, i) => i + 1),
     };
-
     const filters = {
       status: status || "",
     };
-
     const errorMessage = req.session.errorMessage;
     delete req.session.errorMessage;
-
     res.render("admin/return-management", {
       orders: processedOrders,
       pagination,
@@ -140,24 +119,19 @@ const getReturnRequests = async (req, res) => {
 const getReturnRequestDetails = async (req, res) => {
   try {
     const orderId = req.params.id;
-
     const order = await Order.findById(orderId)
       .populate("user", "fullName email phone")
       .lean();
-
     if (!order || order.isDeleted) {
       return res.status(HttpStatus.NOT_FOUND).render('admin/page-404', {
         title: 'Return Request Not Found'
       });
     }
-
     const returnRequestedItems = order.items.filter(item => item.status === 'Return Requested');
-
     if (returnRequestedItems.length === 0) {
       req.session.errorMessage = 'No pending return requests found for this order.';
       return res.redirect('/admin/return-management');
     }
-
     let recalculatedSubtotal = 0;
     order.items.forEach(item => {
       if (item.priceBreakdown) {
@@ -166,26 +140,20 @@ const getReturnRequestDetails = async (req, res) => {
         recalculatedSubtotal += item.price * item.quantity;
       }
     });
-
     const useStoredSubtotal = order.subtotal && Math.abs(order.subtotal - recalculatedSubtotal) < 0.01;
     const displaySubtotal = useStoredSubtotal ? order.subtotal : recalculatedSubtotal;
-
     const correctTotal = displaySubtotal - (order.discount || 0) - (order.couponDiscount || 0) + (order.tax || 0);
     const useStoredTotal = order.total && Math.abs(order.total - correctTotal) < 0.01;
     const displayTotal = useStoredTotal ? order.total : correctTotal;
-
     order.total = displayTotal;
-
     order.formattedDate = new Date(order.createdAt).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
     });
     order.formattedTotal = `₹${displayTotal.toFixed(2)}`;
-
     const estimatedRefund = calculateEstimatedRefund(order);
     const totalRefundAmount = estimatedRefund.total;
-
     res.render('admin/return-request-details', {
       title: `Return Request - Order #${order.orderNumber}`,
       order,
@@ -193,7 +161,6 @@ const getReturnRequestDetails = async (req, res) => {
       totalRefundAmount: totalRefundAmount.toFixed(2),
       customer: order.user || {}
     });
-
   } catch (error) {
     console.error('Error in getReturnRequestDetails:', error);
     res.redirect('/admin/return-management');
@@ -203,7 +170,6 @@ const processReturnRequest = async (req, res) => {
   try {
     const orderId = req.params.id;
     const { approved } = req.body;
-
     const order = await Order.findById(orderId);
     if (!order || order.isDeleted) {
       return res.status(404).json({
@@ -211,23 +177,18 @@ const processReturnRequest = async (req, res) => {
         message: 'Order not found'
       });
     }
-
     const returnRequestedItems = order.items.filter(item => item.status === 'Return Requested');
-
     if (returnRequestedItems.length === 0) {
       return res.status(400).json({
         success: false,
         message: 'No return requests found for this order'
       });
     }
-
     const now = new Date();
-
     for (const item of returnRequestedItems) {
       if (approved) {
         item.status = 'Returned';
         item.returnedAt = now;
-
         await Product.findByIdAndUpdate(
           item.product,
           { $inc: { stock: item.quantity } }
@@ -238,19 +199,15 @@ const processReturnRequest = async (req, res) => {
         item.returnReason = null;
       }
     }
-
     const hasActiveItems = order.items.some(i => i.status === 'Active');
     const hasReturnRequestedItems = order.items.some(i => i.status === 'Return Requested');
-
     if (!hasActiveItems && !hasReturnRequestedItems) {
       order.orderStatus = 'Returned';
     } else if (!hasReturnRequestedItems) {
       order.orderStatus = 'Delivered';
     }
-
     if (approved) {
       let refundProcessed = false;
-
       if (order.paymentMethod === 'COD') {
         const wasDeliveredAndPaid = order.paymentStatus === 'Paid' ||
                                     order.orderStatus === 'Delivered' ||
@@ -260,7 +217,6 @@ const processReturnRequest = async (req, res) => {
                                       item.status === 'Returned' ||
                                       (item.status === 'Active' && order.orderStatus === 'Delivered')
                                     );
-
         if (wasDeliveredAndPaid) {
           const refundSuccess = await processReturnRefund(order.user, order);
           if (refundSuccess) {
@@ -289,7 +245,6 @@ const processReturnRequest = async (req, res) => {
           refundProcessed = true;
         }
       }
-
       if (refundProcessed) {
         if (order.paymentMethod === 'COD' && order.paymentStatus !== 'Paid') {
           order.paymentStatus = 'Failed';
@@ -300,16 +255,13 @@ const processReturnRequest = async (req, res) => {
         }
       }
     }
-
     await order.save();
-
     res.json({
       success: true,
       message: approved
         ? 'Return request approved and refund processed successfully'
         : 'Return request rejected successfully'
     });
-
   } catch (error) {
     console.error('Error processing return request:', error);
     res.status(500).json({
@@ -321,30 +273,24 @@ const processReturnRequest = async (req, res) => {
 const bulkProcessReturns = async (req, res) => {
   try {
     const { orderIds, action } = req.body;
-
     if (!orderIds || !Array.isArray(orderIds) || orderIds.length === 0) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message: 'No orders selected'
       });
     }
-
     const approved = action === 'approve';
     let processedCount = 0;
     let errors = [];
-
     for (const orderId of orderIds) {
       try {
         const order = await Order.findById(orderId);
         if (!order) continue;
-
         const returnRequestedItems = order.items.filter(item => item.status === 'Return Requested');
-
         for (const item of returnRequestedItems) {
           if (approved) {
             item.status = 'Returned';
             item.returnedAt = new Date();
-
             await Product.findByIdAndUpdate(
               item.product,
               { $inc: { stock: item.quantity } }
@@ -355,19 +301,15 @@ const bulkProcessReturns = async (req, res) => {
             item.returnReason = null;
           }
         }
-
         const hasActiveItems = order.items.some(i => i.status === 'Active');
         const hasReturnRequestedItems = order.items.some(i => i.status === 'Return Requested');
-
         if (!hasActiveItems && !hasReturnRequestedItems) {
           order.orderStatus = 'Returned';
         } else if (!hasReturnRequestedItems) {
           order.orderStatus = 'Delivered';
         }
-
         if (approved) {
           let refundProcessed = false;
-
           if (order.paymentMethod === 'COD') {
             const wasDeliveredAndPaid = order.paymentStatus === 'Paid' ||
                                         order.orderStatus === 'Delivered' ||
@@ -377,7 +319,6 @@ const bulkProcessReturns = async (req, res) => {
                                           item.status === 'Returned' ||
                                           (item.status === 'Active' && order.orderStatus === 'Delivered')
                                         );
-
             if (wasDeliveredAndPaid) {
               const refundSuccess = await processReturnRefund(order.user, order);
               if (refundSuccess) {
@@ -396,7 +337,6 @@ const bulkProcessReturns = async (req, res) => {
               refundProcessed = true;
             }
           }
-
           if (refundProcessed) {
             if (order.paymentMethod === 'COD' && order.paymentStatus !== 'Paid') {
               order.paymentStatus = 'Failed';
@@ -407,7 +347,6 @@ const bulkProcessReturns = async (req, res) => {
             }
           }
         }
-
         await order.save();
         processedCount++;
       } catch (error) {
@@ -415,14 +354,12 @@ const bulkProcessReturns = async (req, res) => {
         errors.push(`Order ${orderId}: ${error.message}`);
       }
     }
-
     res.json({
       success: true,
       message: `${approved ? 'Approved' : 'Rejected'} ${processedCount} return request(s)`,
       processedCount,
       errors: errors.length > 0 ? errors : null
     });
-
   } catch (error) {
     console.error("Error in bulk process returns:", error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
@@ -431,7 +368,6 @@ const bulkProcessReturns = async (req, res) => {
     });
   }
 };
-
 module.exports = {
   getReturnRequests,
   getReturnRequestDetails,

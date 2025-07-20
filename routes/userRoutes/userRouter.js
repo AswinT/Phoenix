@@ -1,85 +1,51 @@
 const express = require("express");
 const router = express.Router();
 const passport = require("passport");
-
 const userController = require("../../controllers/userController/userController");
 const signupController = require("../../controllers/userController/signupController");
 const { validateCompleteSignup } = require("../../validators/user/signupValidation");
 const loginValidator = require('../../validators/user/loginValidator');
 const loginController = require("../../controllers/userController/loginController");
 const logoutController = require("../../controllers/userController/logoutController");
-
 const passwordController = require("../../controllers/userController/forgotPasswordController");
 const googleController = require("../../controllers/userController/googleAuthController");
-
 const shopPageController = require('../../controllers/userController/shop-page-controller');
 const productDetailsController = require('../../controllers/userController/product-details-controller');
-
 const cartController = require('../../controllers/userController/cart-controller');
 const wishlistController = require('../../controllers/userController/wishlist-controller');
-
 const { isAuthenticated, isNotAuthenticated, preventBackButtonCache } = require('../../middlewares/authMiddleware');
 const checkBlockedUser = require('../../middlewares/checkBlockedUser');
-
 const { searchProducts } = require('../../controllers/userController/searchController');
-
 const profileController = require('../../controllers/userController/profile-controller');
-
 const addressController = require('../../controllers/userController/address-controller');
-
 const checkoutController = require('../../controllers/userController/checkout-controller');
-
 const orderController = require('../../controllers/userController/order-controller');
-
 const newPasswordController = require('../../controllers/userController/change-password-controller');
-
 const userCouponController = require('../../controllers/userController/user-coupon-controller');
-
 const walletController = require('../../controllers/userController/wallet-controller');
-
 const referralController = require('../../controllers/userController/referral-controller');
-
 const contactController = require('../../controllers/userController/contact-controller');
-
-// Public routes (with blocked user check for logged-in users)
 router.get("/", checkBlockedUser, userController.loadHomePage);
 router.get("/pageNotFound", checkBlockedUser, userController.pageNotFound);
-
-// Auth routes
 router.get("/signup", isNotAuthenticated, preventBackButtonCache, signupController.getSignup);
 router.post("/signup", isNotAuthenticated, validateCompleteSignup, signupController.postSignup);
-
 router.get("/verify-otp", isNotAuthenticated, preventBackButtonCache, signupController.getOtp);
 router.post("/verify-otp", isNotAuthenticated, signupController.verifyOtp);
-
 router.get("/login", isNotAuthenticated, preventBackButtonCache, loginController.getLogin);
 router.post("/login", isNotAuthenticated, loginValidator.loginValidator, loginController.postLogin);
-
-// Password reset routes
 router.get("/forgotPassword", isNotAuthenticated, preventBackButtonCache, passwordController.getForgotPassword);
 router.post("/forgotPassword", isNotAuthenticated, passwordController.postForgotPassword);
-
 router.get("/otpForgotPassword", isNotAuthenticated, preventBackButtonCache, passwordController.getOtpForgotPassword);
 router.post("/otpForgotPassword", isNotAuthenticated, passwordController.verifyOtp);
-
 router.post("/resend-otp", isNotAuthenticated, passwordController.resendOtp);
 router.post("/resend-signup-otp", isNotAuthenticated, signupController.resendOtp);
-
 router.get("/resetPassword", isNotAuthenticated, preventBackButtonCache, passwordController.getResetPassword);
 router.patch("/resetPassword", isNotAuthenticated, passwordController.patchResetPassword);
-
-// Logout route
 router.get("/logout", isAuthenticated, logoutController.logout);
-
-// OAuth routes
 router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 router.get("/auth/google/callback", googleController.googleController);
-
-// Product routes (with blocked user check for logged-in users)
 router.get('/shopPage', checkBlockedUser, shopPageController.shopPage);
 router.get('/products/:id', checkBlockedUser, productDetailsController.productDetails);
-
-// Cart routes with validation
 const cartValidator = require('../../validators/user/cart-validator');
 router.get('/cart', isAuthenticated, cartController.getCart);
 router.post('/cart/add',
@@ -104,8 +70,6 @@ router.post('/cart/clear',
   cartValidator.validateCartCheckout,
   cartController.clearCart
 );
-
-// Wishlist routes with validation
 const wishlistValidator = require('../../validators/user/wishlist-validator');
 router.get('/wishlist', isAuthenticated, wishlistController.getWishlist);
 router.post('/wishlist/toggle',
@@ -128,12 +92,8 @@ router.post('/wishlist/clear',
   wishlistValidator.validateClearWishlist,
   wishlistController.clearWishlist
 );
-
-// Search route with validation (with blocked user check for logged-in users)
 const searchValidator = require('../../validators/user/search-validator');
 router.get('/search', checkBlockedUser, searchValidator.validateSearchQuery, searchProducts);
-
-
 router.get('/profile', isAuthenticated, profileController.getProfile);
 router.patch('/profile',
   isAuthenticated,
@@ -151,7 +111,6 @@ router.get('/verify-email-otp', isAuthenticated, preventBackButtonCache, (req, r
   const { createOtpMessage } = require('../../helpers/email-mask');
   const email = req.session.newEmail;
   const otpMessage = createOtpMessage(email, 'email-update');
-
   res.render('profile-otp', {
     maskedEmail: otpMessage.maskedEmail,
     otpMessage: otpMessage.fullMessage
@@ -159,65 +118,41 @@ router.get('/verify-email-otp', isAuthenticated, preventBackButtonCache, (req, r
 });
 router.post('/verify-email-otp', isAuthenticated, profileController.verifyEmailOtp);
 router.post('/resend-email-otp', isAuthenticated, profileController.resendEmailOtp);
-
-// Address routes
 router.get('/address', isAuthenticated, addressController.getAddress);
 router.post('/address', isAuthenticated, addressController.addAddress);
 router.put('/address/:id', isAuthenticated, addressController.updateAddress);
 router.delete('/address/:id', isAuthenticated, addressController.deleteAddress);
 router.patch('/address/:id/default', isAuthenticated, addressController.setDefaultAddress);
 router.get('/address/:id', isAuthenticated, addressController.getAddressById);
-
-// Checkout routes
 router.get('/checkout', isAuthenticated, checkoutController.getCheckout);
 router.get('/checkout/current-total', isAuthenticated, checkoutController.getCurrentCartTotal);
 router.post('/checkout/place-order', isAuthenticated, checkoutController.placeOrder);
 router.post("/checkout/apply-coupon", isAuthenticated, checkoutController.applyCoupon);
 router.post("/checkout/remove-coupon", isAuthenticated, checkoutController.removeCoupon);
-
-// Razorpay routes
 router.post('/checkout/create-razorpay-order', isAuthenticated, checkoutController.createRazorpayOrder);
 router.post('/checkout/verify-payment', isAuthenticated, checkoutController.verifyRazorpayPayment);
 router.post('/checkout/payment-failure', isAuthenticated, checkoutController.handlePaymentFailure);
 router.get('/checkout/payment-callback', isAuthenticated, checkoutController.handlePaymentCallback);
-
-// Payment retry routes
 router.post('/orders/:orderId/retry-payment', isAuthenticated, checkoutController.retryPayment);
 router.post('/checkout/verify-retry-payment', isAuthenticated, checkoutController.verifyRetryPayment);
-
-// Order routes
 router.get('/orders', isAuthenticated, orderController.getOrders);
 router.get('/orders/:id', isAuthenticated, orderController.getOrderDetails);
 router.get('/order-success/:id', isAuthenticated, orderController.getOrderSuccess);
 router.get('/payment-failure', isAuthenticated, orderController.getPaymentFailure);
 router.get('/orders/:id/invoice', isAuthenticated, orderController.viewInvoice);
 router.get('/orders/:id/invoice/download', isAuthenticated, orderController.downloadInvoice);
-
 router.post('/orders/:id/cancel',isAuthenticated,orderController.cancelOrder);
 router.post('/orders/:id/items/:productId/cancel',isAuthenticated, orderController.cancelOrderItem);
 router.post('/orders/:id/return',  isAuthenticated,orderController.returnOrder);
 router.post('/orders/:id/items/:productId/return',isAuthenticated,orderController.returnOrderItem);
 router.post('/orders/:id/reorder',isAuthenticated, orderController.reorder);
-
-// Password change route
 router.post('/change-password', isAuthenticated, newPasswordController.changePassword);
-
-// Coupon routes
 router.get('/user-coupons', isAuthenticated, userCouponController.getUserCoupons);
-
-// Wallet routes
 router.get('/wallet', isAuthenticated, walletController.getWallet);
-
-// Referral routes
 router.get('/referrals', isAuthenticated, referralController.getReferrals);
 router.post('/validate-referral', referralController.validateReferral);
-
-// Contact routes (with blocked user check for logged-in users)
 const contactValidator = require('../../validators/user/contact-validator');
 router.get('/contact', checkBlockedUser, contactController.getContact);
 router.post('/contact', checkBlockedUser, contactValidator.contactValidator, contactController.postContact);
-
-// About us route (with blocked user check for logged-in users)
 router.get('/about', checkBlockedUser, userController.getAboutPage);
-
 module.exports = router;

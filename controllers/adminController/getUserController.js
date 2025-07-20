@@ -1,12 +1,8 @@
 const User = require("../../models/userSchema");
 const { HttpStatus } = require("../../helpers/status-code");
-
 const getUsers = async (req, res) => {
   try {
-    // Get search parameter if any
     const searchTerm = req.query.search || "";
-
-    // Build search query
     let searchQuery = {};
     if (searchTerm) {
       searchQuery = {
@@ -17,24 +13,14 @@ const getUsers = async (req, res) => {
         ],
       };
     }
-
-    // Pagination setup
     const page = parseInt(req.query.page) || 1;
-    const limit = 10; // Users per page
+    const limit = 10;
     const skip = (page - 1) * limit;
-
-    // Get total user count matching the search
     const totalUsers = await User.countDocuments(searchQuery);
-
-    // Get users for current page
     const users = await User.find(searchQuery).skip(skip).limit(limit);
-
-    // Calculate pagination variables
     const totalPages = Math.ceil(totalUsers / limit);
     const startIdx = skip;
     const endIdx = Math.min(skip + limit, totalUsers);
-
-    // Render view with all required data
     res.render("getUser", {
       users: users || [],
       currentPage: page,
@@ -49,11 +35,9 @@ const getUsers = async (req, res) => {
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server error");
   }
 };
-
 const blockUser = async (req, res) => {
   try {
     const userId = req.params.id;
-
     const user = await User.findByIdAndUpdate(
       userId,
       { isBlocked: true },
@@ -65,7 +49,6 @@ const blockUser = async (req, res) => {
         message: "User not found",
       });
     }
-
     return res.status(HttpStatus.OK).json({
       success: true,
       message: "User blocked successfully ",
@@ -79,7 +62,6 @@ const blockUser = async (req, res) => {
     });
   }
 };
-
 const unblockUser = async (req, res) => {
   try {
     const userId = req.params.id;
@@ -88,14 +70,12 @@ const unblockUser = async (req, res) => {
       { isBlocked: false},
       { new: true }
     );
-
     if (!user) {
       return res.status(HttpStatus.NOT_FOUND).json({
         success: false,
         message: "User not found",
       });
     }
-
     return res.status(HttpStatus.OK).json({
       success: true,
       message: "User unblocked successfully",
@@ -108,5 +88,4 @@ const unblockUser = async (req, res) => {
     });
   }
 };
-
 module.exports = { getUsers,blockUser,unblockUser };

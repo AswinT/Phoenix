@@ -1,9 +1,5 @@
 const { createValidationMiddleware, validateName, validatePhone, validateText } = require('../../helpers/validation-helper');
 const { HttpStatus } = require('../../helpers/status-code');
-
-/**
- * Indian states for validation
- */
 const INDIAN_STATES = [
   'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Goa',
   'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka', 'Kerala',
@@ -13,10 +9,6 @@ const INDIAN_STATES = [
   'Chandigarh', 'Dadra and Nagar Haveli and Daman and Diu', 'Delhi', 'Jammu and Kashmir',
   'Ladakh', 'Lakshadweep', 'Puducherry'
 ];
-
-/**
- * Validate add/update address request
- */
 const validateAddressData = createValidationMiddleware({
   fullName: {
     type: 'name',
@@ -65,14 +57,9 @@ const validateAddressData = createValidationMiddleware({
     required: true
   }
 });
-
-/**
- * Additional validation for state
- */
 const validateState = (req, res, next) => {
   try {
     const { state } = req.validatedData;
-    
     if (!INDIAN_STATES.includes(state)) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
@@ -80,7 +67,6 @@ const validateState = (req, res, next) => {
         errors: ['Invalid state selected']
       });
     }
-    
     next();
   } catch (error) {
     console.error('State validation error:', error);
@@ -90,21 +76,15 @@ const validateState = (req, res, next) => {
     });
   }
 };
-
-/**
- * Validate user authentication for address operations
- */
 const validateAddressAuth = (req, res, next) => {
   try {
     const userId = req.session.user_id || req.user?._id;
-    
     if (!userId) {
       return res.status(HttpStatus.UNAUTHORIZED).json({
         success: false,
         message: 'Please login to manage addresses'
       });
     }
-    
     req.validatedData = { ...req.validatedData, userId };
     next();
   } catch (error) {
@@ -115,36 +95,21 @@ const validateAddressAuth = (req, res, next) => {
     });
   }
 };
-
-/**
- * Validate address ID for update/delete operations
- */
 const validateAddressId = createValidationMiddleware({
   addressId: {
     type: 'objectId',
     fieldName: 'Address ID'
   }
 });
-
-/**
- * Validate set default address request
- */
 const validateSetDefaultAddress = createValidationMiddleware({
   addressId: {
     type: 'objectId',
     fieldName: 'Address ID'
   }
 });
-
-/**
- * Validate address ownership
- */
 const validateAddressOwnership = async (req, res, next) => {
   try {
     const { addressId, userId } = req.validatedData;
-    
-    // This would typically check if the address belongs to the user
-    // For now, we'll just pass the data along
     req.validatedData = { ...req.validatedData, addressId, userId };
     next();
   } catch (error) {
@@ -155,17 +120,9 @@ const validateAddressOwnership = async (req, res, next) => {
     });
   }
 };
-
-/**
- * Validate pincode format and basic checks
- */
 const validatePincodeDetails = (req, res, next) => {
   try {
     const { pincode } = req.validatedData;
-    
-    // Basic pincode validation (already done in main validator)
-    // Additional checks can be added here (like API calls to verify pincode)
-    
     next();
   } catch (error) {
     console.error('Pincode validation error:', error);
@@ -175,7 +132,6 @@ const validatePincodeDetails = (req, res, next) => {
     });
   }
 };
-
 module.exports = {
   validateAddressData,
   validateState,

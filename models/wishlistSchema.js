@@ -1,11 +1,10 @@
 const mongoose = require('mongoose');
-
 const wishlistSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
-    unique: true // One wishlist per user
+    unique: true
   },
   items: [
     {
@@ -21,7 +20,6 @@ const wishlistSchema = new mongoose.Schema({
     }
   ]
 }, {
-  timestamps: true // Adds createdAt and updatedAt fields
+  timestamps: true
 });
-
 module.exports = mongoose.model('Wishlist', wishlistSchema);

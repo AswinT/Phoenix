@@ -2,8 +2,6 @@ const User = require("../../models/userSchema");
 const bcrypt = require("bcrypt");
 const { hashPassword } = require("../../helpers/hash");
 const {HttpStatus} = require('../../helpers/status-code')
-
-// Change Password
 const changePassword = async (req, res) => {
   try {
     if (!req.session.user_id) {
@@ -12,9 +10,7 @@ const changePassword = async (req, res) => {
         message: "Please login to change password",
       });
     }
-
     const { currentPassword, newPassword, confirmPassword } = req.body;
-
     if (!currentPassword || !newPassword || !confirmPassword) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
@@ -26,8 +22,6 @@ const changePassword = async (req, res) => {
           : "confirmPassword",
       });
     }
-
-    // Validate new password complexity
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9!@#$%^&*(),.?":{}|<>]).{8,}$/;
     if (!passwordRegex.test(newPassword)) {
@@ -38,7 +32,6 @@ const changePassword = async (req, res) => {
         field: "newPassword",
       });
     }
-
     if (newPassword !== confirmPassword) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
@@ -46,7 +39,6 @@ const changePassword = async (req, res) => {
         field: "confirmPassword",
       });
     }
-
     const user = await User.findById(req.session.user_id);
     if (!user) {
       return res.status(HttpStatus.NOT_FOUND).json({
@@ -54,7 +46,6 @@ const changePassword = async (req, res) => {
         message: "User not found",
       });
     }
-
     if (!user.password) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
@@ -62,8 +53,6 @@ const changePassword = async (req, res) => {
         field: "currentPassword",
       });
     }
-
-    // Verify current password
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -72,7 +61,6 @@ const changePassword = async (req, res) => {
         field: "currentPassword",
       });
     }
-
     const isSamePassword = await bcrypt.compare(newPassword, user.password);
     if (isSamePassword) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -81,13 +69,9 @@ const changePassword = async (req, res) => {
         field: "newPassword",
       });
     }
-
     const hashedNewPassword = await hashPassword(newPassword);
-
     user.password = hashedNewPassword;
     await user.save();
-    
-    // Send success response
     return res.status(HttpStatus.OK).json({
       success: true,
       message: "Password changed successfully"
@@ -100,5 +84,4 @@ const changePassword = async (req, res) => {
     });
   }
 };
-
 module.exports = { changePassword };
