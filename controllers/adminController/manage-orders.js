@@ -525,6 +525,8 @@ const updateOrderStatus = async (req, res) => {
       Shipped: ["Delivered"],
       // **CRITICAL FIX: Partially Cancelled orders can still progress**
       "Partially Cancelled": ["Processing", "Shipped", "Delivered", "Cancelled"],
+      // **NEW: Allow Pending Payment to be cancelled**
+      "Pending Payment": ["Cancelled"],
       // **ONLY THESE ARE TRULY TERMINAL**
       Delivered: [], // Terminal - returns handled through Return Management
       Cancelled: [], // Terminal
