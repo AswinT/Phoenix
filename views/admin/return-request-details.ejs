@@ -276,6 +276,49 @@
       color: #2e7d32;
       font-weight: 600;
     }
+
+    .return-images-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .return-image-thumb:hover {
+      border: 2px solid #1976d2;
+      box-shadow: 0 2px 8px rgba(25, 118, 210, 0.15);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.7);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal img {
+      max-width: 90vw;
+      max-height: 80vh;
+      border-radius: 12px;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.4);
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 30px;
+      right: 50px;
+      font-size: 2.5rem;
+      color: #fff;
+      cursor: pointer;
+      z-index: 10000;
+    }
   </style>
 </head>
 <body>
@@ -412,6 +455,14 @@
                     <div class="product-meta">
                       <div>Brand: <%= item.brand || 'N/A' %></div>
                     </div>
+                    <% if (item.returnImages && item.returnImages.length > 0) { %>
+                      <div class="mt-2 return-images-grid">
+                        <strong>Return Images:</strong><br>
+                        <% item.returnImages.forEach(function(img, idx) { %>
+                          <img src="/<%= img.replace('uploads', 'uploads') %>" alt="Return Image" class="return-image-thumb" style="max-width:60px; max-height:60px; margin:2px; border:1px solid #ccc; border-radius:4px; cursor:pointer;" data-img="/<%= img.replace('uploads', 'uploads') %>" data-idx="<%= idx %>" onclick="openReturnImageModal(this)" />
+                        <% }) %>
+                      </div>
+                    <% } %>
                   </div>
                 </div>
               </td>
@@ -475,6 +526,12 @@
           <% }) %>
         </tbody>
       </table>
+    </div>
+
+    <!-- Modal for image preview -->
+    <div id="returnImageModal" class="modal" tabindex="-1" style="display:none; background:rgba(0,0,0,0.7); position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:9999; align-items:center; justify-content:center;">
+      <span class="close-modal" onclick="closeReturnImageModal()" style="position:absolute; top:30px; right:50px; font-size:2.5rem; color:#fff; cursor:pointer;">&times;</span>
+      <img id="modalReturnImage" src="#" style="max-width:90vw; max-height:80vh; border-radius:12px; box-shadow:0 4px 32px rgba(0,0,0,0.4); display:block; margin:auto;" />
     </div>
 
     <!-- Action Buttons -->
@@ -565,6 +622,24 @@
         }
       });
     }
+
+    function openReturnImageModal(imgElem) {
+      var modal = document.getElementById('returnImageModal');
+      var modalImg = document.getElementById('modalReturnImage');
+      modalImg.src = imgElem.getAttribute('data-img');
+      modal.style.display = 'flex';
+    }
+    function closeReturnImageModal() {
+      var modal = document.getElementById('returnImageModal');
+      modal.style.display = 'none';
+    }
+    // Close modal on background click
+    document.addEventListener('DOMContentLoaded', function() {
+      var modal = document.getElementById('returnImageModal');
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) closeReturnImageModal();
+      });
+    });
   </script>
 </body>
 </html>

@@ -886,7 +886,7 @@
                         </small>
                       </div>
 
-                      <form id="returnItemForm<%= item.product._id || item.product %>">
+                      <form id="returnItemForm<%= item.product._id || item.product %>" enctype="multipart/form-data">
                         <div class="mb-3">
                           <label for="returnItemReason<%= item.product._id || item.product %>" class="form-label">Reason for Return</label>
                           <select class="form-control" id="returnItemReason<%= item.product._id || item.product %>" required>
@@ -901,6 +901,11 @@
                         <div class="mb-3" id="otherReturnReasonDiv<%= item.product._id || item.product %>" style="display: none;">
                           <label for="otherReturnReason<%= item.product._id || item.product %>" class="form-label">Please specify</label>
                           <textarea class="form-control" id="otherReturnReason<%= item.product._id || item.product %>" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                          <label for="returnImage<%= item.product._id || item.product %>" class="form-label">Upload Image of Defect (optional)</label>
+                          <input type="file" class="form-control" id="returnImage<%= item.product._id || item.product %>" name="returnImage" accept="image/*">
+                          <img id="returnImagePreview<%= item.product._id || item.product %>" src="#" alt="Image Preview" style="display:none; max-width:100px; margin-top:10px;" />
                         </div>
                       </form>
                     </div>
@@ -1635,6 +1640,7 @@
   function returnItem(orderId, productId) {
     const selectElement = document.getElementById(`returnItemReason${productId}`);
     const otherReasonElement = document.getElementById(`otherReturnReason${productId}`);
+    const returnImageElement = document.getElementById(`returnImage${productId}`);
 
     let reason = selectElement.value;
 
@@ -1655,13 +1661,17 @@
     // Show processing toast
     showToast('Processing your return request...', 'info');
 
+    // Create FormData object
+    const formData = new FormData();
+    formData.append('reason', reason);
+    if (returnImageElement.files.length > 0) {
+      formData.append('returnImage', returnImageElement.files[0]);
+    }
+
     // Send return request
     fetch(`/orders/${orderId}/items/${productId}/return`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ reason }),
+      body: formData
     })
     .then(response => response.json())
     .then(data => {

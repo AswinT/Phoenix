@@ -144,7 +144,10 @@ const orderItemSchema = new mongoose.Schema(
     },
     returnRequestedAt: {
       type: Date,
-    }
+    },
+    returnImages: [{
+      type: String
+    }]
   },
   { _id: false }
 );

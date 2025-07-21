@@ -134,4 +134,26 @@
   }
 
   console.log('Blocked User Handler initialized');
+
+  // Image preview for return item modals
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('input[type="file"][id^="returnImage"]').forEach(function(input) {
+      input.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        const previewId = 'returnImagePreview' + input.id.replace('returnImage', '');
+        const preview = document.getElementById(previewId);
+        if (file && preview) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+          };
+          reader.readAsDataURL(file);
+        } else if (preview) {
+          preview.src = '#';
+          preview.style.display = 'none';
+        }
+      });
+    });
+  });
 })();

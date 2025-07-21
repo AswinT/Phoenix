@@ -1279,6 +1279,11 @@ const returnOrderItem = async (req, res) => {
     orderItem.status = 'Return Requested';
     orderItem.returnReason = reason;
     orderItem.returnRequestedAt = new Date();
+    // Save uploaded image if present
+    if (req.file) {
+      if (!orderItem.returnImages) orderItem.returnImages = [];
+      orderItem.returnImages.push(req.file.path);
+    }
     const hasActiveItems = order.items.some(item => item.status === 'Active');
     const hasReturnRequestedItems = order.items.some(item => item.status === 'Return Requested');
     const hasCancelledItems = order.items.some(item => item.status === 'Cancelled');

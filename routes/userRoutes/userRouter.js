@@ -25,6 +25,7 @@ const userCouponController = require('../../controllers/userController/user-coup
 const walletController = require('../../controllers/userController/wallet-controller');
 const referralController = require('../../controllers/userController/referral-controller');
 const contactController = require('../../controllers/userController/contact-controller');
+const upload = require('../../config/multer');
 router.get("/", checkBlockedUser, userController.loadHomePage);
 router.get("/pageNotFound", checkBlockedUser, userController.pageNotFound);
 router.get("/signup", isNotAuthenticated, preventBackButtonCache, signupController.getSignup);
@@ -144,7 +145,7 @@ router.get('/orders/:id/invoice/download', isAuthenticated, orderController.down
 router.post('/orders/:id/cancel',isAuthenticated,orderController.cancelOrder);
 router.post('/orders/:id/items/:productId/cancel',isAuthenticated, orderController.cancelOrderItem);
 router.post('/orders/:id/return',  isAuthenticated,orderController.returnOrder);
-router.post('/orders/:id/items/:productId/return',isAuthenticated,orderController.returnOrderItem);
+router.post('/orders/:id/items/:productId/return', isAuthenticated, upload.single('returnImage'), orderController.returnOrderItem);
 router.post('/orders/:id/reorder',isAuthenticated, orderController.reorder);
 router.post('/change-password', isAuthenticated, newPasswordController.changePassword);
 router.get('/user-coupons', isAuthenticated, userCouponController.getUserCoupons);

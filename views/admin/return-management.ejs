@@ -268,6 +268,147 @@
       color: #2e7d32;
       font-weight: 600;
     }
+
+    .modern-return-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      background: none;
+      box-shadow: none;
+    }
+    .return-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      padding: 1.2rem 1.5rem;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #ececec;
+      min-height: 70px;
+      gap: 1.2rem;
+    }
+    .return-card .order-id {
+      font-weight: 700;
+      color: #7b1fa2;
+      font-size: 1.08rem;
+      margin-right: 1.2rem;
+    }
+    .return-card .customer-info {
+      font-size: 1rem;
+      color: #222;
+      margin-right: 1.2rem;
+    }
+    .return-card .customer-email {
+      color: #888;
+      font-size: 0.97rem;
+    }
+    .return-card .return-count {
+      color: #1976d2;
+      font-weight: 500;
+      margin-right: 1.2rem;
+    }
+    .return-card .return-type {
+      color: #495057;
+      background: #f3f4f6;
+      border-radius: 5px;
+      padding: 0.12rem 0.7rem;
+      font-size: 0.95rem;
+      margin-right: 1.2rem;
+    }
+    .return-card .total-amount {
+      color: #2e7d32;
+      font-weight: 600;
+      font-size: 1.01rem;
+      margin-right: 1.2rem;
+    }
+    .return-card .refund-amount {
+      color: #1976d2;
+      font-weight: 500;
+      font-size: 1.01rem;
+      margin-right: 1.2rem;
+    }
+    .return-card .btn-action,
+    .bulk-action-bar .bulk-btn {
+      background: #1976d2;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.55rem 2.2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(25, 118, 210, 0.07);
+      cursor: pointer;
+      transition: background 0.18s, box-shadow 0.18s, transform 0.13s;
+      outline: none;
+      letter-spacing: 0.2px;
+      margin-left: 0.5rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      min-width: 150px;
+      justify-content: center;
+    }
+    .return-card .btn-action.view {
+      background: #fff;
+      color: #1976d2;
+      border: 1.5px solid #1976d2;
+      box-shadow: none;
+    }
+    .return-card .btn-action.view:hover {
+      background: #1976d2;
+      color: #fff;
+    }
+    .return-card .btn-action.approve,
+    .bulk-action-bar .bulk-btn.approve {
+      background: #2e7d32;
+      color: #fff;
+    }
+    .return-card .btn-action.approve:hover,
+    .bulk-action-bar .bulk-btn.approve:hover {
+      background: #1b5e20;
+    }
+    .return-card .btn-action.reject,
+    .bulk-action-bar .bulk-btn.reject {
+      background: #d32f2f;
+      color: #fff;
+    }
+    .return-card .btn-action.reject:hover,
+    .bulk-action-bar .bulk-btn.reject:hover {
+      background: #b71c1c;
+    }
+    .bulk-action-bar {
+      position: sticky;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: #fff;
+      box-shadow: 0 2px 12px rgba(25, 118, 210, 0.07);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      z-index: 100;
+      border-radius: 0 0 10px 10px;
+      margin-bottom: 1.2rem;
+      display: none;
+    }
+    .bulk-action-bar.show {
+      display: flex;
+    }
+    .order-checkbox {
+      width: 18px;
+      height: 18px;
+      accent-color: #7b1fa2;
+      margin-left: 0.5rem;
+    }
+    .no-returns {
+      text-align: center;
+      padding: 3rem 0;
+      color: #6c757d;
+      font-size: 1.1rem;
+    }
   </style>
 </head>
 <body>
@@ -366,96 +507,42 @@
     </div>
 
     <!-- Orders Table -->
-    <div class="table-container">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>
-              <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
-            </th>
-            <th>Order Details</th>
-            <th>Customer</th>
-            <th>Return Info</th>
-            <th>Order Date</th>
-            <th>Total Amount</th>
-            <th>Expected Refund</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% if (orders && orders.length > 0) { %>
-            <% orders.forEach(order => { %>
-              <tr>
-                <td>
-                  <input type="checkbox" class="order-checkbox" value="<%= order._id %>" onchange="updateSelection()">
-                </td>
-                <td>
-                  <div>
-                    <strong>#<%= order.orderNumber %></strong>
-                    <div class="return-info">
-                      <span class="status-badge <%= order.hasFullOrderReturn ? 'status-pending' : 'status-individual' %>">
-                        <%= order.hasFullOrderReturn ? 'Full Return' : 'Item Return' %>
-                      </span>
-                    </div>
-                  </div>
-                </td>
-                <td>
-                  <div>
-                    <strong><%= order.customerName %></strong>
-                    <div class="text-muted small"><%= order.customerEmail %></div>
-                  </div>
-                </td>
-                <td>
-                  <div class="return-info">
-                    <span class="return-count">
-                      <%= order.returnRequestCount %> item(s) requested
-                    </span>
-                    <span class="return-type">
-                      <%= order.hasFullOrderReturn ? 'Full Order' : 'Individual Items' %>
-                    </span>
-                  </div>
-                </td>
-                <td><%= order.formattedDate %></td>
-                <td><%= order.formattedTotal %></td>
-                <td>
-                  <div class="refund-breakdown">
-                    <% if (order.estimatedRefund) { %>
-                      <div class="refund-amount">
-                        <strong>₹<%= order.estimatedRefund.total.toFixed(2) %></strong>
-                      </div>
-                      <div class="refund-details">
-                        <small class="text-muted">
-                          <% if (order.estimatedRefund.itemCount) { %>
-                            <%= order.estimatedRefund.itemCount %> item(s) to refund
-                          <% } else { %>
-                            Exact amount customer paid
-                          <% } %>
-                        </small>
-                      </div>
-                    <% } else { %>
-                      <span class="text-muted">Calculating...</span>
-                    <% } %>
-                  </div>
-                </td>
-                <td>
-                  <div class="d-flex gap-1">
-                    <a href="/admin/return-management/<%= order._id %>" class="btn-action btn-view">
-                      <i class="ri-eye-line"></i> View Details
-                    </a>
-                  </div>
-                </td>
-              </tr>
-            <% }) %>
-          <% } else { %>
-            <tr>
-              <td colspan="8" class="text-center py-4">
-                <i class="ri-inbox-line" style="font-size: 3rem; color: #dee2e6;"></i>
-                <div class="mt-2">No return requests found</div>
-              </td>
-            </tr>
-          <% } %>
-        </tbody>
-      </table>
+    <div class="table-container modern-return-cards">
+      <div id="bulkActionBar" class="bulk-action-bar">
+        <span id="selectedCountText">0 selected</span>
+        <button class="bulk-btn approve" onclick="bulkApprove()"><i class="fas fa-check"></i> Approve Selected</button>
+        <button class="bulk-btn reject" onclick="bulkReject()"><i class="fas fa-times"></i> Reject Selected</button>
+      </div>
+      <% if (orders && orders.length > 0) { %>
+        <% orders.forEach(order => { %>
+          <div class="return-card">
+            <span class="order-id">#<%= order.orderNumber %></span>
+            <span class="customer-info">
+              <%= order.customerName %>
+              <span class="customer-email">&lt;<%= order.customerEmail %>&gt;</span>
+            </span>
+            <span class="return-count"><%= order.returnRequestCount %> item(s)</span>
+            <span class="return-type"><%= order.hasFullOrderReturn ? 'Full Order' : 'Individual Items' %></span>
+            <span class="total-amount"><%= order.formattedTotal %></span>
+            <span class="refund-amount">Refund: ₹<%= order.estimatedRefund ? order.estimatedRefund.total.toFixed(2) : '...' %></span>
+            <button class="btn-action view" onclick="window.location='/admin/return-management/<%= order._id %>'">
+              <i class="fas fa-eye"></i> View Details
+            </button>
+            <button class="btn-action approve" onclick="approveReturn('<%= order._id %>')">
+              <i class="fas fa-check"></i> Approve
+            </button>
+            <button class="btn-action reject" onclick="rejectReturn('<%= order._id %>')">
+              <i class="fas fa-times"></i> Reject
+            </button>
+            <input type="checkbox" class="order-checkbox" value="<%= order._id %>" onchange="updateSelection()" title="Select for bulk action">
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="no-returns">
+          <i class="ri-inbox-line" style="font-size: 3rem; color: #dee2e6;"></i>
+          <div class="mt-2">No return requests found</div>
+        </div>
+      <% } %>
     </div>
 
     <!-- Pagination -->
@@ -607,6 +694,40 @@
 
     function refreshData() {
       window.location.reload();
+    }
+
+    function updateSelection() {
+      const checkboxes = document.querySelectorAll('.order-checkbox');
+      const selected = Array.from(checkboxes).filter(cb => cb.checked);
+      const bar = document.getElementById('bulkActionBar');
+      const countText = document.getElementById('selectedCountText');
+      if (selected.length > 0) {
+        bar.classList.add('show');
+        countText.textContent = `${selected.length} selected`;
+      } else {
+        bar.classList.remove('show');
+        countText.textContent = '0 selected';
+      }
+    }
+    function bulkApprove() {
+      const selected = Array.from(document.querySelectorAll('.order-checkbox')).filter(cb => cb.checked).map(cb => cb.value);
+      if (selected.length === 0) return;
+      // TODO: Implement bulk approve logic (AJAX or form submit)
+      alert('Bulk approve: ' + selected.join(', '));
+    }
+    function bulkReject() {
+      const selected = Array.from(document.querySelectorAll('.order-checkbox')).filter(cb => cb.checked).map(cb => cb.value);
+      if (selected.length === 0) return;
+      // TODO: Implement bulk reject logic (AJAX or form submit)
+      alert('Bulk reject: ' + selected.join(', '));
+    }
+    function approveReturn(orderId) {
+      // TODO: Implement single approve logic (AJAX or form submit)
+      alert('Approve: ' + orderId);
+    }
+    function rejectReturn(orderId) {
+      // TODO: Implement single reject logic (AJAX or form submit)
+      alert('Reject: ' + orderId);
     }
   </script>
 </body>
