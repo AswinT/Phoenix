@@ -6,14 +6,26 @@ const hashPasswordHelper = require("../../helpers/hash");
 const { sendOtpEmail } = require("../../helpers/sendMail");
 const { validateBasicOtp, validateOtpSession } = require("../../validators/user/basic-otp-validator");
 const { HttpStatus } = require("../../helpers/status-code");
-const { createOtpMessage } = require("../../helpers/email-mask");
 const getOtp = async (req, res) => {
   try {
     const email = req.session.tempUser?.email;
-    const otpMessage = createOtpMessage(email, 'signup');
+    if (!email) {
+      return res.status(HttpStatus.BAD_REQUEST).json({ message: "Session expired" });
+    }
+    
+    // Simple email masking function
+    const maskEmail = (email) => {
+      const [username, domain] = email.split('@');
+      const maskedUsername = username.length > 2 
+        ? username.substring(0, 2) + '*'.repeat(username.length - 2)
+        : username;
+      return `${maskedUsername}@${domain}`;
+    };
+    
+    const maskedEmail = maskEmail(email);
     res.render("verify-otp", {
-      maskedEmail: otpMessage.maskedEmail,
-      otpMessage: otpMessage.fullMessage
+      maskedEmail: maskedEmail,
+      otpMessage: `We've sent a verification code to ${maskedEmail}. Please enter the code to continue.`
     });
   } catch (error) {
     console.log("error during render", error);
@@ -87,10 +99,9 @@ const postSignup = async (req, res) => {
       password: hashedPassword,
       referralCode: referralCode || null,
     };
-    const otpMessage = createOtpMessage(trimmedEmail, 'signup');
     return res.status(HttpStatus.OK).json({
       success: true,
-      message: otpMessage.message,
+      message: "OTP sent successfully to your email address. Please check your inbox.",
     });
   } catch (error) {
     console.error("Error in postSignup:", error);
@@ -222,10 +233,9 @@ const resendOtp = async (req, res) => {
     const fullName = req.session.tempUser.fullName;
     const subjectContent = "Your new OTP for Phoenix";
     await sendOtpEmail(email, fullName, otp, subjectContent, "resend");
-    const otpMessage = createOtpMessage(email, 'resend');
     return res.status(HttpStatus.OK).json({
       success: true,
-      message: otpMessage.message,
+      message: "New OTP sent successfully to your email address.",
     });
   } catch (error) {
     console.error("Error resending OTP:", error);
