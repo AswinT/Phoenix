@@ -2255,6 +2255,13 @@
     // Function to handle payment failure
     async function handlePaymentFailure(errorMessage) {
     try {
+    // Disable the place order button immediately
+    const placeOrderBtn = document.getElementById("placeOrderBtn");
+    if (placeOrderBtn) {
+      placeOrderBtn.disabled = true;
+      placeOrderBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Payment Failed...';
+    }
+
     const response = await fetch('/checkout/payment-failure', {
     method: 'POST',
     headers: {
@@ -2269,20 +2276,8 @@
     const data = await response.json();
     
     if (data.canRetry && data.orderId) {
-    // Show retry option and redirect to order details page
-    Toast.fire({
-    icon: 'warning',
-    title: data.message || 'Payment failed. Your order has been saved.',
-    text: 'Redirecting to order details where you can retry payment...',
-    timer: 3000,
-    timerProgressBar: true,
-    showConfirmButton: false
-    });
-    
-    // Redirect to order details page after a short delay
-    setTimeout(() => {
+    // Redirect directly to order details page without showing toast message
     window.location.href = data.redirectUrl || `/orders/${data.orderId}`;
-    }, 3000);
     } else {
     // Use redirect URL from backend response if available
     const redirectUrl = data.redirectUrl || `/payment-failure?error=${encodeURIComponent(errorMessage)}`;
@@ -2302,6 +2297,12 @@
     }
     } catch (error) {
     console.error('Error handling payment failure:', error);
+    // Disable the place order button on error as well
+    const placeOrderBtn = document.getElementById("placeOrderBtn");
+    if (placeOrderBtn) {
+      placeOrderBtn.disabled = true;
+      placeOrderBtn.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Error Occurred';
+    }
     // Fallback to orders page
     window.location.href = '/orders';
     }
