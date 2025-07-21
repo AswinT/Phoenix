@@ -52,7 +52,7 @@ const getWishlist = async (req, res) => {
       wishlistItems = wishlistItems.slice(skip, skip + limit)
     }
     if (cart) {
-      cartCount = cart.items.reduce((sum, item) => sum + item.quantity, 0)
+      cartCount = cart.items.length
     }
     const totalPages = Math.ceil(totalItems / limit)
     const recentlyViewed = await Product.aggregate([
@@ -192,7 +192,7 @@ const addAllToCart = async (req, res) => {
       );
       await wishlist.save();
     }
-    const cartCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+    const cartCount = cart.items.length;
     const wishlistCount = wishlist.items.length;
     let successMessage = `${successfullyAdded.length} item${successfullyAdded.length !== 1 ? 's' : ''} moved to cart`;
     if (messages.length > 0) {
@@ -310,7 +310,7 @@ const addToCartFromWishlist = async (req, res) => {
     await cart.save();
     wishlist.items.splice(wishlistItemIndex, 1);
     await wishlist.save();
-    const cartCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+    const cartCount = cart.items.length;
     const wishlistCount = wishlist.items.length;
     res.json({
       success: true,

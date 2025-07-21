@@ -8,7 +8,7 @@ const cartWishlistMiddleware = async (req, res, next) => {
       const userId = req.session.user_id;
       const cart = await Cart.findOne({ user: userId });
       if (cart && cart.items) {
-        res.locals.cartCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+        res.locals.cartCount = cart.items.length;
       }
       const wishlist = await Wishlist.findOne({ user: userId });
       if (wishlist && wishlist.items) {

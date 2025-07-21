@@ -159,7 +159,7 @@ const getCheckout = async (req, res) => {
     }
     tax = (subtotal - couponDiscount) * 0.08;
     totalAmount = subtotal - couponDiscount + tax;
-    cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+    cartCount = cartItems.length;
     if (addresses.length === 0) {
       req.session.errorMessage = "Please add a delivery address before proceeding to checkout.";
       return res.redirect("/address");

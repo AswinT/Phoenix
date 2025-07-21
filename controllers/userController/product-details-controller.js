@@ -134,7 +134,7 @@ const productDetails = async (req, res) => {
     if (userId) {
       const cart = await Cart.findOne({ user: userId });
       if (cart) {
-        cartCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+        cartCount = cart.items.length;
         isInCart = cart.items.some(item => item.product.toString() === productId);
       }
       const wishlist = await Wishlist.findOne({ user: userId });

@@ -50,7 +50,7 @@ const getCart = async (req, res) => {
         totalAmount += item.quantity * finalPrice;
         totalDiscount += item.quantity * discountAmount;
       }
-      cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+      cartCount = cartItems.length;
     }
     if (wishlist) {
       wishlistCount = wishlist.items.length;
@@ -173,7 +173,7 @@ const addToCart = async (req, res) => {
       );
     }
     await cart.save();
-    const cartCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+    const cartCount = cart.items.length;
     res.json({ success: true, message: "Added to cart", cartCount });
   } catch (error) {
     console.log("Error adding to cart:", error);
@@ -244,7 +244,7 @@ const updateCartItem = async (req, res) => {
       totalAmount: cart.totalAmount,
       itemTotal:
         cart.items[itemIndex].quantity * cart.items[itemIndex].priceAtAddition,
-      cartCount: cart.items.reduce((sum, item) => sum + item.quantity, 0),
+      cartCount: cart.items.length,
     });
   } catch (error) {
     console.log("Error updating cart item:", error);
@@ -276,7 +276,7 @@ const removeCartItem = async (req, res) => {
       0
     );
     await cart.save();
-    const cartCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+    const cartCount = cart.items.length;
     res.json({
       success: true,
       message: "Item removed",
