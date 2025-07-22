@@ -311,10 +311,10 @@
       <nav aria-label="breadcrumb" class="breadcrumbs">
         <ol class="breadcrumb">
           <li class="breadcrumb-item">
-            <a href="/admin/adminDashboard">Dashboard</a>
+            <a href="/admin/dashboard">Dashboard</a>
           </li>
           <li class="breadcrumb-item">
-            <a href="/admin/getproducts">Products</a>
+            <a href="/admin/products">Products</a>
           </li>
           <li class="breadcrumb-item active" aria-current="page">
             Add Product
@@ -326,7 +326,7 @@
         <p class="text-muted mb-0">Add a new book to the store</p>
       </div>
       <div class="card p-4">
-        <form id="addProductForm">
+        <form id="addProductForm" action="/admin/products" method="POST" enctype="multipart/form-data">
           <div class="row">
             <div class="col-md-4">
               <div class="mb-3">
@@ -352,6 +352,7 @@
                       <i class="ri-upload-2-line"></i> Choose Image
                     </label>
                   </div>
+                  <div class="invalid-feedback"></div>
                 </div>
               </div>
               <div class="mb-3">
@@ -428,6 +429,7 @@
                   placeholder="Enter headphone model"
                   required
                 />
+                <div class="invalid-feedback"></div>
               </div>
               <div class="mb-3">
                 <label for="brand" class="form-label">Brand</label>
@@ -439,6 +441,7 @@
                   placeholder="Enter brand name"
                   required
                 />
+                <div class="invalid-feedback"></div>
               </div>
               <div class="mb-3">
                 <label for="description" class="form-label">Description</label>
@@ -450,6 +453,7 @@
                   placeholder="Enter headphone description"
                   required
                 ></textarea>
+                <div class="invalid-feedback"></div>
               </div>
               <div class="mb-3">
                 <label for="category" class="form-label">Category</label>
@@ -461,6 +465,7 @@
                 >
                   <option value="">Select a category</option>
                 </select>
+                <div class="invalid-feedback"></div>
               </div>
               <div class="row">
                 <div class="col-md-6 mb-3">
@@ -475,6 +480,7 @@
                     placeholder="Enter regular price"
                     required
                   />
+                  <div class="invalid-feedback"></div>
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="salePrice" class="form-label"
@@ -488,6 +494,7 @@
                     placeholder="Enter sale price"
                     required
                   />
+                  <div class="invalid-feedback"></div>
                 </div>
               </div>
               <div class="row">
@@ -736,6 +743,13 @@
         }
       }
       document.addEventListener("DOMContentLoaded", fetchCategories);
+
+      // Initialize validation system
+      if (typeof initializeValidation === 'function') {
+        initializeValidation();
+      } else {
+        console.error('Validation system not loaded properly');
+      }
     </script>
   </body>
 </html>

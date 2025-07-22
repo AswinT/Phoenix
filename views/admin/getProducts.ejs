@@ -24,7 +24,7 @@
       <p class="page-subtitle">Add, edit and manage your headphone inventory</p>
     </div>
     <div class="header-actions">
-      <a href="/admin/add-product" class="btn-primary">
+      <a href="/admin/products/add" class="btn-primary">
         <i class="ri-add-line"></i>
         Add New Product
       </a>
@@ -238,7 +238,7 @@
     searchInput.addEventListener('input', function () {
       const category = document.getElementById('categoryFilter').value;
       const sort = document.getElementById('sortBy').value;
-      window.location.href = `/admin/getProducts?search=${encodeURIComponent(this.value)}&category=${category}&sort=${sort}&page=1`;
+      window.location.href = `/admin/products?search=${encodeURIComponent(this.value)}&category=${category}&sort=${sort}&page=1`;
     });
 
     // Clear search functionality
@@ -247,7 +247,7 @@
       clearSearchBtn.addEventListener('click', function () {
         const category = document.getElementById('categoryFilter').value;
         const sort = document.getElementById('sortBy').value;
-        window.location.href = `/admin/getProducts?search=&category=${category}&sort=${sort}&page=1`;
+        window.location.href = `/admin/products?search=&category=${category}&sort=${sort}&page=1`;
       });
     }
 
@@ -255,13 +255,13 @@
     document.getElementById('categoryFilter').addEventListener('change', function () {
       const search = document.querySelector('.search-input').value;
       const sort = document.getElementById('sortBy').value;
-      window.location.href = `/admin/getProducts?search=${encodeURIComponent(search)}&category=${this.value}&sort=${sort}&page=1`;
+      window.location.href = `/admin/products?search=${encodeURIComponent(search)}&category=${this.value}&sort=${sort}&page=1`;
     });
 
     document.getElementById('sortBy').addEventListener('change', function () {
       const search = document.querySelector('.search-input').value;
       const category = document.getElementById('categoryFilter').value;
-      window.location.href = `/admin/getProducts?search=${encodeURIComponent(search)}&category=${category}&sort=${this.value}&page=1`;
+      window.location.href = `/admin/products?search=${encodeURIComponent(search)}&category=${category}&sort=${this.value}&page=1`;
     });
 
     // Toggle Product Status

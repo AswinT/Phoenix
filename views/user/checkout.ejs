@@ -2013,7 +2013,7 @@
         applyCouponBtn.innerHTML =
           '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Applying...';
 
-        fetch("/checkout/apply-coupon", {
+        fetch("/api/checkout/apply-coupon", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -2079,7 +2079,7 @@
     const removeCouponBtn = document.getElementById("removeCoupon");
     if (removeCouponBtn) {
       removeCouponBtn.addEventListener("click", function () {
-        fetch("/checkout/remove-coupon", {
+        fetch("/api/checkout/remove-coupon", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -2150,7 +2150,7 @@
 
 
       try {
-        const response = await fetch('/checkout/create-razorpay-order', {
+        const response = await fetch('/api/checkout/create-payment', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -2229,7 +2229,7 @@
     // Function to verify payment
     async function verifyPayment(response) {
       try {
-        const verifyResponse = await fetch('/checkout/verify-payment', {
+        const verifyResponse = await fetch('/api/checkout/verify-payment', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -2262,7 +2262,7 @@
       placeOrderBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Payment Failed...';
     }
 
-    const response = await fetch('/checkout/payment-failure', {
+    const response = await fetch('/api/checkout/payment-failure', {
     method: 'POST',
     headers: {
     'Content-Type': 'application/json'
@@ -2350,7 +2350,7 @@
         } else if (paymentMethod === "walletPayment") {
           // Get real-time total from backend to ensure accuracy
           try {
-            const response = await fetch('/checkout/current-total');
+            const response = await fetch('/api/checkout/current-total');
             const result = await response.json();
 
             if (result.success) {

@@ -42,7 +42,7 @@ const postAdminLogin = async (req, res) => {
     return res.status(HttpStatus.OK).json({
       success: true,
       message: "Welcome Admin",
-      redirectTo: '/admin/adminDashboard',
+      redirectTo: '/admin/dashboard',
     });
   } catch (error) {
     console.error("Admin login error:", error);
@@ -60,7 +60,7 @@ const logoutAdminDashboard = async (req, res) => {
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Logout Failed');
       }
       res.clearCookie('connect.sid');
-      res.redirect('/admin/adminLogin');
+      res.redirect('/admin/auth/login');
     });
   } catch (error) {
     console.error('Error in AdminLogout:', error);

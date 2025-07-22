@@ -72,7 +72,7 @@ function setupValidation(errorHandler) {
               timer: 2000,
               showConfirmButton: false
             }).then(() => {
-              window.location.href = '/admin/getProducts';
+              window.location.href = '/admin/products';
             });
           }
         }

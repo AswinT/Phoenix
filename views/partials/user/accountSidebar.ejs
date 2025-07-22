@@ -335,7 +335,7 @@ document.getElementById('passwordChangeForm').addEventListener('submit', async f
   submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...';
   
   try {
-    const response = await fetch('/change-password', {
+    const response = await fetch('/password/change', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

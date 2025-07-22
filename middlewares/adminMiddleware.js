@@ -10,10 +10,10 @@ const adminMiddleware = {
           return next();
         }
       }
-      return res.redirect('/admin/adminLogin');
+      return res.redirect('/admin/auth/login');
     } catch (err) {
       console.error('Admin auth error:', err);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).redirect('/admin/adminLogin');
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).redirect('/admin/auth/login');
     }
   },
   isAdminNotAuthenticated: async (req, res, next) => {
@@ -21,7 +21,7 @@ const adminMiddleware = {
       if (req.session?.admin_id) {
         const admin = await User.findOne({ _id: req.session.admin_id, isAdmin: true });
         if (admin) {
-          return res.redirect('/admin/adminDashboard');
+          return res.redirect('/admin/dashboard');
         }
       }
       next();

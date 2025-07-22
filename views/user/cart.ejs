@@ -586,16 +586,16 @@ document.addEventListener('DOMContentLoaded', function () {
       const quantityInput = item.querySelector('.quantity-input');
       const previousValue = quantityInput.dataset.previousValue;
       
-      const response = await fetch('/cart/update', {
-        method: 'POST',
-        headers: { 
+      const response = await fetch('/api/cart/update', {
+        method: 'PUT',
+        headers: {
           'Content-Type': 'application/json',
           'X-Requested-With': 'XMLHttpRequest'
         },
         credentials: 'same-origin',
-        body: JSON.stringify({ 
-          productId: productId, 
-          quantity: quantity 
+        body: JSON.stringify({
+          productId: productId,
+          quantity: quantity
         })
       });
       
@@ -697,9 +697,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   async function addToCart(productId) {
     try {
-      const response = await fetch('/cart/add', {
+      const response = await fetch('/api/cart/add', {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'X-Requested-With': 'XMLHttpRequest'
         },

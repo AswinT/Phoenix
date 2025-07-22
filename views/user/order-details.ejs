@@ -1902,7 +1902,7 @@
   function verifyRetryPayment(response) {
     showToast('Verifying payment...', 'info');
 
-    fetch('/checkout/verify-retry-payment', {
+    fetch('/api/orders/verify-retry-payment', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

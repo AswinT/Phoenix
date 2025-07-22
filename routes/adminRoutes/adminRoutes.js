@@ -53,7 +53,7 @@ adminRoute.put('/categories/:id',
 );
 adminRoute.put('/categories/:id/toggle', categoryController.toggleCategoryStatus);
 adminRoute.get('/getProducts', productController.getProducts);
-adminRoute.get('/add-product', manageProductController.getAddProduct);
+adminRoute.get('/products/add', manageProductController.getAddProduct);
 adminRoute.post(
   '/products',
   upload.fields([

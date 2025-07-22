@@ -605,7 +605,7 @@
           addToCartBtn.textContent = 'Adding...';
 
           try {
-            const response = await fetch('/wishlist/add-to-cart', {
+            const response = await fetch('/api/wishlist/add-to-cart', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ productId, quantity: 1 })
@@ -698,7 +698,7 @@
             const priceText = priceElement ? priceElement.textContent.trim() : '₹0';
             const priceValue = parseFloat(priceText.replace('₹', '')) || 0;
             
-            const response = await fetch('/wishlist/toggle', {
+            const response = await fetch('/api/wishlist/toggle', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ productId })
@@ -777,7 +777,7 @@
         const productId = this.dataset.productId;
   
         try {
-          const response = await fetch('/cart/add', {
+          const response = await fetch('/api/cart/add', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ productId, quantity: 1 })

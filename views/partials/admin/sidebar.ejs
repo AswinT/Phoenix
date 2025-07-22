@@ -57,7 +57,7 @@
         <ul class="nav flex-column">
           <!-- OVERVIEW -->
           <li class="nav-item">
-            <a href="/admin/adminDashboard" class="nav-link" data-page="dashboard">
+            <a href="/admin/dashboard" class="nav-link" data-page="dashboard">
               <i class="ri-dashboard-line"></i>
               <span class="nav-text">Dashboard</span>
             </a>
@@ -65,7 +65,7 @@
 
           <!-- INVENTORY MANAGEMENT -->
           <li class="nav-item">
-            <a href="/admin/getProducts" class="nav-link" data-page="products">
+            <a href="/admin/products" class="nav-link" data-page="products">
               <i class="ri-book-2-line"></i>
               <span class="nav-text">Products</span>
             </a>
@@ -79,13 +79,13 @@
 
           <!-- ORDER MANAGEMENT -->
           <li class="nav-item">
-            <a href="/admin/getOrders" class="nav-link" data-page="orders">
+            <a href="/admin/orders" class="nav-link" data-page="orders">
               <i class="ri-file-list-3-line"></i>
               <span class="nav-text">Orders</span>
             </a>
           </li>
           <li class="nav-item">
-            <a href="/admin/return-management" class="nav-link" data-page="returns">
+            <a href="/admin/returns" class="nav-link" data-page="returns">
               <i class="ri-arrow-go-back-line"></i>
               <span class="nav-text">Returns</span>
             </a>
@@ -93,7 +93,7 @@
 
           <!-- USER MANAGEMENT -->
           <li class="nav-item">
-            <a href="/admin/getUsers" class="nav-link" data-page="users">
+            <a href="/admin/users" class="nav-link" data-page="users">
               <i class="ri-user-line"></i>
               <span class="nav-text">Users</span>
             </a>
@@ -123,7 +123,7 @@
         </ul>
       </div>
       <div class="sidebar-footer">
-        <a href="/admin/adminLogout" class="logout-link">
+        <a href="/admin/auth/logout" class="logout-link">
           <i class="ri-logout-box-line me-2"></i> Logout
         </a>
       </div>
@@ -203,17 +203,24 @@
         const navLinks = document.querySelectorAll('.nav-link');
         navLinks.forEach(link => link.classList.remove('active'));
 
-        // URL to page mapping
+        // URL to page mapping (support both old and new URLs during transition)
         const urlPageMap = {
-          '/admin/adminDashboard': 'dashboard',
-          '/admin/getProducts': 'products',
+          // New URLs
+          '/admin/dashboard': 'dashboard',
+          '/admin/products': 'products',
           '/admin/categories': 'categories',
-          '/admin/getOrders': 'orders',
-          '/admin/return-management': 'returns',
-          '/admin/getUsers': 'users',
+          '/admin/orders': 'orders',
+          '/admin/returns': 'returns',
+          '/admin/users': 'users',
           '/admin/coupons': 'coupons',
           '/admin/offers': 'offers',
-          '/admin/sales': 'sales'
+          '/admin/sales': 'sales',
+          // Legacy URLs (for backward compatibility)
+          '/admin/adminDashboard': 'dashboard',
+          '/admin/getProducts': 'products',
+          '/admin/getOrders': 'orders',
+          '/admin/return-management': 'returns',
+          '/admin/getUsers': 'users'
         };
 
         // Get the page identifier for current URL

@@ -43,9 +43,9 @@
           <div class="text-center mb-4">
             <div class="d-flex align-items-center justify-content-center mb-2">
               <img
-                src="../assets/phoenix-logo.png"
+                src="/assets/phoenix-logo.png"
                 alt="Phoenix Logo"
-                class="me-2 "width="40" height="40"
+                class="me-2" width="40" height="40"
               />
               <span class="logo-text fs-4">PHOENIX</span>
               <span class="admin-badge ms-2">ADMIN</span>
@@ -54,7 +54,7 @@
             <p class="text-muted small mb-3">Access dashboard and controls</p>
           </div>
 
-          <form id="adminLogin" method="post">
+          <form id="adminLogin" method="post" action="/admin/auth/login">
             <div class="compact-mb">
               <label for="email" class="form-label">Admin Email</label>
               <input
@@ -152,7 +152,7 @@
 
           if (isValid) {
             try {
-              const response = await fetch("/admin/adminLogin", {
+              const response = await fetch("/admin/auth/login", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
@@ -172,7 +172,7 @@
                   confirmButtonText: "Go to Dashboard",
                 })
                  .then(() => {
-                  window.location.href = "/admin/adminDashboard";
+                  window.location.href = "/admin/dashboard";
                 });
               } else {
                 Swal.fire({

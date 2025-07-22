@@ -167,7 +167,7 @@
           buttonRef.disabled = true;
           
           // AJAX request to update user status
-          fetch(`/admin/getUsers/${userId}/${isBlocked ? 'unblock' : 'block'}`, {
+          fetch(`/admin/users/${userId}/${isBlocked ? 'unblock' : 'block'}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
