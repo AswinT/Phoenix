@@ -2,7 +2,7 @@ const Product = require('../../models/productSchema');
 const Category = require('../../models/categorySchema');
 const cloudinary = require('../../config/cloudinary');
 const fs = require('fs');
-const { HttpStatus } = require('../../helpers/status-code');
+const { HttpStatus } = require('../../helpers/statusCode');
 const getProducts = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -15,7 +15,7 @@ const getProducts = async (req, res) => {
     if (search) {
       query.$or = [
         { model: { $regex: search, $options: 'i' } },
-        { brand: { $regex: search, $options: 'i' } },
+        { brand: { $regex: search, $options: 'i' } }
       ];
     }
     if (categoryFilter) {
@@ -65,7 +65,7 @@ const addProduct = async (req, res) => {
       stock,
       connectivity,
       manufacturer,
-      isListed,
+      isListed
     } = req.body;
     const categoryExists = await Category.findById(category);
     if (!categoryExists) {
@@ -137,7 +137,7 @@ const addProduct = async (req, res) => {
       mainImage: mainImageUrl,
       subImages,
       isListed: isListed === 'on',
-      isDeleted: false,
+      isDeleted: false
     });
     await product.save();
     res.status(HttpStatus.CREATED).json({
@@ -177,7 +177,7 @@ const toggleProductStatus = async (req, res) => {
     product.isListed = !product.isListed;
     await product.save();
     res.json({
-      message: `Product ${product.isListed ? 'listed' : 'unlisted'} successfully`,
+      message: `Product ${product.isListed ? 'listed' : 'unlisted'} successfully`
     });
   } catch (error) {
     console.error('Error toggling product status:', error);
@@ -212,7 +212,7 @@ const updateProduct = async (req, res) => {
       stock,
       connectivity,
       manufacturer,
-      isListed,
+      isListed
     } = req.body;
     console.log('Request body:', req.body);
     console.log('Uploaded files:', req.files);

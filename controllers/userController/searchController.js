@@ -1,5 +1,5 @@
 const Product = require('../../models/productSchema');
-const { HttpStatus } = require("../../helpers/status-code");
+const { HttpStatus } = require('../../helpers/statusCode');
 const searchProducts = async (req, res) => {
   try {
     const query = req.query.q || '';
@@ -11,8 +11,8 @@ const searchProducts = async (req, res) => {
       isDeleted: false,
       $or: [
         { model: { $regex: query, $options: 'i' } },
-        { brand: { $regex: query, $options: 'i' } },
-      ],
+        { brand: { $regex: query, $options: 'i' } }
+      ]
     })
       .populate({
         path: 'category',

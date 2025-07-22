@@ -12,24 +12,24 @@ document.addEventListener('DOMContentLoaded', function() {
       setTimeout(waitForDependencies, 100);
       return;
     }
-    
+
     initializeProductValidation();
   }
-  
+
   waitForDependencies();
 });
 
 function initializeProductValidation() {
   const errorHandler = window.ValidationErrorHandler;
-  
+
   // Find the product form (both add and edit)
   const addProductForm = document.getElementById('addProductForm');
   const editProductForm = document.getElementById('editProductForm');
-  
+
   if (addProductForm) {
     setupProductFormValidation(addProductForm, false, errorHandler);
   }
-  
+
   if (editProductForm) {
     setupProductFormValidation(editProductForm, true, errorHandler);
   }
@@ -40,32 +40,32 @@ function setupProductFormValidation(form, isEditForm, errorHandler) {
     console.error('Product form not found');
     return;
   }
-  
+
   // Add real-time validation
   errorHandler.addRealTimeValidation(form);
-  
+
   // Override form submission
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
-    
+
     // Perform client-side validation if available
     if (typeof validateProductForm === 'function') {
       const validationResult = validateProductForm(form);
-      
+
       if (!validationResult.isValid) {
         displayClientSideErrors(form, validationResult.errors);
         return;
       }
     }
-    
+
     // Clear any existing client-side errors
     errorHandler.clearAllErrors(form);
-    
+
     // Determine the URL and method
     const url = isEditForm
       ? `/admin/products/${form.getAttribute('data-product-id')}`
       : '/admin/products';
-    
+
     // Handle form submission with proper success message
     await errorHandler.handleFormSubmission(form, url, {
       method: 'POST', // Always POST with method override
@@ -98,7 +98,7 @@ function setupProductFormValidation(form, isEditForm, errorHandler) {
             form.reset();
             errorHandler.clearAllErrors(form);
           }
-          
+
           // Handle redirect if provided
           if (data.redirect) {
             window.location.href = data.redirect;
@@ -140,7 +140,7 @@ function displayClientSideErrors(form, errors) {
 // Basic product form validation function (can be enhanced)
 function validateProductForm(form) {
   const errors = [];
-  
+
   // Check required fields
   const requiredFields = [
     { name: 'model', label: 'Model' },
@@ -153,18 +153,18 @@ function validateProductForm(form) {
     { name: 'connectivity', label: 'Connectivity' },
     { name: 'manufacturer', label: 'Manufacturer' }
   ];
-  
+
   requiredFields.forEach(field => {
     const input = form.querySelector(`[name="${field.name}"]`);
     if (!input || !input.value.trim()) {
       errors.push(`${field.label} is required`);
     }
   });
-  
+
   // Validate price comparison
   const regularPrice = parseFloat(form.querySelector('[name="regularPrice"]')?.value);
   const salePrice = parseFloat(form.querySelector('[name="salePrice"]')?.value);
-  
+
   if (!isNaN(regularPrice) && !isNaN(salePrice)) {
     if (salePrice > regularPrice) {
       errors.push('Sale price cannot be greater than regular price');
@@ -173,7 +173,7 @@ function validateProductForm(form) {
       errors.push('Sale price cannot be less than 10% of regular price');
     }
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors: errors

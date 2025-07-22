@@ -14,7 +14,7 @@ const storage = multer.diskStorage({
     const uniqueFilename = `${uniqueSuffix}${path.extname(file.originalname)}`;
     console.log(`Saving file as: ${uniqueFilename}`);
     cb(null, uniqueFilename);
-  },
+  }
 });
 const upload = multer({
   storage: storage,
@@ -27,6 +27,6 @@ const upload = multer({
     } else {
       cb(new Error('Images only (jpeg, jpg, png)!'));
     }
-  },
+  }
 });
 module.exports = upload;

@@ -1,75 +1,75 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema(
   {
     fullName: {
       type: String,
       required: true,
-      trim: true,
+      trim: true
     },
     phone: {
       type: String,
       required: false,
       unique: true,
-      sparse: true,
+      sparse: true
     },
     email: {
       type: String,
       required: true,
       unique: true,
       lowercase: true,
-      trim: true,
+      trim: true
     },
     password: {
       type: String,
-      required: false,
+      required: false
     },
     googleId: {
       type: String,
       unique: true,
-      sparse: true,
+      sparse: true
     },
     profileImage: {
       type: String,
-      required: false,
+      required: false
     },
     isBlocked: {
       type: Boolean,
-      default: false,
+      default: false
     },
     isAdmin: {
       type: Boolean,
-      default: false,
+      default: false
     },
     isVerified: {
       type: Boolean,
-      default: false,
+      default: false
     },
     wallet: {
       type: Number,
-      default: 0,
+      default: 0
     },
     referralCode: {
       type: String,
       unique: true,
-      sparse: true,
+      sparse: true
     },
     orderHistory: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Order",
-      },
+        ref: 'Order'
+      }
     ],
     searchHistory: [
       {
         category: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "Category",
-        },
-      },
-    ],
+          ref: 'Category'
+        }
+      }
+    ]
   },
   {
-    timestamps: true,
+    timestamps: true
   }
 );
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model('User', userSchema);

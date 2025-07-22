@@ -1,17 +1,16 @@
-const express = require("express");
+const express = require('express');
 const app = express();
-const path = require("path");
-const env = require("dotenv").config();
-const session = require("express-session");
-const connectDB = require("./config/db");
-const userRouter = require("./routes/userRoutes/userRouter");
-const adminRoute = require("./routes/adminRoutes/adminRoutes")
-const passport = require("./config/passport");
+const path = require('path');
+const env = require('dotenv').config();
+const session = require('express-session');
+const connectDB = require('./config/db');
+const mainRoutes = require('./routes');
+const passport = require('./config/passport');
 const methodOverride = require('method-override');
 const morgan = require('morgan');
-const userMiddleware = require("./middlewares/userMiddleware");
+const userMiddleware = require('./middlewares/userMiddleware');
 const cartWishlistMiddleware = require('./middlewares/cartWishlistMiddleware');
-const { globalErrorHandler, notFoundHandler } = require("./middlewares/errorHandler");
+const { globalErrorHandler, notFoundHandler } = require('./middlewares/errorHandler');
 connectDB();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -28,8 +27,8 @@ app.use(
     cookie: {
       secure: false,
       httpOnly: true,
-      maxAge: 72 * 60 * 60 * 1000,
-    },
+      maxAge: 72 * 60 * 60 * 1000
+    }
   })
 );
 app.use((req, res, next) => {
@@ -42,22 +41,23 @@ app.use(passport.session());
 app.use(userMiddleware);
 app.use(cartWishlistMiddleware);
 app.use((req, res, next) => {
-  res.set("Cache-Control", "no-store");
+  res.set('Cache-Control', 'no-store');
   next();
 });
-app.set("view engine", "ejs");
-app.set("views", [
-  path.join(__dirname, "views/user"),
-  path.join(__dirname, "views/admin"),
-  path.join(__dirname, "views"),
-  path.join(__dirname, "views/partials")
+app.set('view engine', 'ejs');
+app.set('views', [
+  path.join(__dirname, 'views/user'),
+  path.join(__dirname, 'views/admin'),
+  path.join(__dirname, 'views'),
+  path.join(__dirname, 'views/error'),
+  path.join(__dirname, 'views/partials')
 ]);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/validators', express.static(path.join(__dirname, 'validators')));
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(methodOverride('_method'));
-app.use("/", userRouter);
-app.use("/admin", adminRoute);
+// Use the new modular routing structure
+app.use('/', mainRoutes);
 app.use(notFoundHandler);
 app.use(globalErrorHandler);
 const PORT = process.env.PORT || 3000;

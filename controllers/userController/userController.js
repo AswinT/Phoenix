@@ -1,17 +1,19 @@
-const categoryController = require("../../controllers/userController/categoryController");
+const categoryController = require('../../controllers/userController/categoryController');
 const Product = require('../../models/productSchema');
-const { getActiveOfferForProduct, calculateDiscount } = require("../../utils/offer-helper");
-const { HttpStatus } = require("../../helpers/status-code");
+const Category = require('../../models/categorySchema');
+const { getActiveOfferForProduct, calculateDiscount } = require('../../utils/offerHelper');
+const { HttpStatus } = require('../../helpers/statusCode');
 const pageNotFound = async (req, res) => {
   try {
-    res.render("page-404");
+    res.render('page-404');
   } catch (error) {
-    res.redirect("/pageNotFound");
+    res.redirect('/pageNotFound');
   }
 };
 const loadHomePage = async (req, res) => {
   try {
-    const categories = await categoryController.getCategories();
+    // Get categories directly from database instead of calling controller
+    const categories = await Category.find({ isListed: true }).sort({ createdAt: -1 });
     const LIMIT = 4;
     const topSellingProductsRaw = await Product.find({ isListed: true, isDeleted: false })
       .populate({
@@ -65,7 +67,7 @@ const loadHomePage = async (req, res) => {
       product.finalPrice = finalPrice;
       product.regularPrice = product.regularPrice || product.salePrice;
     }
-    return res.render("home", {
+    return res.render('home', {
       categories,
       topSellingProducts,
       newArrivals,
@@ -73,20 +75,20 @@ const loadHomePage = async (req, res) => {
       isAuthenticated: !!req.session.user_id
     });
   } catch (error) {
-    console.log(`Error in rendering Home Page: ${error}`);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server Error");
+    console.error('Error in rendering Home Page:', error);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Server Error');
   }
 };
 const getAboutPage = async (req, res) => {
   try {
-    res.render("about");
+    res.render('about');
   } catch (error) {
-    console.log(`Error in rendering About Page: ${error}`);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server Error");
+    console.error('Error in rendering About Page:', error);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Server Error');
   }
 };
 module.exports = {
   loadHomePage,
   pageNotFound,
-  getAboutPage,
+  getAboutPage
 };

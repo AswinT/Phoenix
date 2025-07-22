@@ -1,7 +1,7 @@
 const express = require('express');
 const adminRoute = express.Router();
 const adminController = require('../../controllers/adminController/adminLoginController');
-const dashboardController = require('../../controllers/adminController/dashboard-controller');
+const dashboardController = require('../../controllers/adminController/dashboardController');
 const adminUserController = require('../../controllers/adminController/getUserController');
 const categoryController = require('../../controllers/adminController/categoryController');
 const productController = require('../../controllers/adminController/productController.js');
@@ -9,24 +9,24 @@ const manageProductController = require('../../controllers/adminController/manag
 const {
   validateProductData,
   validatePriceComparison
-} = require('../../validators/admin/product-validator');
+} = require('../../validators/admin/productValidator');
 const {
   validateCategoryData,
   validateCategoryImage
-} = require('../../validators/admin/category-validator');
+} = require('../../validators/admin/categoryValidator');
 const {
   validateCreateOffer,
   validateUpdateOffer
-} = require('../../validators/admin/offer-validator');
+} = require('../../validators/admin/offerValidator');
 const {
   validateCreateCoupon,
   validateUpdateCoupon
-} = require('../../validators/admin/coupon-validator');
-const manageOrderController = require('../../controllers/adminController/manage-orders.js')
-const returnManagementController = require('../../controllers/adminController/return-management.js')
-const couponController = require('../../controllers/adminController/coupon-controller');
-const offerController = require('../../controllers/adminController/offer-controller');
-const salesController = require('../../controllers/adminController/sales-controller.js')
+} = require('../../validators/admin/couponValidator');
+const manageOrderController = require('../../controllers/adminController/manageOrders.js');
+const returnManagementController = require('../../controllers/adminController/returnManagement.js');
+const couponController = require('../../controllers/adminController/couponController');
+const offerController = require('../../controllers/adminController/offerController');
+const salesController = require('../../controllers/adminController/salesController.js');
 const { isAdminAuthenticated, isAdminNotAuthenticated, preventCache } = require('../../middlewares/adminMiddleware');
 const upload = require('../../config/multer');
 adminRoute.get('/adminLogin', isAdminNotAuthenticated, preventCache, adminController.getAdminLogin);

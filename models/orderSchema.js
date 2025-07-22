@@ -1,49 +1,49 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const addressSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
+      ref: 'User',
+      required: true
     },
     fullName: {
       type: String,
       required: true,
-      trim: true,
+      trim: true
     },
     phone: {
       type: String,
       required: true,
-      trim: true,
+      trim: true
     },
     pincode: {
       type: String,
       required: true,
-      trim: true,
+      trim: true
     },
     district: {
       type: String,
       required: true,
-      trim: true,
+      trim: true
     },
     state: {
       type: String,
       required: true,
-      trim: true,
+      trim: true
     },
     street: {
       type: String,
       required: true,
-      trim: true,
+      trim: true
     },
     landmark: {
       type: String,
-      trim: true,
+      trim: true
     },
     isDefault: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
   { _id: false, timestamps: true }
 );
@@ -51,31 +51,31 @@ const orderItemSchema = new mongoose.Schema(
   {
     product: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Product",
-      required: true,
+      ref: 'Product',
+      required: true
     },
     model: {
       type: String,
-      required: true,
+      required: true
     },
     image: {
       type: String,
-      required: true,
+      required: true
     },
     price: {
       type: Number,
       required: true,
-      min: 0,
+      min: 0
     },
     discountedPrice: {
       type: Number,
       required: true,
-      min: 0,
+      min: 0
     },
     quantity: {
       type: Number,
       required: true,
-      min: 1,
+      min: 1
     },
     priceBreakdown: {
       originalPrice: {
@@ -122,28 +122,28 @@ const orderItemSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: [
-        "Active",
-        "Cancelled", 
-        "Return Requested",
-        "Returned"
+        'Active',
+        'Cancelled',
+        'Return Requested',
+        'Returned'
       ],
-      default: "Active",
+      default: 'Active',
       required: true
     },
     cancelledAt: {
-      type: Date,
+      type: Date
     },
     cancellationReason: {
-      type: String,
+      type: String
     },
     returnedAt: {
-      type: Date,
+      type: Date
     },
     returnReason: {
-      type: String,
+      type: String
     },
     returnRequestedAt: {
-      type: Date,
+      type: Date
     },
     returnImages: [{
       type: String
@@ -154,145 +154,145 @@ const orderItemSchema = new mongoose.Schema(
 const orderSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
+    ref: 'User',
+    required: true
   },
   orderNumber: {
     type: String,
     required: true,
-    unique: true,
+    unique: true
   },
   items: [orderItemSchema],
   shippingAddress: addressSchema,
   paymentMethod: {
     type: String,
-    enum: ["COD", "Razorpay", "UPI", "Card", "Wallet"],
-    required: true,
+    enum: ['COD', 'Razorpay', 'UPI', 'Card', 'Wallet'],
+    required: true
   },
   paymentStatus: {
     type: String,
     enum: [
-      "Pending",
-      "Paid",
-      "Failed",
-      "Refunded",
-      "Partially Refunded",
-      "Refund Initiated",
-      "Refund Processing",
-      "Pending Payment"
+      'Pending',
+      'Paid',
+      'Failed',
+      'Refunded',
+      'Partially Refunded',
+      'Refund Initiated',
+      'Refund Processing',
+      'Pending Payment'
     ],
-    default: "Pending",
+    default: 'Pending'
   },
   orderStatus: {
     type: String,
     enum: [
-      "Placed",
-      "Processing",
-      "Shipped",
-      "Delivered",
-      "Cancelled",
-      "Partially Cancelled",
-      "Return Requested",
-      "Partially Return Requested",
-      "Returned",
-      "Partially Returned",
-      "Pending Payment"
+      'Placed',
+      'Processing',
+      'Shipped',
+      'Delivered',
+      'Cancelled',
+      'Partially Cancelled',
+      'Return Requested',
+      'Partially Return Requested',
+      'Returned',
+      'Partially Returned',
+      'Pending Payment'
     ],
-    default: "Placed",
+    default: 'Placed',
     required: true
   },
   subtotal: {
     type: Number,
     required: true,
-    min: 0,
+    min: 0
   },
   shipping: {
     type: Number,
     required: true,
-    default: 0,
+    default: 0
   },
   tax: {
     type: Number,
     required: true,
-    default: 0,
+    default: 0
   },
   discount: {
     type: Number,
-    default: 0,
+    default: 0
   },
   couponCode: {
-    type: String,
+    type: String
   },
   couponDiscount: {
     type: Number,
-    default: 0,
+    default: 0
   },
   total: {
     type: Number,
     required: true,
-    min: 0,
+    min: 0
   },
   razorpayOrderId: {
-    type: String,
+    type: String
   },
   razorpayPaymentId: {
-    type: String,
+    type: String
   },
   paymentRetryAttempts: {
     type: Number,
-    default: 0,
+    default: 0
   },
   lastPaymentAttempt: {
-    type: Date,
+    type: Date
   },
   paymentFailureReason: {
-    type: String,
+    type: String
   },
   originalRazorpayOrderId: {
-    type: String,
+    type: String
   },
   processedAt: {
-    type: Date,
+    type: Date
   },
   shippedAt: {
-    type: Date,
+    type: Date
   },
   deliveredAt: {
-    type: Date,
+    type: Date
   },
   cancelledAt: {
-    type: Date,
+    type: Date
   },
   returnedAt: {
-    type: Date,
+    type: Date
   },
   returnRequestedAt: {
-    type: Date,
+    type: Date
   },
   cancellationReason: {
-    type: String,
+    type: String
   },
   returnReason: {
-    type: String,
+    type: String
   },
   trackingId: {
-    type: String,
+    type: String
   },
   isDeleted: {
     type: Boolean,
-    default: false,
+    default: false
   },
   createdAt: {
     type: Date,
-    default: Date.now,
+    default: Date.now
   },
   updatedAt: {
     type: Date,
-    default: Date.now,
-  },
+    default: Date.now
+  }
 });
-orderSchema.pre("save", function (next) {
+orderSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();
 });
-module.exports = mongoose.model("Order", orderSchema);
+module.exports = mongoose.model('Order', orderSchema);

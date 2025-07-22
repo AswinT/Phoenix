@@ -1,35 +1,35 @@
-const User = require("../../models/userSchema");
-const OTP = require("../../models/otpSchema");
-const Referral = require("../../models/referralSchema");
-const Wallet = require("../../models/walletSchema");
-const hashPasswordHelper = require("../../helpers/hash");
-const { sendOtpEmail } = require("../../helpers/sendMail");
-const { validateBasicOtp, validateOtpSession } = require("../../validators/user/basic-otp-validator");
-const { HttpStatus } = require("../../helpers/status-code");
+const User = require('../../models/userSchema');
+const OTP = require('../../models/otpSchema');
+const Referral = require('../../models/referralSchema');
+const Wallet = require('../../models/walletSchema');
+const hashPasswordHelper = require('../../helpers/hash');
+const { sendOtpEmail } = require('../../helpers/sendMail');
+const { validateBasicOtp, validateOtpSession } = require('../../validators/user/basicOtpValidator');
+const { HttpStatus } = require('../../helpers/statusCode');
 const getOtp = async (req, res) => {
   try {
     const email = req.session.tempUser?.email;
     if (!email) {
-      return res.status(HttpStatus.BAD_REQUEST).json({ message: "Session expired" });
+      return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Session expired' });
     }
-    
+
     // Simple email masking function
     const maskEmail = (email) => {
       const [username, domain] = email.split('@');
-      const maskedUsername = username.length > 2 
+      const maskedUsername = username.length > 2
         ? username.substring(0, 2) + '*'.repeat(username.length - 2)
         : username;
       return `${maskedUsername}@${domain}`;
     };
-    
+
     const maskedEmail = maskEmail(email);
-    res.render("verify-otp", {
+    res.render('verify-otp', {
       maskedEmail: maskedEmail,
       otpMessage: `We've sent a verification code to ${maskedEmail}. Please enter the code to continue.`
     });
   } catch (error) {
-    console.log("error during render", error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "Server error" });
+    console.log('error during render', error);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Server error' });
   }
 };
 const otpGenerator = () =>
@@ -52,7 +52,7 @@ const generateReferralCode = async () => {
 };
 const getSignup = async (req, res) => {
   try {
-    res.render("signup");
+    res.render('signup');
   } catch (error) {
     console.log(`Error:,${error.message}`);
   }
@@ -64,32 +64,32 @@ const postSignup = async (req, res) => {
     const trimmedName = fullName.trim();
     const trimmedPhone = phoneNumber.trim();
     const existingUser = await User.findOne({
-      $or: [{ email: trimmedEmail }, { phone: trimmedPhone }],
+      $or: [{ email: trimmedEmail }, { phone: trimmedPhone }]
     });
     if (existingUser) {
       return res.status(HttpStatus.CONFLICT).json({
         success: false,
-        message: "User with this email or phone number already exists!",
+        message: 'User with this email or phone number already exists!'
       });
     }
     const otp = otpGenerator();
-    console.log("Generated OTP:", otp);
-    const subjectContent = "Verify your email for Phoenix";
+    console.log('Generated OTP:', otp);
+    const subjectContent = 'Verify your email for Phoenix';
     try {
-      await sendOtpEmail(trimmedEmail, trimmedName, otp, subjectContent,"signup");
+      await sendOtpEmail(trimmedEmail, trimmedName, otp, subjectContent,'signup');
     } catch (err) {
-      console.error("Email sending error:", err.message);
+      console.error('Email sending error:', err.message);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: "Failed to send OTP email. Please try again later.",
+        message: 'Failed to send OTP email. Please try again later.'
       });
     }
     const hashedPassword = await hashPasswordHelper.hashPassword(password);
-    await OTP.deleteMany({ email: trimmedEmail, purpose: "signup" });
+    await OTP.deleteMany({ email: trimmedEmail, purpose: 'signup' });
     const otpDoc = new OTP({
       email: trimmedEmail,
       otp,
-      purpose: "signup",
+      purpose: 'signup'
     });
     await otpDoc.save();
     req.session.tempUser = {
@@ -97,17 +97,17 @@ const postSignup = async (req, res) => {
       email: trimmedEmail,
       phone: trimmedPhone,
       password: hashedPassword,
-      referralCode: referralCode || null,
+      referralCode: referralCode || null
     };
     return res.status(HttpStatus.OK).json({
       success: true,
-      message: "OTP sent successfully to your email address. Please check your inbox.",
+      message: 'OTP sent successfully to your email address. Please check your inbox.'
     });
   } catch (error) {
-    console.error("Error in postSignup:", error);
+    console.error('Error in postSignup:', error);
     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Internal Server Error",
+      message: 'Internal Server Error'
     });
   }
 };
@@ -118,7 +118,7 @@ const verifyOtp = async (req, res) => {
     if (!otpValidation.isValid) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message: otpValidation.message,
+        message: otpValidation.message
       });
     }
     const sessionValidation = validateOtpSession(req, 'signup');
@@ -126,21 +126,21 @@ const verifyOtp = async (req, res) => {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message: sessionValidation.message,
-        sessionExpired: sessionValidation.sessionExpired,
+        sessionExpired: sessionValidation.sessionExpired
       });
     }
     const tempUser = req.session.tempUser;
-    const otpDoc = await OTP.findOne({ email: tempUser.email, purpose: "signup" });
+    const otpDoc = await OTP.findOne({ email: tempUser.email, purpose: 'signup' });
     if (!otpDoc) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message: "OTP has expired or doesn't exist. Please request a new one.",
+        message: "OTP has expired or doesn't exist. Please request a new one."
       });
     }
     if (otp !== otpDoc.otp) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message: "Invalid OTP"
+        message: 'Invalid OTP'
       });
     }
     const userReferralCode = await generateReferralCode();
@@ -150,7 +150,7 @@ const verifyOtp = async (req, res) => {
       phone: tempUser.phone,
       password: tempUser.password,
       isVerified: true,
-      referralCode: userReferralCode,
+      referralCode: userReferralCode
     });
     await newUser.save();
     if (tempUser.referralCode) {
@@ -202,13 +202,13 @@ const verifyOtp = async (req, res) => {
     delete req.session.tempUser;
     return res.status(HttpStatus.CREATED).json({
       success: true,
-      message: "Account created successfully",
+      message: 'Account created successfully'
     });
   } catch (error) {
-    console.log("Error in verifyOtp:", error);
+    console.log('Error in verifyOtp:', error);
     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Internal Server Error",
+      message: 'Internal Server Error'
     });
   }
 };
@@ -218,30 +218,30 @@ const resendOtp = async (req, res) => {
     if (!email) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message: "Session expired. Please sign up again.",
+        message: 'Session expired. Please sign up again.'
       });
     }
     const otp = otpGenerator();
-    console.log("Resending OTP:", otp);
-    await OTP.deleteMany({ email, purpose: "signup" });
+    console.log('Resending OTP:', otp);
+    await OTP.deleteMany({ email, purpose: 'signup' });
     const otpDoc = new OTP({
       email,
       otp,
-      purpose: "signup",
+      purpose: 'signup'
     });
     await otpDoc.save();
     const fullName = req.session.tempUser.fullName;
-    const subjectContent = "Your new OTP for Phoenix";
-    await sendOtpEmail(email, fullName, otp, subjectContent, "resend");
+    const subjectContent = 'Your new OTP for Phoenix';
+    await sendOtpEmail(email, fullName, otp, subjectContent, 'resend');
     return res.status(HttpStatus.OK).json({
       success: true,
-      message: "New OTP sent successfully to your email address.",
+      message: 'New OTP sent successfully to your email address.'
     });
   } catch (error) {
-    console.error("Error resending OTP:", error);
+    console.error('Error resending OTP:', error);
     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Internal Server Error",
+      message: 'Internal Server Error'
     });
   }
 };

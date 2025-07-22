@@ -1,13 +1,13 @@
-const passport = require("passport");
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
-const User = require("../models/userSchema");
-require("dotenv").config();
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const User = require('../models/userSchema');
+require('dotenv').config();
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.GOOGLE_CALLBACK_URL || "http://localhost:4000/auth/google/callback",
+      callbackURL: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:4000/auth/google/callback'
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -15,7 +15,7 @@ passport.use(
         if (user) {
           if (user.isBlocked) {
             return done(null, false, {
-              message: "Your account is blocked. Please contact support.",
+              message: 'Your account is blocked. Please contact support.'
             });
           }
           return done(null, user);
@@ -24,7 +24,7 @@ passport.use(
         if (user) {
           if (user.isBlocked) {
             return done(null, false, {
-              message: "Your account is blocked. Please contact support.",
+              message: 'Your account is blocked. Please contact support.'
             });
           }
           user.googleId = profile.id;
@@ -37,12 +37,12 @@ passport.use(
           email: profile.emails[0].value,
           googleId: profile.id,
           isVerified: true,
-          isBlocked: false,
+          isBlocked: false
         });
         await newUser.save();
         return done(null, newUser);
       } catch (err) {
-        console.error("Error in Google Strategy:", err);
+        console.error('Error in Google Strategy:', err);
         return done(err, null);
       }
     }
@@ -59,12 +59,12 @@ passport.deserializeUser(async (id, done) => {
     }
     if (user.isBlocked) {
       return done(null, false, {
-        message: "Your account is blocked. Please contact support.",
+        message: 'Your account is blocked. Please contact support.'
       });
     }
     done(null, user);
   } catch (err) {
-    console.error("Error in deserializeUser:", err);
+    console.error('Error in deserializeUser:', err);
     done(err, null);
   }
 });

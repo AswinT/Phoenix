@@ -5,87 +5,87 @@ const couponSchema = new mongoose.Schema({
     required: true,
     unique: true,
     uppercase: true,
-    trim: true,
+    trim: true
   },
   description: {
     type: String,
-    default: '',
+    default: ''
   },
   discountType: {
     type: String,
     enum: ['fixed', 'percentage'],
-    required: true,
+    required: true
   },
   discountValue: {
     type: Number,
     required: true,
-    min: 0,
+    min: 0
   },
   maxDiscountValue: {
     type: Number,
-    default: null,
+    default: null
   },
   minOrderAmount: {
     type: Number,
-    default: 0,
+    default: 0
   },
   startDate: {
     type: Date,
-    required: true,
+    required: true
   },
   expiryDate: {
     type: Date,
-    required: true,
+    required: true
   },
   isActive: {
     type: Boolean,
-    default: true,
+    default: true
   },
   usageLimitGlobal: {
     type: Number,
-    default: null,
+    default: null
   },
   usageLimitPerUser: {
     type: Number,
-    default: 1,
+    default: 1
   },
   usedCount: {
     type: Number,
-    default: 0,
+    default: 0
   },
   usedBy: [
     {
       userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'User'
       },
       usedAt: {
         type: Date,
-        default: Date.now,
+        default: Date.now
       },
       count: {
         type: Number,
-        default: 1,
-      },
+        default: 1
+      }
     }
   ],
   applicableCategories: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Category',
-    },
+      ref: 'Category'
+    }
   ],
   applicableProducts: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Product',
-    },
+      ref: 'Product'
+    }
   ],
   createdByAdmin: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-  },
+    ref: 'User'
+  }
 }, {
-  timestamps: true,
+  timestamps: true
 });
 module.exports = mongoose.model('Coupon', couponSchema);

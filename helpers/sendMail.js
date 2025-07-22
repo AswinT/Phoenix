@@ -1,35 +1,35 @@
-require("dotenv").config();
-const nodemailer = require("nodemailer");
-const sendOtpEmail = async (email, name, otp, subject, purpose = "signup") => {
+require('dotenv').config();
+const nodemailer = require('nodemailer');
+const sendOtpEmail = async (email, name, otp, subject, purpose = 'signup') => {
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    service: 'gmail',
     auth: {
       user: process.env.EMAIL,
-      pass: process.env.EMAIL_PASS,
-    },
+      pass: process.env.EMAIL_PASS
+    }
   });
   const generateEmailTemplate = (name, otp, purpose) => {
     let title, message, actionText;
     switch (purpose) {
-      case "resend":
-        title = "New Verification Code";
-        message = "Here's your new verification code for your Phoenix account:";
-        actionText = "Complete your signup to start exploring our amazing collection of headphones!";
-        break;
-      case "forgot-password":
-        title = "Password Reset Code";
-        message = "Use this verification code to reset your Phoenix password:";
-        actionText = "This code will expire in 1 minute for your security.";
-        break;
-      case "email-update":
-        title = "Email Update Verification";
-        message = "Use this verification code to update your email address:";
-        actionText = "This code will expire in 1 minute for your security.";
-        break;
-      default:
-        title = "Welcome to Phoenix!";
-        message = "Thank you for joining Phoenix. Use this verification code to complete your account setup:";
-        actionText = "Once verified, you'll have access to thousands of headphones and exclusive offers!";
+    case 'resend':
+      title = 'New Verification Code';
+      message = "Here's your new verification code for your Phoenix account:";
+      actionText = 'Complete your signup to start exploring our amazing collection of headphones!';
+      break;
+    case 'forgot-password':
+      title = 'Password Reset Code';
+      message = 'Use this verification code to reset your Phoenix password:';
+      actionText = 'This code will expire in 1 minute for your security.';
+      break;
+    case 'email-update':
+      title = 'Email Update Verification';
+      message = 'Use this verification code to update your email address:';
+      actionText = 'This code will expire in 1 minute for your security.';
+      break;
+    default:
+      title = 'Welcome to Phoenix!';
+      message = 'Thank you for joining Phoenix. Use this verification code to complete your account setup:';
+      actionText = "Once verified, you'll have access to thousands of headphones and exclusive offers!";
     }
     return `
     <!DOCTYPE html>
@@ -208,19 +208,19 @@ const sendOtpEmail = async (email, name, otp, subject, purpose = "signup") => {
     to: email,
     subject,
     html: htmlContent,
-    text: `Hello ${name}, Your verification code for Phoenix is: ${otp}. This code will expire in 1 minute.`,
+    text: `Hello ${name}, Your verification code for Phoenix is: ${otp}. This code will expire in 1 minute.`
   };
   await transporter.sendMail(mailOptions);
 };
-const sendContactEmail = async (contactData, type = "confirmation") => {
+const sendContactEmail = async (contactData, type = 'confirmation') => {
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    service: 'gmail',
     auth: {
       user: process.env.EMAIL,
-      pass: process.env.EMAIL_PASS,
-    },
+      pass: process.env.EMAIL_PASS
+    }
   });
-  if (type === "confirmation") {
+  if (type === 'confirmation') {
     const confirmationTemplate = `
     <!DOCTYPE html>
     <html lang="en">
@@ -337,12 +337,12 @@ const sendContactEmail = async (contactData, type = "confirmation") => {
                     <p><strong>Subject:</strong> ${getSubjectText(contactData.subject)}</p>
                     <p><strong>Message:</strong> ${contactData.message}</p>
                     <p><strong>Submitted on:</strong> ${new Date().toLocaleDateString('en-IN', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    })}</p>
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })}</p>
                 </div>
                 <div class="message">
                     In the meantime, feel free to explore our curated collection of headphones or check out our latest arrivals. We're here to help you find your next great listening experience!
@@ -370,10 +370,10 @@ const sendContactEmail = async (contactData, type = "confirmation") => {
       to: contactData.email,
       subject: "✅ Thank you for contacting Phoenix - We'll get back to you soon!",
       html: confirmationTemplate,
-      text: `Hello ${contactData.name}, Thank you for contacting Phoenix! We've received your message about "${getSubjectText(contactData.subject)}" and will get back to you within 24 hours.`,
+      text: `Hello ${contactData.name}, Thank you for contacting Phoenix! We've received your message about "${getSubjectText(contactData.subject)}" and will get back to you within 24 hours.`
     };
     await transporter.sendMail(mailOptions);
-  } else if (type === "admin") {
+  } else if (type === 'admin') {
     const adminTemplate = `
     <!DOCTYPE html>
     <html lang="en">
@@ -412,19 +412,19 @@ const sendContactEmail = async (contactData, type = "confirmation") => {
       to: process.env.ADMIN_EMAIL || process.env.EMAIL,
       subject: `🔔 New Contact: ${getSubjectText(contactData.subject)} - ${contactData.name}`,
       html: adminTemplate,
-      text: `New contact form submission from ${contactData.name} (${contactData.email}) about ${getSubjectText(contactData.subject)}: ${contactData.message}`,
+      text: `New contact form submission from ${contactData.name} (${contactData.email}) about ${getSubjectText(contactData.subject)}: ${contactData.message}`
     };
     await transporter.sendMail(adminMailOptions);
   }
 };
 const getSubjectText = (subject) => {
   const subjects = {
-    general: "General Inquiry",
-    order: "Order Support",
-    recommendation: "Headphone Recommendation",
-    feedback: "Feedback",
-    partnership: "Partnership",
-    other: "Other"
+    general: 'General Inquiry',
+    order: 'Order Support',
+    recommendation: 'Headphone Recommendation',
+    feedback: 'Feedback',
+    partnership: 'Partnership',
+    other: 'Other'
   };
   return subjects[subject] || subject;
 };

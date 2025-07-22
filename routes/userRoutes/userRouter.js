@@ -1,53 +1,53 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const passport = require("passport");
-const userController = require("../../controllers/userController/userController");
-const signupController = require("../../controllers/userController/signupController");
-const { validateCompleteSignup } = require("../../validators/user/signupValidation");
+const passport = require('passport');
+const userController = require('../../controllers/userController/userController');
+const signupController = require('../../controllers/userController/signupController');
+const { validateCompleteSignup } = require('../../validators/user/signupValidation');
 const loginValidator = require('../../validators/user/loginValidator');
-const loginController = require("../../controllers/userController/loginController");
-const logoutController = require("../../controllers/userController/logoutController");
-const passwordController = require("../../controllers/userController/forgotPasswordController");
-const googleController = require("../../controllers/userController/googleAuthController");
-const shopPageController = require('../../controllers/userController/shop-page-controller');
-const productDetailsController = require('../../controllers/userController/product-details-controller');
-const cartController = require('../../controllers/userController/cart-controller');
-const wishlistController = require('../../controllers/userController/wishlist-controller');
+const loginController = require('../../controllers/userController/loginController');
+const logoutController = require('../../controllers/userController/logoutController');
+const passwordController = require('../../controllers/userController/forgotPasswordController');
+const googleController = require('../../controllers/userController/googleAuthController');
+const shopPageController = require('../../controllers/userController/shopPageController');
+const productDetailsController = require('../../controllers/userController/productDetailsController');
+const cartController = require('../../controllers/userController/cartController');
+const wishlistController = require('../../controllers/userController/wishlistController');
 const { isAuthenticated, isNotAuthenticated, preventBackButtonCache } = require('../../middlewares/authMiddleware');
 const checkBlockedUser = require('../../middlewares/checkBlockedUser');
 const { searchProducts } = require('../../controllers/userController/searchController');
-const profileController = require('../../controllers/userController/profile-controller');
-const addressController = require('../../controllers/userController/address-controller');
-const checkoutController = require('../../controllers/userController/checkout-controller');
-const orderController = require('../../controllers/userController/order-controller');
-const newPasswordController = require('../../controllers/userController/change-password-controller');
-const userCouponController = require('../../controllers/userController/user-coupon-controller');
-const walletController = require('../../controllers/userController/wallet-controller');
-const referralController = require('../../controllers/userController/referral-controller');
-const contactController = require('../../controllers/userController/contact-controller');
+const profileController = require('../../controllers/userController/profileController');
+const addressController = require('../../controllers/userController/addressController');
+const checkoutController = require('../../controllers/userController/checkoutController');
+const orderController = require('../../controllers/userController/orderController');
+const newPasswordController = require('../../controllers/userController/changePasswordController');
+const userCouponController = require('../../controllers/userController/userCouponController');
+const walletController = require('../../controllers/userController/walletController');
+const referralController = require('../../controllers/userController/referralController');
+const contactController = require('../../controllers/userController/contactController');
 const upload = require('../../config/multer');
-router.get("/", checkBlockedUser, userController.loadHomePage);
-router.get("/pageNotFound", checkBlockedUser, userController.pageNotFound);
-router.get("/signup", isNotAuthenticated, preventBackButtonCache, signupController.getSignup);
-router.post("/signup", isNotAuthenticated, validateCompleteSignup, signupController.postSignup);
-router.get("/verify-otp", isNotAuthenticated, preventBackButtonCache, signupController.getOtp);
-router.post("/verify-otp", isNotAuthenticated, signupController.verifyOtp);
-router.get("/login", isNotAuthenticated, preventBackButtonCache, loginController.getLogin);
-router.post("/login", isNotAuthenticated, loginValidator.loginValidator, loginController.postLogin);
-router.get("/forgotPassword", isNotAuthenticated, preventBackButtonCache, passwordController.getForgotPassword);
-router.post("/forgotPassword", isNotAuthenticated, passwordController.postForgotPassword);
-router.get("/otpForgotPassword", isNotAuthenticated, preventBackButtonCache, passwordController.getOtpForgotPassword);
-router.post("/otpForgotPassword", isNotAuthenticated, passwordController.verifyOtp);
-router.post("/resend-otp", isNotAuthenticated, passwordController.resendOtp);
-router.post("/resend-signup-otp", isNotAuthenticated, signupController.resendOtp);
-router.get("/resetPassword", isNotAuthenticated, preventBackButtonCache, passwordController.getResetPassword);
-router.patch("/resetPassword", isNotAuthenticated, passwordController.patchResetPassword);
-router.get("/logout", isAuthenticated, logoutController.logout);
-router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
-router.get("/auth/google/callback", googleController.googleController);
+router.get('/', checkBlockedUser, userController.loadHomePage);
+router.get('/pageNotFound', checkBlockedUser, userController.pageNotFound);
+router.get('/signup', isNotAuthenticated, preventBackButtonCache, signupController.getSignup);
+router.post('/signup', isNotAuthenticated, validateCompleteSignup, signupController.postSignup);
+router.get('/verify-otp', isNotAuthenticated, preventBackButtonCache, signupController.getOtp);
+router.post('/verify-otp', isNotAuthenticated, signupController.verifyOtp);
+router.get('/login', isNotAuthenticated, preventBackButtonCache, loginController.getLogin);
+router.post('/login', isNotAuthenticated, loginValidator.loginValidator, loginController.postLogin);
+router.get('/forgotPassword', isNotAuthenticated, preventBackButtonCache, passwordController.getForgotPassword);
+router.post('/forgotPassword', isNotAuthenticated, passwordController.postForgotPassword);
+router.get('/otpForgotPassword', isNotAuthenticated, preventBackButtonCache, passwordController.getOtpForgotPassword);
+router.post('/otpForgotPassword', isNotAuthenticated, passwordController.verifyOtp);
+router.post('/resend-otp', isNotAuthenticated, passwordController.resendOtp);
+router.post('/resend-signup-otp', isNotAuthenticated, signupController.resendOtp);
+router.get('/resetPassword', isNotAuthenticated, preventBackButtonCache, passwordController.getResetPassword);
+router.patch('/resetPassword', isNotAuthenticated, passwordController.patchResetPassword);
+router.get('/logout', isAuthenticated, logoutController.logout);
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/auth/google/callback', googleController.googleController);
 router.get('/shopPage', checkBlockedUser, shopPageController.shopPage);
 router.get('/products/:id', checkBlockedUser, productDetailsController.productDetails);
-const cartValidator = require('../../validators/user/cart-validator');
+const cartValidator = require('../../validators/user/cartValidator');
 router.get('/cart', isAuthenticated, cartController.getCart);
 router.post('/cart/add',
   cartValidator.validateAddToCart,
@@ -71,7 +71,7 @@ router.post('/cart/clear',
   cartValidator.validateCartCheckout,
   cartController.clearCart
 );
-const wishlistValidator = require('../../validators/user/wishlist-validator');
+const wishlistValidator = require('../../validators/user/wishlistValidator');
 router.get('/wishlist', isAuthenticated, wishlistController.getWishlist);
 router.post('/wishlist/toggle',
   wishlistValidator.validateWishlistToggle,
@@ -93,7 +93,7 @@ router.post('/wishlist/clear',
   wishlistValidator.validateClearWishlist,
   wishlistController.clearWishlist
 );
-const searchValidator = require('../../validators/user/search-validator');
+const searchValidator = require('../../validators/user/searchValidator');
 router.get('/search', checkBlockedUser, searchValidator.validateSearchQuery, searchProducts);
 router.get('/profile', isAuthenticated, profileController.getProfile);
 router.patch('/profile',
@@ -109,7 +109,7 @@ router.post('/request-email-update',
   profileController.requestEmailUpdate
 );
 router.get('/verify-email-otp', isAuthenticated, preventBackButtonCache, (req, res) => {
-  const { createOtpMessage } = require('../../helpers/email-mask');
+  const { createOtpMessage } = require('../../helpers/emailMask');
   const email = req.session.newEmail;
   const otpMessage = createOtpMessage(email, 'email-update');
   res.render('profile-otp', {
@@ -128,8 +128,8 @@ router.get('/address/:id', isAuthenticated, addressController.getAddressById);
 router.get('/checkout', isAuthenticated, checkoutController.getCheckout);
 router.get('/checkout/current-total', isAuthenticated, checkoutController.getCurrentCartTotal);
 router.post('/checkout/place-order', isAuthenticated, checkoutController.placeOrder);
-router.post("/checkout/apply-coupon", isAuthenticated, checkoutController.applyCoupon);
-router.post("/checkout/remove-coupon", isAuthenticated, checkoutController.removeCoupon);
+router.post('/checkout/apply-coupon', isAuthenticated, checkoutController.applyCoupon);
+router.post('/checkout/remove-coupon', isAuthenticated, checkoutController.removeCoupon);
 router.post('/checkout/create-razorpay-order', isAuthenticated, checkoutController.createRazorpayOrder);
 router.post('/checkout/verify-payment', isAuthenticated, checkoutController.verifyRazorpayPayment);
 router.post('/checkout/payment-failure', isAuthenticated, checkoutController.handlePaymentFailure);
@@ -152,7 +152,7 @@ router.get('/user-coupons', isAuthenticated, userCouponController.getUserCoupons
 router.get('/wallet', isAuthenticated, walletController.getWallet);
 router.get('/referrals', isAuthenticated, referralController.getReferrals);
 router.post('/validate-referral', referralController.validateReferral);
-const contactValidator = require('../../validators/user/contact-validator');
+const contactValidator = require('../../validators/user/contactValidator');
 router.get('/contact', checkBlockedUser, contactController.getContact);
 router.post('/contact', checkBlockedUser, contactValidator.contactValidator, contactController.postContact);
 router.get('/about', checkBlockedUser, userController.getAboutPage);
