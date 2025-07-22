@@ -1,5 +1,5 @@
 const User = require('../models/userSchema');
-const { HttpStatus } = require('../helpers/status-code');
+const { HttpStatus } = require('../helpers/statusCode');
 const adminMiddleware = {
   isAdminAuthenticated: async (req, res, next) => {
     try {

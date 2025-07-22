@@ -1,7 +1,7 @@
 const User = require("../../models/userSchema");
 const bcrypt = require("bcrypt");
 const { hashPassword } = require("../../helpers/hash");
-const {HttpStatus} = require('../../helpers/status-code')
+const {HttpStatus} = require('../../helpers/statusCode')
 const changePassword = async (req, res) => {
   try {
     if (!req.session.user_id) {

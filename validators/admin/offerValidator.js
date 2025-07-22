@@ -1,4 +1,4 @@
-const { createValidationMiddleware } = require('../../helpers/validation-helper');
+const { createValidationMiddleware } = require('../../helpers/validationHelper');
 const validateDiscountValue = (req, res, next) => {
   const { discountValue, discountType } = req.body;
   const value = parseFloat(discountValue);

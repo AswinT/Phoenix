@@ -5,12 +5,12 @@ const Cart = require("../../models/cartSchema");
 const Offer = require("../../models/offerSchema");
 const PDFDocument = require('pdfkit');
 const path = require('path');
-const { getActiveOfferForProduct, calculateDiscount, getItemPriceDetails, reapplyCouponBenefitsAfterCancellation } = require("../../utils/offer-helper");
+const { getActiveOfferForProduct, calculateDiscount, getItemPriceDetails, reapplyCouponBenefitsAfterCancellation } = require("../../utils/offerHelper");
 const { processCancelRefund, processReturnRefund } = require("./walletController");
 const Wallet = require("../../models/walletSchema");
 const Address = require("../../models/addressSchema");
 const Coupon = require("../../models/couponSchema");
-const { HttpStatus } = require("../../helpers/status-code");
+const { HttpStatus } = require("../../helpers/statusCode");
 const getOrders = async (req, res) => {
   try {
     if (!req.session.user_id) {

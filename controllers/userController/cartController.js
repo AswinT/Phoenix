@@ -4,8 +4,8 @@ const Wishlist = require("../../models/wishlistSchema");
 const {
   getActiveOfferForProduct,
   calculateDiscount,
-} = require("../../utils/offer-helper");
-const { HttpStatus } = require("../../helpers/status-code");
+} = require("../../utils/offerHelper");
+const { HttpStatus } = require("../../helpers/statusCode");
 const getCart = async (req, res) => {
   try {
     if (!req.session.user_id) {

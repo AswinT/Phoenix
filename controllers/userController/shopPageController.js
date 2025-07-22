@@ -1,6 +1,6 @@
 const Product = require('../../models/productSchema');
 const Category = require('../../models/categorySchema');
-const { getActiveOfferForProduct, calculateDiscount } = require('../../utils/offer-helper');
+const { getActiveOfferForProduct, calculateDiscount } = require('../../utils/offerHelper');
 const shopPage = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;

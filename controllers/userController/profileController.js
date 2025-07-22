@@ -8,9 +8,9 @@ const fs = require("fs");
 const {
   validateBasicOtp,
   validateOtpSession,
-} = require("../../validators/user/basic-otp-validator");
-const { createOtpMessage } = require("../../helpers/email-mask");
-const { HttpStatus } = require("../../helpers/status-code");
+} = require("../../validators/user/basicOtpValidator");
+const { createOtpMessage } = require("../../helpers/emailMask");
+const { HttpStatus } = require("../../helpers/statusCode");
 const getProfile = async (req, res) => {
   try {
     if (!req.session.user_id) {

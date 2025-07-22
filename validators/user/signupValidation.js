@@ -1,4 +1,4 @@
-const { createValidationMiddleware } = require('../../helpers/validation-helper');
+const { createValidationMiddleware } = require('../../helpers/validationHelper');
 const validateFullName = (value) => {
   if (!value || value.trim().length < 3) {
     return { isValid: false, message: "Full name must be at least 3 characters" };

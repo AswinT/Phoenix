@@ -14,8 +14,8 @@ const {
   calculateProportionalCouponDiscount,
   getItemPriceDetails,
   calculateFinalItemPrice
-} = require("../../utils/offer-helper");
-const { HttpStatus } = require("../../helpers/status-code");
+} = require("../../utils/offerHelper");
+const { HttpStatus } = require("../../helpers/statusCode");
 const getInitialPaymentStatus = (paymentMethod) => {
   switch (paymentMethod) {
     case "Wallet":

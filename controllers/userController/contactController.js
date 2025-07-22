@@ -1,4 +1,4 @@
-const { HttpStatus } = require('../../helpers/status-code');
+const { HttpStatus } = require('../../helpers/statusCode');
 const Contact = require('../../models/contactSchema');
 const { sendContactEmail } = require('../../helpers/sendMail');
 const getContact = async (req, res) => {

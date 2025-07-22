@@ -601,8 +601,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <!-- Load validation dependencies -->
-    <script src="/js/validation-error-handler.js"></script>
-    <script src="/validators/admin/frontend-validation-adapter.js"></script>
+    <script src="/js/validationErrorHandler.js"></script>
+    <script src="/validators/admin/frontendValidationAdapter.js"></script>
     <script>
       let cropper;
       let currentFileInput;
@@ -702,7 +702,7 @@
             ? "Listed"
             : "Unlisted";
         });
-      // Form submission is handled by the validation script (product-validation.js)
+      // Form submission is handled by the validation script (productValidation.js)
       // No duplicate event listener needed here
       const fileInputs = document.querySelectorAll(".custom-file-input");
       fileInputs.forEach((input) => {

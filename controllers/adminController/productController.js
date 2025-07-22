@@ -2,7 +2,7 @@ const Product = require('../../models/productSchema');
 const Category = require('../../models/categorySchema');
 const cloudinary = require('../../config/cloudinary');
 const fs = require('fs');
-const { HttpStatus } = require('../../helpers/status-code');
+const { HttpStatus } = require('../../helpers/statusCode');
 const getProducts = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;

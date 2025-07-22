@@ -1,4 +1,4 @@
-const { HttpStatus } = require("../../helpers/status-code");
+const { HttpStatus } = require("../../helpers/statusCode");
 const User = require("../../models/userSchema");
 const Referral = require("../../models/referralSchema");
 const getReferrals = async (req, res) => {

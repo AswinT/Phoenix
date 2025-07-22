@@ -1,6 +1,6 @@
 const Address = require("../../models/addressSchema");
 const User = require("../../models/userSchema");
-const { HttpStatus } = require("../../helpers/status-code");
+const { HttpStatus } = require("../../helpers/statusCode");
 const getAddress = async (req, res) => {
   try {
     const userId = req.session.user_id;

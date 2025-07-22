@@ -1,5 +1,5 @@
-const { createValidationMiddleware, validateName, validatePhone, validateText } = require('../../helpers/validation-helper');
-const { HttpStatus } = require('../../helpers/status-code');
+const { createValidationMiddleware, validateName, validatePhone, validateText } = require('../../helpers/validationHelper');
+const { HttpStatus } = require('../../helpers/statusCode');
 const INDIAN_STATES = [
   'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Goa',
   'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka', 'Kerala',

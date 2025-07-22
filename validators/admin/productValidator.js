@@ -1,4 +1,4 @@
-const { createValidationMiddleware } = require('../../helpers/validation-helper');
+const { createValidationMiddleware } = require('../../helpers/validationHelper');
 const validatePriceComparison = (req, res, next) => {
   const regularPrice = parseFloat(req.body.regularPrice);
   const salePrice = parseFloat(req.body.salePrice);

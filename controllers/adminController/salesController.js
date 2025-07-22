@@ -1,6 +1,6 @@
 const Order = require('../../models/orderSchema');
 const XLSX = require('xlsx');
-const { HttpStatus } = require('../../helpers/status-code');
+const { HttpStatus } = require('../../helpers/statusCode');
 const getSales = async (req, res) => {
   try {
     const now = new Date();

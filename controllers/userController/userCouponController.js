@@ -1,6 +1,6 @@
 const Coupon = require("../../models/couponSchema");
 const User = require("../../models/userSchema");
-const { HttpStatus } = require("../../helpers/status-code");
+const { HttpStatus } = require("../../helpers/statusCode");
 const getUserCoupons = async (req, res) => {
   try {
     const userId = req.session.user_id;

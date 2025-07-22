@@ -1,7 +1,7 @@
 const categoryController = require("../../controllers/userController/categoryController");
 const Product = require('../../models/productSchema');
-const { getActiveOfferForProduct, calculateDiscount } = require("../../utils/offer-helper");
-const { HttpStatus } = require("../../helpers/status-code");
+const { getActiveOfferForProduct, calculateDiscount } = require("../../utils/offerHelper");
+const { HttpStatus } = require("../../helpers/statusCode");
 const pageNotFound = async (req, res) => {
   try {
     res.render("page-404");

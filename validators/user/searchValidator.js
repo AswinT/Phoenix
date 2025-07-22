@@ -1,5 +1,5 @@
-const { HttpStatus } = require('../../helpers/status-code');
-const { sanitizeInput } = require('../../helpers/validation-helper');
+const { HttpStatus } = require('../../helpers/statusCode');
+const { sanitizeInput } = require('../../helpers/validationHelper');
 const validateSearchQuery = (req, res, next) => {
   try {
     const { 

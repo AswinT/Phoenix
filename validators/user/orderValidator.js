@@ -1,5 +1,5 @@
-const { createValidationMiddleware, validateObjectId, validateText } = require('../../helpers/validation-helper');
-const { HttpStatus } = require('../../helpers/status-code');
+const { createValidationMiddleware, validateObjectId, validateText } = require('../../helpers/validationHelper');
+const { HttpStatus } = require('../../helpers/statusCode');
 const validatePlaceOrder = createValidationMiddleware({
   addressId: {
     type: 'objectId',

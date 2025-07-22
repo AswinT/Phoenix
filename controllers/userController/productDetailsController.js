@@ -2,8 +2,8 @@ const Product = require("../../models/productSchema");
 const Category = require("../../models/categorySchema");
 const Cart = require("../../models/cartSchema");
 const Wishlist = require("../../models/wishlistSchema");
-const { getActiveOfferForProduct, calculateDiscount } = require("../../utils/offer-helper");
-const {HttpStatus} = require('../../helpers/status-code')
+const { getActiveOfferForProduct, calculateDiscount } = require("../../utils/offerHelper");
+const {HttpStatus} = require('../../helpers/statusCode')
 const productDetails = async (req, res) => {
   try {
     const userId = req.session.user_id;

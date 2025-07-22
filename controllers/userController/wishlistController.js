@@ -1,8 +1,8 @@
 const Wishlist = require("../../models/wishlistSchema")
 const Product = require("../../models/productSchema")
 const Cart = require("../../models/cartSchema")
-const { getActiveOfferForProduct, calculateDiscount } = require("../../utils/offer-helper")
-const { HttpStatus } = require("../../helpers/status-code")
+const { getActiveOfferForProduct, calculateDiscount } = require("../../utils/offerHelper")
+const { HttpStatus } = require("../../helpers/statusCode")
 const getWishlist = async (req, res) => {
   try {
     if (!req.session.user_id) {
@@ -152,7 +152,7 @@ const addAllToCart = async (req, res) => {
     const messages = [];
     const successfullyAdded = [];
     const MAX_QUANTITY_PER_PRODUCT = 5;
-    const { getActiveOfferForProduct, calculateDiscount } = require('../../utils/offer-helper');
+    const { getActiveOfferForProduct, calculateDiscount } = require('../../utils/offerHelper');
     const availableItems = wishlist.items.filter(item =>
       item.product && item.product.isListed && !item.product.isDeleted && item.product.stock > 0
     );
@@ -247,7 +247,7 @@ const addToCartFromWishlist = async (req, res) => {
         message: 'Item not found in wishlist'
       });
     }
-    const { getActiveOfferForProduct, calculateDiscount } = require('../../utils/offer-helper');
+    const { getActiveOfferForProduct, calculateDiscount } = require('../../utils/offerHelper');
     const offer = await getActiveOfferForProduct(product._id, product.category, product.regularPrice);
     const { finalPrice } = calculateDiscount(offer, product.regularPrice);
     let cart = await Cart.findOne({ user: userId });

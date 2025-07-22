@@ -1,7 +1,7 @@
 const User = require('../../models/userSchema');
 const Order = require('../../models/orderSchema');
 const Category = require('../../models/categorySchema');
-const { HttpStatus } = require('../../helpers/status-code');
+const { HttpStatus } = require('../../helpers/statusCode');
 const getDashboard = async (req, res) => {
   try {
     const dashboardStats = await calculateDashboardStats();

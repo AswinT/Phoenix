@@ -1,7 +1,7 @@
 const Offer = require("../../models/offerSchema");
 const Category = require("../../models/categorySchema");
 const Product = require("../../models/productSchema");
-const { HttpStatus } = require('../../helpers/status-code');
+const { HttpStatus } = require('../../helpers/statusCode');
 const formatDateForDisplay = (date) => {
   if (!date) return "";
   return new Date(date).toLocaleDateString("en-GB", {

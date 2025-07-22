@@ -9,19 +9,19 @@ const manageProductController = require('../../controllers/adminController/manag
 const {
   validateProductData,
   validatePriceComparison
-} = require('../../validators/admin/product-validator');
+} = require('../../validators/admin/productValidator');
 const {
   validateCategoryData,
   validateCategoryImage
-} = require('../../validators/admin/category-validator');
+} = require('../../validators/admin/categoryValidator');
 const {
   validateCreateOffer,
   validateUpdateOffer
-} = require('../../validators/admin/offer-validator');
+} = require('../../validators/admin/offerValidator');
 const {
   validateCreateCoupon,
   validateUpdateCoupon
-} = require('../../validators/admin/coupon-validator');
+} = require('../../validators/admin/couponValidator');
 const manageOrderController = require('../../controllers/adminController/manageOrders.js')
 const returnManagementController = require('../../controllers/adminController/returnManagement.js')
 const couponController = require('../../controllers/adminController/couponController');

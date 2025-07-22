@@ -4,8 +4,8 @@ const Referral = require("../../models/referralSchema");
 const Wallet = require("../../models/walletSchema");
 const hashPasswordHelper = require("../../helpers/hash");
 const { sendOtpEmail } = require("../../helpers/sendMail");
-const { validateBasicOtp, validateOtpSession } = require("../../validators/user/basic-otp-validator");
-const { HttpStatus } = require("../../helpers/status-code");
+const { validateBasicOtp, validateOtpSession } = require("../../validators/user/basicOtpValidator");
+const { HttpStatus } = require("../../helpers/statusCode");
 const getOtp = async (req, res) => {
   try {
     const email = req.session.tempUser?.email;

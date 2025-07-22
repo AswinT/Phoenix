@@ -1,4 +1,4 @@
-const { HttpStatus } = require("../../helpers/status-code");
+const { HttpStatus } = require("../../helpers/statusCode");
 const contactValidator = (req, res, next) => {
   try {
     const { name, email, phone, subject, message } = req.body;

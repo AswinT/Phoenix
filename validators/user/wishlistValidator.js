@@ -1,5 +1,5 @@
-const { createValidationMiddleware } = require('../../helpers/validation-helper');
-const { HttpStatus } = require('../../helpers/status-code');
+const { createValidationMiddleware } = require('../../helpers/validationHelper');
+const { HttpStatus } = require('../../helpers/statusCode');
 const validateWishlistToggle = createValidationMiddleware({
   productId: {
     type: 'objectId',

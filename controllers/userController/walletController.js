@@ -1,8 +1,8 @@
 const Wallet = require("../../models/walletSchema");
 const Order = require("../../models/orderSchema");
-const { calculateDiscount, getUnifiedPriceBreakdown } = require("../../utils/offer-helper");
-const { HttpStatus } = require("../../helpers/status-code");
-const { calculateRefundAmount, validateRefundForPaymentMethod } = require("../../helpers/money-calculator");
+const { calculateDiscount, getUnifiedPriceBreakdown } = require("../../utils/offerHelper");
+const { HttpStatus } = require("../../helpers/statusCode");
+const { calculateRefundAmount, validateRefundForPaymentMethod } = require("../../helpers/moneyCalculator");
 const getWallet = async (req, res) => {
   try {
     const userId = req.session.user_id;

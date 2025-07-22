@@ -47,7 +47,7 @@ router.get("/auth/google", passport.authenticate("google", { scope: ["profile", 
 router.get("/auth/google/callback", googleController.googleController);
 router.get('/shopPage', checkBlockedUser, shopPageController.shopPage);
 router.get('/products/:id', checkBlockedUser, productDetailsController.productDetails);
-const cartValidator = require('../../validators/user/cart-validator');
+const cartValidator = require('../../validators/user/cartValidator');
 router.get('/cart', isAuthenticated, cartController.getCart);
 router.post('/cart/add',
   cartValidator.validateAddToCart,
@@ -71,7 +71,7 @@ router.post('/cart/clear',
   cartValidator.validateCartCheckout,
   cartController.clearCart
 );
-const wishlistValidator = require('../../validators/user/wishlist-validator');
+const wishlistValidator = require('../../validators/user/wishlistValidator');
 router.get('/wishlist', isAuthenticated, wishlistController.getWishlist);
 router.post('/wishlist/toggle',
   wishlistValidator.validateWishlistToggle,
@@ -93,7 +93,7 @@ router.post('/wishlist/clear',
   wishlistValidator.validateClearWishlist,
   wishlistController.clearWishlist
 );
-const searchValidator = require('../../validators/user/search-validator');
+const searchValidator = require('../../validators/user/searchValidator');
 router.get('/search', checkBlockedUser, searchValidator.validateSearchQuery, searchProducts);
 router.get('/profile', isAuthenticated, profileController.getProfile);
 router.patch('/profile',
@@ -109,7 +109,7 @@ router.post('/request-email-update',
   profileController.requestEmailUpdate
 );
 router.get('/verify-email-otp', isAuthenticated, preventBackButtonCache, (req, res) => {
-  const { createOtpMessage } = require('../../helpers/email-mask');
+  const { createOtpMessage } = require('../../helpers/emailMask');
   const email = req.session.newEmail;
   const otpMessage = createOtpMessage(email, 'email-update');
   res.render('profile-otp', {
@@ -152,7 +152,7 @@ router.get('/user-coupons', isAuthenticated, userCouponController.getUserCoupons
 router.get('/wallet', isAuthenticated, walletController.getWallet);
 router.get('/referrals', isAuthenticated, referralController.getReferrals);
 router.post('/validate-referral', referralController.validateReferral);
-const contactValidator = require('../../validators/user/contact-validator');
+const contactValidator = require('../../validators/user/contactValidator');
 router.get('/contact', checkBlockedUser, contactController.getContact);
 router.post('/contact', checkBlockedUser, contactValidator.contactValidator, contactController.postContact);
 router.get('/about', checkBlockedUser, userController.getAboutPage);

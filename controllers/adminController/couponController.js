@@ -1,7 +1,7 @@
 const Coupon = require('../../models/couponSchema');
 const Category = require('../../models/categorySchema');
 const Product = require('../../models/productSchema');
-const { HttpStatus } = require('../../helpers/status-code');
+const { HttpStatus } = require('../../helpers/statusCode');
 const getCoupons = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;

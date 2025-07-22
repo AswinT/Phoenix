@@ -1,4 +1,4 @@
-const { createValidationMiddleware } = require('../../helpers/validation-helper');
+const { createValidationMiddleware } = require('../../helpers/validationHelper');
 const categoryValidationConfig = {
   name: {
     type: 'text',

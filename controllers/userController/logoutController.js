@@ -1,4 +1,4 @@
-const {HttpStatus} = require("../../helpers/status-code")
+const {HttpStatus} = require("../../helpers/statusCode")
 const logout = async (req, res) => {
   try {
     req.session.destroy((err) => {

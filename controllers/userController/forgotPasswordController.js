@@ -2,12 +2,12 @@ const User = require("../../models/userSchema");
 const OTP = require("../../models/otpSchema");
 const hashPasswordHelper = require("../../helpers/hash");
 const { sendOtpEmail } = require("../../helpers/sendMail");
-const { createOtpMessage } = require("../../helpers/email-mask");
+const { createOtpMessage } = require("../../helpers/emailMask");
 const {
   validateBasicOtp,
   validateOtpSession,
-} = require("../../validators/user/basic-otp-validator");
-const { HttpStatus } = require("../../helpers/status-code");
+} = require("../../validators/user/basicOtpValidator");
+const { HttpStatus } = require("../../helpers/statusCode");
 const getForgotPassword = async (req, res) => {
   try {
     res.render("forgotPassword");

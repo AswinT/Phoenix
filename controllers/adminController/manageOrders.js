@@ -2,8 +2,8 @@ const Order = require("../../models/orderSchema")
 const User = require("../../models/userSchema")
 const Product = require("../../models/productSchema")
 const { processReturnRefund } = require("../userController/walletController");
-const { calculateExactRefundAmount } = require("../../helpers/money-calculator");
-const { HttpStatus } = require("../../helpers/status-code")
+const { calculateExactRefundAmount } = require("../../helpers/moneyCalculator");
+const { HttpStatus } = require("../../helpers/statusCode")
 const getManageOrders = async (req, res) => {
   try {
     const page = Number.parseInt(req.query.page) || 1

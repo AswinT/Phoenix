@@ -1,6 +1,6 @@
 const User = require("../../models/userSchema");
 const bcrypt = require("bcrypt");
-const { HttpStatus } = require("../../helpers/status-code");
+const { HttpStatus } = require("../../helpers/statusCode");
 const getAdminLogin = async (req, res) => {
   try {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
