@@ -5,7 +5,7 @@ const { HttpStatus } = require('../../helpers/statusCode');
 const pageNotFound = async (req, res) => {
   try {
     res.render('page-404');
-  } catch (error) {
+  } catch {
     res.redirect('/pageNotFound');
   }
 };
@@ -72,14 +72,14 @@ const loadHomePage = async (req, res) => {
       user: req.session.user_id ? { id: req.session.user_id } : null,
       isAuthenticated: !!req.session.user_id
     });
-  } catch (error) {
+  } catch {
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Server Error');
   }
 };
 const getAboutPage = async (req, res) => {
   try {
     res.render('about');
-  } catch (error) {
+  } catch {
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Server Error');
   }
 };

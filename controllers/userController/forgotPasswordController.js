@@ -11,7 +11,7 @@ const { HttpStatus } = require('../../helpers/statusCode');
 const getForgotPassword = async (req, res) => {
   try {
     res.render('forgotPassword');
-  } catch (error) {
+  } catch {
     res.status(HttpStatus.BAD_REQUEST).json({
       success: false,
       message: 'Server Error',
@@ -49,7 +49,7 @@ const postForgotPassword = async (req, res) => {
       success: true,
       expiresIn: 60,
     });
-  } catch (error) {
+  } catch {
     console.log('Error in sending otp for Forgot Password');
     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
@@ -86,7 +86,7 @@ const resendOtp = async (req, res) => {
       success: true,
       expiresIn: 60,
     });
-  } catch (error) {
+  } catch {
     console.log('Error in resending OTP');
     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
@@ -166,7 +166,7 @@ const verifyOtp = async (req, res) => {
 const getResetPassword = async (req, res) => {
   try {
     res.render('resetPasswordForm');
-  } catch (error) {
+  } catch {
     return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Server Error' });
   }
 };

@@ -14,7 +14,7 @@ const getReferrals = async (req, res) => {
       referralCode: user.referralCode,
       referrals: referralStats
     });
-  } catch (error) {
+  } catch {
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).render('error', {
       message: 'Internal server error',
     });
@@ -41,7 +41,7 @@ const validateReferral = async (req, res) => {
       message: 'Valid referral code',
       referrerName: referrer.fullName
     });
-  } catch (error) {
+  } catch {
     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: 'Server error while validating referral code'

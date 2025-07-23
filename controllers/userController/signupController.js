@@ -77,7 +77,7 @@ const postSignup = async (req, res) => {
     const subjectContent = 'Verify your email for Phoenix';
     try {
       await sendOtpEmail(trimmedEmail, trimmedName, otp, subjectContent,'signup');
-    } catch (err) {
+    } catch {
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: 'Failed to send OTP email. Please try again later.',

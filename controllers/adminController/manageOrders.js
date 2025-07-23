@@ -121,7 +121,6 @@ const getOrderDetails = async (req, res) => {
         item.formattedOriginalPrice = `₹${breakdown.originalPrice.toFixed(2)}`;
         item.formattedPriceAfterOffer = `₹${breakdown.priceAfterOffer.toFixed(2)}`;
         item.formattedFinalPrice = `₹${breakdown.finalPrice.toFixed(2)}`;
-        const finalPricePerUnit = breakdown.finalPrice;
         item.totalOriginalPrice = breakdown.originalPrice * quantity;
         item.totalPriceAfterOffer = breakdown.priceAfterOffer * quantity;
         item.totalFinalPrice = breakdown.finalPrice * quantity;
@@ -661,7 +660,7 @@ const downloadInvoice = async (req, res) => {
     const rightMargin = pageWidth - 50;
     try {
       doc.image(path.join(__dirname, '../../public/assets/phoenix-logo.png'), leftMargin, 50, { width: 50 });
-    } catch (error) {
+    } catch {
       console.log('Logo image not found, continuing without logo');
     }
     doc.font('Helvetica-Bold')
@@ -1009,6 +1008,7 @@ const approveReturnRequest = async (req, res) => {
           order.orderStatus = 'Delivered';
         }
       } else if (hasReturnRequestedItems) {
+        // Order has return requested items, status remains unchanged
       } else {
         order.orderStatus = 'Delivered';
       }

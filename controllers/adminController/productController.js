@@ -233,7 +233,7 @@ const updateProduct = async (req, res) => {
         await cloudinary.uploader.destroy(`products/${publicId}`);
       }
     }
-    const subImages = [...product.subImages] || [];
+    const subImages = product.subImages ? [...product.subImages] : [];
     for (let i = 1; i <= 3; i++) {
       const fieldName = `subImage${i}`;
       if (req.files && req.files[fieldName] && req.files[fieldName].length > 0) {
@@ -252,7 +252,7 @@ const updateProduct = async (req, res) => {
           const publicId = subImages[index].split('/').pop().split('.')[0];
           try {
             await cloudinary.uploader.destroy(`products/sub/${publicId}`);
-          } catch (err) {
+          } catch {
             // Failed to delete old image, continue
           }
         }
@@ -303,7 +303,7 @@ const softDeleteProduct = async (req, res) => {
       success: true,
       message: 'Product soft deleted successfully'
     });
-  } catch (error) {
+  } catch {
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server Error' });
   }
 };

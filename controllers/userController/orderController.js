@@ -2,13 +2,10 @@ const Order = require('../../models/orderSchema');
 const User = require('../../models/userSchema');
 const Product = require('../../models/productSchema');
 const Cart = require('../../models/cartSchema');
-const Offer = require('../../models/offerSchema');
 const PDFDocument = require('pdfkit');
 const path = require('path');
-const { getActiveOfferForProduct, calculateDiscount, getItemPriceDetails, reapplyCouponBenefitsAfterCancellation } = require('../../utils/offerHelper');
-const { processCancelRefund, processReturnRefund } = require('./walletController');
-const Wallet = require('../../models/walletSchema');
-const Address = require('../../models/addressSchema');
+const { getActiveOfferForProduct, calculateDiscount, reapplyCouponBenefitsAfterCancellation } = require('../../utils/offerHelper');
+const { processCancelRefund } = require('./walletController');
 const Coupon = require('../../models/couponSchema');
 const { HttpStatus } = require('../../helpers/statusCode');
 const getOrders = async (req, res) => {
@@ -91,19 +88,12 @@ const getOrders = async (req, res) => {
         });
       }
       let recalculatedSubtotal = 0;
-      let recalculatedOfferDiscount = 0;
-      let recalculatedCouponDiscount = 0;
-      let recalculatedFinalPriceSum = 0;
       order.items.forEach(item => {
         if (item.priceBreakdown) {
           recalculatedSubtotal += item.priceBreakdown.subtotal || (item.price * item.quantity);
-          recalculatedOfferDiscount += item.priceBreakdown.offerDiscount || 0;
-          recalculatedCouponDiscount += item.priceBreakdown.couponDiscount || 0;
-          recalculatedFinalPriceSum += item.priceBreakdown.finalPrice || (item.discountedPrice * item.quantity);
         } else {
           const itemSubtotal = item.price * item.quantity;
           recalculatedSubtotal += itemSubtotal;
-          recalculatedFinalPriceSum += item.discountedPrice * item.quantity;
         }
       });
       const useStoredSubtotal = order.subtotal && Math.abs(order.subtotal - recalculatedSubtotal) < 0.01;
@@ -264,19 +254,12 @@ const getOrderDetails = async (req, res) => {
       }
     }
     let recalculatedSubtotal = 0;
-    let recalculatedOfferDiscount = 0;
-    let recalculatedCouponDiscount = 0;
-    let recalculatedFinalPriceSum = 0;
     order.items.forEach(item => {
       if (item.priceBreakdown) {
         recalculatedSubtotal += item.priceBreakdown.subtotal || (item.price * item.quantity);
-        recalculatedOfferDiscount += item.priceBreakdown.offerDiscount || 0;
-        recalculatedCouponDiscount += item.priceBreakdown.couponDiscount || 0;
-        recalculatedFinalPriceSum += item.priceBreakdown.finalPrice || (item.discountedPrice * item.quantity);
       } else {
         const itemSubtotal = item.price * item.quantity;
         recalculatedSubtotal += itemSubtotal;
-        recalculatedFinalPriceSum += item.discountedPrice * item.quantity;
       }
     });
     const useStoredSubtotal = order.subtotal && Math.abs(order.subtotal - recalculatedSubtotal) < 0.01;
@@ -636,7 +619,7 @@ const downloadInvoice = async (req, res) => {
     const rightMargin = pageWidth - 50;
     try {
       doc.image(path.join(__dirname, '../../public/assets/phoenix-logo.png'), leftMargin, 50, { width: 50 });
-    } catch (error) {
+    } catch {
       // Logo image not found, continuing without logo
     }
     doc.font('Helvetica-Bold')

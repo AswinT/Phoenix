@@ -30,7 +30,7 @@ const getUsers = async (req, res) => {
       endIdx,
       searchTerm,
     });
-  } catch (error) {
+  } catch {
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Server error');
   }
 };
@@ -53,7 +53,7 @@ const blockUser = async (req, res) => {
       message: 'User blocked successfully ',
       user: { id: user._id, isBlocked: user.isBlocked },
     });
-  } catch (error) {
+  } catch {
     return res.status(HttpStatus.BAD_REQUEST).json({
       success: false,
       message: 'server error',
@@ -78,7 +78,7 @@ const unblockUser = async (req, res) => {
       success: true,
       message: 'User unblocked successfully',
     });
-  } catch (error) {
+  } catch {
     res.status(HttpStatus.BAD_REQUEST).json({
       success: false,
       message: 'Server Error',

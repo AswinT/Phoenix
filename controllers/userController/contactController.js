@@ -4,7 +4,7 @@ const { sendContactEmail } = require('../../helpers/sendMail');
 const getContact = async (req, res) => {
   try {
     res.render('contact');
-  } catch (error) {
+  } catch {
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).render('error', {
       message: 'Internal server error',
     });

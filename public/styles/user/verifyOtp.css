@@ -1,124 +1,152 @@
-body {
-     font-family: "Inter", sans-serif;
-     background-color: #f8f9fa;
-     min-height: 100vh;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     margin: 0;
-     padding: 0;
-   }
-   .container {
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     width: 100%;
-     height: 100%;
-   }
-   .otp-card {
-     background-color: #fff;
-     border-radius: 1rem;
-     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-     overflow: hidden;
-     width: 100%;
-     max-width: 450px;
-     margin: 2rem auto;
-   }
-   .otp-header {
-     background-color: #000;
-     color: #fff;
-     padding: 1.5rem;
-     text-align: center;
-   }
-   .otp-body {
-     padding: 2rem;
-   }
-   .otp-inputs {
-     display: flex;
-     justify-content: center;
-     gap: 0.75rem;
-     margin: 2rem 0;
-   }
-   .otp-input {
-     width: 3rem;
-     height: 3.5rem;
-     font-size: 1.5rem;
-     text-align: center;
-     border: 2px solid #dee2e6;
-     border-radius: 0.5rem;
-     background-color: #f8f9fa;
-     transition: all 0.3s ease;
-   }
-   .otp-input:focus {
-     border-color: #000;
-     background-color: #fff;
-     box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.1);
-     outline: none;
-   }
-   .btn-verify {
-     background-color: #000;
-     border-color: #000;
-     border-radius: 0.5rem;
-     padding: 0.75rem 1.5rem;
-     font-weight: 500;
-     transition: all 0.3s ease;
-   }
-   .btn-verify:hover {
-     background-color: #333;
-     border-color: #333;
-   }
-   .btn-resend {
-     color: #000;
-     text-decoration: none;
-     font-weight: 500;
-     transition: all 0.3s ease;
-   }
-   .btn-resend:hover {
-     color: #333;
-     text-decoration: underline;
-   }
-   .status-message {
-     margin-top: 1rem;
-     padding: 0.75rem;
-     border-radius: 0.5rem;
-     text-align: center;
-     display: none;
-   }
-   .status-success {
-     background-color: #d1e7dd;
-     color: #0f5132;
-   }
-   .status-error {
-     background-color: #f8d7da;
-     color: #842029;
-   }
-   .timer-container {
-     margin-top: 1rem;
-     text-align: center;
-   }
-   .timer {
-     font-size: 1.2rem;
-     font-weight: 500;
-     color: #dc3545;
-   }
-   .timer-expired {
-     display: none;
-     font-size: 0.9rem;
-     color: #dc3545;
-     margin-top: 0.5rem;
-   }
-   @media (max-width: 576px) {
-     .otp-card {
-       border-radius: 0;
-       box-shadow: none;
-       max-width: 100%;
-     }
-     .otp-inputs {
-       gap: 0.5rem;
-     }
-     .otp-input {
-       width: 2.5rem;
-       height: 3rem;
-       font-size: 1.25rem;
-     }
-   }
+/* OTP Verification Specific Styles - Extends modern-auth-base.css */
+
+/* OTP container specific styling */
+.auth-centered-container {
+  max-width: 500px;
+  animation: slideInUp 0.6s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* OTP Input Styling */
+.otp-input {
+  width: 3.5rem;
+  height: 4rem;
+  font-size: 1.75rem;
+  font-weight: 600;
+  text-align: center;
+  border: 2px solid var(--auth-border-light);
+  border-radius: var(--auth-border-radius-md);
+  background: var(--auth-white);
+  color: var(--auth-primary-black);
+  transition: all var(--auth-transition-normal);
+  font-family: var(--auth-font-family);
+}
+
+.otp-input:focus {
+  outline: none;
+  border-color: var(--auth-primary-black);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+  background: var(--auth-white);
+  transform: scale(1.05);
+}
+
+.otp-input:valid {
+  border-color: #198754;
+  background: #f8fff9;
+}
+
+/* OTP button styling */
+.auth-btn-primary {
+  background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+  border: none;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  font-size: 1rem;
+  padding: 1rem 1.5rem;
+  text-transform: uppercase;
+}
+
+.auth-btn-primary:hover {
+  background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Status message styling */
+.status-message.status-success {
+  background: linear-gradient(135deg, #d1e7dd 0%, #a3d9a4 100%);
+  color: #0f5132;
+  border-left: 4px solid #198754;
+  font-weight: 500;
+}
+
+.status-message.status-error {
+  background: linear-gradient(135deg, #f8d7da 0%, #f1aeb5 100%);
+  color: #842029;
+  border-left: 4px solid #dc3545;
+  font-weight: 500;
+}
+
+/* Timer styling */
+.timer {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--auth-accent-red);
+  font-family: 'Courier New', monospace;
+}
+
+.timer-expired {
+  color: var(--auth-accent-red);
+  font-weight: 500;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Resend link styling */
+.auth-link {
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.auth-link:hover {
+  transform: translateY(-1px);
+  color: var(--auth-primary-black);
+}
+
+/* Icon container styling */
+.auth-logo-container + div {
+  margin-bottom: 2rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .auth-centered-container {
+    max-width: 90%;
+    margin: 1rem;
+  }
+
+  .otp-input {
+    width: 3rem;
+    height: 3.5rem;
+    font-size: 1.5rem;
+  }
+
+  .otp-inputs {
+    gap: 0.5rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-centered-form {
+    padding: 1.5rem;
+  }
+
+  .otp-input {
+    width: 2.75rem;
+    height: 3.25rem;
+    font-size: 1.25rem;
+  }
+
+  .otp-inputs {
+    gap: 0.4rem !important;
+  }
+
+  .auth-title {
+    font-size: 1.5rem;
+  }
+}

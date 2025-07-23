@@ -7,102 +7,96 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
     />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-   <link rel="stylesheet" href="/styles/admin/adminLogin.css">
-      
+    <link rel="stylesheet" href="/styles/shared/modern-auth-base.css">
+    <link rel="stylesheet" href="/styles/admin/adminLogin.css">
+
   </head>
-  <body
-    class="paper-texture d-flex align-items-center justify-content-center min-vh-100 py-3"
-  >
-    <div class="container">
-      <div class="login-container mx-auto bg-white row">
-        <!-- Left image side -->
-        <div class="col-md-5 p-0 image-side d-none d-md-block">
-          <div class="overlay">
-            <div class="text-white">
-              <h2 class="h3 fw-bold mb-1">Admin Portal</h2>
-              <p class="mb-0 small">Manage your Phoenix headphone store</p>
-            </div>
+  <body class="auth-body">
+    <div class="auth-split-container">
+      <!-- Left image side -->
+      <div class="auth-image-side" style="background-image: url('/assets/adminLogin.jpeg');">
+        <div class="auth-image-overlay">
+          <div class="text-white auth-slide-in">
+            <h2 class="h3 fw-bold mb-1">Admin Portal</h2>
+            <p class="mb-0">Manage your Phoenix headphone store with powerful tools and insights</p>
           </div>
         </div>
+      </div>
 
-        <!-- Right form side -->
-        <div class="col-12 col-md-7 form-side">
-          <div class="text-center mb-4">
-            <div class="d-flex align-items-center justify-content-center mb-2">
-              <img
-                src="/assets/phoenix-logo.png"
-                alt="Phoenix Logo"
-                class="me-2" width="40" height="40"
-              />
-              <span class="logo-text fs-4">PHOENIX</span>
-              <span class="admin-badge ms-2">ADMIN</span>
-            </div>
-            <h2 class="fw-bold h4">Admin Login</h2>
-            <p class="text-muted small mb-3">Access dashboard and controls</p>
+      <!-- Right form side -->
+      <div class="auth-form-side">
+        <div class="auth-form-container auth-fade-in">
+          <div class="auth-logo-container">
+            <img
+              src="/assets/phoenix-logo.png"
+              alt="Phoenix Logo"
+              width="40" height="40"
+            />
+            <span class="auth-logo-text">PHOENIX</span>
+            <span class="auth-admin-badge">ADMIN</span>
           </div>
 
+          <h1 class="auth-title">Admin Login</h1>
+          <p class="auth-subtitle">Access dashboard and controls</p>
+
           <form id="adminLogin" method="post" action="/admin/auth/login">
-            <div class="compact-mb">
-              <label for="email" class="form-label">Admin Email</label>
+            <div class="auth-form-group">
+              <label for="email" class="auth-form-label">Admin Email</label>
               <input
                 type="email"
                 name="email"
-                class="form-control form-control-sm"
+                class="auth-form-control"
                 id="email"
                 placeholder="Enter admin email"
               />
-              <div id="emailError" class="text-danger small mt-1"></div>
+              <div id="emailError" class="auth-error"></div>
             </div>
-            <div class="compact-mb">
-              <label for="password" class="form-label">Password</label>
-              <div class="input-group">
+
+            <div class="auth-form-group">
+              <label for="password" class="auth-form-label">Password</label>
+              <div class="auth-input-group">
                 <input
                   type="password"
                   name="password"
-                  class="form-control form-control-sm"
+                  class="auth-form-control"
                   id="password"
                   placeholder="Enter your password"
                 />
-                <button class="btn btn-outline-secondary btn-sm toggle-password" type="button" tabindex="-1">
+                <button class="auth-toggle-password" type="button" tabindex="-1">
                   <i class="ri-eye-off-line"></i>
                 </button>
               </div>
-              <div id="passwordError" class="text-danger small mt-1"></div>
+              <div id="passwordError" class="auth-error"></div>
             </div>
 
-            <a href="/admin/forgot-password" class="forgot-password text-decoration-none"
-              >Forgot password?</a
-            >
+
 
             <button
               type="submit"
-              class="btn btn-primary btn-sm w-100 mb-2 py-2"
+              class="auth-btn auth-btn-primary auth-btn-full"
+              id="submitButton"
             >
               Login to Admin
             </button>
-            
-            <div class="admin-notify text-center mt-3">
-              <i class="ri-shield-check-line me-1"></i> This portal is for authorized administrators only
+
+            <div style="text-align: center; margin-top: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 0.5rem; color: #6c757d; font-size: 0.875rem;">
+              <i class="ri-shield-check-line" style="margin-right: 0.5rem;"></i> This portal is for authorized administrators only
             </div>
           </form>
 
-          <div class="text-center mt-3">
-            <p class="small text-muted mb-0">
+          <div style="text-align: center; margin-top: 1.5rem;">
+            <p style="color: #6c757d; font-size: 0.875rem; margin: 0;">
               Need customer access?
-              <a href="/login" class="text-decoration-none fw-medium">Customer Login</a>
+              <a href="/login" class="auth-link" style="margin-left: 0.5rem;">Customer Login</a>
             </p>
           </div>
         </div>
@@ -110,7 +104,7 @@
     </div>
     <script>
       // Password toggle functionality
-      document.querySelectorAll('.toggle-password').forEach(button => {
+      document.querySelectorAll('.auth-toggle-password').forEach(button => {
         button.addEventListener('click', function() {
           const input = this.previousElementSibling;
           const icon = this.querySelector('i');
