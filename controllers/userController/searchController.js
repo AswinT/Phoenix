@@ -1,5 +1,5 @@
 const Product = require('../../models/productSchema');
-const { HttpStatus } = require("../../helpers/statusCode");
+const { HttpStatus } = require('../../helpers/statusCode');
 const searchProducts = async (req, res) => {
   try {
     const query = req.query.q || '';

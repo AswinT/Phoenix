@@ -1,17 +1,17 @@
-const Offer = require("../../models/offerSchema");
-const Category = require("../../models/categorySchema");
-const Product = require("../../models/productSchema");
+const Offer = require('../../models/offerSchema');
+const Category = require('../../models/categorySchema');
+const Product = require('../../models/productSchema');
 const { HttpStatus } = require('../../helpers/statusCode');
 const formatDateForDisplay = (date) => {
-  if (!date) return "";
-  return new Date(date).toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
+  if (!date) return '';
+  return new Date(date).toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
   });
 };
 const formatDateForInput = (date) => {
-  if (!date) return "";
+  if (!date) return '';
   const d = new Date(date);
   const year = d.getFullYear();
   const month = `0${d.getMonth() + 1}`.slice(-2);
@@ -21,73 +21,73 @@ const formatDateForInput = (date) => {
 const validateOfferData = (data) => {
   const errors = [];
   if (!data.title || !data.title.trim()) {
-    errors.push("Offer title is required");
+    errors.push('Offer title is required');
   }
   if (
     !data.discountType ||
-    !["percentage", "fixed"].includes(data.discountType)
+    !['percentage', 'fixed'].includes(data.discountType)
   ) {
-    errors.push("Valid discount type is required");
+    errors.push('Valid discount type is required');
   }
   if (
     !data.discountValue ||
     isNaN(data.discountValue) ||
     Number(data.discountValue) <= 0
   ) {
-    errors.push("Valid discount value is required");
+    errors.push('Valid discount value is required');
   }
   if (
-    data.discountType === "percentage" &&
+    data.discountType === 'percentage' &&
     (Number(data.discountValue) < 1 || Number(data.discountValue) > 100)
   ) {
-    errors.push("Percentage discount must be between 1 and 100");
+    errors.push('Percentage discount must be between 1 and 100');
   }
-  if (data.discountType === "fixed" && Number(data.discountValue) <= 0) {
-    errors.push("Fixed discount must be greater than 0");
+  if (data.discountType === 'fixed' && Number(data.discountValue) <= 0) {
+    errors.push('Fixed discount must be greater than 0');
   }
   if (!data.startDate) {
-    errors.push("Start date is required");
+    errors.push('Start date is required');
   }
   if (!data.endDate) {
-    errors.push("End date is required");
+    errors.push('End date is required');
   }
   if (data.startDate && data.endDate) {
     const startDate = new Date(data.startDate);
     const endDate = new Date(data.endDate);
     if (startDate >= endDate) {
-      errors.push("End date must be after start date");
+      errors.push('End date must be after start date');
     }
     if (!data.isEdit) {
       const now = new Date();
       now.setHours(0, 0, 0, 0);
       startDate.setHours(0, 0, 0, 0);
       if (startDate < now) {
-        errors.push("Start date cannot be in the past");
+        errors.push('Start date cannot be in the past');
       }
     }
   }
   if (
     !data.appliesTo ||
     ![
-      "all_products",
-      "specific_products",
-      "all_categories",
-      "specific_categories",
+      'all_products',
+      'specific_products',
+      'all_categories',
+      'specific_categories',
     ].includes(data.appliesTo)
   ) {
-    errors.push("Valid application type is required");
+    errors.push('Valid application type is required');
   }
-  if (data.appliesTo === "specific_products") {
+  if (data.appliesTo === 'specific_products') {
     if (!data.applicableProducts || data.applicableProducts.length === 0) {
       errors.push(
-        "Please select at least one product for a product-specific offer"
+        'Please select at least one product for a product-specific offer'
       );
     }
   }
-  if (data.appliesTo === "specific_categories") {
+  if (data.appliesTo === 'specific_categories') {
     if (!data.applicableCategories || data.applicableCategories.length === 0) {
       errors.push(
-        "Please select at least one category for a category-specific offer"
+        'Please select at least one category for a category-specific offer'
       );
     }
   }
@@ -100,36 +100,36 @@ const getOffers = async (req, res) => {
     const skip = (page - 1) * limit;
     const query = {};
     const filters = {
-      status: req.query.status || "all",
-      type: req.query.type || "all",
-      application: req.query.application || "all",
-      search: req.query.search || "",
+      status: req.query.status || 'all',
+      type: req.query.type || 'all',
+      application: req.query.application || 'all',
+      search: req.query.search || '',
     };
     if (filters.search) {
-      query.title = { $regex: filters.search, $options: "i" };
+      query.title = { $regex: filters.search, $options: 'i' };
     }
     const now = new Date();
-    if (filters.status !== "all") {
-      if (filters.status === "active") {
+    if (filters.status !== 'all') {
+      if (filters.status === 'active') {
         query.isActive = true;
         query.endDate = { $gte: now };
         query.startDate = { $lte: now };
-      } else if (filters.status === "inactive") {
+      } else if (filters.status === 'inactive') {
         query.isActive = false;
-      } else if (filters.status === "expired") {
+      } else if (filters.status === 'expired') {
         query.endDate = { $lt: now };
       }
     }
-    if (filters.type !== "all") {
+    if (filters.type !== 'all') {
       query.discountType = filters.type;
     }
-    if (filters.application !== "all") {
+    if (filters.application !== 'all') {
       query.appliesTo = filters.application;
     }
     const totalOffers = await Offer.countDocuments(query);
     const offersData = await Offer.find(query)
-      .populate("applicableCategories", "name")
-      .populate("applicableProducts", "model")
+      .populate('applicableCategories', 'name')
+      .populate('applicableProducts', 'model')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -138,60 +138,60 @@ const getOffers = async (req, res) => {
       offer.displayStartDate = formatDateForDisplay(offer.startDate);
       offer.displayEndDate = formatDateForDisplay(offer.endDate);
       if (!offer.isActive) {
-        offer.currentStatus = "Inactive";
-        offer.statusClass = "inactive";
+        offer.currentStatus = 'Inactive';
+        offer.statusClass = 'inactive';
       } else if (new Date(offer.endDate) < now) {
-        offer.currentStatus = "Expired";
-        offer.statusClass = "expired";
+        offer.currentStatus = 'Expired';
+        offer.statusClass = 'expired';
       } else if (new Date(offer.startDate) > now) {
-        offer.currentStatus = "Upcoming";
-        offer.statusClass = "upcoming";
+        offer.currentStatus = 'Upcoming';
+        offer.statusClass = 'upcoming';
       } else {
-        offer.currentStatus = "Active";
-        offer.statusClass = "active";
+        offer.currentStatus = 'Active';
+        offer.statusClass = 'active';
       }
       switch (offer.appliesTo) {
-        case "all_products":
-          offer.appliesToDisplay = "All Products";
-          break;
-        case "specific_products":
-          offer.appliesToDisplay =
+      case 'all_products':
+        offer.appliesToDisplay = 'All Products';
+        break;
+      case 'specific_products':
+        offer.appliesToDisplay =
             offer.applicableProducts && offer.applicableProducts.length > 0
               ? `${offer.applicableProducts.length} Product(s)`
-              : "Specific Products (None Selected)";
-          if (
-            offer.applicableProducts &&
+              : 'Specific Products (None Selected)';
+        if (
+          offer.applicableProducts &&
             offer.applicableProducts.length === 1 &&
             offer.applicableProducts[0]
-          ) {
-            offer.appliesToDisplay = `${offer.applicableProducts[0].model} (Product)`;
-          }
-          break;
-        case "all_categories":
-          offer.appliesToDisplay = "All Categories";
-          break;
-        case "specific_categories":
-          offer.appliesToDisplay =
+        ) {
+          offer.appliesToDisplay = `${offer.applicableProducts[0].model} (Product)`;
+        }
+        break;
+      case 'all_categories':
+        offer.appliesToDisplay = 'All Categories';
+        break;
+      case 'specific_categories':
+        offer.appliesToDisplay =
             offer.applicableCategories && offer.applicableCategories.length > 0
               ? `${offer.applicableCategories.length} Categories(s)`
-              : "Specific Categories (None Selected)";
-          if (
-            offer.applicableCategories &&
+              : 'Specific Categories (None Selected)';
+        if (
+          offer.applicableCategories &&
             offer.applicableCategories.length === 1 &&
             offer.applicableCategories[0]
-          ) {
-            offer.appliesToDisplay = `${offer.applicableCategories[0].name} (Category)`;
-          }
-          break;
-        default:
-          offer.appliesToDisplay = "N/A";
+        ) {
+          offer.appliesToDisplay = `${offer.applicableCategories[0].name} (Category)`;
+        }
+        break;
+      default:
+        offer.appliesToDisplay = 'N/A';
       }
     });
     const categories = await Category.find({ isListed: true })
-      .select("name _id")
+      .select('name _id')
       .lean();
     const products = await Product.find({ isDeleted: false, isListed: true })
-      .select({ _id: 1, title: "$model" })
+      .select({ _id: 1, title: '$model' })
       .lean();
     const totalPages = Math.ceil(totalOffers / limit);
     const pagination = {
@@ -207,8 +207,8 @@ const getOffers = async (req, res) => {
       totalOffers,
       limit,
     };
-    res.render("offers", {
-      title: "Manage Offers",
+    res.render('offers', {
+      title: 'Manage Offers',
       offers: offersData,
       categories,
       products,
@@ -217,11 +217,11 @@ const getOffers = async (req, res) => {
       currentPath: req.path,
     });
   } catch (error) {
-    console.error("Error fetching offers:", error);
+    console.error('Error fetching offers:', error);
     res
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .render("error", {
-        message: "Internal server error while fetching offers",
+      .render('error', {
+        message: 'Internal server error while fetching offers',
       });
   }
 };
@@ -231,16 +231,16 @@ const getOfferDetails = async (req, res) => {
     if (!offerId.match(/^[0-9a-fA-F]{24}$/)) {
       return res
         .status(HttpStatus.BAD_REQUEST)
-        .json({ success: false, message: "Invalid offer ID" });
+        .json({ success: false, message: 'Invalid offer ID' });
     }
     const offer = await Offer.findById(offerId)
-      .populate("applicableCategories", "name _id")
-      .populate("applicableProducts", "model _id")
+      .populate('applicableCategories', 'name _id')
+      .populate('applicableProducts', 'model _id')
       .lean();
     if (!offer) {
       return res
         .status(HttpStatus.NOT_FOUND)
-        .json({ success: false, message: "Offer not found" });
+        .json({ success: false, message: 'Offer not found' });
     }
     offer.startDate = formatDateForInput(offer.startDate);
     offer.endDate = formatDateForInput(offer.endDate);
@@ -258,12 +258,12 @@ const getOfferDetails = async (req, res) => {
     }
     res.status(HttpStatus.OK).json(offer);
   } catch (error) {
-    console.error("Error fetching offer details:", error);
+    console.error('Error fetching offer details:', error);
     res
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .json({
         success: false,
-        message: "Internal server error",
+        message: 'Internal server error',
         error: error.message,
       });
   }
@@ -284,14 +284,14 @@ const createOffer = async (req, res) => {
     } = req.body;
     let productIds = [];
     let categoryIds = [];
-    if (appliesTo === "specific_products") {
+    if (appliesTo === 'specific_products') {
       if (Array.isArray(applicableProducts)) {
         productIds = applicableProducts.filter((id) => id && id.trim());
       } else if (applicableProducts && applicableProducts.trim()) {
         productIds = [applicableProducts.trim()];
       }
     }
-    if (appliesTo === "specific_categories") {
+    if (appliesTo === 'specific_categories') {
       if (Array.isArray(applicableCategories)) {
         categoryIds = applicableCategories.filter((id) => id && id.trim());
       } else if (applicableCategories && applicableCategories.trim()) {
@@ -313,16 +313,16 @@ const createOffer = async (req, res) => {
     if (validationErrors.length > 0) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message: validationErrors.join(". "),
+        message: validationErrors.join('. '),
       });
     }
     const existingOffer = await Offer.findOne({
-      title: { $regex: new RegExp(`^${title.trim()}$`, "i") },
+      title: { $regex: new RegExp(`^${title.trim()}$`, 'i') },
     });
     if (existingOffer) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message: "An offer with this title already exists",
+        message: 'An offer with this title already exists',
       });
     }
     if (productIds.length > 0) {
@@ -330,11 +330,11 @@ const createOffer = async (req, res) => {
         _id: { $in: productIds },
         isDeleted: false,
         isListed: true,
-      }).select("_id");
+      }).select('_id');
       if (existingProducts.length !== productIds.length) {
         return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          message: "One or more selected products are invalid or not available",
+          message: 'One or more selected products are invalid or not available',
         });
       }
     }
@@ -342,24 +342,24 @@ const createOffer = async (req, res) => {
       const existingCategories = await Category.find({
         _id: { $in: categoryIds },
         isListed: true,
-      }).select("_id");
+      }).select('_id');
       if (existingCategories.length !== categoryIds.length) {
         return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           message:
-            "One or more selected categories are invalid or not available",
+            'One or more selected categories are invalid or not available',
         });
       }
     }
     const offerData = {
       title: title.trim(),
-      description: description ? description.trim() : "",
+      description: description ? description.trim() : '',
       discountType,
       discountValue: Number.parseFloat(discountValue),
       appliesTo,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
-      isActive: isActive === "true" || isActive === true,
+      isActive: isActive === 'true' || isActive === true,
       createdByAdmin: req.session.admin ? req.session.admin._id : null,
       applicableProducts: productIds,
       applicableCategories: categoryIds,
@@ -368,13 +368,13 @@ const createOffer = async (req, res) => {
     await newOffer.save();
     res
       .status(HttpStatus.CREATED)
-      .json({ success: true, message: "Offer created successfully" });
+      .json({ success: true, message: 'Offer created successfully' });
   } catch (error) {
-    console.error("Error creating offer:", error);
-    if (error.name === "ValidationError") {
+    console.error('Error creating offer:', error);
+    if (error.name === 'ValidationError') {
       const messages = Object.values(error.errors)
         .map((val) => val.message)
-        .join(". ");
+        .join('. ');
       return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: messages });
     }
     if (error.code === 11000) {
@@ -382,14 +382,14 @@ const createOffer = async (req, res) => {
         .status(HttpStatus.BAD_REQUEST)
         .json({
           success: false,
-          message: "An offer with this title already exists",
+          message: 'An offer with this title already exists',
         });
     }
     res
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .json({
         success: false,
-        message: "An internal server error occurred while creating the offer",
+        message: 'An internal server error occurred while creating the offer',
       });
   }
 };
@@ -399,7 +399,7 @@ const updateOffer = async (req, res) => {
     if (!offerId.match(/^[0-9a-fA-F]{24}$/)) {
       return res
         .status(HttpStatus.BAD_REQUEST)
-        .json({ success: false, message: "Invalid offer ID" });
+        .json({ success: false, message: 'Invalid offer ID' });
     }
     const {
       title,
@@ -417,18 +417,18 @@ const updateOffer = async (req, res) => {
     if (!offerToUpdate) {
       return res
         .status(HttpStatus.NOT_FOUND)
-        .json({ success: false, message: "Offer not found" });
+        .json({ success: false, message: 'Offer not found' });
     }
     let productIds = [];
     let categoryIds = [];
-    if (appliesTo === "specific_products") {
+    if (appliesTo === 'specific_products') {
       if (Array.isArray(applicableProducts)) {
         productIds = applicableProducts.filter((id) => id && id.trim());
       } else if (applicableProducts && applicableProducts.trim()) {
         productIds = [applicableProducts.trim()];
       }
     }
-    if (appliesTo === "specific_categories") {
+    if (appliesTo === 'specific_categories') {
       if (Array.isArray(applicableCategories)) {
         categoryIds = applicableCategories.filter((id) => id && id.trim());
       } else if (applicableCategories && applicableCategories.trim()) {
@@ -450,17 +450,17 @@ const updateOffer = async (req, res) => {
     if (validationErrors.length > 0) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message: validationErrors.join(". "),
+        message: validationErrors.join('. '),
       });
     }
     const existingOffer = await Offer.findOne({
-      title: { $regex: new RegExp(`^${title.trim()}$`, "i") },
+      title: { $regex: new RegExp(`^${title.trim()}$`, 'i') },
       _id: { $ne: offerId },
     });
     if (existingOffer) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message: "An offer with this title already exists",
+        message: 'An offer with this title already exists',
       });
     }
     if (productIds.length > 0) {
@@ -468,11 +468,11 @@ const updateOffer = async (req, res) => {
         _id: { $in: productIds },
         isDeleted: false,
         isListed: true,
-      }).select("_id");
+      }).select('_id');
       if (existingProducts.length !== productIds.length) {
         return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          message: "One or more selected products are invalid or not available",
+          message: 'One or more selected products are invalid or not available',
         });
       }
     }
@@ -480,35 +480,35 @@ const updateOffer = async (req, res) => {
       const existingCategories = await Category.find({
         _id: { $in: categoryIds },
         isListed: true,
-      }).select("_id");
+      }).select('_id');
       if (existingCategories.length !== categoryIds.length) {
         return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           message:
-            "One or more selected categories are invalid or not available",
+            'One or more selected categories are invalid or not available',
         });
       }
     }
     offerToUpdate.title = title.trim();
-    offerToUpdate.description = description ? description.trim() : "";
+    offerToUpdate.description = description ? description.trim() : '';
     offerToUpdate.discountType = discountType;
     offerToUpdate.discountValue = Number.parseFloat(discountValue);
     offerToUpdate.appliesTo = appliesTo;
     offerToUpdate.startDate = new Date(startDate);
     offerToUpdate.endDate = new Date(endDate);
-    offerToUpdate.isActive = isActive === "true" || isActive === true;
+    offerToUpdate.isActive = isActive === 'true' || isActive === true;
     offerToUpdate.applicableProducts = productIds;
     offerToUpdate.applicableCategories = categoryIds;
     await offerToUpdate.save();
     res
       .status(HttpStatus.OK)
-      .json({ success: true, message: "Offer updated successfully" });
+      .json({ success: true, message: 'Offer updated successfully' });
   } catch (error) {
-    console.error("Error updating offer:", error);
-    if (error.name === "ValidationError") {
+    console.error('Error updating offer:', error);
+    if (error.name === 'ValidationError') {
       const messages = Object.values(error.errors)
         .map((val) => val.message)
-        .join(". ");
+        .join('. ');
       return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: messages });
     }
     if (error.code === 11000) {
@@ -516,14 +516,14 @@ const updateOffer = async (req, res) => {
         .status(HttpStatus.BAD_REQUEST)
         .json({
           success: false,
-          message: "An offer with this name already exists",
+          message: 'An offer with this name already exists',
         });
     }
     res
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .json({
         success: false,
-        message: "An internal server error occurred while updating the offer",
+        message: 'An internal server error occurred while updating the offer',
       });
   }
 };
@@ -533,26 +533,26 @@ const toggleOfferStatus = async (req, res) => {
     if (!offerId.match(/^[0-9a-fA-F]{24}$/)) {
       return res
         .status(HttpStatus.BAD_REQUEST)
-        .json({ success: false, message: "Invalid offer ID" });
+        .json({ success: false, message: 'Invalid offer ID' });
     }
     const offer = await Offer.findById(offerId);
     if (!offer) {
       return res
         .status(HttpStatus.NOT_FOUND)
-        .json({ success: false, message: "Offer not found" });
+        .json({ success: false, message: 'Offer not found' });
     }
     offer.isActive = !offer.isActive;
     await offer.save();
     const now = new Date();
     let currentStatusText;
     if (!offer.isActive) {
-      currentStatusText = "Inactive";
+      currentStatusText = 'Inactive';
     } else if (new Date(offer.endDate) < now) {
-      currentStatusText = "Expired";
+      currentStatusText = 'Expired';
     } else if (new Date(offer.startDate) > now) {
-      currentStatusText = "Upcoming";
+      currentStatusText = 'Upcoming';
     } else {
-      currentStatusText = "Active";
+      currentStatusText = 'Active';
     }
     res.status(HttpStatus.OK).json({
       success: true,
@@ -561,12 +561,12 @@ const toggleOfferStatus = async (req, res) => {
       currentStatus: currentStatusText,
     });
   } catch (error) {
-    console.error("Error toggling offer status:", error);
+    console.error('Error toggling offer status:', error);
     res
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .json({
         success: false,
-        message: "An internal server error occurred while toggling status",
+        message: 'An internal server error occurred while toggling status',
       });
   }
 };

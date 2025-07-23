@@ -7,320 +7,799 @@
         <h1 class="page-title">Dashboard</h1>
         <p class="text-muted mb-0">Welcome back, Admin! Here's what's happening with your store today.</p>
       </div>
+      <div class="header-actions">
+        <!-- Clean header section - ledger book functionality removed -->
+      </div>
     </div>
 
-    <!-- Stats Row -->
-    <div class="row g-4 mb-4">
+    <!-- Enhanced Stats Row -->
+    <div class="row g-4 mb-4" id="statsRow">
       <!-- Users Stats -->
       <div class="col-sm-6 col-lg-3">
-        <div class="stat-card">
-          <div class="icon users">
-            <i class="ri-user-line"></i>
-          </div>
-          <h2 class="stat-title">Total Users</h2>
-          <p class="stat-value"><%= dashboardStats.totalUsers.value %></p>
-          <div class="<%= dashboardStats.totalUsers.growth.isPositive ? 'text-success' : 'text-danger' %> small">
-            <i class="ri-arrow-<%= dashboardStats.totalUsers.growth.isPositive ? 'up' : 'down' %>-line"></i>
-            <%= dashboardStats.totalUsers.growth.percentage %>% from last month
+        <div class="stat-card stat-card-users" data-stat="users">
+          <div class="stat-card-inner">
+            <div class="stat-icon-wrapper">
+              <div class="stat-icon users">
+                <i class="ri-user-3-line"></i>
+              </div>
+            </div>
+            <div class="stat-content">
+              <h3 class="stat-title">Total Users</h3>
+              <div class="stat-value-wrapper">
+                <p class="stat-value" data-value="<%= dashboardStats.totalUsers.value %>">
+                  <%= dashboardStats.totalUsers.value %>
+                </p>
+                <div class="stat-growth <%= dashboardStats.totalUsers.growth.isPositive ? 'positive' : 'negative' %>">
+                  <i class="ri-arrow-<%= dashboardStats.totalUsers.growth.isPositive ? 'up' : 'down' %>-line"></i>
+                  <span><%= dashboardStats.totalUsers.growth.percentage %>%</span>
+                </div>
+              </div>
+              <p class="stat-subtitle">from last month</p>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Orders Stats -->
       <div class="col-sm-6 col-lg-3">
-        <div class="stat-card">
-          <div class="icon orders">
-            <i class="ri-shopping-bag-line"></i>
-          </div>
-          <h2 class="stat-title">Total Orders</h2>
-          <p class="stat-value"><%= dashboardStats.totalOrders.value %></p>
-          <div class="<%= dashboardStats.totalOrders.growth.isPositive ? 'text-success' : 'text-danger' %> small">
-            <i class="ri-arrow-<%= dashboardStats.totalOrders.growth.isPositive ? 'up' : 'down' %>-line"></i>
-            <%= dashboardStats.totalOrders.growth.percentage %>% from last month
+        <div class="stat-card stat-card-orders" data-stat="orders">
+          <div class="stat-card-inner">
+            <div class="stat-icon-wrapper">
+              <div class="stat-icon orders">
+                <i class="ri-shopping-bag-3-line"></i>
+              </div>
+            </div>
+            <div class="stat-content">
+              <h3 class="stat-title">Total Orders</h3>
+              <div class="stat-value-wrapper">
+                <p class="stat-value" data-value="<%= dashboardStats.totalOrders.value %>">
+                  <%= dashboardStats.totalOrders.value %>
+                </p>
+                <div class="stat-growth <%= dashboardStats.totalOrders.growth.isPositive ? 'positive' : 'negative' %>">
+                  <i class="ri-arrow-<%= dashboardStats.totalOrders.growth.isPositive ? 'up' : 'down' %>-line"></i>
+                  <span><%= dashboardStats.totalOrders.growth.percentage %>%</span>
+                </div>
+              </div>
+              <p class="stat-subtitle">from last month</p>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Sales Stats -->
       <div class="col-sm-6 col-lg-3">
-        <div class="stat-card">
-          <div class="icon sales">
-            <i class="ri-currency-line"></i>
-          </div>
-          <h2 class="stat-title">Total Sales</h2>
-          <p class="stat-value"><%= dashboardStats.totalSales.value %></p>
-          <div class="<%= dashboardStats.totalSales.growth.isPositive ? 'text-success' : 'text-danger' %> small">
-            <i class="ri-arrow-<%= dashboardStats.totalSales.growth.isPositive ? 'up' : 'down' %>-line"></i>
-            <%= dashboardStats.totalSales.growth.percentage %>% from last month
+        <div class="stat-card stat-card-sales" data-stat="sales">
+          <div class="stat-card-inner">
+            <div class="stat-icon-wrapper">
+              <div class="stat-icon sales">
+                <i class="ri-money-rupee-circle-line"></i>
+              </div>
+            </div>
+            <div class="stat-content">
+              <h3 class="stat-title">Total Revenue</h3>
+              <div class="stat-value-wrapper">
+                <p class="stat-value" data-value="<%= dashboardStats.totalSales.value %>">
+                  <%= dashboardStats.totalSales.value %>
+                </p>
+                <div class="stat-growth <%= dashboardStats.totalSales.growth.isPositive ? 'positive' : 'negative' %>">
+                  <i class="ri-arrow-<%= dashboardStats.totalSales.growth.isPositive ? 'up' : 'down' %>-line"></i>
+                  <span><%= dashboardStats.totalSales.growth.percentage %>%</span>
+                </div>
+              </div>
+              <p class="stat-subtitle">from last month</p>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Pending Stats -->
       <div class="col-sm-6 col-lg-3">
-        <div class="stat-card">
-          <div class="icon pending">
-            <i class="ri-time-line"></i>
-          </div>
-          <h2 class="stat-title">Pending Orders</h2>
-          <p class="stat-value"><%= dashboardStats.pendingOrders.value %></p>
-          <div class="<%= dashboardStats.pendingOrders.growth.isPositive ? 'text-danger' : 'text-success' %> small">
-            <i class="ri-arrow-<%= dashboardStats.pendingOrders.growth.isPositive ? 'up' : 'down' %>-line"></i>
-            <%= dashboardStats.pendingOrders.growth.percentage %>% from last month
+        <div class="stat-card stat-card-pending" data-stat="pending">
+          <div class="stat-card-inner">
+            <div class="stat-icon-wrapper">
+              <div class="stat-icon pending">
+                <i class="ri-hourglass-line"></i>
+              </div>
+            </div>
+            <div class="stat-content">
+              <h3 class="stat-title">Pending Orders</h3>
+              <div class="stat-value-wrapper">
+                <p class="stat-value" data-value="<%= dashboardStats.pendingOrders.value %>">
+                  <%= dashboardStats.pendingOrders.value %>
+                </p>
+                <div class="stat-growth <%= dashboardStats.pendingOrders.growth.isPositive ? 'negative' : 'positive' %>">
+                  <i class="ri-arrow-<%= dashboardStats.pendingOrders.growth.isPositive ? 'up' : 'down' %>-line"></i>
+                  <span><%= dashboardStats.pendingOrders.growth.percentage %>%</span>
+                </div>
+              </div>
+              <p class="stat-subtitle">from last month</p>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Sales Analysis Section -->
+    <!-- Interactive Analytics Charts Section -->
     <div class="row mb-4">
       <div class="col-12">
         <div class="section-header">
-          <h2 class="section-title">Sales Analysis</h2>
-          <p class="text-muted">Comprehensive overview of your sales performance</p>
+          <h2 class="section-title">Analytics Dashboard</h2>
+          <p class="text-muted">Interactive charts and performance insights</p>
         </div>
       </div>
     </div>
 
-    <!-- Sales Analysis Cards Row 1 -->
-    <div class="row g-4 mb-4">
-      <!-- Today's Sales -->
-      <div class="col-sm-6 col-lg-3">
-        <div class="sales-card today">
-          <div class="sales-icon">
-            <i class="ri-calendar-line"></i>
+    <!-- Chart Controls -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="chart-controls">
+          <div class="filter-group">
+            <label for="periodFilter" class="form-label">Time Period:</label>
+            <select id="periodFilter" class="form-select" onchange="updateCharts()">
+              <option value="daily">Daily (Last 30 days)</option>
+              <option value="weekly">Weekly (Last 52 weeks)</option>
+              <option value="monthly" selected>Monthly (This year)</option>
+              <option value="yearly">Yearly (Last 5 years)</option>
+            </select>
           </div>
-          <div class="sales-content">
-            <h3 class="sales-title">Today's Sales</h3>
-            <p class="sales-value">₹<%= dashboardStats.todaySales || '0' %></p>
-            <div class="sales-trend <%= dashboardStats.todayGrowth?.isPositive ? 'positive' : 'negative' %>">
-              <i class="ri-arrow-<%= dashboardStats.todayGrowth?.isPositive ? 'up' : 'down' %>-line"></i>
-              <span><%= dashboardStats.todayGrowth?.isPositive ? '+' : '-' %><%= dashboardStats.todayGrowth?.percentage || '0' %>% vs yesterday</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- This Week's Sales -->
-      <div class="col-sm-6 col-lg-3">
-        <div class="sales-card week">
-          <div class="sales-icon">
-            <i class="ri-calendar-week-line"></i>
-          </div>
-          <div class="sales-content">
-            <h3 class="sales-title">This Week</h3>
-            <p class="sales-value">₹<%= dashboardStats.weekSales || '0' %></p>
-            <div class="sales-trend <%= dashboardStats.weekGrowth?.isPositive ? 'positive' : 'negative' %>">
-              <i class="ri-arrow-<%= dashboardStats.weekGrowth?.isPositive ? 'up' : 'down' %>-line"></i>
-              <span><%= dashboardStats.weekGrowth?.isPositive ? '+' : '-' %><%= dashboardStats.weekGrowth?.percentage || '0' %>% vs last week</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- This Month's Sales -->
-      <div class="col-sm-6 col-lg-3">
-        <div class="sales-card month">
-          <div class="sales-icon">
-            <i class="ri-calendar-month-line"></i>
-          </div>
-          <div class="sales-content">
-            <h3 class="sales-title">This Month</h3>
-            <p class="sales-value">₹<%= dashboardStats.monthSales || '0' %></p>
-            <div class="sales-trend <%= dashboardStats.monthGrowth?.isPositive ? 'positive' : 'negative' %>">
-              <i class="ri-arrow-<%= dashboardStats.monthGrowth?.isPositive ? 'up' : 'down' %>-line"></i>
-              <span><%= dashboardStats.monthGrowth?.isPositive ? '+' : '-' %><%= dashboardStats.monthGrowth?.percentage || '0' %>% vs last month</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Average Order Value -->
-      <div class="col-sm-6 col-lg-3">
-        <div class="sales-card aov">
-          <div class="sales-icon">
-            <i class="ri-shopping-cart-line"></i>
-          </div>
-          <div class="sales-content">
-            <h3 class="sales-title">Avg Order Value</h3>
-            <p class="sales-value">₹<%= dashboardStats.avgOrderValue || '0' %></p>
-            <div class="sales-trend <%= dashboardStats.avgOrderValueGrowth?.isPositive ? 'positive' : 'negative' %>">
-              <i class="ri-arrow-<%= dashboardStats.avgOrderValueGrowth?.isPositive ? 'up' : 'down' %>-line"></i>
-              <span><%= dashboardStats.avgOrderValueGrowth?.isPositive ? '+' : '-' %><%= dashboardStats.avgOrderValueGrowth?.percentage || '0' %>% improvement</span>
-            </div>
+          <div class="filter-group">
+            <label for="yearFilter" class="form-label">Year:</label>
+            <select id="yearFilter" class="form-select" onchange="updateCharts()">
+              <option value="2025" selected>2025</option>
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+              <option value="2022">2022</option>
+            </select>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Sales Analysis Cards Row 2 -->
+    <!-- Charts Row -->
     <div class="row g-4 mb-4">
-      <!-- Top Selling Category -->
-      <div class="col-sm-6 col-lg-4">
-        <div class="sales-card category">
-          <div class="sales-header">
-            <div class="sales-icon">
-              <i class="ri-star-line"></i>
-            </div>
-            <h3 class="sales-title">Top Category</h3>
-          </div>
-          <div class="sales-content">
-            <p class="category-name"><%= dashboardStats.topCategory?.name || 'Electronics' %></p>
-            <p class="category-sales">₹<%= dashboardStats.topCategory?.sales || '45,230' %> sales</p>
-            <div class="category-progress">
-              <div class="progress">
-                <div class="progress-bar" style="width: <%= dashboardStats.topCategory?.percentage || '65' %>%"></div>
-              </div>
-              <span class="progress-text"><%= dashboardStats.topCategory?.percentage || '65' %>% of total sales</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sales Conversion Rate -->
-      <div class="col-sm-6 col-lg-4">
-        <div class="sales-card conversion">
-          <div class="sales-header">
-            <div class="sales-icon">
-              <i class="ri-target-line"></i>
-            </div>
-            <h3 class="sales-title">Conversion Rate</h3>
-          </div>
-          <div class="sales-content">
-            <p class="conversion-rate"><%= dashboardStats.conversionRate || '3.2' %>%</p>
-            <p class="conversion-details">From <%= dashboardStats.totalVisitors || '1,245' %> visitors</p>
-            <div class="sales-trend positive">
-              <i class="ri-arrow-up-line"></i>
-              <span>+0.8% vs last month</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Revenue Growth -->
-      <div class="col-sm-6 col-lg-4">
-        <div class="sales-card growth">
-          <div class="sales-header">
-            <div class="sales-icon">
-              <i class="ri-line-chart-line"></i>
-            </div>
-            <h3 class="sales-title">Revenue Growth</h3>
-          </div>
-          <div class="sales-content">
-            <p class="growth-rate">+<%= dashboardStats.revenueGrowth || '24.5' %>%</p>
-            <p class="growth-period">Year over year</p>
-            <div class="mini-chart">
-              <div class="chart-bars">
-                <div class="bar" style="height: 40%"></div>
-                <div class="bar" style="height: 60%"></div>
-                <div class="bar" style="height: 45%"></div>
-                <div class="bar" style="height: 80%"></div>
-                <div class="bar" style="height: 70%"></div>
-                <div class="bar" style="height: 90%"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Sales Analysis Cards Row 3 -->
-    <div class="row g-4 mb-4">
-      <!-- Payment Methods -->
+      <!-- Sales Chart -->
       <div class="col-lg-6">
-        <div class="sales-card payment-methods">
-          <div class="sales-header">
-            <div class="sales-icon">
-              <i class="ri-bank-card-line"></i>
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3 class="chart-title">Sales Overview</h3>
+            <div class="chart-legend">
+              <span class="legend-item sales">Sales</span>
+              <span class="legend-item revenue">Revenue</span>
             </div>
-            <h3 class="sales-title">Payment Methods</h3>
           </div>
-          <div class="sales-content">
-            <div class="payment-method">
-              <div class="method-info">
-                <span class="method-name">Credit/Debit Cards</span>
-                <span class="method-percentage"><%= dashboardStats.paymentMethods?.cards || '65' %>%</span>
+          <div class="chart-container">
+            <div class="chart-loading" id="salesChartLoading" style="display: none;">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
               </div>
-              <div class="method-bar">
-                <div class="method-progress" style="width: <%= dashboardStats.paymentMethods?.cards || '65' %>%"></div>
-              </div>
+              <p class="mt-2">Loading chart data...</p>
             </div>
-            <div class="payment-method">
-              <div class="method-info">
-                <span class="method-name">UPI/Digital Wallets</span>
-                <span class="method-percentage"><%= dashboardStats.paymentMethods?.upi || '25' %>%</span>
-              </div>
-              <div class="method-bar">
-                <div class="method-progress" style="width: <%= dashboardStats.paymentMethods?.upi || '25' %>%"></div>
-              </div>
+            <div class="chart-error" id="salesChartError" style="display: none;">
+              <i class="ri-error-warning-line text-danger"></i>
+              <p class="mt-2 text-danger">Failed to load chart data</p>
             </div>
-            <div class="payment-method">
-              <div class="method-info">
-                <span class="method-name">Cash on Delivery</span>
-                <span class="method-percentage"><%= dashboardStats.paymentMethods?.cod || '10' %>%</span>
+            <canvas id="salesChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Orders Chart -->
+      <div class="col-lg-6">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3 class="chart-title">Order Trends</h3>
+            <div class="chart-legend">
+              <span class="legend-item orders">Orders</span>
+            </div>
+          </div>
+          <div class="chart-container">
+            <div class="chart-loading" id="ordersChartLoading" style="display: none;">
+              <div class="spinner-border text-warning" role="status">
+                <span class="visually-hidden">Loading...</span>
               </div>
-              <div class="method-bar">
-                <div class="method-progress" style="width: <%= dashboardStats.paymentMethods?.cod || '10' %>%"></div>
+              <p class="mt-2">Loading chart data...</p>
+            </div>
+            <div class="chart-error" id="ordersChartError" style="display: none;">
+              <i class="ri-error-warning-line text-danger"></i>
+              <p class="mt-2 text-danger">Failed to load chart data</p>
+            </div>
+            <canvas id="ordersChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Performance Section -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="section-header">
+          <h2 class="section-title">Top Performance</h2>
+          <p class="text-muted">Best selling products, categories, and brands</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Performance Lists -->
+    <div class="row g-4 mb-4">
+      <!-- Top Products -->
+      <div class="col-lg-4">
+        <div class="performance-card">
+          <div class="performance-header">
+            <h3 class="performance-title">
+              <i class="ri-product-hunt-line me-2"></i>Top Products
+            </h3>
+          </div>
+          <div class="performance-list" id="topProductsList">
+            <div class="performance-loading" id="topProductsLoading">
+              <div class="spinner-border spinner-border-sm text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
               </div>
+              <span class="ms-2">Loading products...</span>
+            </div>
+            <div class="performance-error" id="topProductsError" style="display: none;">
+              <i class="ri-error-warning-line text-danger"></i>
+              <span class="ms-2 text-danger">Failed to load products</span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Sales by Region -->
-      <div class="col-lg-6">
-        <div class="sales-card regions">
-          <div class="sales-header">
-            <div class="sales-icon">
-              <i class="ri-map-pin-line"></i>
-            </div>
-            <h3 class="sales-title">Top Regions</h3>
+      <!-- Top Categories -->
+      <div class="col-lg-4">
+        <div class="performance-card">
+          <div class="performance-header">
+            <h3 class="performance-title">
+              <i class="ri-price-tag-3-line me-2"></i>Top Categories
+            </h3>
           </div>
-          <div class="sales-content">
-            <div class="region-item">
-              <div class="region-info">
-                <span class="region-name">Mumbai</span>
-                <span class="region-sales">₹<%= dashboardStats.regions?.mumbai || '0' %></span>
+          <div class="performance-list" id="topCategoriesList">
+            <div class="performance-loading" id="topCategoriesLoading">
+              <div class="spinner-border spinner-border-sm text-success" role="status">
+                <span class="visually-hidden">Loading...</span>
               </div>
-              <div class="region-trend <%= (dashboardStats.regions?.mumbaiGrowth || 12) >= 0 ? 'positive' : 'negative' %>">
-                <%= (dashboardStats.regions?.mumbaiGrowth || 12) >= 0 ? '+' : '' %><%= dashboardStats.regions?.mumbaiGrowth || '12' %>%
-              </div>
+              <span class="ms-2">Loading categories...</span>
             </div>
-            <div class="region-item">
-              <div class="region-info">
-                <span class="region-name">Delhi</span>
-                <span class="region-sales">₹<%= dashboardStats.regions?.delhi || '0' %></span>
-              </div>
-              <div class="region-trend <%= (dashboardStats.regions?.delhiGrowth || 8) >= 0 ? 'positive' : 'negative' %>">
-                <%= (dashboardStats.regions?.delhiGrowth || 8) >= 0 ? '+' : '' %><%= dashboardStats.regions?.delhiGrowth || '8' %>%
-              </div>
+            <div class="performance-error" id="topCategoriesError" style="display: none;">
+              <i class="ri-error-warning-line text-danger"></i>
+              <span class="ms-2 text-danger">Failed to load categories</span>
             </div>
-            <div class="region-item">
-              <div class="region-info">
-                <span class="region-name">Bangalore</span>
-                <span class="region-sales">₹<%= dashboardStats.regions?.bangalore || '0' %></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Brands -->
+      <div class="col-lg-4">
+        <div class="performance-card">
+          <div class="performance-header">
+            <h3 class="performance-title">
+              <i class="ri-award-line me-2"></i>Top Brands
+            </h3>
+          </div>
+          <div class="performance-list" id="topBrandsList">
+            <div class="performance-loading" id="topBrandsLoading">
+              <div class="spinner-border spinner-border-sm text-warning" role="status">
+                <span class="visually-hidden">Loading...</span>
               </div>
-              <div class="region-trend <%= (dashboardStats.regions?.bangaloreGrowth || 15) >= 0 ? 'positive' : 'negative' %>">
-                <%= (dashboardStats.regions?.bangaloreGrowth || 15) >= 0 ? '+' : '' %><%= dashboardStats.regions?.bangaloreGrowth || '15' %>%
-              </div>
+              <span class="ms-2">Loading brands...</span>
             </div>
-            <div class="region-item">
-              <div class="region-info">
-                <span class="region-name">Chennai</span>
-                <span class="region-sales">₹<%= dashboardStats.regions?.chennai || '0' %></span>
-              </div>
-              <div class="region-trend <%= (dashboardStats.regions?.chennaiGrowth || -3) >= 0 ? 'positive' : 'negative' %>">
-                <%= (dashboardStats.regions?.chennaiGrowth || -3) >= 0 ? '+' : '' %><%= dashboardStats.regions?.chennaiGrowth || '-3' %>%
-              </div>
+            <div class="performance-error" id="topBrandsError" style="display: none;">
+              <i class="ri-error-warning-line text-danger"></i>
+              <span class="ms-2 text-danger">Failed to load brands</span>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Sales Analysis section removed for cleaner dashboard layout -->
+
+
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <script>
+    // Global variables for charts
+    let salesChart, ordersChart;
+
+    // Initialize dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeCharts();
+      initializeStatCards();
+      updateDashboard(); // Load both charts and performance data
+    });
+
+    // Initialize statistics cards with animations
+    function initializeStatCards() {
+      const statCards = document.querySelectorAll('.stat-card');
+
+      // Add entrance animation
+      statCards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+
+        setTimeout(() => {
+          card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+          card.style.opacity = '1';
+          card.style.transform = 'translateY(0)';
+        }, index * 100);
+      });
+
+      // Add number counting animation
+      animateStatValues();
+    }
+
+    // Animate stat values with counting effect
+    function animateStatValues() {
+      const statValues = document.querySelectorAll('.stat-value');
+
+      statValues.forEach(valueElement => {
+        const targetValue = valueElement.getAttribute('data-value');
+        const numericValue = parseInt(targetValue.replace(/[^\d]/g, ''));
+
+        if (!isNaN(numericValue) && numericValue > 0) {
+          let currentValue = 0;
+          const increment = Math.ceil(numericValue / 30);
+          const duration = 1000;
+          const stepTime = duration / (numericValue / increment);
+
+          const counter = setInterval(() => {
+            currentValue += increment;
+            if (currentValue >= numericValue) {
+              currentValue = numericValue;
+              clearInterval(counter);
+            }
+
+            // Format the value based on original format
+            if (targetValue.includes('₹')) {
+              valueElement.textContent = `₹${currentValue.toLocaleString('en-IN')}`;
+            } else {
+              valueElement.textContent = currentValue.toString();
+            }
+          }, stepTime);
+        }
+      });
+    }
+
+    // Add loading state to stat cards
+    function showStatCardsLoading(show = true) {
+      const statCards = document.querySelectorAll('.stat-card');
+      statCards.forEach(card => {
+        if (show) {
+          card.classList.add('loading');
+        } else {
+          card.classList.remove('loading');
+        }
+      });
+    }
+
+    // Update stat cards with new data (for future use)
+    function updateStatCards(newData) {
+      showStatCardsLoading(true);
+
+      setTimeout(() => {
+        // Update values here when implementing real-time updates
+        showStatCardsLoading(false);
+        animateStatValues();
+      }, 500);
+    }
+
+    // Initialize Chart.js charts
+    function initializeCharts() {
+      // Sales Chart
+      const salesCtx = document.getElementById('salesChart').getContext('2d');
+      salesChart = new Chart(salesCtx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Sales (₹)',
+            data: [],
+            borderColor: '#4361EE',
+            backgroundColor: 'rgba(67, 97, 238, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4
+          }, {
+            label: 'Revenue (₹)',
+            data: [],
+            borderColor: '#28a745',
+            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return '₹' + value.toLocaleString('en-IN');
+                }
+              }
+            }
+          }
+        }
+      });
+
+      // Orders Chart
+      const ordersCtx = document.getElementById('ordersChart').getContext('2d');
+      ordersChart = new Chart(ordersCtx, {
+        type: 'bar',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Orders',
+            data: [],
+            backgroundColor: '#FFC107',
+            borderColor: '#FF8C00',
+            borderWidth: 2,
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 1
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Main function to update entire dashboard
+    async function updateDashboard() {
+      await Promise.all([
+        updateCharts(),
+        loadTopPerformance()
+      ]);
+    }
+
+    // Update charts with new data
+    async function updateCharts() {
+      const period = document.getElementById('periodFilter').value;
+      const year = document.getElementById('yearFilter').value;
+
+      // Show loading indicators
+      showChartLoading(true);
+      hideChartErrors();
+
+      try {
+        const response = await fetch(`/admin/dashboard/analytics?period=${period}&year=${year}`);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          const analyticsData = data.data;
+
+          // Update labels based on period
+          let labels = [];
+          if (period === 'yearly') {
+            labels = analyticsData.labels || [];
+          } else if (period === 'monthly') {
+            labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          } else if (period === 'weekly') {
+            labels = (analyticsData.labels || []).map(week => `Week ${week}`);
+          } else if (period === 'daily') {
+            // For daily, use the labels as they come from the backend (DD/MM format)
+            labels = analyticsData.labels || [];
+          }
+
+          // Update sales chart
+          if (salesChart && analyticsData.salesData && analyticsData.revenueData) {
+            salesChart.data.labels = labels;
+            salesChart.data.datasets[0].data = analyticsData.salesData;
+            salesChart.data.datasets[1].data = analyticsData.revenueData;
+            salesChart.update('active');
+          }
+
+          // Update orders chart
+          if (ordersChart && analyticsData.orderData) {
+            ordersChart.data.labels = labels;
+            ordersChart.data.datasets[0].data = analyticsData.orderData;
+            ordersChart.update('active');
+          }
+
+          // Hide loading indicators
+          showChartLoading(false);
+
+        } else {
+          throw new Error(data.message || 'Invalid data received from server');
+        }
+      } catch (error) {
+        console.error('Error updating charts:', error);
+        showChartLoading(false);
+        showChartErrors(error.message);
+
+        // Show user-friendly error notification
+        showNotification('Failed to update charts. Please try again.', 'error');
+      }
+    }
+
+    // Load top performance data with filter support
+    async function loadTopPerformance() {
+      const period = document.getElementById('periodFilter').value;
+      const year = document.getElementById('yearFilter').value;
+
+      // Show loading indicators
+      showPerformanceLoading(true);
+      hidePerformanceErrors();
+
+      try {
+        const response = await fetch(`/admin/dashboard/top-performance?period=${period}&year=${year}`);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          const performanceData = data.data;
+
+          // Update top products
+          updateTopProductsList(performanceData.topProducts || []);
+
+          // Update top categories
+          updateTopCategoriesList(performanceData.topCategories || []);
+
+          // Update top brands
+          updateTopBrandsList(performanceData.topBrands || []);
+
+          // Hide loading indicators
+          showPerformanceLoading(false);
+
+        } else {
+          throw new Error(data.message || 'Invalid performance data received');
+        }
+      } catch (error) {
+        console.error('Error loading top performance:', error);
+        showPerformanceLoading(false);
+        showPerformanceErrors(error.message);
+
+        // Show user-friendly error notification
+        showNotification('Failed to load performance data. Please try again.', 'error');
+      }
+    }
+
+    // Utility functions for loading states and error handling
+    function showChartLoading(show) {
+      const salesLoading = document.getElementById('salesChartLoading');
+      const ordersLoading = document.getElementById('ordersChartLoading');
+      const salesChart = document.getElementById('salesChart');
+      const ordersChart = document.getElementById('ordersChart');
+
+      if (show) {
+        salesLoading.style.display = 'flex';
+        ordersLoading.style.display = 'flex';
+        salesChart.style.opacity = '0.3';
+        ordersChart.style.opacity = '0.3';
+      } else {
+        salesLoading.style.display = 'none';
+        ordersLoading.style.display = 'none';
+        salesChart.style.opacity = '1';
+        ordersChart.style.opacity = '1';
+      }
+    }
+
+    function showChartErrors(message) {
+      const salesError = document.getElementById('salesChartError');
+      const ordersError = document.getElementById('ordersChartError');
+
+      if (message) {
+        salesError.querySelector('p').textContent = `Failed to load chart data: ${message}`;
+        ordersError.querySelector('p').textContent = `Failed to load chart data: ${message}`;
+      }
+
+      salesError.style.display = 'flex';
+      ordersError.style.display = 'flex';
+    }
+
+    function hideChartErrors() {
+      document.getElementById('salesChartError').style.display = 'none';
+      document.getElementById('ordersChartError').style.display = 'none';
+    }
+
+    function showPerformanceLoading(show) {
+      const elements = ['topProductsLoading', 'topCategoriesLoading', 'topBrandsLoading'];
+      elements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.style.display = show ? 'flex' : 'none';
+        }
+      });
+    }
+
+    function showPerformanceErrors(message) {
+      const elements = ['topProductsError', 'topCategoriesError', 'topBrandsError'];
+      elements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+          if (message) {
+            element.querySelector('span').textContent = `Failed to load data: ${message}`;
+          }
+          element.style.display = 'flex';
+        }
+      });
+    }
+
+    function hidePerformanceErrors() {
+      const elements = ['topProductsError', 'topCategoriesError', 'topBrandsError'];
+      elements.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.style.display = 'none';
+        }
+      });
+    }
+
+    function showNotification(message, type = 'info') {
+      // Create notification element
+      const notification = document.createElement('div');
+      notification.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+      notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+      notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+
+      document.body.appendChild(notification);
+
+      // Auto remove after 5 seconds
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.remove();
+        }
+      }, 5000);
+    }
+
+    // Update top products list
+    function updateTopProductsList(products) {
+      const container = document.getElementById('topProductsList');
+
+      // Clear loading and error states
+      const loading = container.querySelector('.performance-loading');
+      const error = container.querySelector('.performance-error');
+      if (loading) loading.style.display = 'none';
+      if (error) error.style.display = 'none';
+
+      // Clear existing items
+      const existingItems = container.querySelectorAll('.performance-item');
+      existingItems.forEach(item => item.remove());
+
+      if (products.length === 0) {
+        const noData = document.createElement('div');
+        noData.className = 'text-center text-muted py-4';
+        noData.innerHTML = '<i class="ri-inbox-line"></i><br>No sales data available for the selected period';
+        container.appendChild(noData);
+        return;
+      }
+
+      products.forEach(product => {
+        const item = document.createElement('div');
+        item.className = 'performance-item';
+        item.innerHTML = `
+          <div class="performance-rank">${product.rank}</div>
+          <div class="performance-info">
+            <div class="performance-name">${product.name || 'Unknown Product'}</div>
+            <div class="performance-brand">${product.brand || 'Unknown Brand'}</div>
+            <div class="performance-details">
+              <span class="performance-metric">Qty: ${product.quantitySold || 0}</span>
+              <span class="performance-metric">₹${Math.round(product.revenue || 0).toLocaleString('en-IN')}</span>
+              <span class="performance-metric">${product.salesPercentage || 0}% of sales</span>
+            </div>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // Update top categories list
+    function updateTopCategoriesList(categories) {
+      const container = document.getElementById('topCategoriesList');
+
+      // Clear loading and error states
+      const loading = container.querySelector('.performance-loading');
+      const error = container.querySelector('.performance-error');
+      if (loading) loading.style.display = 'none';
+      if (error) error.style.display = 'none';
+
+      // Clear existing items
+      const existingItems = container.querySelectorAll('.performance-item');
+      existingItems.forEach(item => item.remove());
+
+      if (categories.length === 0) {
+        const noData = document.createElement('div');
+        noData.className = 'text-center text-muted py-4';
+        noData.innerHTML = '<i class="ri-inbox-line"></i><br>No sales data available for the selected period';
+        container.appendChild(noData);
+        return;
+      }
+
+      categories.forEach(category => {
+        const item = document.createElement('div');
+        item.className = 'performance-item';
+        item.innerHTML = `
+          <div class="performance-rank">${category.rank}</div>
+          <div class="performance-info">
+            <div class="performance-name">${category.name || 'Unknown Category'}</div>
+            <div class="performance-details">
+              <span class="performance-metric">Qty: ${category.quantitySold || 0}</span>
+              <span class="performance-metric">₹${Math.round(category.revenue || 0).toLocaleString('en-IN')}</span>
+              <span class="performance-metric">${category.revenuePercentage || 0}% of revenue</span>
+            </div>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // Update top brands list
+    function updateTopBrandsList(brands) {
+      const container = document.getElementById('topBrandsList');
+
+      // Clear loading and error states
+      const loading = container.querySelector('.performance-loading');
+      const error = container.querySelector('.performance-error');
+      if (loading) loading.style.display = 'none';
+      if (error) error.style.display = 'none';
+
+      // Clear existing items
+      const existingItems = container.querySelectorAll('.performance-item');
+      existingItems.forEach(item => item.remove());
+
+      if (brands.length === 0) {
+        const noData = document.createElement('div');
+        noData.className = 'text-center text-muted py-4';
+        noData.innerHTML = '<i class="ri-inbox-line"></i><br>No sales data available for the selected period';
+        container.appendChild(noData);
+        return;
+      }
+
+      brands.forEach(brand => {
+        const item = document.createElement('div');
+        item.className = 'performance-item';
+        item.innerHTML = `
+          <div class="performance-rank">${brand.rank}</div>
+          <div class="performance-info">
+            <div class="performance-name">${brand.name || 'Unknown Brand'}</div>
+            <div class="performance-brand">${brand.productCount || 0} products</div>
+            <div class="performance-details">
+              <span class="performance-metric">Qty: ${brand.quantitySold || 0}</span>
+              <span class="performance-metric">₹${Math.round(brand.revenue || 0).toLocaleString('en-IN')}</span>
+              <span class="performance-metric">${brand.revenuePercentage || 0}% of revenue</span>
+            </div>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+
 
     // Highlight active link
     const navLinks = document.querySelectorAll('.nav-link');
@@ -331,5 +810,7 @@
       });
     });
   </script>
+
+
 </body>
 </html>

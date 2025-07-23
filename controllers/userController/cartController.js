@@ -1,21 +1,21 @@
-const Cart = require("../../models/cartSchema");
-const Product = require("../../models/productSchema");
-const Wishlist = require("../../models/wishlistSchema");
+const Cart = require('../../models/cartSchema');
+const Product = require('../../models/productSchema');
+const Wishlist = require('../../models/wishlistSchema');
 const {
   getActiveOfferForProduct,
   calculateDiscount,
-} = require("../../utils/offerHelper");
-const { HttpStatus } = require("../../helpers/statusCode");
+} = require('../../utils/offerHelper');
+const { HttpStatus } = require('../../helpers/statusCode');
 const getCart = async (req, res) => {
   try {
     if (!req.session.user_id) {
-      return res.redirect("/login");
+      return res.redirect('/login');
     }
     const userId = req.session.user_id;
     const cart = await Cart.findOne({ user: userId }).populate({
-      path: "items.product",
+      path: 'items.product',
       populate: {
-        path: "category",
+        path: 'category',
         match: { isListed: true }
       }
     });
@@ -27,9 +27,9 @@ const getCart = async (req, res) => {
     let wishlistCount = 0;
     if (cart && cart.items.length > 0) {
       cartItems = cart.items.filter(
-        (item) => item.product && 
-                  item.product.isListed && 
-                  item.product.category && 
+        (item) => item.product &&
+                  item.product.isListed &&
+                  item.product.category &&
                   item.product.category.isListed
       );
       for (const item of cartItems) {
@@ -74,7 +74,7 @@ const getCart = async (req, res) => {
       product.regularPrice = product.regularPrice || product.salePrice;
       product.salePrice = finalPrice;
     }
-    res.render("cart", {
+    res.render('cart', {
       cartItems,
       totalAmount: totalAmount.toFixed(2),
       totalDiscount: totalDiscount.toFixed(2),
@@ -85,8 +85,8 @@ const getCart = async (req, res) => {
       isAuthenticated: true,
     });
   } catch (error) {
-    console.log("Error in rendering cart:", error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server Error");
+    console.log('Error in rendering cart:', error);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Server Error');
   }
 };
 const addToCart = async (req, res) => {
@@ -96,9 +96,9 @@ const addToCart = async (req, res) => {
         .status(HttpStatus.UNAUTHORIZED)
         .json({
           success: false,
-          message: "Please log in to add items to your cart",
+          message: 'Please log in to add items to your cart',
           requiresAuth: true,
-          redirectTo: "/login"
+          redirectTo: '/login'
         });
     }
     const userId = req.session.user_id;
@@ -107,7 +107,7 @@ const addToCart = async (req, res) => {
     if (!product || !product.isListed || product.isDeleted || !product.category || !product.category.isListed) {
       return res
         .status(HttpStatus.NOT_FOUND)
-        .json({ success: false, message: "Product not found or unavailable" });
+        .json({ success: false, message: 'Product not found or unavailable' });
     }
     const offer = await getActiveOfferForProduct(product._id, product.category);
     const { finalPrice } = calculateDiscount(offer, product.regularPrice);
@@ -174,12 +174,12 @@ const addToCart = async (req, res) => {
     }
     await cart.save();
     const cartCount = cart.items.length;
-    res.json({ success: true, message: "Added to cart", cartCount });
+    res.json({ success: true, message: 'Added to cart', cartCount });
   } catch (error) {
-    console.log("Error adding to cart:", error);
+    console.log('Error adding to cart:', error);
     res
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: "Server error" });
+      .json({ success: false, message: 'Server error' });
   }
 };
 const updateCartItem = async (req, res) => {
@@ -187,7 +187,7 @@ const updateCartItem = async (req, res) => {
     if (!req.session.user_id) {
       return res
         .status(HttpStatus.UNAUTHORIZED)
-        .json({ success: false, message: "Please log in" });
+        .json({ success: false, message: 'Please log in' });
     }
     const userId = req.session.user_id;
     const { productId, quantity } = req.body;
@@ -195,7 +195,7 @@ const updateCartItem = async (req, res) => {
     if (!cart) {
       return res
         .status(HttpStatus.NOT_FOUND)
-        .json({ success: false, message: "Cart not found" });
+        .json({ success: false, message: 'Cart not found' });
     }
     const itemIndex = cart.items.findIndex(
       (item) => item.product.toString() === productId
@@ -203,13 +203,13 @@ const updateCartItem = async (req, res) => {
     if (itemIndex === -1) {
       return res
         .status(HttpStatus.NOT_FOUND)
-        .json({ success: false, message: "Item not found in cart" });
+        .json({ success: false, message: 'Item not found in cart' });
     }
     const product = await Product.findById(productId);
     if (!product || !product.isListed || product.isDeleted) {
       return res
         .status(HttpStatus.NOT_FOUND)
-        .json({ success: false, message: "Product not found or unavailable" });
+        .json({ success: false, message: 'Product not found or unavailable' });
     }
     const MAX_QUANTITY_PER_PRODUCT = 5;
     if (quantity > MAX_QUANTITY_PER_PRODUCT) {
@@ -240,17 +240,17 @@ const updateCartItem = async (req, res) => {
     await cart.save();
     res.json({
       success: true,
-      message: "Cart updated",
+      message: 'Cart updated',
       totalAmount: cart.totalAmount,
       itemTotal:
         cart.items[itemIndex].quantity * cart.items[itemIndex].priceAtAddition,
       cartCount: cart.items.length,
     });
   } catch (error) {
-    console.log("Error updating cart item:", error);
+    console.log('Error updating cart item:', error);
     res
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: "Server error" });
+      .json({ success: false, message: 'Server error' });
   }
 };
 const removeCartItem = async (req, res) => {
@@ -258,7 +258,7 @@ const removeCartItem = async (req, res) => {
     if (!req.session.user_id) {
       return res
         .status(HttpStatus.UNAUTHORIZED)
-        .json({ success: false, message: "Please log in" });
+        .json({ success: false, message: 'Please log in' });
     }
     const userId = req.session.user_id;
     const { productId } = req.body;
@@ -266,7 +266,7 @@ const removeCartItem = async (req, res) => {
     if (!cart) {
       return res
         .status(HttpStatus.NOT_FOUND)
-        .json({ success: false, message: "Cart not found" });
+        .json({ success: false, message: 'Cart not found' });
     }
     cart.items = cart.items.filter(
       (item) => item.product.toString() !== productId
@@ -279,15 +279,15 @@ const removeCartItem = async (req, res) => {
     const cartCount = cart.items.length;
     res.json({
       success: true,
-      message: "Item removed",
+      message: 'Item removed',
       cartCount,
       totalAmount: cart.totalAmount,
     });
   } catch (error) {
-    console.log("Error removing cart item:", error);
+    console.log('Error removing cart item:', error);
     res
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: "Server error" });
+      .json({ success: false, message: 'Server error' });
   }
 };
 const clearCart = async (req, res) => {
@@ -295,21 +295,21 @@ const clearCart = async (req, res) => {
     if (!req.session.user_id) {
       return res
         .status(HttpStatus.UNAUTHORIZED)
-        .json({ success: false, message: "Please log in" });
+        .json({ success: false, message: 'Please log in' });
     }
     const userId = req.session.user_id;
     await Cart.findOneAndDelete({ user: userId });
     res.json({
       success: true,
-      message: "Cart cleared",
+      message: 'Cart cleared',
       cartCount: 0,
       totalAmount: 0,
     });
   } catch (error) {
-    console.log("Error clearing cart:", error);
+    console.log('Error clearing cart:', error);
     res
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: "Server error" });
+      .json({ success: false, message: 'Server error' });
   }
 };
 module.exports = {

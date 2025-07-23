@@ -44,7 +44,7 @@ const getSales = async (req, res) => {
     });
   } catch (error) {
     console.error('Error in getSales:', error);
-    return res.render('error', { 
+    return res.render('error', {
       message: 'Failed to load sales data: ' + error.message,
       title: 'Error'
     });
@@ -56,13 +56,13 @@ const calculateSummaryStats = async (startDate, endDate) => {
       createdAt: { $gte: startDate, $lte: endDate },
       isDeleted: false
     });
-    const completedOrders = allOrders.filter(order => 
+    const completedOrders = allOrders.filter(order =>
       ['Delivered', 'Shipped', 'Processing'].includes(order.orderStatus)
     );
-    const cancelledOrders = allOrders.filter(order => 
+    const cancelledOrders = allOrders.filter(order =>
       ['Cancelled', 'Partially Cancelled'].includes(order.orderStatus)
     );
-    const returnedOrders = allOrders.filter(order => 
+    const returnedOrders = allOrders.filter(order =>
       ['Returned', 'Partially Returned'].includes(order.orderStatus)
     );
     const totalOrders = allOrders.length;
@@ -115,49 +115,49 @@ const getQuickFilterDates = (filter) => {
   const now = new Date();
   let startDate, endDate;
   switch (filter) {
-    case 'today':
-      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      startDate.setHours(0, 0, 0, 0);
-      endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-      break;
-    case 'yesterday':
-      const yesterday = new Date(now);
-      yesterday.setDate(yesterday.getDate() - 1);
-      startDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
-      startDate.setHours(0, 0, 0, 0);
-      endDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 23, 59, 59, 999);
-      break;
-    case 'last7days':
-      startDate = new Date(now);
-      startDate.setDate(startDate.getDate() - 6);
-      startDate.setHours(0, 0, 0, 0);
-      endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-      break;
-    case 'last30days':
-      startDate = new Date(now);
-      startDate.setDate(startDate.getDate() - 29);
-      startDate.setHours(0, 0, 0, 0);
-      endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-      break;
-    case 'thismonth':
-      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-      startDate.setHours(0, 0, 0, 0);
-      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
-      break;
-    case 'lastmonth':
-      startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      startDate.setHours(0, 0, 0, 0);
-      endDate = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
-      break;
-    case 'thisyear':
-      startDate = new Date(now.getFullYear(), 0, 1);
-      startDate.setHours(0, 0, 0, 0);
-      endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
-      break;
-    default:
-      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-      startDate.setHours(0, 0, 0, 0);
-      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+  case 'today':
+    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    startDate.setHours(0, 0, 0, 0);
+    endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+    break;
+  case 'yesterday':
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    startDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+    startDate.setHours(0, 0, 0, 0);
+    endDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 23, 59, 59, 999);
+    break;
+  case 'last7days':
+    startDate = new Date(now);
+    startDate.setDate(startDate.getDate() - 6);
+    startDate.setHours(0, 0, 0, 0);
+    endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+    break;
+  case 'last30days':
+    startDate = new Date(now);
+    startDate.setDate(startDate.getDate() - 29);
+    startDate.setHours(0, 0, 0, 0);
+    endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+    break;
+  case 'thismonth':
+    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    startDate.setHours(0, 0, 0, 0);
+    endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+    break;
+  case 'lastmonth':
+    startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    startDate.setHours(0, 0, 0, 0);
+    endDate = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+    break;
+  case 'thisyear':
+    startDate = new Date(now.getFullYear(), 0, 1);
+    startDate.setHours(0, 0, 0, 0);
+    endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
+    break;
+  default:
+    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    startDate.setHours(0, 0, 0, 0);
+    endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
   }
   return { startDate, endDate };
 };
@@ -165,33 +165,33 @@ const getReportTypeDates = (reportType) => {
   const now = new Date();
   let startDate, endDate;
   switch (reportType) {
-    case 'daily':
-      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      startDate.setHours(0, 0, 0, 0);
-      endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-      break;
-    case 'weekly':
-      const dayOfWeek = now.getDay();
-      const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-      startDate = new Date(now.getTime() + mondayOffset * 24 * 60 * 60 * 1000);
-      startDate.setHours(0, 0, 0, 0);
-      endDate = new Date(startDate.getTime() + 6 * 24 * 60 * 60 * 1000);
-      endDate.setHours(23, 59, 59, 999);
-      break;
-    case 'monthly':
-      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-      startDate.setHours(0, 0, 0, 0);
-      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
-      break;
-    case 'yearly':
-      startDate = new Date(now.getFullYear(), 0, 1);
-      startDate.setHours(0, 0, 0, 0);
-      endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
-      break;
-    default:
-      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-      startDate.setHours(0, 0, 0, 0);
-      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+  case 'daily':
+    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    startDate.setHours(0, 0, 0, 0);
+    endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+    break;
+  case 'weekly':
+    const dayOfWeek = now.getDay();
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    startDate = new Date(now.getTime() + mondayOffset * 24 * 60 * 60 * 1000);
+    startDate.setHours(0, 0, 0, 0);
+    endDate = new Date(startDate.getTime() + 6 * 24 * 60 * 60 * 1000);
+    endDate.setHours(23, 59, 59, 999);
+    break;
+  case 'monthly':
+    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    startDate.setHours(0, 0, 0, 0);
+    endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+    break;
+  case 'yearly':
+    startDate = new Date(now.getFullYear(), 0, 1);
+    startDate.setHours(0, 0, 0, 0);
+    endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
+    break;
+  default:
+    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    startDate.setHours(0, 0, 0, 0);
+    endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
   }
   return { startDate, endDate };
 };
@@ -253,10 +253,10 @@ const getSalesTableData = async (startDate, endDate, page, limit) => {
       createdAt: { $gte: startDate, $lte: endDate },
       isDeleted: false
     })
-    .populate('user', 'fullName email')
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit);
+      .populate('user', 'fullName email')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
     const totalOrders = await Order.countDocuments({
       createdAt: { $gte: startDate, $lte: endDate },
       isDeleted: false
@@ -267,32 +267,32 @@ const getSalesTableData = async (startDate, endDate, page, limit) => {
       const totalItems = order.items.reduce((sum, item) => sum + item.quantity, 0);
       let statusBadge = '';
       switch (order.orderStatus) {
-        case 'Delivered':
-          statusBadge = '<span class="badge bg-success">Delivered</span>';
-          break;
-        case 'Shipped':
-          statusBadge = '<span class="badge bg-info">Shipped</span>';
-          break;
-        case 'Processing':
-          statusBadge = '<span class="badge bg-warning text-dark">Processing</span>';
-          break;
-        case 'Placed':
-          statusBadge = '<span class="badge bg-primary">Placed</span>';
-          break;
-        case 'Cancelled':
-          statusBadge = '<span class="badge bg-danger">Cancelled</span>';
-          break;
-        case 'Partially Cancelled':
-          statusBadge = '<span class="badge bg-danger">Partially Cancelled</span>';
-          break;
-        case 'Returned':
-          statusBadge = '<span class="badge bg-secondary">Returned</span>';
-          break;
-        case 'Partially Returned':
-          statusBadge = '<span class="badge bg-secondary">Partially Returned</span>';
-          break;
-        default:
-          statusBadge = '<span class="badge bg-secondary">Unknown</span>';
+      case 'Delivered':
+        statusBadge = '<span class="badge bg-success">Delivered</span>';
+        break;
+      case 'Shipped':
+        statusBadge = '<span class="badge bg-info">Shipped</span>';
+        break;
+      case 'Processing':
+        statusBadge = '<span class="badge bg-warning text-dark">Processing</span>';
+        break;
+      case 'Placed':
+        statusBadge = '<span class="badge bg-primary">Placed</span>';
+        break;
+      case 'Cancelled':
+        statusBadge = '<span class="badge bg-danger">Cancelled</span>';
+        break;
+      case 'Partially Cancelled':
+        statusBadge = '<span class="badge bg-danger">Partially Cancelled</span>';
+        break;
+      case 'Returned':
+        statusBadge = '<span class="badge bg-secondary">Returned</span>';
+        break;
+      case 'Partially Returned':
+        statusBadge = '<span class="badge bg-secondary">Partially Returned</span>';
+        break;
+      default:
+        statusBadge = '<span class="badge bg-secondary">Unknown</span>';
       }
       return {
         date: order.createdAt.toLocaleDateString('en-IN', {
@@ -406,14 +406,14 @@ const exportToExcel = async (req, res) => {
       res.send(buffer);
     } catch (error) {
       console.error('Error in Excel processing:', error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).render('admin/error', { 
-        message: 'Failed to export to Excel: ' + error.message 
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).render('admin/error', {
+        message: 'Failed to export to Excel: ' + error.message
       });
     }
   } catch (error) {
     console.error('Error exporting to Excel:', error);
-    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).render('admin/error', { 
-      message: 'Failed to export to Excel: ' + error.message 
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).render('admin/error', {
+      message: 'Failed to export to Excel: ' + error.message
     });
   }
 };
@@ -455,14 +455,14 @@ const exportToPDF = async (req, res) => {
       res.send(htmlContent);
     } catch (error) {
       console.error('Error in PDF processing:', error);
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).render('admin/error', { 
-        message: 'Failed to export to PDF: ' + error.message 
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).render('admin/error', {
+        message: 'Failed to export to PDF: ' + error.message
       });
     }
   } catch (error) {
     console.error('Error exporting to PDF:', error);
-    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).render('admin/error', { 
-      message: 'Failed to export to PDF: ' + error.message 
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).render('admin/error', {
+      message: 'Failed to export to PDF: ' + error.message
     });
   }
 };

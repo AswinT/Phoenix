@@ -1,24 +1,24 @@
-const Coupon = require("../../models/couponSchema");
-const User = require("../../models/userSchema");
-const { HttpStatus } = require("../../helpers/statusCode");
+const Coupon = require('../../models/couponSchema');
+const User = require('../../models/userSchema');
+const { HttpStatus } = require('../../helpers/statusCode');
 const getUserCoupons = async (req, res) => {
   try {
     const userId = req.session.user_id;
     if (!userId) {
       return res
         .status(HttpStatus.UNAUTHORIZED)
-        .json({ success: false, message: "Please log in to view coupons" });
+        .json({ success: false, message: 'Please log in to view coupons' });
     }
     const user = await User.findById(userId).lean();
     if (!user) {
       return res
         .status(HttpStatus.NOT_FOUND)
-        .json({ success: false, message: "User not found" });
+        .json({ success: false, message: 'User not found' });
     }
     if (user.isBlocked) {
       return res
         .status(HttpStatus.FORBIDDEN)
-        .json({ success: false, message: "Your account is blocked" });
+        .json({ success: false, message: 'Your account is blocked' });
     }
     const page = parseInt(req.query.page) || 1;
     const limit = 6;
@@ -29,8 +29,8 @@ const getUserCoupons = async (req, res) => {
       startDate: { $lte: currentDate },
       expiryDate: { $gte: currentDate },
     })
-      .populate("applicableCategories", "name")
-      .populate("applicableProducts", "title")
+      .populate('applicableCategories', 'name')
+      .populate('applicableProducts', 'title')
       .lean();
     const filteredCoupons = coupons.filter((coupon) => {
       if (
@@ -54,7 +54,7 @@ const getUserCoupons = async (req, res) => {
     if (page < 1 || (page > totalPages && totalPages > 0)) {
       return res
         .status(HttpStatus.NOT_FOUND)
-        .json({ success: false, message: "Page not found" });
+        .json({ success: false, message: 'Page not found' });
     }
     const paginatedCoupons = filteredCoupons.slice(skip, skip + limit);
     const formattedCoupons = paginatedCoupons.map((coupon) => {
@@ -64,39 +64,39 @@ const getUserCoupons = async (req, res) => {
       const remainingUses =
         coupon.usageLimitPerUser - (userUsage ? userUsage.count : 0);
       const discountDisplay =
-        coupon.discountType === "percentage"
+        coupon.discountType === 'percentage'
           ? `${coupon.discountValue}% OFF${
-              coupon.maxDiscountValue
-                ? ` (up to ₹${coupon.maxDiscountValue})`
-                : ""
-            }`
+            coupon.maxDiscountValue
+              ? ` (up to ₹${coupon.maxDiscountValue})`
+              : ''
+          }`
           : `₹${coupon.discountValue} OFF`;
       const applicabilityDisplay =
         coupon.applicableCategories.length > 0
           ? `Applicable on: ${coupon.applicableCategories
-              .map((cat) => cat.name)
-              .join(", ")}`
+            .map((cat) => cat.name)
+            .join(', ')}`
           : coupon.applicableProducts.length > 0
-          ? `Applicable on: ${coupon.applicableProducts
+            ? `Applicable on: ${coupon.applicableProducts
               .map((prod) => prod.title)
-              .join(", ")}`
-          : "Applicable on all products";
+              .join(', ')}`
+            : 'Applicable on all products';
       return {
         ...coupon,
         discountDisplay,
         applicabilityDisplay,
         validityText: `Valid till: ${coupon.expiryDate.toLocaleDateString(
-          "en-US",
-          { month: "short", day: "numeric", year: "numeric" }
+          'en-US',
+          { month: 'short', day: 'numeric', year: 'numeric' }
         )}`,
         minOrderText:
           coupon.minOrderAmount > 0
             ? `Min. order: ₹${coupon.minOrderAmount}`
-            : "",
+            : '',
         remainingUses:
           remainingUses > 0 && coupon.usageLimitPerUser > 1
             ? `Uses left: ${remainingUses}`
-            : "",
+            : '',
       };
     });
     formattedCoupons.sort(
@@ -114,20 +114,20 @@ const getUserCoupons = async (req, res) => {
       end,
       totalCoupons,
     };
-    res.render("user-coupons", {
+    res.render('user-coupons', {
       coupons: formattedCoupons,
       user,
       noCoupons: totalCoupons === 0,
       pagination,
-      title: "Available Coupons",
-      currentPage: "coupons",
+      title: 'Available Coupons',
+      currentPage: 'coupons',
       isAuthenticated: true,
     });
   } catch (error) {
-    console.error("Error fetching user coupons:", error);
+    console.error('Error fetching user coupons:', error);
     res
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .json({ success: false, message: "Internal server error" });
+      .json({ success: false, message: 'Internal server error' });
   }
 };
 module.exports = { getUserCoupons };

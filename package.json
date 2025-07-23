@@ -4,7 +4,9 @@
   "main": "app.js",
   "scripts": {
     "dev": "nodemon app.js",
-    "start": "node app.js"
+    "start": "node app.js",
+    "lint": "eslint routes/ controllers/ middlewares/ --ext .js",
+    "lint:fix": "eslint routes/ controllers/ middlewares/ --ext .js --fix"
   },
   "author": "Aswin T",
   "license": "ISC",
@@ -28,5 +30,8 @@
     "pdfkit": "^0.17.1",
     "razorpay": "^2.9.6",
     "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "eslint": "^9.31.0"
   }
 }

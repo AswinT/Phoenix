@@ -1,16 +1,16 @@
-const Product = require("../../models/productSchema");
-const Category = require("../../models/categorySchema");
-const Cart = require("../../models/cartSchema");
-const Wishlist = require("../../models/wishlistSchema");
-const { getActiveOfferForProduct, calculateDiscount } = require("../../utils/offerHelper");
-const {HttpStatus} = require('../../helpers/statusCode')
+const Product = require('../../models/productSchema');
+const Category = require('../../models/categorySchema');
+const Cart = require('../../models/cartSchema');
+const Wishlist = require('../../models/wishlistSchema');
+const { getActiveOfferForProduct, calculateDiscount } = require('../../utils/offerHelper');
+const {HttpStatus} = require('../../helpers/statusCode');
 const productDetails = async (req, res) => {
   try {
     const userId = req.session.user_id;
     const productId = req.params.id;
-    const product = await Product.findById(productId).populate("category");
+    const product = await Product.findById(productId).populate('category');
     if (!product || !product.isListed || product.isDeleted || !product.category || !product.category.isListed) {
-      return res.status(HttpStatus.NOT_FOUND).render("pageNotFound");
+      return res.status(HttpStatus.NOT_FOUND).render('pageNotFound');
     }
     const pricingOptions = [];
     if (product.salePrice < product.regularPrice) {
@@ -66,12 +66,12 @@ const productDetails = async (req, res) => {
     product.activeOffer = bestOption.offer;
     product.bestOfferType = bestOption.type;
     const relatedProducts = await Product.aggregate([
-      { 
-        $match: { 
-          _id: { $ne: product._id }, 
-          isListed: true, 
+      {
+        $match: {
+          _id: { $ne: product._id },
+          isListed: true,
           isDeleted: false,
-          category: product.category._id 
+          category: product.category._id
         }
       },
       { $sample: { size: 4 } },
@@ -143,7 +143,7 @@ const productDetails = async (req, res) => {
         isWishlisted = wishlist.items.some(item => item.product.toString() === productId);
       }
     }
-    res.render("product-details", {
+    res.render('product-details', {
       product,
       relatedProducts,
       isInCart,
@@ -154,8 +154,8 @@ const productDetails = async (req, res) => {
       isAuthenticated: !!userId,
     });
   } catch (error) {
-    console.error("Error fetching product details:", error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).render("pageNotFound");
+    console.error('Error fetching product details:', error);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).render('pageNotFound');
   }
 };
 module.exports = { productDetails };

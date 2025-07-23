@@ -309,24 +309,19 @@ const updateProduct = async (req, res) => {
   }
 };
 const softDeleteProduct = async (req, res) => {
-  console.log('Soft delete request received for productId:', req.params.id);
   try {
     const productId = req.params.id;
     const product = await Product.findById(productId);
-    console.log('Product found:', product);
     if (!product) {
-      console.log('Product not found');
       return res.status(HttpStatus.NOT_FOUND).json({ error: 'Product not found' });
     }
     product.isDeleted = true;
     await product.save();
-    console.log('Product soft deleted:', product._id);
     res.status(HttpStatus.OK).json({
       success: true,
       message: 'Product soft deleted successfully'
     });
   } catch (error) {
-    console.error('Error soft deleting product:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server Error' });
   }
 };

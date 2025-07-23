@@ -1,15 +1,15 @@
-const User = require("../../models/userSchema");
-const { HttpStatus } = require("../../helpers/statusCode");
+const User = require('../../models/userSchema');
+const { HttpStatus } = require('../../helpers/statusCode');
 const getUsers = async (req, res) => {
   try {
-    const searchTerm = req.query.search || "";
+    const searchTerm = req.query.search || '';
     let searchQuery = {};
     if (searchTerm) {
       searchQuery = {
         $or: [
-          { fullName: { $regex: searchTerm, $options: "i" } },
-          { email: { $regex: searchTerm, $options: "i" } },
-          { phone: { $regex: searchTerm, $options: "i" } },
+          { fullName: { $regex: searchTerm, $options: 'i' } },
+          { email: { $regex: searchTerm, $options: 'i' } },
+          { phone: { $regex: searchTerm, $options: 'i' } },
         ],
       };
     }
@@ -21,7 +21,7 @@ const getUsers = async (req, res) => {
     const totalPages = Math.ceil(totalUsers / limit);
     const startIdx = skip;
     const endIdx = Math.min(skip + limit, totalUsers);
-    res.render("getUser", {
+    res.render('getUser', {
       users: users || [],
       currentPage: page,
       totalPages,
@@ -31,8 +31,7 @@ const getUsers = async (req, res) => {
       searchTerm,
     });
   } catch (error) {
-    console.log("Error in getting User", error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server error");
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Server error');
   }
 };
 const blockUser = async (req, res) => {
@@ -46,19 +45,18 @@ const blockUser = async (req, res) => {
     if (!user) {
       return res.status(HttpStatus.NOT_FOUND).json({
         success: false,
-        message: "User not found",
+        message: 'User not found',
       });
     }
     return res.status(HttpStatus.OK).json({
       success: true,
-      message: "User blocked successfully ",
+      message: 'User blocked successfully ',
       user: { id: user._id, isBlocked: user.isBlocked },
     });
   } catch (error) {
-    console.log(`Error in deleting user,${error}`);
     return res.status(HttpStatus.BAD_REQUEST).json({
       success: false,
-      message: "server error",
+      message: 'server error',
     });
   }
 };
@@ -73,18 +71,17 @@ const unblockUser = async (req, res) => {
     if (!user) {
       return res.status(HttpStatus.NOT_FOUND).json({
         success: false,
-        message: "User not found",
+        message: 'User not found',
       });
     }
     return res.status(HttpStatus.OK).json({
       success: true,
-      message: "User unblocked successfully",
+      message: 'User unblocked successfully',
     });
   } catch (error) {
-    console.log(`Error in unblocking user,${error}`);
     res.status(HttpStatus.BAD_REQUEST).json({
       success: false,
-      message: "Server Error",
+      message: 'Server Error',
     });
   }
 };

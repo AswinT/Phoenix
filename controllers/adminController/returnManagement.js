@@ -1,7 +1,7 @@
-const Order = require("../../models/orderSchema");
-const Product = require("../../models/productSchema");
-const { processReturnRefund } = require("../userController/walletController");
-const { calculateExactRefundAmount } = require("../../helpers/moneyCalculator");
+const Order = require('../../models/orderSchema');
+const Product = require('../../models/productSchema');
+const { processReturnRefund } = require('../userController/walletController');
+const { calculateExactRefundAmount } = require('../../helpers/moneyCalculator');
 const { HttpStatus } = require('../../helpers/statusCode');
 const calculateEstimatedRefund = (order) => {
   try {
@@ -14,8 +14,8 @@ const calculateEstimatedRefund = (order) => {
     }
     const isFullOrderReturn = returnRequestedItems.length === order.items.length;
     let totalRefund = 0;
-    let totalBase = 0;
-    let totalTax = 0;
+    const totalBase = 0;
+    const totalTax = 0;
     for (const item of returnRequestedItems) {
       totalRefund += calculateExactRefundAmount(item, order);
     }
@@ -40,16 +40,16 @@ const getReturnRequests = async (req, res) => {
         { 'items.status': 'Return Requested' }
       ]
     };
-    const status = req.query.status || "";
-    if (status === "pending") {
+    const status = req.query.status || '';
+    if (status === 'pending') {
       query.orderStatus = 'Return Requested';
-    } else if (status === "individual") {
+    } else if (status === 'individual') {
       query.orderStatus = 'Delivered';
       query['items.status'] = 'Return Requested';
     }
     const totalOrders = await Order.countDocuments(query);
     const orders = await Order.find(query)
-      .populate("user", "fullName email")
+      .populate('user', 'fullName email')
       .sort({ updatedAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -75,14 +75,14 @@ const getReturnRequests = async (req, res) => {
         ...order,
         returnRequestedItems,
         returnRequestCount: returnRequestedItems.length,
-        formattedDate: new Date(order.createdAt).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
+        formattedDate: new Date(order.createdAt).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
         }),
         formattedTotal: `₹${displayTotal.toFixed(2)}`,
-        customerName: order.user ? order.user.fullName : "Unknown",
-        customerEmail: order.user ? order.user.email : "N/A",
+        customerName: order.user ? order.user.fullName : 'Unknown',
+        customerEmail: order.user ? order.user.email : 'N/A',
         hasIndividualReturns: returnRequestedItems.length > 0 && order.orderStatus === 'Delivered',
         hasFullOrderReturn: order.orderStatus === 'Return Requested',
         estimatedRefund: estimatedRefund
@@ -99,20 +99,20 @@ const getReturnRequests = async (req, res) => {
       pages: Array.from({ length: totalPages }, (_, i) => i + 1),
     };
     const filters = {
-      status: status || "",
+      status: status || '',
     };
     const errorMessage = req.session.errorMessage;
     delete req.session.errorMessage;
-    res.render("admin/return-management", {
+    res.render('admin/return-management', {
       orders: processedOrders,
       pagination,
-      title: "Return Management",
+      title: 'Return Management',
       filters,
       totalReturnRequests: totalOrders,
       errorMessage
     });
   } catch (error) {
-    console.error("Error fetching return requests:", error);
+    console.error('Error fetching return requests:', error);
     res.redirect('/admin/dashboard');
   }
 };
@@ -120,7 +120,7 @@ const getReturnRequestDetails = async (req, res) => {
   try {
     const orderId = req.params.id;
     const order = await Order.findById(orderId)
-      .populate("user", "fullName email phone")
+      .populate('user', 'fullName email phone')
       .lean();
     if (!order || order.isDeleted) {
       return res.status(HttpStatus.NOT_FOUND).render('admin/page-404', {
@@ -146,10 +146,10 @@ const getReturnRequestDetails = async (req, res) => {
     const useStoredTotal = order.total && Math.abs(order.total - correctTotal) < 0.01;
     const displayTotal = useStoredTotal ? order.total : correctTotal;
     order.total = displayTotal;
-    order.formattedDate = new Date(order.createdAt).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
+    order.formattedDate = new Date(order.createdAt).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
     });
     order.formattedTotal = `₹${displayTotal.toFixed(2)}`;
     const estimatedRefund = calculateEstimatedRefund(order);
@@ -281,7 +281,7 @@ const bulkProcessReturns = async (req, res) => {
     }
     const approved = action === 'approve';
     let processedCount = 0;
-    let errors = [];
+    const errors = [];
     for (const orderId of orderIds) {
       try {
         const order = await Order.findById(orderId);
@@ -361,10 +361,10 @@ const bulkProcessReturns = async (req, res) => {
       errors: errors.length > 0 ? errors : null
     });
   } catch (error) {
-    console.error("Error in bulk process returns:", error);
+    console.error('Error in bulk process returns:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: "Internal server error"
+      message: 'Internal server error'
     });
   }
 };

@@ -4,12 +4,8 @@ const path = require("path");
 const env = require("dotenv").config();
 const session = require("express-session");
 const connectDB = require("./config/db");
-// Import new hierarchical routing system
+// Import hierarchical routing system
 const routes = require("./routes");
-
-// Keep legacy routes for gradual migration
-const userRouter = require("./routes/userRoutes/userRouter");
-const adminRoute = require("./routes/adminRoutes/adminRoutes")
 const passport = require("./config/passport");
 const methodOverride = require('method-override');
 const morgan = require('morgan');
@@ -60,13 +56,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/validators', express.static(path.join(__dirname, 'validators')));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(methodOverride('_method'));
-// Use new hierarchical routing system
+// Use hierarchical routing system
 app.use("/", routes);
-
-// Keep legacy routes for backward compatibility during migration
-// These will be gradually phased out
-// app.use("/", userRouter);
-// app.use("/admin", adminRoute);
 app.use(notFoundHandler);
 app.use(globalErrorHandler);
 const PORT = process.env.PORT || 3000;

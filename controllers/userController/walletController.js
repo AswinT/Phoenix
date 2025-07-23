@@ -1,8 +1,8 @@
-const Wallet = require("../../models/walletSchema");
-const Order = require("../../models/orderSchema");
-const { calculateDiscount, getUnifiedPriceBreakdown } = require("../../utils/offerHelper");
-const { HttpStatus } = require("../../helpers/statusCode");
-const { calculateRefundAmount, validateRefundForPaymentMethod } = require("../../helpers/moneyCalculator");
+const Wallet = require('../../models/walletSchema');
+const Order = require('../../models/orderSchema');
+const { calculateDiscount, getUnifiedPriceBreakdown } = require('../../utils/offerHelper');
+const { HttpStatus } = require('../../helpers/statusCode');
+const { calculateRefundAmount, validateRefundForPaymentMethod } = require('../../helpers/moneyCalculator');
 const getWallet = async (req, res) => {
   try {
     const userId = req.session.user_id;
@@ -149,7 +149,7 @@ const processCancelRefund = async (userId, order, productId = null) => {
                 type: 'credit',
                 amount: remainingRefund,
                 orderId: order._id,
-                reason: `Refund for remaining amount in cancelled order`,
+                reason: 'Refund for remaining amount in cancelled order',
                 date: new Date()
               });
               await wallet.save();

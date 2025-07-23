@@ -1,16 +1,16 @@
-const Order = require("../../models/orderSchema");
-const User = require("../../models/userSchema");
-const Product = require("../../models/productSchema");
-const Cart = require("../../models/cartSchema");
-const Offer = require("../../models/offerSchema");
+const Order = require('../../models/orderSchema');
+const User = require('../../models/userSchema');
+const Product = require('../../models/productSchema');
+const Cart = require('../../models/cartSchema');
+const Offer = require('../../models/offerSchema');
 const PDFDocument = require('pdfkit');
 const path = require('path');
-const { getActiveOfferForProduct, calculateDiscount, getItemPriceDetails, reapplyCouponBenefitsAfterCancellation } = require("../../utils/offerHelper");
-const { processCancelRefund, processReturnRefund } = require("./walletController");
-const Wallet = require("../../models/walletSchema");
-const Address = require("../../models/addressSchema");
-const Coupon = require("../../models/couponSchema");
-const { HttpStatus } = require("../../helpers/statusCode");
+const { getActiveOfferForProduct, calculateDiscount, getItemPriceDetails, reapplyCouponBenefitsAfterCancellation } = require('../../utils/offerHelper');
+const { processCancelRefund, processReturnRefund } = require('./walletController');
+const Wallet = require('../../models/walletSchema');
+const Address = require('../../models/addressSchema');
+const Coupon = require('../../models/couponSchema');
+const { HttpStatus } = require('../../helpers/statusCode');
 const getOrders = async (req, res) => {
   try {
     if (!req.session.user_id) {
@@ -628,14 +628,14 @@ const downloadInvoice = async (req, res) => {
     res.setHeader('Expires', '0');
     doc.pipe(res);
     const colors = {
-      primary: '#2563EB',     
-      secondary: '#6B7280',   
-      dark: '#111827',        
-      light: '#F8FAFC',       
-      success: '#059669',     
-      danger: '#DC2626',      
-      border: '#E5E7EB',      
-      accent: '#7C3AED'       
+      primary: '#2563EB',
+      secondary: '#6B7280',
+      dark: '#111827',
+      light: '#F8FAFC',
+      success: '#059669',
+      danger: '#DC2626',
+      border: '#E5E7EB',
+      accent: '#7C3AED'
     };
     const pageWidth = doc.page.width;
     const contentWidth = pageWidth - 100;
@@ -647,129 +647,129 @@ const downloadInvoice = async (req, res) => {
       console.log('Logo image not found, continuing without logo');
     }
     doc.font('Helvetica-Bold')
-       .fontSize(28)
-       .fillColor(colors.primary)
-       .text('PHOENIX', leftMargin + 70, 50);
+      .fontSize(28)
+      .fillColor(colors.primary)
+      .text('PHOENIX', leftMargin + 70, 50);
     doc.font('Helvetica-Oblique')
-       .fontSize(11)
-       .fillColor(colors.secondary)
-       .text('Premium Headphone Experience', leftMargin + 70, 82);
+      .fontSize(11)
+      .fillColor(colors.secondary)
+      .text('Premium Headphone Experience', leftMargin + 70, 82);
     doc.font('Helvetica')
-       .fontSize(9)
-       .fillColor(colors.secondary)
-       .text('Email: support@phoenix.com | Phone: +91 1234567890', leftMargin + 70, 98)
-       .text('Website: www.phoenix.com', leftMargin + 70, 110);
+      .fontSize(9)
+      .fillColor(colors.secondary)
+      .text('Email: support@phoenix.com | Phone: +91 1234567890', leftMargin + 70, 98)
+      .text('Website: www.phoenix.com', leftMargin + 70, 110);
     doc.strokeColor(colors.primary)
-       .lineWidth(2)
-       .moveTo(leftMargin + 70, 125)
-       .lineTo(leftMargin + 250, 125)
-       .stroke();
+      .lineWidth(2)
+      .moveTo(leftMargin + 70, 125)
+      .lineTo(leftMargin + 250, 125)
+      .stroke();
     const invoiceBoxX = rightMargin - 180;
     const invoiceBoxY = 50;
     const invoiceBoxWidth = 170;
     const invoiceBoxHeight = 100;
     doc.fillColor(colors.light)
-       .rect(invoiceBoxX, invoiceBoxY, invoiceBoxWidth, invoiceBoxHeight)
-       .fill();
+      .rect(invoiceBoxX, invoiceBoxY, invoiceBoxWidth, invoiceBoxHeight)
+      .fill();
     doc.strokeColor(colors.primary)
-       .lineWidth(2)
-       .rect(invoiceBoxX, invoiceBoxY, invoiceBoxWidth, invoiceBoxHeight)
-       .stroke();
+      .lineWidth(2)
+      .rect(invoiceBoxX, invoiceBoxY, invoiceBoxWidth, invoiceBoxHeight)
+      .stroke();
     doc.font('Helvetica-Bold')
-       .fontSize(26)
-       .fillColor(colors.primary)
-       .text('INVOICE', invoiceBoxX + 10, invoiceBoxY + 15, { align: 'center', width: invoiceBoxWidth - 20 });
+      .fontSize(26)
+      .fillColor(colors.primary)
+      .text('INVOICE', invoiceBoxX + 10, invoiceBoxY + 15, { align: 'center', width: invoiceBoxWidth - 20 });
     const detailsStartY = invoiceBoxY + 40;
     const lineHeight = 18;
     doc.fontSize(9)
-       .font('Helvetica')
-       .fillColor(colors.secondary)
-       .text('Invoice Number: ', invoiceBoxX + 10, detailsStartY, { continued: true })
-       .font('Helvetica-Bold')
-       .fillColor(colors.dark)
-       .text(`#${order.orderNumber}`);
+      .font('Helvetica')
+      .fillColor(colors.secondary)
+      .text('Invoice Number: ', invoiceBoxX + 10, detailsStartY, { continued: true })
+      .font('Helvetica-Bold')
+      .fillColor(colors.dark)
+      .text(`#${order.orderNumber}`);
     doc.font('Helvetica')
-       .fontSize(9)
-       .fillColor(colors.secondary)
-       .text('Date: ', invoiceBoxX + 10, detailsStartY + lineHeight, { continued: true })
-       .font('Helvetica-Bold')
-       .fillColor(colors.dark)
-       .text(`${order.formattedDate}`);
+      .fontSize(9)
+      .fillColor(colors.secondary)
+      .text('Date: ', invoiceBoxX + 10, detailsStartY + lineHeight, { continued: true })
+      .font('Helvetica-Bold')
+      .fillColor(colors.dark)
+      .text(`${order.formattedDate}`);
     const orderStatusColor = order.orderStatus === 'Delivered' ? colors.success :
-                            order.orderStatus === 'Returned' ? colors.danger :
-                            order.orderStatus === 'Cancelled' ? colors.danger : colors.primary;
+      order.orderStatus === 'Returned' ? colors.danger :
+        order.orderStatus === 'Cancelled' ? colors.danger : colors.primary;
     doc.font('Helvetica')
-       .fontSize(9)
-       .fillColor(colors.secondary)
-       .text('Status: ', invoiceBoxX + 10, detailsStartY + (lineHeight * 2), { continued: true })
-       .font('Helvetica-Bold')
-       .fillColor(orderStatusColor)
-       .text(`${order.orderStatus}`);
+      .fontSize(9)
+      .fillColor(colors.secondary)
+      .text('Status: ', invoiceBoxX + 10, detailsStartY + (lineHeight * 2), { continued: true })
+      .font('Helvetica-Bold')
+      .fillColor(orderStatusColor)
+      .text(`${order.orderStatus}`);
     doc.strokeColor(colors.border)
-       .lineWidth(1)
-       .moveTo(leftMargin, 160)
-       .lineTo(rightMargin, 160)
-       .stroke();
+      .lineWidth(1)
+      .moveTo(leftMargin, 160)
+      .lineTo(rightMargin, 160)
+      .stroke();
     const billingStartY = 180;
     const billingBoxWidth = 250;
     const billingBoxHeight = 120;
     doc.fillColor('#FAFBFC')
-       .rect(leftMargin, billingStartY, billingBoxWidth, billingBoxHeight)
-       .fill();
+      .rect(leftMargin, billingStartY, billingBoxWidth, billingBoxHeight)
+      .fill();
     doc.strokeColor(colors.border)
-       .lineWidth(1)
-       .rect(leftMargin, billingStartY, billingBoxWidth, billingBoxHeight)
-       .stroke();
+      .lineWidth(1)
+      .rect(leftMargin, billingStartY, billingBoxWidth, billingBoxHeight)
+      .stroke();
     doc.font('Helvetica-Bold')
-       .fontSize(14)
-       .fillColor(colors.primary)
-       .text('BILL TO', leftMargin + 10, billingStartY + 10);
+      .fontSize(14)
+      .fillColor(colors.primary)
+      .text('BILL TO', leftMargin + 10, billingStartY + 10);
     doc.font('Helvetica-Bold')
-       .fontSize(11)
-       .fillColor(colors.dark)
-       .text(order.shippingAddress.fullName || user.fullName || 'N/A', leftMargin + 10, billingStartY + 30);
+      .fontSize(11)
+      .fillColor(colors.dark)
+      .text(order.shippingAddress.fullName || user.fullName || 'N/A', leftMargin + 10, billingStartY + 30);
     doc.font('Helvetica')
-       .fontSize(10)
-       .fillColor(colors.dark)
-       .text(order.shippingAddress.street || '', leftMargin + 10, billingStartY + 45)
-       .text(`${order.shippingAddress.district || ''}, ${order.shippingAddress.state || ''} - ${order.shippingAddress.pincode || ''}`, leftMargin + 10, billingStartY + 60)
-       .text(`Phone: ${order.shippingAddress.phone || 'N/A'}`, leftMargin + 10, billingStartY + 75)
-       .text(`Email: ${user.email || 'N/A'}`, leftMargin + 10, billingStartY + 90);
+      .fontSize(10)
+      .fillColor(colors.dark)
+      .text(order.shippingAddress.street || '', leftMargin + 10, billingStartY + 45)
+      .text(`${order.shippingAddress.district || ''}, ${order.shippingAddress.state || ''} - ${order.shippingAddress.pincode || ''}`, leftMargin + 10, billingStartY + 60)
+      .text(`Phone: ${order.shippingAddress.phone || 'N/A'}`, leftMargin + 10, billingStartY + 75)
+      .text(`Email: ${user.email || 'N/A'}`, leftMargin + 10, billingStartY + 90);
     const paymentBoxX = rightMargin - 200;
     const paymentBoxWidth = 190;
     const paymentBoxHeight = 80;
     doc.fillColor('#F0F9FF')
-       .rect(paymentBoxX, billingStartY, paymentBoxWidth, paymentBoxHeight)
-       .fill();
+      .rect(paymentBoxX, billingStartY, paymentBoxWidth, paymentBoxHeight)
+      .fill();
     doc.strokeColor(colors.primary)
-       .lineWidth(1)
-       .rect(paymentBoxX, billingStartY, paymentBoxWidth, paymentBoxHeight)
-       .stroke();
+      .lineWidth(1)
+      .rect(paymentBoxX, billingStartY, paymentBoxWidth, paymentBoxHeight)
+      .stroke();
     doc.font('Helvetica-Bold')
-       .fontSize(14)
-       .fillColor(colors.primary)
-       .text('PAYMENT DETAILS', paymentBoxX + 10, billingStartY + 10);
+      .fontSize(14)
+      .fillColor(colors.primary)
+      .text('PAYMENT DETAILS', paymentBoxX + 10, billingStartY + 10);
     doc.font('Helvetica')
-       .fontSize(10)
-       .fillColor(colors.secondary)
-       .text('Method:', paymentBoxX + 10, billingStartY + 35)
-       .font('Helvetica-Bold')
-       .fillColor(colors.dark)
-       .text(`${order.paymentMethod || 'Cash on Delivery'}`, paymentBoxX + 10, billingStartY + 50);
+      .fontSize(10)
+      .fillColor(colors.secondary)
+      .text('Method:', paymentBoxX + 10, billingStartY + 35)
+      .font('Helvetica-Bold')
+      .fillColor(colors.dark)
+      .text(`${order.paymentMethod || 'Cash on Delivery'}`, paymentBoxX + 10, billingStartY + 50);
     doc.font('Helvetica')
-       .fontSize(10)
-       .fillColor(colors.secondary)
-       .text('Status:', paymentBoxX + 100, billingStartY + 35);
+      .fontSize(10)
+      .fillColor(colors.secondary)
+      .text('Status:', paymentBoxX + 100, billingStartY + 35);
     const paymentStatusColor = order.paymentStatus === 'Paid' ? colors.success :
-                              order.paymentStatus === 'Pending' ? '#F59E0B' : colors.danger;
+      order.paymentStatus === 'Pending' ? '#F59E0B' : colors.danger;
     doc.font('Helvetica-Bold')
-       .fillColor(paymentStatusColor)
-       .text(`${order.paymentStatus || 'Pending'}`, paymentBoxX + 100, billingStartY + 50);
+      .fillColor(paymentStatusColor)
+      .text(`${order.paymentStatus || 'Pending'}`, paymentBoxX + 100, billingStartY + 50);
     doc.strokeColor(colors.border)
-       .lineWidth(1)
-       .moveTo(leftMargin, billingStartY + 140)
-       .lineTo(rightMargin, billingStartY + 140)
-       .stroke();
+      .lineWidth(1)
+      .moveTo(leftMargin, billingStartY + 140)
+      .lineTo(rightMargin, billingStartY + 140)
+      .stroke();
     const tableTop = billingStartY + 160;
     const tableHeaders = ['Item', 'Price', 'Quantity', 'Discount', 'Total'];
     const colWidths = [0.40, 0.15, 0.15, 0.15, 0.15];
@@ -780,11 +780,11 @@ const downloadInvoice = async (req, res) => {
       currentPosition += width * contentWidth;
     });
     doc.fillColor(colors.light)
-       .rect(leftMargin, tableTop, contentWidth, 25)
-       .fill();
+      .rect(leftMargin, tableTop, contentWidth, 25)
+      .fill();
     doc.font('Helvetica-Bold')
-       .fontSize(10)
-       .fillColor(colors.dark);
+      .fontSize(10)
+      .fillColor(colors.dark);
     tableHeaders.forEach((header, i) => {
       const align = i === 0 ? 'left' : 'right';
       const x = colPositions[i];
@@ -795,12 +795,12 @@ const downloadInvoice = async (req, res) => {
     order.items.forEach((item, index) => {
       if (index % 2 === 1) {
         doc.fillColor('#F9FAFB')
-           .rect(leftMargin, y, contentWidth, 35)
-           .fill();
+          .rect(leftMargin, y, contentWidth, 35)
+          .fill();
       }
       doc.fillColor(colors.dark)
-         .font('Helvetica')
-         .fontSize(10);
+        .font('Helvetica')
+        .fontSize(10);
       let itemTitle = item.model || item.title || 'Unknown Product';
       if (item.status !== 'Active') {
         itemTitle += ` (${item.status})`;
@@ -811,118 +811,118 @@ const downloadInvoice = async (req, res) => {
       });
       if (item.offerTitle) {
         doc.fillColor(colors.success)
-           .fontSize(8)
-           .text(item.offerTitle, colPositions[0] + 5, y + 20, {
-             width: colWidths[0] * contentWidth - 10,
-             align: 'left'
-           });
+          .fontSize(8)
+          .text(item.offerTitle, colPositions[0] + 5, y + 20, {
+            width: colWidths[0] * contentWidth - 10,
+            align: 'left'
+          });
       }
       doc.fillColor(colors.dark)
-         .fontSize(10)
-         .text(`₹${item.price.toFixed(2)}`, colPositions[1] + 5, y + 12, {
-           width: colWidths[1] * contentWidth - 10,
-           align: 'right'
-         });
+        .fontSize(10)
+        .text(`₹${item.price.toFixed(2)}`, colPositions[1] + 5, y + 12, {
+          width: colWidths[1] * contentWidth - 10,
+          align: 'right'
+        });
       doc.text(item.quantity.toString(), colPositions[2] + 5, y + 12, {
         width: colWidths[2] * contentWidth - 10,
         align: 'right'
       });
       const itemDiscount = (item.offerDiscount || 0) * item.quantity;
       doc.fillColor(colors.success)
-         .text(`₹${itemDiscount.toFixed(2)}`, colPositions[3] + 5, y + 12, {
-           width: colWidths[3] * contentWidth - 10,
-           align: 'right'
-         });
+        .text(`₹${itemDiscount.toFixed(2)}`, colPositions[3] + 5, y + 12, {
+          width: colWidths[3] * contentWidth - 10,
+          align: 'right'
+        });
       doc.fillColor(colors.dark)
-         .text(`₹${item.finalTotal.toFixed(2)}`, colPositions[4] + 5, y + 12, {
-           width: colWidths[4] * contentWidth - 10,
-           align: 'right'
-         });
+        .text(`₹${item.finalTotal.toFixed(2)}`, colPositions[4] + 5, y + 12, {
+          width: colWidths[4] * contentWidth - 10,
+          align: 'right'
+        });
       y += 35;
     });
     doc.strokeColor(colors.border)
-       .lineWidth(1)
-       .rect(leftMargin, tableTop, contentWidth, y - tableTop)
-       .stroke();
+      .lineWidth(1)
+      .rect(leftMargin, tableTop, contentWidth, y - tableTop)
+      .stroke();
     let lineY = tableTop + 25;
     for (let i = 0; i < order.items.length; i++) {
       doc.moveTo(leftMargin, lineY)
-         .lineTo(rightMargin - 50, lineY)
-         .stroke();
+        .lineTo(rightMargin - 50, lineY)
+        .stroke();
       lineY += 35;
     }
     colPositions.forEach((x, i) => {
       if (i === 0) return;
       doc.moveTo(x, tableTop)
-         .lineTo(x, y)
-         .stroke();
+        .lineTo(x, y)
+        .stroke();
     });
     const summaryStartY = y + 20;
     const summaryWidth = 200;
     const summaryX = rightMargin - summaryWidth;
     doc.font('Helvetica')
-       .fontSize(10)
-       .fillColor(colors.secondary)
-       .text('Subtotal:', summaryX, summaryStartY, { width: 100, align: 'left' })
-       .fillColor(colors.dark)
-       .text(`₹${displaySubtotal.toFixed(2)}`, summaryX + 100, summaryStartY, { width: 100, align: 'right' });
+      .fontSize(10)
+      .fillColor(colors.secondary)
+      .text('Subtotal:', summaryX, summaryStartY, { width: 100, align: 'left' })
+      .fillColor(colors.dark)
+      .text(`₹${displaySubtotal.toFixed(2)}`, summaryX + 100, summaryStartY, { width: 100, align: 'right' });
     doc.fillColor(colors.secondary)
-       .text('Tax (8%):', summaryX, summaryStartY + 20, { width: 100, align: 'left' })
-       .fillColor(colors.dark)
-       .text(`₹${order.tax.toFixed(2)}`, summaryX + 100, summaryStartY + 20, { width: 100, align: 'right' });
+      .text('Tax (8%):', summaryX, summaryStartY + 20, { width: 100, align: 'left' })
+      .fillColor(colors.dark)
+      .text(`₹${order.tax.toFixed(2)}`, summaryX + 100, summaryStartY + 20, { width: 100, align: 'right' });
     if (order.discount > 0) {
       doc.fillColor(colors.secondary)
-         .text('Offer Discount:', summaryX, summaryStartY + 40, { width: 100, align: 'left' })
-         .fillColor(colors.success)
-         .text(`- ₹${order.discount.toFixed(2)}`, summaryX + 100, summaryStartY + 40, { width: 100, align: 'right' });
+        .text('Offer Discount:', summaryX, summaryStartY + 40, { width: 100, align: 'left' })
+        .fillColor(colors.success)
+        .text(`- ₹${order.discount.toFixed(2)}`, summaryX + 100, summaryStartY + 40, { width: 100, align: 'right' });
     }
     if (order.couponDiscount && order.couponDiscount > 0) {
       const yPos = order.discount > 0 ? summaryStartY + 60 : summaryStartY + 40;
       doc.fillColor(colors.secondary)
-         .text(`Coupon Discount${order.couponCode ? ` (${order.couponCode})` : ''}:`, summaryX, yPos, { width: 100, align: 'left' })
-         .fillColor(colors.success)
-         .text(`- ₹${order.couponDiscount.toFixed(2)}`, summaryX + 100, yPos, { width: 100, align: 'right' });
+        .text(`Coupon Discount${order.couponCode ? ` (${order.couponCode})` : ''}:`, summaryX, yPos, { width: 100, align: 'left' })
+        .fillColor(colors.success)
+        .text(`- ₹${order.couponDiscount.toFixed(2)}`, summaryX + 100, yPos, { width: 100, align: 'right' });
     }
     const totalY = summaryStartY + (order.discount > 0 ? 80 : 60);
     doc.strokeColor(colors.border)
-       .lineWidth(1)
-       .moveTo(summaryX, totalY - 10)
-       .lineTo(rightMargin, totalY - 10)
-       .stroke();
+      .lineWidth(1)
+      .moveTo(summaryX, totalY - 10)
+      .lineTo(rightMargin, totalY - 10)
+      .stroke();
     doc.font('Helvetica-Bold')
-       .fontSize(12)
-       .fillColor(colors.primary)
-       .text('Total:', summaryX, totalY, { width: 100, align: 'left' })
-       .text(`₹${order.total.toFixed(2)}`, summaryX + 100, totalY, { width: 100, align: 'right' });
+      .fontSize(12)
+      .fillColor(colors.primary)
+      .text('Total:', summaryX, totalY, { width: 100, align: 'left' })
+      .text(`₹${order.total.toFixed(2)}`, summaryX + 100, totalY, { width: 100, align: 'right' });
     const footerY = Math.max(y + 200, totalY + 100);
     doc.strokeColor(colors.border)
-       .lineWidth(1)
-       .moveTo(leftMargin, footerY - 30)
-       .lineTo(rightMargin, footerY - 30)
-       .stroke();
+      .lineWidth(1)
+      .moveTo(leftMargin, footerY - 30)
+      .lineTo(rightMargin, footerY - 30)
+      .stroke();
     const footerBoxHeight = 60;
     doc.fillColor(colors.light)
-       .rect(leftMargin, footerY - 10, contentWidth, footerBoxHeight)
-       .fill();
+      .rect(leftMargin, footerY - 10, contentWidth, footerBoxHeight)
+      .fill();
     doc.strokeColor(colors.border)
-       .lineWidth(1)
-       .rect(leftMargin, footerY - 10, contentWidth, footerBoxHeight)
-       .stroke();
+      .lineWidth(1)
+      .rect(leftMargin, footerY - 10, contentWidth, footerBoxHeight)
+      .stroke();
     doc.font('Helvetica-Bold')
-       .fontSize(12)
-       .fillColor(colors.primary)
-       .text('Thank you for choosing Phoenix!', leftMargin, footerY + 5, { align: 'center', width: contentWidth });
+      .fontSize(12)
+      .fillColor(colors.primary)
+      .text('Thank you for choosing Phoenix!', leftMargin, footerY + 5, { align: 'center', width: contentWidth });
     doc.font('Helvetica')
-       .fontSize(9)
-       .fillColor(colors.secondary)
-       .text('This is a computer-generated invoice and does not require a signature.', leftMargin, footerY + 25, { align: 'center', width: contentWidth })
-       .text('For any queries, contact us at support@phoenix.com or +91 9876543210', leftMargin, footerY + 38, { align: 'center', width: contentWidth });
+      .fontSize(9)
+      .fillColor(colors.secondary)
+      .text('This is a computer-generated invoice and does not require a signature.', leftMargin, footerY + 25, { align: 'center', width: contentWidth })
+      .text('For any queries, contact us at support@phoenix.com or +91 9876543210', leftMargin, footerY + 38, { align: 'center', width: contentWidth });
     const pageCount = doc.bufferedPageRange().count;
     for (let i = 0; i < pageCount; i++) {
       doc.switchToPage(i);
       doc.fontSize(8)
-         .fillColor(colors.secondary)
-         .text(`Page ${i + 1} of ${pageCount}`, leftMargin, doc.page.height - 50, { align: 'center', width: contentWidth });
+        .fillColor(colors.secondary)
+        .text(`Page ${i + 1} of ${pageCount}`, leftMargin, doc.page.height - 50, { align: 'center', width: contentWidth });
     }
     doc.end();
   } catch (error) {

@@ -8,10 +8,6 @@ const userRoutes = require('./users');
 const adminRoutes = require('./admin');
 const apiRoutes = require('./api');
 
-// Import legacy route modules for backward compatibility
-const legacyUserRouter = require('./userRoutes/userRouter');
-const legacyAdminRouter = require('./adminRoutes/adminRoutes');
-
 // Import controllers for routes that don't fit the new structure yet
 const userController = require('../controllers/userController/userController');
 const shopPageController = require('../controllers/userController/shopPageController');

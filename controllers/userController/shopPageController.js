@@ -6,7 +6,7 @@ const shopPage = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 12;
     const skip = (page - 1) * limit;
-    let query = { isListed: true, isDeleted: false };
+    const query = { isListed: true, isDeleted: false };
     const categoryId = req.query.category;
     if (categoryId) {
       if (Array.isArray(categoryId)) {
@@ -28,27 +28,27 @@ const shopPage = async (req, res) => {
     const sortOption = req.query.sort || 'recommended';
     let sortQuery = {};
     switch (sortOption) {
-      case 'price-asc':
-        sortQuery = { salePrice: 1 };
-        break;
-      case 'price-desc':
-        sortQuery = { salePrice: -1 };
-        break;
-      case 'date-desc':
-        sortQuery = { createdAt: -1 };
-        break;
-      case 'stock-desc':
-        sortQuery = { stock: -1 };
-        break;
-      case 'name-asc':
-        sortQuery = { model: 1 };
-        break;
-      case 'name-desc':
-        sortQuery = { model: -1 };
-        break;
-      default:
-        sortQuery = { createdAt: -1 };
-        break;
+    case 'price-asc':
+      sortQuery = { salePrice: 1 };
+      break;
+    case 'price-desc':
+      sortQuery = { salePrice: -1 };
+      break;
+    case 'date-desc':
+      sortQuery = { createdAt: -1 };
+      break;
+    case 'stock-desc':
+      sortQuery = { stock: -1 };
+      break;
+    case 'name-asc':
+      sortQuery = { model: 1 };
+      break;
+    case 'name-desc':
+      sortQuery = { model: -1 };
+      break;
+    default:
+      sortQuery = { createdAt: -1 };
+      break;
     }
     const priceBuffer = Math.max(100, maxPrice * 0.2);
     query.salePrice = { $gte: Math.max(0, minPrice - priceBuffer), $lte: maxPrice + priceBuffer };
@@ -82,8 +82,8 @@ const shopPage = async (req, res) => {
           type: 'offer',
           title: offer.title,
           finalPrice: offerFinalPrice,
-          discountAmount: offerDiscountAmount, 
-          discountPercentage: offerDiscountPercentage, 
+          discountAmount: offerDiscountAmount,
+          discountPercentage: offerDiscountPercentage,
           offer: offer
         });
       }
@@ -132,7 +132,7 @@ const shopPage = async (req, res) => {
     };
     const categories = await Category.find({ isListed: true });
     const brands = await Product.distinct('brand', { isListed: true, isDeleted: false });
-    let queryParams = new URLSearchParams();
+    const queryParams = new URLSearchParams();
     for (const [key, value] of Object.entries(req.query)) {
       if (key !== 'page') {
         if (Array.isArray(value)) {
@@ -160,11 +160,11 @@ const shopPage = async (req, res) => {
     });
   } catch (error) {
     console.log(`Error in rendering Shop Page: ${error}`);
-    res.status(500).send("Server Error");
+    res.status(500).send('Server Error');
   }
 };
 function generatePaginationArray(currentPage, totalPages) {
-  let pages = [];
+  const pages = [];
   let startPage = Math.max(1, currentPage - 2);
   let endPage = Math.min(totalPages, currentPage + 2);
   if (currentPage <= 3) {

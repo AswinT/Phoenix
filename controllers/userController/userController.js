@@ -1,12 +1,12 @@
-const categoryController = require("../../controllers/userController/categoryController");
+const categoryController = require('../../controllers/userController/categoryController');
 const Product = require('../../models/productSchema');
-const { getActiveOfferForProduct, calculateDiscount } = require("../../utils/offerHelper");
-const { HttpStatus } = require("../../helpers/statusCode");
+const { getActiveOfferForProduct, calculateDiscount } = require('../../utils/offerHelper');
+const { HttpStatus } = require('../../helpers/statusCode');
 const pageNotFound = async (req, res) => {
   try {
-    res.render("page-404");
+    res.render('page-404');
   } catch (error) {
-    res.redirect("/pageNotFound");
+    res.redirect('/pageNotFound');
   }
 };
 const loadHomePage = async (req, res) => {
@@ -65,7 +65,7 @@ const loadHomePage = async (req, res) => {
       product.finalPrice = finalPrice;
       product.regularPrice = product.regularPrice || product.salePrice;
     }
-    return res.render("home", {
+    return res.render('home', {
       categories,
       topSellingProducts,
       newArrivals,
@@ -74,15 +74,15 @@ const loadHomePage = async (req, res) => {
     });
   } catch (error) {
     console.log(`Error in rendering Home Page: ${error}`);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server Error");
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Server Error');
   }
 };
 const getAboutPage = async (req, res) => {
   try {
-    res.render("about");
+    res.render('about');
   } catch (error) {
     console.log(`Error in rendering About Page: ${error}`);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server Error");
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Server Error');
   }
 };
 module.exports = {

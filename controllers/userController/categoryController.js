@@ -1,4 +1,4 @@
-const Category = require("../../models/categorySchema");
+const Category = require('../../models/categorySchema');
 const getCategories = async (req, res) => {
   try {
     const categories = await Category.find({ isListed: true }).sort({
@@ -6,7 +6,7 @@ const getCategories = async (req, res) => {
     });
     return categories;
   } catch (error) {
-    console.error("Error fetching categories:", error);
+    console.error('Error fetching categories:', error);
     throw error;
   }
 };
