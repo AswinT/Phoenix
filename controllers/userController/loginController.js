@@ -12,7 +12,7 @@ const getLogin = async (req, res) => {
     res.header('Pragma', 'no-cache');
     res.header('Expires', '0');
     res.render('login');
-  } catch (error) {
+  } catch {
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: 'Server Error',
@@ -65,7 +65,7 @@ const postLogin = async (req, res) => {
         message: 'Welcome to Phoenix',
       });
     });
-  } catch (error) {
+  } catch {
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: 'Server Error',

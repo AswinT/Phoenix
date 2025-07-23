@@ -77,7 +77,7 @@ router.get('/categories/list', async (req, res) => {
     const Category = require('../../models/categorySchema');
     const categories = await Category.find({ isListed: true });
     res.json(categories);
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Server Error' });
   }
 });

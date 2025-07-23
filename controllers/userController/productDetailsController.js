@@ -1,5 +1,4 @@
 const Product = require('../../models/productSchema');
-const Category = require('../../models/categorySchema');
 const Cart = require('../../models/cartSchema');
 const Wishlist = require('../../models/wishlistSchema');
 const { getActiveOfferForProduct, calculateDiscount } = require('../../utils/offerHelper');

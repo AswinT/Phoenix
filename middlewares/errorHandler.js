@@ -1,5 +1,5 @@
 // Handle all application errors
-const globalErrorHandler = (err, req, res, next) => {
+const globalErrorHandler = (err, req, res, _next) => {
   console.error('Error occurred:', {
     message: err.message,
     url: req.url,
@@ -34,7 +34,7 @@ const globalErrorHandler = (err, req, res, next) => {
   }
 };
 // Handle 404 not found errors
-const notFoundHandler = (req, res, next) => {
+const notFoundHandler = (req, res, _next) => {
   console.warn('404 Not Found:', req.originalUrl);
   if (req.xhr || req.headers.accept?.indexOf('json') > -1) {
     return res.status(404).json({

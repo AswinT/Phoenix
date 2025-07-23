@@ -12,10 +12,7 @@ const calculateEstimatedRefund = (order) => {
     if (returnRequestedItems.length === 0) {
       return { total: 0, base: 0, tax: 0, breakdown: [] };
     }
-    const isFullOrderReturn = returnRequestedItems.length === order.items.length;
     let totalRefund = 0;
-    const totalBase = 0;
-    const totalTax = 0;
     for (const item of returnRequestedItems) {
       totalRefund += calculateExactRefundAmount(item, order);
     }

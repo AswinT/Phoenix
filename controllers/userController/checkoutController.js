@@ -497,7 +497,7 @@ const createRazorpayOrder = async (req, res) => {
     }
     const amountAfterAllDiscounts = subtotalAfterOffers - couponDiscount;
     const checkoutTax = Math.round(amountAfterAllDiscounts * 0.08 * 100) / 100;
-    const checkoutTotal = Math.round((amountAfterAllDiscounts + checkoutTax) * 100) / 100;
+    let checkoutTotal = Math.round((amountAfterAllDiscounts + checkoutTax) * 100) / 100;
     console.log('Detailed Payment Calculations:', {
       originalSubtotal: checkoutSubtotal,
       offerDiscount: checkoutOfferDiscount,
@@ -516,7 +516,6 @@ const createRazorpayOrder = async (req, res) => {
         finalPrice: item.finalPrice
       }))
     });
-    const finalAmount = (checkoutTotal * 100).toFixed(0);
     const itemFinalPriceSum = orderItems.reduce((sum, item) => sum + (item.priceBreakdown?.finalPrice || 0), 0);
     const expectedTotal = itemFinalPriceSum + checkoutTax;
     if (Math.abs(expectedTotal - checkoutTotal) > 0.01) {
@@ -780,8 +779,13 @@ const handlePaymentFailure = async (req, res) => {
   }
 };
 const placeOrder = async (req, res) => {
+  const stockUpdates = [];
+  let wallet = null;
+  let total = 0;
+  let appliedCoupon = null;
+  const userId = req.session.user_id;
+
   try {
-    const userId = req.session.user_id;
     if (!userId) {
       throw new Error('Please log in to place an order');
     }
@@ -828,9 +832,7 @@ const placeOrder = async (req, res) => {
     let subtotal = 0;
     let offerDiscount = 0;
     let couponDiscount = 0;
-    let appliedCoupon = null;
     const orderItems = [];
-    const itemDetails = {};
     for (const item of cartItems) {
       const offer = await getActiveOfferForProduct(item.product._id, item.product.category, item.priceAtAddition);
       let itemPrice = item.priceAtAddition;
@@ -919,11 +921,10 @@ const placeOrder = async (req, res) => {
       delete req.session.appliedCoupon;
     }
     const tax = (subtotal - offerDiscount - couponDiscount) * 0.08;
-    const total = subtotal - offerDiscount - couponDiscount + tax;
+    total = subtotal - offerDiscount - couponDiscount + tax;
     if (paymentMethod === 'COD' && total > 1000) {
       throw new Error('Cash on Delivery is not available for orders above ₹1,000. Please choose an online payment method.');
     }
-    let wallet = null;
     if (paymentMethod === 'Wallet') {
       wallet = await Wallet.findOne({ userId });
       if (!wallet) {
@@ -933,7 +934,6 @@ const placeOrder = async (req, res) => {
         throw new Error(`Insufficient wallet balance. You need ₹${(total - wallet.balance).toFixed(2)} more to complete this order.`);
       }
     }
-    const stockUpdates = [];
     const session = await mongoose.startSession();
     try {
       await session.withTransaction(async () => {

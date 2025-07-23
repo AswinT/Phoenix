@@ -1,6 +1,4 @@
 const Wallet = require('../../models/walletSchema');
-const Order = require('../../models/orderSchema');
-const { calculateDiscount, getUnifiedPriceBreakdown } = require('../../utils/offerHelper');
 const { HttpStatus } = require('../../helpers/statusCode');
 const { calculateRefundAmount, validateRefundForPaymentMethod } = require('../../helpers/moneyCalculator');
 const getWallet = async (req, res) => {
@@ -80,35 +78,7 @@ const getWallet = async (req, res) => {
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).render('error', { message: 'Internal server error' });
   }
 };
-const safeCalculation = (value) => {
-  const num = Number(value);
-  return isNaN(num) ? 0 : num;
-};
-const calculateProportionalTaxRefund = (item, order) => {
-  try {
-    if (!order?.tax || order.tax <= 0 || !item || !order.items?.length) {
-      return 0;
-    }
-    const itemPriceBreakdown = getUnifiedPriceBreakdown(item, order);
-    if (!itemPriceBreakdown?.finalPrice) {
-      return 0;
-    }
-    const itemFinalPrice = itemPriceBreakdown.finalPrice;
-    let totalOrderFinalPrice = 0;
-    for (const orderItem of order.items) {
-      const itemBreakdown = getUnifiedPriceBreakdown(orderItem, order);
-      totalOrderFinalPrice += itemBreakdown?.finalPrice || 0;
-    }
-    if (totalOrderFinalPrice <= 0) {
-      return 0;
-    }
-    const proportionalTax = (itemFinalPrice / totalOrderFinalPrice) * order.tax;
-    return Number(proportionalTax.toFixed(2));
-  } catch (error) {
-    console.error('Error calculating proportional tax:', error.message);
-    return 0;
-  }
-};
+
 const processCancelRefund = async (userId, order, productId = null) => {
   try {
     if (!userId || !order) {
@@ -190,7 +160,6 @@ const processCancelRefund = async (userId, order, productId = null) => {
         transactions: []
       });
     }
-    const oldBalance = wallet.balance;
     wallet.balance += finalRefundAmount;
     const newTransaction = {
       type: 'credit',
@@ -259,7 +228,6 @@ const processReturnRefund = async (userId, order, productId = null) => {
         transactions: []
       });
     }
-    const oldBalance = wallet.balance;
     wallet.balance += finalRefundAmount;
     const newTransaction = {
       type: 'credit',

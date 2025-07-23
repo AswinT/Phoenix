@@ -31,7 +31,7 @@ const searchProducts = async (req, res) => {
         mainImage: product.mainImage
       }));
     res.json(products);
-  } catch (error) {
+  } catch {
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server Error' });
   }
 };

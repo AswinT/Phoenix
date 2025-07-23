@@ -44,7 +44,7 @@ const postAdminLogin = async (req, res) => {
       message: 'Welcome Admin',
       redirectTo: '/admin/dashboard',
     });
-  } catch (error) {
+  } catch {
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: 'Admin login error',
@@ -60,7 +60,7 @@ const logoutAdminDashboard = async (req, res) => {
       res.clearCookie('connect.sid');
       res.redirect('/admin/auth/login');
     });
-  } catch (error) {
+  } catch {
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Internal Server Error' });
   }
 };

@@ -11,7 +11,7 @@ const getAddress = async (req, res) => {
     });
     const returnTo = req.query.returnTo || '';
     res.render('address', { user, addresses, returnTo });
-  } catch (error) {
+  } catch {
     res
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .render('error', { message: 'Internal server error' });
@@ -65,7 +65,7 @@ const addAddress = async (req, res) => {
       message: 'Address added successfully',
       address: newAddress,
     });
-  } catch (error) {
+  } catch {
     res
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: 'Failed to add address' });
@@ -119,7 +119,7 @@ const updateAddress = async (req, res) => {
       message: 'Address updated successfully',
       address,
     });
-  } catch (error) {
+  } catch {
     res
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: 'Failed to update address' });
@@ -142,7 +142,7 @@ const deleteAddress = async (req, res) => {
     }
     await Address.findByIdAndDelete(addressId);
     res.json({ success: true, message: 'Address deleted successfully' });
-  } catch (error) {
+  } catch {
     res
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: 'Failed to delete address' });
@@ -167,7 +167,7 @@ const setDefaultAddress = async (req, res) => {
     address.isDefault = true;
     await address.save();
     res.json({ success: true, message: 'Address set as default successfully' });
-  } catch (error) {
+  } catch {
     res
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: 'Failed to set default address' });
@@ -189,7 +189,7 @@ const getAddressById = async (req, res) => {
         .json({ success: false, message: 'Unauthorized access' });
     }
     res.json({ success: true, address });
-  } catch (error) {
+  } catch {
     res
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: 'Failed to fetch address' });

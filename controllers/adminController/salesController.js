@@ -90,7 +90,7 @@ const calculateSummaryStats = async (startDate, endDate) => {
       cancellationRateRaw: cancellationRate,
       returnRateRaw: returnRate
     };
-  } catch (error) {
+  } catch {
     return {
       totalSales: '₹0',
       totalOrders: '0',
@@ -118,13 +118,14 @@ const getQuickFilterDates = (filter) => {
     startDate.setHours(0, 0, 0, 0);
     endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
     break;
-  case 'yesterday':
+  case 'yesterday': {
     const yesterday = new Date(now);
     yesterday.setDate(yesterday.getDate() - 1);
     startDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
     startDate.setHours(0, 0, 0, 0);
     endDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 23, 59, 59, 999);
     break;
+  }
   case 'last7days':
     startDate = new Date(now);
     startDate.setDate(startDate.getDate() - 6);
@@ -168,7 +169,7 @@ const getReportTypeDates = (reportType) => {
     startDate.setHours(0, 0, 0, 0);
     endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
     break;
-  case 'weekly':
+  case 'weekly': {
     const dayOfWeek = now.getDay();
     const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
     startDate = new Date(now.getTime() + mondayOffset * 24 * 60 * 60 * 1000);
@@ -176,6 +177,7 @@ const getReportTypeDates = (reportType) => {
     endDate = new Date(startDate.getTime() + 6 * 24 * 60 * 60 * 1000);
     endDate.setHours(23, 59, 59, 999);
     break;
+  }
   case 'monthly':
     startDate = new Date(now.getFullYear(), now.getMonth(), 1);
     startDate.setHours(0, 0, 0, 0);
@@ -193,57 +195,7 @@ const getReportTypeDates = (reportType) => {
   }
   return { startDate, endDate };
 };
-const calculateSalesTrend = async (startDate, endDate) => {
-  try {
-    const labels = [];
-    const grossSales = [];
-    const netSales = [];
-    const discounts = [];
-    const diffTime = Math.abs(endDate - startDate);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    const totalWeeks = Math.max(1, Math.ceil(diffDays / 7));
-    for (let week = 0; week < totalWeeks; week++) {
-      const weekStart = new Date(startDate);
-      weekStart.setDate(startDate.getDate() + (week * 7));
-      const weekEnd = new Date(weekStart);
-      weekEnd.setDate(weekStart.getDate() + 6);
-      weekEnd.setHours(23, 59, 59, 999);
-      if (weekStart > endDate) break;
-      if (weekEnd > endDate) weekEnd.setTime(endDate.getTime());
-      const weekOrders = await Order.find({
-        createdAt: { $gte: weekStart, $lte: weekEnd },
-        orderStatus: { $in: ['Delivered', 'Shipped', 'Processing'] },
-        isDeleted: false
-      });
-      const weekGrossSales = weekOrders.reduce((sum, order) => {
-        const gross = (order.total || 0) + (order.discount || 0) + (order.couponDiscount || 0);
-        return sum + gross;
-      }, 0);
-      const weekNetSales = weekOrders.reduce((sum, order) => sum + (order.total || 0), 0);
-      const weekDiscounts = weekOrders.reduce((sum, order) => {
-        return sum + (order.discount || 0) + (order.couponDiscount || 0);
-      }, 0);
-      labels.push(`Week ${week + 1}`);
-      grossSales.push(Math.round(weekGrossSales));
-      netSales.push(Math.round(weekNetSales));
-      discounts.push(Math.round(weekDiscounts));
-    }
-    return {
-      labels,
-      grossSales,
-      netSales,
-      discounts
-    };
-  } catch (error) {
-    console.error('Error calculating sales trend:', error);
-    return {
-      labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
-      grossSales: [0, 0, 0, 0, 0],
-      netSales: [0, 0, 0, 0, 0],
-      discounts: [0, 0, 0, 0, 0]
-    };
-  }
-};
+
 const getSalesTableData = async (startDate, endDate, page, limit) => {
   try {
     const skip = (page - 1) * limit;
@@ -354,28 +306,23 @@ const exportToExcel = async (req, res) => {
   try {
     const now = new Date();
     let startDate, endDate;
-    let reportType = req.query.reportType || 'monthly';
     if (req.query.fromDate && req.query.toDate) {
       startDate = new Date(req.query.fromDate);
       startDate.setHours(0, 0, 0, 0);
       endDate = new Date(req.query.toDate);
       endDate.setHours(23, 59, 59, 999);
-      reportType = 'custom';
     } else if (req.query.quickFilter) {
       const { startDate: qStart, endDate: qEnd } = getQuickFilterDates(req.query.quickFilter);
       startDate = qStart;
       endDate = qEnd;
-      reportType = 'custom';
     } else if (req.query.reportType) {
       const { startDate: rStart, endDate: rEnd } = getReportTypeDates(req.query.reportType);
       startDate = rStart;
       endDate = rEnd;
-      reportType = req.query.reportType;
     } else {
       startDate = new Date(now.getFullYear(), now.getMonth(), 1);
       startDate.setHours(0, 0, 0, 0);
       endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
-      reportType = 'monthly';
     }
     try {
       const salesData = await getSalesTableData(startDate, endDate, 1, 10000);
@@ -419,28 +366,23 @@ const exportToPDF = async (req, res) => {
   try {
     const now = new Date();
     let startDate, endDate;
-    let reportType = req.query.reportType || 'monthly';
     if (req.query.fromDate && req.query.toDate) {
       startDate = new Date(req.query.fromDate);
       startDate.setHours(0, 0, 0, 0);
       endDate = new Date(req.query.toDate);
       endDate.setHours(23, 59, 59, 999);
-      reportType = 'custom';
     } else if (req.query.quickFilter) {
       const { startDate: qStart, endDate: qEnd } = getQuickFilterDates(req.query.quickFilter);
       startDate = qStart;
       endDate = qEnd;
-      reportType = 'custom';
     } else if (req.query.reportType) {
       const { startDate: rStart, endDate: rEnd } = getReportTypeDates(req.query.reportType);
       startDate = rStart;
       endDate = rEnd;
-      reportType = req.query.reportType;
     } else {
       startDate = new Date(now.getFullYear(), now.getMonth(), 1);
       startDate.setHours(0, 0, 0, 0);
       endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
-      reportType = 'monthly';
     }
     try {
       const salesData = await getSalesTableData(startDate, endDate, 1, 10000);

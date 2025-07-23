@@ -1,5 +1,5 @@
 const Category = require('../../models/categorySchema');
-const getCategories = async (req, res) => {
+const getCategories = async (_req, _res) => {
   try {
     const categories = await Category.find({ isListed: true }).sort({
       createdAt: -1,

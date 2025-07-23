@@ -283,7 +283,7 @@ const removeCartItem = async (req, res) => {
       cartCount,
       totalAmount: cart.totalAmount,
     });
-  } catch (error) {
+  } catch {
     res
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: 'Server error' });
@@ -304,7 +304,7 @@ const clearCart = async (req, res) => {
       cartCount: 0,
       totalAmount: 0,
     });
-  } catch (error) {
+  } catch {
     res
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: 'Server error' });

@@ -132,7 +132,6 @@ const toggleCategoryStatus = async (req, res) => {
     if (!category) {
       return res.status(HttpStatus.NOT_FOUND).json({ error: 'Category not found' });
     }
-    const oldIsListed = category.isListed;
     category.isListed = !category.isListed;
     await category.save();
     const updateResult = await Product.updateMany(
