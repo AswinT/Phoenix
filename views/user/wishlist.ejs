@@ -452,7 +452,7 @@
           btn.textContent = 'Adding...';
 
           try {
-            const response = await fetch('/wishlist/add-all-to-cart', {
+            const response = await fetch('/api/wishlist/add-all-to-cart', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' }
             });
@@ -544,7 +544,7 @@
         // If user confirmed, proceed with clearing
         if (result.isConfirmed) {
           try {
-            const response = await fetch('/wishlist/clear', {
+            const response = await fetch('/api/wishlist/clear', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' }
             });

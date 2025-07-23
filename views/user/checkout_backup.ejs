@@ -1986,8 +1986,8 @@
           });
           return;
         }
-        fetch("/cart/remove", {
-          method: "POST",
+        fetch("/api/cart/remove", {
+          method: "DELETE",
           headers: {
             "Content-Type": "application/json",
           },

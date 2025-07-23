@@ -628,7 +628,7 @@ applyReferralBtn.addEventListener('click', async function() {
   this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Validating...';
 
   try {
-    const response = await fetch('/validate-referral', {
+    const response = await fetch('/users/referrals/validate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

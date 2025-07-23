@@ -370,7 +370,6 @@ const createOffer = async (req, res) => {
       .status(HttpStatus.CREATED)
       .json({ success: true, message: 'Offer created successfully' });
   } catch (error) {
-    console.error('Error creating offer:', error);
     if (error.name === 'ValidationError') {
       const messages = Object.values(error.errors)
         .map((val) => val.message)

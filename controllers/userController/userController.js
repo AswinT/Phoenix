@@ -73,7 +73,6 @@ const loadHomePage = async (req, res) => {
       isAuthenticated: !!req.session.user_id
     });
   } catch (error) {
-    console.log(`Error in rendering Home Page: ${error}`);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Server Error');
   }
 };
@@ -81,7 +80,6 @@ const getAboutPage = async (req, res) => {
   try {
     res.render('about');
   } catch (error) {
-    console.log(`Error in rendering About Page: ${error}`);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Server Error');
   }
 };

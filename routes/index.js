@@ -34,174 +34,193 @@ router.use('/users', userRoutes);
 router.use('/admin', adminRoutes);
 router.use('/api', apiRoutes);
 
-// Public routes that don't fit into hierarchical structure
-// GET / - Home page
+// Public routes
 router.get('/', checkBlockedUser, userController.loadHomePage);
-
-// GET /pageNotFound - 404 page
 router.get('/pageNotFound', checkBlockedUser, userController.pageNotFound);
-
-// GET /about - About page
 router.get('/about', checkBlockedUser, userController.getAboutPage);
-
-// GET /contact - Contact page
 router.get('/contact', checkBlockedUser, contactController.getContact);
-
-// POST /contact - Submit contact form
 router.post('/contact', checkBlockedUser, contactValidator.contactValidator, contactController.postContact);
 
 // Shopping routes
-// GET /shopPage - Shop page
 router.get('/shopPage', checkBlockedUser, shopPageController.shopPage);
-
-// GET /products/:id - Product details
 router.get('/products/:id', checkBlockedUser, productDetailsController.productDetails);
-
-// GET /search - Search products
 router.get('/search', checkBlockedUser, searchValidator.validateSearchQuery, searchProducts);
 
-// Cart routes (keeping original paths for backward compatibility)
-// GET /cart - View cart
+// Cart routes
 router.get('/cart', isAuthenticated, cartController.getCart);
+// Backward compatibility for cart API routes
+router.post('/cart/add', (req, res) => {
+  res.redirect(307, '/api/cart/add');
+});
+router.put('/cart/update', (req, res) => {
+  res.redirect(307, '/api/cart/update');
+});
+router.delete('/cart/remove', (req, res) => {
+  res.redirect(307, '/api/cart/remove');
+});
+router.post('/cart/remove', (req, res) => {
+  res.redirect(307, '/api/cart/remove');
+});
+router.post('/cart/clear', (req, res) => {
+  res.redirect(307, '/api/cart/clear');
+});
 
-// Wishlist routes (keeping original paths for backward compatibility)
-// GET /wishlist - View wishlist
+// Wishlist routes
 router.get('/wishlist', isAuthenticated, wishlistController.getWishlist);
+// Backward compatibility for wishlist API routes
+router.post('/wishlist/toggle', (req, res) => {
+  res.redirect(307, '/api/wishlist/toggle');
+});
+router.post('/wishlist/add-to-cart', (req, res) => {
+  res.redirect(307, '/api/wishlist/add-to-cart');
+});
+router.post('/wishlist/add-all-to-cart', (req, res) => {
+  res.redirect(307, '/api/wishlist/add-all-to-cart');
+});
+router.post('/wishlist/clear', (req, res) => {
+  res.redirect(307, '/api/wishlist/clear');
+});
 
-// Checkout routes (keeping original paths for backward compatibility)
-// GET /checkout - Checkout page
+// Checkout routes
 router.get('/checkout', isAuthenticated, checkoutController.getCheckout);
-
-// POST /checkout/place-order - Place order
 router.post('/checkout/place-order', isAuthenticated, checkoutController.placeOrder);
-
-// GET /checkout/payment-callback - Payment callback
 router.get('/checkout/payment-callback', isAuthenticated, checkoutController.handlePaymentCallback);
 
-// Order routes (keeping original paths for backward compatibility)
-// GET /orders - View orders
+// Order routes
 router.get('/orders', isAuthenticated, orderController.getOrders);
-
-// GET /orders/:id - View order details
 router.get('/orders/:id', isAuthenticated, orderController.getOrderDetails);
-
-// GET /order-success/:id - Order success page
 router.get('/order-success/:id', isAuthenticated, orderController.getOrderSuccess);
-
-// GET /payment-failure - Payment failure page
 router.get('/payment-failure', isAuthenticated, orderController.getPaymentFailure);
-
-// GET /orders/:id/invoice - View invoice
 router.get('/orders/:id/invoice', isAuthenticated, orderController.viewInvoice);
-
-// GET /orders/:id/invoice/download - Download invoice
 router.get('/orders/:id/invoice/download', isAuthenticated, orderController.downloadInvoice);
-
-// Additional order routes for backward compatibility
-// POST /orders/:id/items/:productId/cancel - Cancel order item
 router.post('/orders/:id/items/:productId/cancel', isAuthenticated, orderController.cancelOrderItem);
-
-// POST /orders/:id/return - Return order
 router.post('/orders/:id/return', isAuthenticated, orderController.returnOrder);
 
-// POST /orders/:id/items/:productId/return - Return order item
 const upload = require('../config/multer');
 router.post('/orders/:id/items/:productId/return', isAuthenticated, upload.single('returnImage'), orderController.returnOrderItem);
-
-// POST /orders/:id/reorder - Reorder
 router.post('/orders/:id/reorder', isAuthenticated, orderController.reorder);
 
 // Legacy routes for backward compatibility
-// GET /user-coupons - User coupons (redirect to new structure)
 router.get('/user-coupons', (req, res) => {
   res.redirect('/users/coupons');
 });
-
-// GET /wallet - Wallet (redirect to new structure)
 router.get('/wallet', (req, res) => {
   res.redirect('/users/wallet');
 });
-
-// GET /referrals - Referrals (redirect to new structure)
 router.get('/referrals', (req, res) => {
   res.redirect('/users/referrals');
 });
-
-// POST /change-password - Change password (redirect to new structure)
 router.post('/change-password', (req, res) => {
-  res.redirect(307, '/password/change'); // 307 preserves POST method
+  res.redirect(307, '/password/change');
 });
 
-// Legacy authentication routes (redirect to new structure)
+// Legacy address routes
+router.get('/address', (req, res) => {
+  res.redirect('/users/addresses');
+});
+router.post('/address', (req, res) => {
+  res.redirect(307, '/users/addresses');
+});
+router.get('/address/:id', (req, res) => {
+  res.redirect(`/users/addresses/${req.params.id}`);
+});
+router.put('/address/:id', (req, res) => {
+  res.redirect(307, `/users/addresses/${req.params.id}`);
+});
+router.delete('/address/:id', (req, res) => {
+  res.redirect(307, `/users/addresses/${req.params.id}`);
+});
+router.patch('/address/:id/default', (req, res) => {
+  res.redirect(307, `/users/addresses/${req.params.id}/default`);
+});
+
+// Legacy referral validation route
+router.post('/validate-referral', (req, res) => {
+  res.redirect(307, '/users/referrals/validate');
+});
+
+// Legacy profile routes
+router.get('/profile', (req, res) => {
+  res.redirect('/users/profile');
+});
+router.patch('/profile', (req, res) => {
+  res.redirect(307, '/users/profile');
+});
+router.post('/profile/image', (req, res) => {
+  res.redirect(307, '/users/profile/image');
+});
+router.post('/request-email-update', (req, res) => {
+  res.redirect(307, '/users/profile/email/request');
+});
+
+// Legacy OTP routes
+router.get('/verify-otp', (req, res) => {
+  res.redirect('/auth/verify-otp');
+});
+router.post('/verify-otp', (req, res) => {
+  res.redirect(307, '/auth/verify-otp');
+});
+router.get('/otpForgotPassword', (req, res) => {
+  res.redirect('/password/verify-otp');
+});
+router.post('/otpForgotPassword', (req, res) => {
+  res.redirect(307, '/password/verify-otp');
+});
+
+// Legacy authentication routes
 router.get('/signup', (req, res) => {
   res.redirect('/auth/signup');
 });
-
 router.post('/signup', (req, res) => {
   res.redirect(307, '/auth/signup');
 });
-
 router.get('/login', (req, res) => {
   res.redirect('/auth/login');
 });
-
 router.post('/login', (req, res) => {
   res.redirect(307, '/auth/login');
 });
-
 router.get('/logout', (req, res) => {
   res.redirect('/auth/logout');
 });
-
 router.get('/forgotPassword', (req, res) => {
   res.redirect('/password/forgot');
 });
-
 router.post('/forgotPassword', (req, res) => {
   res.redirect(307, '/password/forgot');
 });
-
 router.get('/resetPassword', (req, res) => {
   res.redirect('/password/reset');
 });
-
 router.patch('/resetPassword', (req, res) => {
   res.redirect(307, '/password/reset');
 });
 
-// Backward compatibility routes - redirect old admin routes to new structure
+// Backward compatibility admin routes
 router.get('/admin/adminLogin', (req, res) => {
   res.redirect('/admin/auth/login');
 });
-
 router.post('/admin/adminLogin', (req, res) => {
-  res.redirect(307, '/admin/auth/login'); // 307 preserves POST method
+  res.redirect(307, '/admin/auth/login');
 });
-
 router.get('/admin/adminLogout', (req, res) => {
   res.redirect('/admin/auth/logout');
 });
-
 router.get('/admin/adminDashboard', (req, res) => {
   res.redirect('/admin/dashboard');
 });
-
 router.get('/admin/getUsers', (req, res) => {
   res.redirect('/admin/users');
 });
-
 router.get('/admin/getProducts', (req, res) => {
   res.redirect('/admin/products');
 });
-
 router.get('/admin/add-product', (req, res) => {
   res.redirect('/admin/products/add');
 });
-
 router.get('/admin/getOrders', (req, res) => {
   res.redirect('/admin/orders');
 });
-
 router.get('/admin/return-management', (req, res) => {
   res.redirect('/admin/returns');
 });

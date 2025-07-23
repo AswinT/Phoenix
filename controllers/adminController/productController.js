@@ -75,14 +75,12 @@ const addProduct = async (req, res) => {
         errors: ['Invalid category selected']
       });
     }
-    console.log('Uploaded Files:', req.files);
     let mainImageUrl = '';
     if (req.files && req.files.mainImage && req.files.mainImage.length > 0) {
       const file = req.files.mainImage[0];
       if (!fs.existsSync(file.path)) {
         throw new Error(`Main image not found at ${file.path}`);
       }
-      console.log(`Uploading main image from: ${file.path}`);
       const result = await cloudinary.uploader.upload(file.path, {
         folder: 'products',
         quality: 'auto:best',
@@ -104,13 +102,10 @@ const addProduct = async (req, res) => {
       const fieldName = `subImage${i}`;
       if (req.files && req.files[fieldName] && req.files[fieldName].length > 0) {
         const file = req.files[fieldName][0];
-        console.log(`Processing ${fieldName}: ${file.path}, original name: ${file.originalname}`);
         if (processedPaths.has(file.path)) {
-          console.log(`Skipping duplicate sub image path: ${file.path}`);
           continue;
         }
         if (!fs.existsSync(file.path)) {
-          console.warn(`Sub image not found at ${file.path}, skipping...`);
           continue;
         }
         const result = await cloudinary.uploader.upload(file.path, {
@@ -199,7 +194,6 @@ const getEditProduct = async (req, res) => {
   }
 };
 const updateProduct = async (req, res) => {
-  console.log('Update request received for productId:', req.params.id);
   try {
     const productId = req.params.id;
     const {
@@ -214,24 +208,18 @@ const updateProduct = async (req, res) => {
       manufacturer,
       isListed,
     } = req.body;
-    console.log('Request body:', req.body);
-    console.log('Uploaded files:', req.files);
     const product = await Product.findById(productId);
-    console.log('Product found:', product);
     if (!product || product.isDeleted) {
-      console.log('Product not found or deleted');
       return res.status(HttpStatus.NOT_FOUND).json({ error: 'Product not found' });
     }
     const categoryExists = await Category.findById(category);
-    console.log('Category exists:', categoryExists);
     if (!categoryExists) {
-      console.log('Invalid category');
       return res.status(HttpStatus.BAD_REQUEST).json({ error: 'Invalid category' });
     }
     let mainImageUrl = product.mainImage;
     if (req.files && req.files.mainImage && req.files.mainImage.length > 0) {
       const file = req.files.mainImage[0];
-      console.log('Uploading main image from:', file.path);
+
       const result = await cloudinary.uploader.upload(file.path, {
         folder: 'products',
         quality: 'auto:best',
@@ -250,9 +238,7 @@ const updateProduct = async (req, res) => {
       const fieldName = `subImage${i}`;
       if (req.files && req.files[fieldName] && req.files[fieldName].length > 0) {
         const file = req.files[fieldName][0];
-        console.log(`Processing ${fieldName}:`, file.path);
         if (!fs.existsSync(file.path)) {
-          console.warn(`${fieldName} not found at:`, file.path);
           continue;
         }
         const result = await cloudinary.uploader.upload(file.path, {
@@ -266,17 +252,14 @@ const updateProduct = async (req, res) => {
           const publicId = subImages[index].split('/').pop().split('.')[0];
           try {
             await cloudinary.uploader.destroy(`products/sub/${publicId}`);
-            console.log(`Deleted old image at index ${index}`);
           } catch (err) {
-            console.error(`Failed to delete old image: ${err.message}`);
+            // Failed to delete old image, continue
           }
         }
         if (index < subImages.length) {
           subImages[index] = result.secure_url;
-          console.log(`Replaced image at index ${index}`);
         } else {
           subImages.push(result.secure_url);
-          console.log(`Added new image at index ${index}`);
         }
         fs.unlinkSync(file.path);
       }
@@ -294,7 +277,6 @@ const updateProduct = async (req, res) => {
     product.subImages = subImages;
     product.isListed = isListed === 'on';
     await product.save();
-    console.log('Product updated:', product._id);
     res.status(HttpStatus.OK).json({
       success: true,
       message: 'Product updated successfully'

@@ -865,7 +865,8 @@
           class="btn-close"
           data-bs-dismiss="modal"
           aria-label="Close"
-        ></button</div>
+        ></button>
+      </div>
       <div class="modal-body">
         <form id="addressForm">
           <div class="row g-3">
@@ -1234,6 +1235,71 @@
   .add-address-icon {
     font-size: 2.5rem;
     color: #6c757d;
+  }
+
+  /* Modal Styling */
+  .modal-content {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .modal-header {
+    padding: 1.5rem 1.5rem 0;
+  }
+
+  .modal-body {
+    padding: 1.5rem;
+  }
+
+  .modal-footer {
+    padding: 0 1.5rem 1.5rem;
+  }
+
+  /* Form Styling */
+  .form-control, .form-select {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease;
+  }
+
+  .form-control:focus, .form-select:focus {
+    border-color: #212529;
+    box-shadow: 0 0 0 0.2rem rgba(33, 37, 41, 0.1);
+  }
+
+  .input-group-text {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px 0 0 8px;
+    background-color: #f8f9fa;
+  }
+
+  .form-control.border-start-0 {
+    border-left: none;
+    border-radius: 0 8px 8px 0;
+  }
+
+  .form-select.border-start-0 {
+    border-left: none;
+    border-radius: 0 8px 8px 0;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .modal-lg {
+      max-width: 95%;
+      margin: 1rem auto;
+    }
+
+    .modal-body {
+      padding: 1rem;
+    }
+
+    .modal-header, .modal-footer {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
   }
 
   /* Payment Methods */
@@ -1733,7 +1799,7 @@
     // Add new address
     async function addAddress(formData) {
       try {
-        const response = await fetch("/address", {
+        const response = await fetch("/users/addresses", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -1796,6 +1862,12 @@
         const addressCardHTML = createAddressCard(result.address, true);
         addressContainer.insertAdjacentHTML("afterbegin", addressCardHTML);
 
+        // Attach event listener to the new address card
+        const newAddressCard = addressContainer.querySelector(`[data-address-id="${result.address._id}"] .address-card`);
+        if (newAddressCard) {
+          attachAddressCardListener(newAddressCard);
+        }
+
         // Update selected address summary
         updateSelectedAddressSummary(result.address);
 
@@ -1846,45 +1918,50 @@
       }
     });
 
-    // Address selection
+    // Function to attach event listener to address card
+    function attachAddressCardListener(card) {
+      card.addEventListener("click", function () {
+        document.querySelectorAll(".address-card").forEach((c) => {
+          c.classList.remove("selected");
+        });
+        this.classList.add("selected");
+        const radio = this.querySelector('input[type="radio"]');
+        if (radio) {
+          radio.checked = true;
+        }
+
+        // Update selected address summary
+        const addressId = this.parentElement.getAttribute("data-address-id");
+        const address = {
+          _id: addressId,
+          fullName: this.querySelector("h5").textContent,
+          street: this.querySelectorAll("p")[0].textContent,
+          district: this.querySelectorAll("p")[1].textContent.split(", ")[0],
+          state: this.querySelectorAll("p")[1]
+            .textContent.split(", ")[1]
+            .split(" - ")[0],
+          pincode: this.querySelectorAll("p")[1].textContent.split(" - ")[1],
+          phone: this.querySelector("p:last-child").textContent.replace(
+            "Phone: ",
+            ""
+          ),
+          landmark:
+            this.querySelectorAll("p").length > 3
+              ? this.querySelectorAll("p")[2].textContent.replace(
+                  "Landmark: ",
+                  ""
+                )
+              : "",
+        };
+        updateSelectedAddressSummary(address);
+      });
+    }
+
+    // Address selection - attach listeners to existing cards
     document
       .querySelectorAll(".address-card:not(.add-address)")
       .forEach((card) => {
-        card.addEventListener("click", function () {
-          document.querySelectorAll(".address-card").forEach((c) => {
-            c.classList.remove("selected");
-          });
-          this.classList.add("selected");
-          const radio = this.querySelector('input[type="radio"]');
-          if (radio) {
-            radio.checked = true;
-          }
-
-          // Update selected address summary
-          const addressId = this.parentElement.getAttribute("data-address-id");
-          const address = {
-            _id: addressId,
-            fullName: this.querySelector("h5").textContent,
-            street: this.querySelectorAll("p")[0].textContent,
-            district: this.querySelectorAll("p")[1].textContent.split(", ")[0],
-            state: this.querySelectorAll("p")[1]
-              .textContent.split(", ")[1]
-              .split(" - ")[0],
-            pincode: this.querySelectorAll("p")[1].textContent.split(" - ")[1],
-            phone: this.querySelector("p:last-child").textContent.replace(
-              "Phone: ",
-              ""
-            ),
-            landmark:
-              this.querySelectorAll("p").length > 3
-                ? this.querySelectorAll("p")[2].textContent.replace(
-                    "Landmark: ",
-                    ""
-                  )
-                : "",
-          };
-          updateSelectedAddressSummary(address);
-        });
+        attachAddressCardListener(card);
       });
 
     // Initialize selected address summary
@@ -1959,8 +2036,8 @@
           });
           return;
         }
-        fetch("/cart/remove", {
-          method: "POST",
+        fetch("/api/cart/remove", {
+          method: "DELETE",
           headers: {
             "Content-Type": "application/json",
           },

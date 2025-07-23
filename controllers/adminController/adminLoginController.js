@@ -45,7 +45,6 @@ const postAdminLogin = async (req, res) => {
       redirectTo: '/admin/dashboard',
     });
   } catch (error) {
-    console.error('Admin login error:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: 'Admin login error',
@@ -56,14 +55,12 @@ const logoutAdminDashboard = async (req, res) => {
   try {
     req.session.destroy((error) => {
       if (error) {
-        console.error('Error destroying session:', error);
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Logout Failed');
       }
       res.clearCookie('connect.sid');
       res.redirect('/admin/auth/login');
     });
   } catch (error) {
-    console.error('Error in AdminLogout:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Internal Server Error' });
   }
 };
