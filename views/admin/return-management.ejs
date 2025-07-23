@@ -711,23 +711,195 @@
     }
     function bulkApprove() {
       const selected = Array.from(document.querySelectorAll('.order-checkbox')).filter(cb => cb.checked).map(cb => cb.value);
-      if (selected.length === 0) return;
-      // TODO: Implement bulk approve logic (AJAX or form submit)
-      alert('Bulk approve: ' + selected.join(', '));
+      if (selected.length === 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'No Selection',
+          text: 'Please select at least one return request to approve.',
+          confirmButtonColor: '#28a745'
+        });
+        return;
+      }
+
+      Swal.fire({
+        title: 'Bulk Approve Returns',
+        text: `Are you sure you want to approve ${selected.length} return request(s)? This action will process refunds and cannot be undone.`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, Approve All'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          processBulkReturns(selected, 'approve');
+        }
+      });
     }
+
     function bulkReject() {
       const selected = Array.from(document.querySelectorAll('.order-checkbox')).filter(cb => cb.checked).map(cb => cb.value);
-      if (selected.length === 0) return;
-      // TODO: Implement bulk reject logic (AJAX or form submit)
-      alert('Bulk reject: ' + selected.join(', '));
+      if (selected.length === 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'No Selection',
+          text: 'Please select at least one return request to reject.',
+          confirmButtonColor: '#dc3545'
+        });
+        return;
+      }
+
+      Swal.fire({
+        title: 'Bulk Reject Returns',
+        text: `Are you sure you want to reject ${selected.length} return request(s)? This action cannot be undone.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, Reject All'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          processBulkReturns(selected, 'reject');
+        }
+      });
     }
+
     function approveReturn(orderId) {
-      // TODO: Implement single approve logic (AJAX or form submit)
-      alert('Approve: ' + orderId);
+      Swal.fire({
+        title: 'Approve Return Request',
+        text: 'Are you sure you want to approve this return request? This will process the refund and cannot be undone.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, Approve'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          processSingleReturn(orderId, true);
+        }
+      });
     }
+
     function rejectReturn(orderId) {
-      // TODO: Implement single reject logic (AJAX or form submit)
-      alert('Reject: ' + orderId);
+      Swal.fire({
+        title: 'Reject Return Request',
+        text: 'Are you sure you want to reject this return request? This action cannot be undone.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, Reject'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          processSingleReturn(orderId, false);
+        }
+      });
+    }
+
+    // Helper function to process bulk return requests
+    function processBulkReturns(orderIds, action) {
+      // Show loading
+      Swal.fire({
+        title: 'Processing...',
+        text: `Please wait while we ${action} the selected return requests.`,
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      fetch('/admin/returns/bulk-process', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderIds: orderIds,
+          action: action
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: data.message,
+            confirmButtonColor: action === 'approve' ? '#28a745' : '#dc3545'
+          }).then(() => {
+            // Reload the page to show updated status
+            window.location.reload();
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: data.message || 'An error occurred while processing the requests.',
+            confirmButtonColor: '#dc3545'
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error processing bulk returns:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Network Error',
+          text: 'Failed to process the requests. Please check your connection and try again.',
+          confirmButtonColor: '#dc3545'
+        });
+      });
+    }
+
+    // Helper function to process single return request
+    function processSingleReturn(orderId, approved) {
+      // Show loading
+      Swal.fire({
+        title: 'Processing...',
+        text: `Please wait while we ${approved ? 'approve' : 'reject'} the return request.`,
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      fetch(`/admin/returns/${orderId}/process`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          approved: approved
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: data.message,
+            confirmButtonColor: approved ? '#28a745' : '#dc3545'
+          }).then(() => {
+            // Reload the page to show updated status
+            window.location.reload();
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: data.message || 'An error occurred while processing the request.',
+            confirmButtonColor: '#dc3545'
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error processing return:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Network Error',
+          text: 'Failed to process the request. Please check your connection and try again.',
+          confirmButtonColor: '#dc3545'
+        });
+      });
     }
   </script>
 </body>
