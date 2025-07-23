@@ -48,9 +48,38 @@ router.get('/search', checkBlockedUser, searchValidator.validateSearchQuery, sea
 
 // Cart routes
 router.get('/cart', isAuthenticated, cartController.getCart);
+// Backward compatibility for cart API routes
+router.post('/cart/add', (req, res) => {
+  res.redirect(307, '/api/cart/add');
+});
+router.put('/cart/update', (req, res) => {
+  res.redirect(307, '/api/cart/update');
+});
+router.delete('/cart/remove', (req, res) => {
+  res.redirect(307, '/api/cart/remove');
+});
+router.post('/cart/remove', (req, res) => {
+  res.redirect(307, '/api/cart/remove');
+});
+router.post('/cart/clear', (req, res) => {
+  res.redirect(307, '/api/cart/clear');
+});
 
 // Wishlist routes
 router.get('/wishlist', isAuthenticated, wishlistController.getWishlist);
+// Backward compatibility for wishlist API routes
+router.post('/wishlist/toggle', (req, res) => {
+  res.redirect(307, '/api/wishlist/toggle');
+});
+router.post('/wishlist/add-to-cart', (req, res) => {
+  res.redirect(307, '/api/wishlist/add-to-cart');
+});
+router.post('/wishlist/add-all-to-cart', (req, res) => {
+  res.redirect(307, '/api/wishlist/add-all-to-cart');
+});
+router.post('/wishlist/clear', (req, res) => {
+  res.redirect(307, '/api/wishlist/clear');
+});
 
 // Checkout routes
 router.get('/checkout', isAuthenticated, checkoutController.getCheckout);
@@ -83,6 +112,59 @@ router.get('/referrals', (req, res) => {
 });
 router.post('/change-password', (req, res) => {
   res.redirect(307, '/password/change');
+});
+
+// Legacy address routes
+router.get('/address', (req, res) => {
+  res.redirect('/users/addresses');
+});
+router.post('/address', (req, res) => {
+  res.redirect(307, '/users/addresses');
+});
+router.get('/address/:id', (req, res) => {
+  res.redirect(`/users/addresses/${req.params.id}`);
+});
+router.put('/address/:id', (req, res) => {
+  res.redirect(307, `/users/addresses/${req.params.id}`);
+});
+router.delete('/address/:id', (req, res) => {
+  res.redirect(307, `/users/addresses/${req.params.id}`);
+});
+router.patch('/address/:id/default', (req, res) => {
+  res.redirect(307, `/users/addresses/${req.params.id}/default`);
+});
+
+// Legacy referral validation route
+router.post('/validate-referral', (req, res) => {
+  res.redirect(307, '/users/referrals/validate');
+});
+
+// Legacy profile routes
+router.get('/profile', (req, res) => {
+  res.redirect('/users/profile');
+});
+router.patch('/profile', (req, res) => {
+  res.redirect(307, '/users/profile');
+});
+router.post('/profile/image', (req, res) => {
+  res.redirect(307, '/users/profile/image');
+});
+router.post('/request-email-update', (req, res) => {
+  res.redirect(307, '/users/profile/email/request');
+});
+
+// Legacy OTP routes
+router.get('/verify-otp', (req, res) => {
+  res.redirect('/auth/verify-otp');
+});
+router.post('/verify-otp', (req, res) => {
+  res.redirect(307, '/auth/verify-otp');
+});
+router.get('/otpForgotPassword', (req, res) => {
+  res.redirect('/password/verify-otp');
+});
+router.post('/otpForgotPassword', (req, res) => {
+  res.redirect(307, '/password/verify-otp');
 });
 
 // Legacy authentication routes

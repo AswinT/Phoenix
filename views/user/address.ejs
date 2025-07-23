@@ -696,7 +696,7 @@
   // Add new address
   async function addAddress(formData) {
     try {
-      const response = await fetch("/address", {
+      const response = await fetch("/users/addresses", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -720,7 +720,7 @@
   // Update existing address
   async function updateAddress(addressId, formData) {
     try {
-      const response = await fetch(`/address/${addressId}`, {
+      const response = await fetch(`/users/addresses/${addressId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -744,7 +744,7 @@
   // Delete address
   async function deleteAddress(addressId) {
     try {
-      const response = await fetch(`/address/${addressId}`, {
+      const response = await fetch(`/users/addresses/${addressId}`, {
         method: "DELETE",
       });
 
@@ -764,7 +764,7 @@
   // Set address as default
   async function setDefaultAddress(addressId) {
     try {
-      const response = await fetch(`/address/${addressId}/default`, {
+      const response = await fetch(`/users/addresses/${addressId}/default`, {
         method: "PATCH",
       });
 
@@ -860,7 +860,7 @@
   // Get address by ID
   async function getAddressById(addressId) {
     try {
-      const response = await fetch(`/address/${addressId}`);
+      const response = await fetch(`/users/addresses/${addressId}`);
       const data = await response.json();
 
       if (!response.ok) {

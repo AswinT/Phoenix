@@ -152,7 +152,7 @@ class AuthHandler {
    */
   static async addToCart(productId, quantity = 1) {
     return await this.handleApiCall(
-      '/cart/add',
+      '/api/cart/add',
       { productId, quantity },
       'Item added to cart',
       'add to cart'
@@ -165,7 +165,7 @@ class AuthHandler {
    */
   static async toggleWishlist(productId) {
     return await this.handleApiCall(
-      '/wishlist/toggle',
+      '/api/wishlist/toggle',
       { productId },
       'Wishlist updated',
       'update wishlist'

@@ -465,7 +465,7 @@ document.getElementById("cropImageBtn").addEventListener("click", async function
     Loader.fire();
 
     try {
-      const response = await fetch("/profile/image", {
+      const response = await fetch("/users/profile/image", {
         method: "POST",
         body: formData,
       });
@@ -601,7 +601,7 @@ document.getElementById("profileForm").addEventListener("submit", async function
     '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
 
   try {
-    const response = await fetch("/profile", {
+    const response = await fetch("/users/profile", {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -705,7 +705,7 @@ document.getElementById("emailUpdateForm").addEventListener("submit", async func
     '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
 
   try {
-    const response = await fetch("/request-email-update", {
+    const response = await fetch("/users/profile/email/request", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

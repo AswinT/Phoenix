@@ -472,7 +472,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // If user confirmed, proceed with clearing
     if (result.isConfirmed) {
       try {
-        const response = await fetch('/cart/clear', {
+        const response = await fetch('/api/cart/clear', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'same-origin'
@@ -649,9 +649,9 @@ document.addEventListener('DOMContentLoaded', function () {
     try {
       item.style.opacity = '0.5';
       
-      const response = await fetch('/cart/remove', {
-        method: 'POST',
-        headers: { 
+      const response = await fetch('/api/cart/remove', {
+        method: 'DELETE',
+        headers: {
           'Content-Type': 'application/json',
           'X-Requested-With': 'XMLHttpRequest'
         },

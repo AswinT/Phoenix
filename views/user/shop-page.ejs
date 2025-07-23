@@ -1247,7 +1247,7 @@
         const productId = this.dataset.productId;
 
         try {
-          const response = await fetch('/cart/add', {
+          const response = await fetch('/api/cart/add', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ productId, quantity: 1 })
@@ -1322,7 +1322,7 @@
         const productId = this.dataset.productId;
 
         try {
-          const response = await fetch('/wishlist/toggle', {
+          const response = await fetch('/api/wishlist/toggle', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ productId })
