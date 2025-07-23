@@ -43,7 +43,6 @@ const getSales = async (req, res) => {
       reportType: reportType
     });
   } catch (error) {
-    console.error('Error in getSales:', error);
     return res.render('error', {
       message: 'Failed to load sales data: ' + error.message,
       title: 'Error'
@@ -92,7 +91,6 @@ const calculateSummaryStats = async (startDate, endDate) => {
       returnRateRaw: returnRate
     };
   } catch (error) {
-    console.error('Error calculating summary stats:', error);
     return {
       totalSales: '₹0',
       totalOrders: '0',

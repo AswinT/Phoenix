@@ -73,12 +73,11 @@ const postSignup = async (req, res) => {
       });
     }
     const otp = otpGenerator();
-    console.log('Generated OTP:', otp);
+    console.log('Generated OTP:', otp); // Essential for development/testing
     const subjectContent = 'Verify your email for Phoenix';
     try {
       await sendOtpEmail(trimmedEmail, trimmedName, otp, subjectContent,'signup');
     } catch (err) {
-      console.error('Email sending error:', err.message);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: 'Failed to send OTP email. Please try again later.',

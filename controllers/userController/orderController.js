@@ -113,9 +113,7 @@ const getOrders = async (req, res) => {
       order.formattedTotal = `₹${(order.total || 0).toFixed(2)}`;
       order.formattedDiscount = (order.discount || 0) > 0 ? `₹${order.discount.toFixed(2)}` : '₹0.00';
       order.formattedCouponDiscount = (order.couponDiscount || 0) > 0 ? `₹${order.couponDiscount.toFixed(2)}` : '₹0.00';
-      if (!useStoredSubtotal) {
-        console.warn(`Order ${order.orderNumber}: Subtotal inconsistency detected. Stored: ₹${order.subtotal}, Calculated: ₹${recalculatedSubtotal.toFixed(2)}`);
-      }
+
       for (const item of order.items) {
         const priceBreakdown = item.priceBreakdown || {};
         item.formattedOriginalPrice = `₹${priceBreakdown.originalPrice?.toFixed(2) || item.price.toFixed(2)}`;
@@ -292,12 +290,7 @@ const getOrderDetails = async (req, res) => {
     order.formattedDiscount = (order.discount || 0) > 0 ? `₹${order.discount.toFixed(2)}` : '₹0.00';
     order.formattedCouponDiscount = (order.couponDiscount || 0) > 0 ? `₹${order.couponDiscount.toFixed(2)}` : '₹0.00';
     order.total = displayTotal;
-    if (!useStoredSubtotal) {
-      console.warn(`Order ${order.orderNumber}: Subtotal inconsistency detected. Stored: ₹${order.subtotal}, Calculated: ₹${recalculatedSubtotal.toFixed(2)}`);
-    }
-    if (!useStoredTotal) {
-      console.warn(`Order ${order.orderNumber}: Total inconsistency detected. Stored: ₹${order.total}, Calculated: ₹${correctTotal.toFixed(2)}`);
-    }
+
     const timeline = [
       {
         status: 'Order Placed',
@@ -644,7 +637,7 @@ const downloadInvoice = async (req, res) => {
     try {
       doc.image(path.join(__dirname, '../../public/assets/phoenix-logo.png'), leftMargin, 50, { width: 50 });
     } catch (error) {
-      console.log('Logo image not found, continuing without logo');
+      // Logo image not found, continuing without logo
     }
     doc.font('Helvetica-Bold')
       .fontSize(28)

@@ -12,7 +12,6 @@ const getForgotPassword = async (req, res) => {
   try {
     res.render('forgotPassword');
   } catch (error) {
-    console.log('Error in getting getForgotPassword', error);
     res.status(HttpStatus.BAD_REQUEST).json({
       success: false,
       message: 'Server Error',

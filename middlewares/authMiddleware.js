@@ -1,8 +1,6 @@
 const User = require('../models/userSchema');
 
-// Check if user is logged in and valid
 const isAuthenticated = async (req, res, next) => {
-  // User has session - verify account status
   if (req.session && req.session.user_id) {
     try {
       const user = await User.findById(req.session.user_id).lean();

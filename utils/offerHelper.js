@@ -330,7 +330,6 @@ const calculateFinalItemPrice = (item, order = null) => {
       finalPrice: Math.max(0, Number(finalPrice.toFixed(2)))
     };
   } catch (error) {
-    console.error('Error in calculateFinalItemPrice:', error);
     return {
       originalPrice: item.price || 0,
       quantity: item.quantity || 1,
@@ -346,7 +345,6 @@ const calculateFinalItemPrice = (item, order = null) => {
 const getUnifiedPriceBreakdown = (item, order = null) => {
   try {
     if (!item) {
-      console.warn('getUnifiedPriceBreakdown: item is null or undefined');
       return null;
     }
     const quantity = item.quantity || 1;
