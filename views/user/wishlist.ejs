@@ -1,232 +1,150 @@
 <%- include("../partials/user/header") %>
-<style>
-  /* Add to existing styles */
-  .offer-badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: #e53935;
-    color: white;
-    padding: 0.25rem 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border-radius: 2px;
-    z-index: 1;
-  }
-  
-  .offer-title {
-    font-size: 0.75rem;
-    color: #4caf50;
-  }
-</style>
-<!-- Wishlist Header Section -->
-<section class="py-5 bg-light">
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-lg-8 text-center">
-        <h1 class="display-5 fw-bold mb-2">Your Wishlist</h1>
-        <p class="text-muted mb-0">Your saved headphones and audio gear</p>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- Wishlist Content Section -->
-<section class="py-5">
-  <div class="container">
-    <div class="row g-5">
-      <!-- Wishlist Items -->
-      <div class="col-lg-8">
-        <!-- Empty Wishlist State -->
-        <div class="empty-wishlist text-center py-5 <%= wishlistItems.length === 0 ? '' : 'd-none' %>">
-          <div class="mb-4">
-            <i class="ri-heart-line" style="font-size: 4rem; color: #ccc;"></i>
-          </div>
-          <h3 class="fs-4 fw-semibold mb-3">Your wishlist is empty</h3>
-          <p class="text-muted mb-4">Save your favorite headphones to purchase later</p>
-          <a href="/shopPage" class="btn btn-dark px-4 py-2">Continue Shopping</a>
-        </div>
+<!-- Include Phoenix Design System CSS -->
+<link rel="stylesheet" href="/styles/phoenix-design-system.css">
 
-        <!-- Wishlist Items List -->
-        <div class="wishlist-items <%= wishlistItems.length === 0 ? 'd-none' : '' %>">
+<div class="phoenix-container">
+  <div class="container-fluid">
+    <!-- Breadcrumbs -->
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item"><a href="/profile">My Account</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Wishlist</li>
+      </ol>
+    </nav>
+
+    <div class="row g-4">
+      <%- include("../partials/user/accountSidebar") %>
+
+      <!-- Main Content -->
+      <div class="col-lg-10">
+        <div class="phoenix-main-content">
           <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fs-4 fw-bold">Wishlist (<%= totalItems %> items)</h2>
             <div>
-              <button class="btn btn-dark me-2" id="addAllToCartBtn" <%= totalItems === 0 ? 'disabled' : '' %>>Add All to Cart</button>
-              <button class="btn btn-link text-dark p-0 text-decoration-none" id="clearWishlistBtn">Clear Wishlist</button>
+              <h1 class="phoenix-main-title">My Wishlist</h1>
+              <p class="phoenix-main-subtitle">Your saved headphones and audio gear.</p>
             </div>
+            <% if (wishlistItems.length > 0) { %>
+            <div class="d-flex gap-2">
+              <button class="btn phoenix-btn-primary" id="addAllToCartBtn">
+                <i class="ri-shopping-cart-line me-2"></i>Add All to Cart
+              </button>
+              <button class="btn phoenix-btn-secondary" id="clearWishlistBtn">
+                <i class="ri-delete-bin-line me-2"></i>Clear Wishlist
+              </button>
+            </div>
+            <% } %>
           </div>
 
-          <!-- Wishlist Statistics -->
-          <div class="wishlist-stats mb-4">
-            <span class="stock-status in-stock me-2">
-              <i class="ri-checkbox-circle-line me-1"></i> In Stock: <%= inStockItems %>
-            </span>
-            <span class="stock-status low-stock me-2">
-              <i class="ri-alert-line me-1"></i> Low Stock: <%= lowStockItems %>
-            </span>
-            <span class="stock-status out-of-stock">
-              <i class="ri-close-circle-line me-1"></i> Out of Stock: <%= outOfStockItems %>
-            </span>
-          </div>
+          <!-- Empty Wishlist State -->
+            <div class="empty-wishlist text-center py-5 <%= wishlistItems.length === 0 ? '' : 'd-none' %>">
+              <div class="mb-4">
+                <i class="ri-heart-line" style="font-size: 4rem; color: #ccc;"></i>
+              </div>
+              <h3 class="fs-4 fw-semibold mb-3">Your wishlist is empty</h3>
+              <p class="text-muted mb-4">Save your favorite headphones to purchase later</p>
+              <a href="/shopPage" class="btn phoenix-btn-primary px-4 py-2">Continue Shopping</a>
+            </div>
 
-          <% wishlistItems.forEach(item => { %>
-            <div class="wishlist-item bg-white p-4 mb-3 rounded shadow-sm" data-product-id="<%= item.product._id %>">
-              <div class="row align-items-center">
-                <div class="col-md-2 col-4 mb-3 mb-md-0">
-                  <div class="position-relative">
-                    <img src="<%= item.product.mainImage || '/api/placeholder/150/200' %>" alt="<%= item.product.title %>" class="img-fluid rounded" />
-                    <% if (item.product.activeOffer && item.product.discountPercentage > 0) { %>
-                      <span class="offer-badge"><%= item.product.discountPercentage %>% OFF</span>
-                    <% } %>
-                  </div>
-                </div>
-                <div class="col-md-6 col-8 mb-3 mb-md-0">
-                  <h3 class="fs-5 fw-semibold mb-1">
-                    <a href="/products/<%= item.product._id %>" class="text-dark text-decoration-none"><%= item.product.model || item.product.title %></a>
-                  </h3>
-                  <p class="text-muted small mb-1">Brand: <%= item.product.brand %></p>
-                  <% if (item.product.connectivity) { %>
-                    <p class="small mb-0">Type: <%= item.product.connectivity %></p>
-                  <% } %>
-                  <% if (item.product.activeOffer) { %>
-                    <p class="offer-title mt-1"><i class="ri-price-tag-3-line"></i> <%= item.product.activeOffer.title %></p>
-                  <% } %>
-                  <span class="stock-status <%= item.product.stock > 10 ? 'in-stock' : item.product.stock > 0 ? 'low-stock' : 'out-of-stock' %>">
-                    <i class="ri-<%= item.product.stock > 10 ? 'checkbox-circle-line' : item.product.stock > 0 ? 'alert-line' : 'close-circle-line' %> me-1"></i>
-                    <%= item.product.stock > 10 ? `In Stock (${item.product.stock} units available)` : item.product.stock > 0 ? `Low Stock (${item.product.stock} units left)` : 'Out of Stock' %>
-                  </span>
-                </div>
-                <div class="col-md-4 col-12 mt-3 mt-md-0">
-                  <div class="d-flex flex-column align-items-start align-items-md-end justify-content-md-end gap-2">
-                    <% if (item.product.activeOffer && item.product.discountPercentage > 0) { %>
-                      <div class="text-end">
-                        <span class="text-decoration-line-through text-muted me-2">₹<%= item.product.regularPrice.toFixed(2) %></span>
-                        <span class="fw-bold">₹<%= item.product.salePrice.toFixed(2) %></span>
+            <!-- Wishlist Items List -->
+            <div class="wishlist-items <%= wishlistItems.length === 0 ? 'd-none' : '' %>">
+              <!-- Wishlist Statistics -->
+              <div class="wishlist-stats mb-4">
+                <span class="stock-status in-stock me-2">
+                  <i class="ri-checkbox-circle-line me-1"></i> In Stock: <%= inStockItems %>
+                </span>
+                <span class="stock-status low-stock me-2">
+                  <i class="ri-alert-line me-1"></i> Low Stock: <%= lowStockItems %>
+                </span>
+                <span class="stock-status out-of-stock">
+                  <i class="ri-close-circle-line me-1"></i> Out of Stock: <%= outOfStockItems %>
+                </span>
+              </div>
+
+              <% wishlistItems.forEach(item => { %>
+                <div class="wishlist-item bg-white p-4 mb-3 rounded shadow-sm" data-product-id="<%= item.product._id %>">
+                  <div class="row align-items-center">
+                    <div class="col-md-2 col-4 mb-3 mb-md-0">
+                      <div class="position-relative">
+                        <img src="<%= item.product.mainImage || '/api/placeholder/150/200' %>" alt="<%= item.product.title %>" class="img-fluid rounded" />
+                        <% if (item.product.activeOffer && item.product.discountPercentage > 0) { %>
+                          <span class="offer-badge"><%= item.product.discountPercentage %>% OFF</span>
+                        <% } %>
                       </div>
-                    <% } else { %>
-                      <span class="fw-bold">₹<%= item.product.salePrice.toFixed(2) %></span>
-                    <% } %>
-                    <div class="item-actions d-flex gap-2">
-                      <button class="btn btn-dark btn-sm add-to-cart px-3" <%= item.product.stock === 0 ? 'disabled' : '' %>>Add to Cart</button>
-                      <button class="btn btn-outline-danger btn-sm remove-item">Remove</button>
+                    </div>
+                    <div class="col-md-6 col-8 mb-3 mb-md-0">
+                      <h3 class="fs-5 fw-semibold mb-1">
+                        <a href="/products/<%= item.product._id %>" class="text-dark text-decoration-none"><%= item.product.model || item.product.title %></a>
+                      </h3>
+                      <p class="text-muted small mb-1">Brand: <%= item.product.brand %></p>
+                      <% if (item.product.connectivity) { %>
+                        <p class="small mb-0">Type: <%= item.product.connectivity %></p>
+                      <% } %>
+                      <% if (item.product.activeOffer) { %>
+                        <p class="offer-title mt-1"><i class="ri-price-tag-3-line"></i> <%= item.product.activeOffer.title %></p>
+                      <% } %>
+                      <span class="stock-status <%= item.product.stock > 10 ? 'in-stock' : item.product.stock > 0 ? 'low-stock' : 'out-of-stock' %>">
+                        <i class="ri-<%= item.product.stock > 10 ? 'checkbox-circle-line' : item.product.stock > 0 ? 'alert-line' : 'close-circle-line' %> me-1"></i>
+                        <%= item.product.stock > 10 ? `In Stock (${item.product.stock} units available)` : item.product.stock > 0 ? `Low Stock (${item.product.stock} units left)` : 'Out of Stock' %>
+                      </span>
+                    </div>
+                    <div class="col-md-4 col-12 mt-3 mt-md-0">
+                      <div class="d-flex flex-column align-items-start align-items-md-end justify-content-md-end gap-2">
+                        <% if (item.product.activeOffer && item.product.discountPercentage > 0) { %>
+                          <div class="text-end">
+                            <span class="text-decoration-line-through text-muted me-2">₹<%= item.product.regularPrice.toFixed(2) %></span>
+                            <span class="fw-bold">₹<%= item.product.salePrice.toFixed(2) %></span>
+                          </div>
+                        <% } else { %>
+                          <span class="fw-bold">₹<%= item.product.salePrice.toFixed(2) %></span>
+                        <% } %>
+                        <div class="item-actions d-flex gap-2">
+                          <button class="btn phoenix-btn-primary btn-sm add-to-cart px-3" <%= item.product.stock === 0 ? 'disabled' : '' %>>Add to Cart</button>
+                          <button class="btn phoenix-btn-secondary btn-sm remove-item">Remove</button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              <% }) %>
+
+              <!-- Pagination -->
+              <% if (totalPages > 1) { %>
+                <nav aria-label="Wishlist pagination" class="mt-4">
+                  <ul class="pagination justify-content-center">
+                    <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                      <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                      </a>
+                    </li>
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                      <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                        <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                      </li>
+                    <% } %>
+                    <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                      <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                      </a>
+                    </li>
+                  </ul>
+                </nav>
+              <% } %>
             </div>
-          <% }) %>
 
-          <!-- Pagination -->
-          <% if (totalPages > 1) { %>
-            <nav aria-label="Wishlist pagination" class="mt-4">
-              <ul class="pagination justify-content-center">
-                <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
-                  <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
-                  </a>
-                </li>
-                <% for (let i = 1; i <= totalPages; i++) { %>
-                  <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                    <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-                  </li>
-                <% } %>
-                <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
-                  <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
-                  </a>
-                </li>
-              </ul>
-            </nav>
-          <% } %>
-        </div>
-
-        <!-- Continue Shopping -->
-        <div class="mt-4">
-          <a href="/shopPage" class="text-dark d-flex align-items-center text-decoration-none">
-            <i class="ri-arrow-left-line me-2"></i> Continue Shopping
-          </a>
-        </div>
-      </div>
-
-      <!-- Wishlist Summary -->
-      <div class="col-lg-4">
-        <div class="wishlist-summary bg-white p-4 rounded shadow-sm <%= wishlistItems.length === 0 ? 'd-none' : '' %>" id="wishlistSummary">
-          <h2 class="fs-4 fw-bold mb-4">Wishlist Summary</h2>
-          <div class="d-flex justify-content-between mb-3">
-            <span>Total Items</span>
-            <span class="fw-semibold"><%= totalItems %></span>
-          </div>
-          <div class="d-flex justify-content-between mb-3">
-            <span>Estimated Value</span>
-            <span class="fw-semibold">₹<%= wishlistItems.reduce((sum, item) => sum + item.product.salePrice, 0).toFixed(2) %></span>
-          </div>
-          <button class="btn btn-dark w-100 py-3 fw-medium" id="addAllToCartSummaryBtn" <%= totalItems === 0 ? 'disabled' : '' %>>Add All to Cart</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Recently Viewed Section -->
-<section class="py-5 bg-light">
-  <div class="container">
-    <h2 class="fs-2 fw-bold mb-4">Recently Viewed</h2>
-    <div class="row g-4">
-      <% recentlyViewed.forEach(product => { %>
-        <div class="col-6 col-md-3">
-          <div class="product-card bg-white h-100">
-            <div class="product-image-container">
-              <% 
-                const now = new Date();
-                const createdAt = new Date(product.createdAt);
-                const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24);
-                const isNew = diffDays <= 30;
-              %>
-              <% if (isNew) { %>
-                <span class="product-tag">New</span>
-              <% } %>
-              
-              <!-- Add offer badge if there's an active offer -->
-              <% if (product.activeOffer && product.discountPercentage > 0) { %>
-                <span class="offer-badge"><%= product.discountPercentage %>% OFF</span>
-              <% } %>
-              
-              <a href="/products/<%= product._id %>" class="text-decoration-none">
-                <img src="<%= product.mainImage || '/api/placeholder/600/800' %>" alt="<%= product.model %>" class="product-image" />
+            <!-- Continue Shopping -->
+            <div class="mt-4">
+              <a href="/shopPage" class="text-dark d-flex align-items-center text-decoration-none">
+                <i class="ri-arrow-left-line me-2"></i> Continue Shopping
               </a>
             </div>
-            <div class="p-3">
-              <h3 class="fs-5 fw-semibold mb-1">
-                <a href="/products/<%= product._id %>" class="text-dark text-decoration-none"><%= product.model %></a>
-              </h3>
-              <p class="text-muted small mb-2"><%= product.brand %></p>
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <% if (product.activeOffer && product.discountPercentage > 0) { %>
-                    <div>
-                      <span class="text-decoration-line-through text-muted me-1" style="font-size: 0.8rem;">₹<%= product.regularPrice.toFixed(2) %></span>
-                      <span class="fw-bold">₹<%= product.salePrice.toFixed(2) %></span>
-                    </div>
-                  <% } else { %>
-                    <span class="fw-bold">₹<%= product.salePrice.toFixed(2) %></span>
-                  <% } %>
-                  <span class="stock-status <%= product.stock > 10 ? 'in-stock' : product.stock > 0 ? 'low-stock' : 'out-of-stock' %>">
-                    <i class="ri-<%= product.stock > 10 ? 'checkbox-circle-line' : product.stock > 0 ? 'alert-line' : 'close-circle-line' %> me-1"></i>
-                    <%= product.stock > 10 ? 'In Stock' : product.stock > 0 ? 'Low Stock' : 'Out of Stock' %>
-                  </span>
-                </div>
-                <button class="add-to-cart-btn" data-product-id="<%= product._id %>" <%= product.stock === 0 ? 'disabled' : '' %>>
-                  <i class="ri-add-line"></i>
-                </button>
-              </div>
-            </div>
           </div>
         </div>
-      <% }) %>
+      </div>
     </div>
   </div>
-</section>
+</div>
 
 <%- include("../partials/user/footer") %>
 

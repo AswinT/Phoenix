@@ -1,8 +1,11 @@
 <%- include("../partials/user/header") %>
 
+<!-- Include Phoenix Design System CSS -->
+<link rel="stylesheet" href="/styles/phoenix-design-system.css">
+
 <style>
-      /* ════════════════════════════════════════════════════════════���══════════════════════════════ */
-      /* PHOENIX DESIGN SYSTEM */
+      /* ════════════════════════════════════════════════════════════════════════════════════════ */
+      /* PHOENIX PROFILE PAGE SPECIFIC STYLES */
       /* ═══════════════════════════════════════════════════════════════════════════════════════════ */
       :root {
         /* Phoenix Color Palette */
@@ -737,127 +740,10 @@
     <div class="phoenix-container">
       <div class="container-fluid">
         <div class="row">
-          <!-- PHOENIX SIDEBAR -->
-          <div class="col-lg-3 col-md-4 mb-4">
-            <div class="phoenix-sidebar">
-              <!-- Profile Section -->
-              <div class="phoenix-profile">
-                <div class="phoenix-avatar">
-                  <img
-                    src="<%= user.profileImage || '/api/placeholder/100/100' %>"
-                    alt="<%= user.fullName %>"
-                    class="phoenix-avatar-img"
-                    onerror="this.src='/api/placeholder/100/100'; this.onerror=null;"
-                  />
-                  <div class="phoenix-avatar-badge">
-                    <i class="ri-check-line"></i>
-                  </div>
-                </div>
-                <h3 class="phoenix-profile-name"><%= user.fullName %></h3>
-                <p class="phoenix-profile-email"><%= user.email %></p>
-              </div>
-
-              <!-- Navigation Section -->
-              <div class="phoenix-nav">
-                <div class="phoenix-nav-header">Account Management</div>
-
-                <div class="phoenix-nav-item">
-                  <a
-                    href="/profile"
-                    class="phoenix-nav-link active"
-                    data-page="profile"
-                  >
-                    <i class="ri-user-3-line phoenix-nav-icon"></i>
-                    <span class="phoenix-nav-text">My Profile</span>
-                  </a>
-                </div>
-
-                <div class="phoenix-nav-item">
-                  <a
-                    href="/address"
-                    class="phoenix-nav-link"
-                    data-page="address"
-                  >
-                    <i class="ri-map-pin-line phoenix-nav-icon"></i>
-                    <span class="phoenix-nav-text">Address Book</span>
-                  </a>
-                </div>
-
-                <div class="phoenix-nav-item">
-                  <a href="/orders" class="phoenix-nav-link" data-page="orders">
-                    <i class="ri-box-3-line phoenix-nav-icon"></i>
-                    <span class="phoenix-nav-text">My Orders</span>
-                    <% if (locals.orderCount && locals.orderCount > 0) { %>
-                    <span class="phoenix-nav-badge"
-                      ><%= locals.orderCount %></span
-                    >
-                    <% } %>
-                  </a>
-                </div>
-
-                <div class="phoenix-nav-item">
-                  <a
-                    href="/wishlist"
-                    class="phoenix-nav-link"
-                    data-page="wishlist"
-                  >
-                    <i class="ri-heart-3-line phoenix-nav-icon"></i>
-                    <span class="phoenix-nav-text">My Wishlist</span>
-                    <% if (locals.wishlistCount && locals.wishlistCount > 0) {
-                    %>
-                    <span class="phoenix-nav-badge"
-                      ><%= locals.wishlistCount %></span
-                    >
-                    <% } %>
-                  </a>
-                </div>
-
-                <div class="phoenix-nav-item">
-                  <a href="/wallet" class="phoenix-nav-link" data-page="wallet">
-                    <i class="ri-wallet-3-line phoenix-nav-icon"></i>
-                    <span class="phoenix-nav-text">Wallet</span>
-                  </a>
-                </div>
-
-                <div class="phoenix-nav-item">
-                  <a
-                    href="/user-coupons"
-                    class="phoenix-nav-link"
-                    data-page="coupons"
-                  >
-                    <i class="ri-coupon-3-line phoenix-nav-icon"></i>
-                    <span class="phoenix-nav-text">Coupons</span>
-                  </a>
-                </div>
-
-                <div class="phoenix-nav-item">
-                  <a
-                    href="/referrals"
-                    class="phoenix-nav-link"
-                    data-page="referrals"
-                  >
-                    <i class="ri-share-forward-line phoenix-nav-icon"></i>
-                    <span class="phoenix-nav-text">Referrals</span>
-                  </a>
-                </div>
-              </div>
-
-              <!-- Actions Section -->
-              <div class="phoenix-actions">
-                <button
-                  class="phoenix-action-btn"
-                  data-bs-toggle="modal"
-                  data-bs-target="#phoenixPasswordModal"
-                >
-                  <i class="ri-lock-password-line me-2"></i>
-                  Change Password
-                </button>
-              </div>
-            </div>
-          </div>
+          <%- include("../partials/user/accountSidebar") %>
 
           <!-- MAIN CONTENT AREA - PROFILE FORM -->
-          <div class="col-lg-9 col-md-8">
+          <div class="col-lg-10 col-md-8">
             <div class="phoenix-main-content">
               <h1 class="phoenix-main-title">My Profile</h1>
               <p class="phoenix-main-subtitle">

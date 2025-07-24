@@ -1,20 +1,33 @@
 <%- include("../partials/user/header") %>
 
-<div class="container py-5">
-  <!-- Breadcrumbs -->
-  <nav aria-label="breadcrumb" class="mb-4">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="/">Home</a></li>
-      <li class="breadcrumb-item"><a href="/user/dashboard">My Account</a></li>
-      <li class="breadcrumb-item active" aria-current="page">Wallet</li>
-    </ol>
-  </nav>
+<!-- Include Phoenix Design System CSS -->
+<link rel="stylesheet" href="/styles/phoenix-design-system.css">
 
-  <div class="row g-4">
-    <%- include("../partials/user/accountSidebar") %>
+<div class="phoenix-container">
+  <div class="container-fluid">
+    <!-- Breadcrumbs -->
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item"><a href="/profile">My Account</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Wallet</li>
+      </ol>
+    </nav>
 
-    <!-- Main Content -->
-    <div class="col-lg-9">
+    <div class="row g-4">
+      <%- include("../partials/user/accountSidebar") %>
+
+      <!-- Main Content -->
+      <div class="col-lg-10">
+        <div class="phoenix-main-content">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h1 class="phoenix-main-title">My Wallet</h1>
+              <p class="phoenix-main-subtitle">Manage your wallet balance and transactions.</p>
+            </div>
+          </div>
+
+          <div class="wallet-content">
       <!-- Wallet Balance Card with Animation -->
       <div class="card border-0 shadow-sm mb-4 wallet-card">
         <div class="card-header bg-white p-4 border-0">
@@ -291,6 +304,9 @@
           </div>
         </div>
         <% } %>
+      </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

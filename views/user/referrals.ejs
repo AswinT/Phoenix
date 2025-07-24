@@ -1,11 +1,33 @@
 <%- include("../partials/user/header") %>
 
-<div class="container py-5">
-  <div class="row g-4">
-    <%- include("../partials/user/accountSidebar") %>
+<!-- Include Phoenix Design System CSS -->
+<link rel="stylesheet" href="/styles/phoenix-design-system.css">
 
-    <!-- Main Content -->
-    <div class="col-lg-9">
+<div class="phoenix-container">
+  <div class="container-fluid">
+    <!-- Breadcrumbs -->
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item"><a href="/profile">My Account</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Referrals</li>
+      </ol>
+    </nav>
+
+    <div class="row g-4">
+      <%- include("../partials/user/accountSidebar") %>
+
+      <!-- Main Content -->
+      <div class="col-lg-10">
+        <div class="phoenix-main-content">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h1 class="phoenix-main-title">Referrals</h1>
+              <p class="phoenix-main-subtitle">Share your code and earn rewards when friends join.</p>
+            </div>
+          </div>
+
+          <div class="referrals-content">
       <!-- Referral Code Section -->
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-header bg-white p-4 border-0">
@@ -113,6 +135,9 @@
               <h5 class="fw-semibold mb-2">3. Earn Rewards</h5>
               <p class="text-muted small">You receive ₹100 in your wallet instantly when your friend successfully signs up.</p>
             </div>
+          </div>
+        </div>
+      </div>
           </div>
         </div>
       </div>

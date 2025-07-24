@@ -1,6 +1,10 @@
 <%- include("../partials/user/header") %>
 
-<div class="container py-5">
+<!-- Include Phoenix Design System CSS -->
+<link rel="stylesheet" href="/styles/phoenix-design-system.css">
+
+<div class="phoenix-container">
+  <div class="container-fluid">
   <!-- Breadcrumbs -->
   <nav aria-label="breadcrumb" class="mb-4">
     <ol class="breadcrumb">
@@ -14,21 +18,22 @@
     <%- include("../partials/user/accountSidebar") %>
 
     <!-- Main Content -->
-    <div class="col-lg-9">
-      <div class="card border-0 shadow-sm mb-4">
-        <div
-          class="card-header bg-white p-4 border-0 d-flex justify-content-between align-items-center"
-        >
-          <h4 class="mb-0">My Addresses</h4>
+    <div class="col-lg-10">
+      <div class="phoenix-main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h1 class="phoenix-main-title">Address Book</h1>
+            <p class="phoenix-main-subtitle">Manage your delivery addresses.</p>
+          </div>
           <button
-            class="btn btn-dark"
+            class="btn phoenix-btn-primary"
             data-bs-toggle="modal"
             data-bs-target="#addAddressModal"
           >
-            <i class="bi bi-plus-lg me-2"></i>Add New Address
+            <i class="ri-add-line me-2"></i>Add New Address
           </button>
         </div>
-        <div class="card-body p-4">
+        <div>
           <!-- Address List -->
           <div class="row g-4" id="addressContainer">
             <% if (addresses && addresses.length > 0) { %> <%
@@ -102,6 +107,7 @@
         </div>
       </div>
     </div>
+  </div>
   </div>
 </div>
 

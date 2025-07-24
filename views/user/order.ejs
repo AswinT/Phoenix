@@ -1,28 +1,33 @@
 <%- include("../partials/user/header") %>
 
-<div class="container py-5">
-  <!-- Breadcrumbs with consistent styling, matching address page -->
-  <nav aria-label="breadcrumb" class="mb-4">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="/">Home</a></li>
-      <li class="breadcrumb-item"><a href="/profile">My Account</a></li>
-      <li class="breadcrumb-item active" aria-current="page">My Orders</li>
-    </ol>
-  </nav>
+<!-- Include Phoenix Design System CSS -->
+<link rel="stylesheet" href="/styles/phoenix-design-system.css">
 
-  <div class="row g-4">
-    <%- include("../partials/user/accountSidebar") %>
-    
-    
-    <!-- Main Content -->
-    <div class="col-lg-9">
-      <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body p-4">
+<div class="phoenix-container">
+  <div class="container-fluid">
+    <!-- Breadcrumbs -->
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item"><a href="/profile">My Account</a></li>
+        <li class="breadcrumb-item active" aria-current="page">My Orders</li>
+      </ol>
+    </nav>
+
+    <div class="row g-4">
+      <%- include("../partials/user/accountSidebar") %>
+      
+      <!-- Main Content -->
+      <div class="col-lg-10">
+        <div class="phoenix-main-content">
           <div class="d-flex justify-content-between align-items-center mb-4">
-            <div class="d-flex align-items-center gap-2">
-              <h2 class="fs-4 fw-bold mb-0 me-3">My Orders</h2>
+            <div>
+              <h1 class="phoenix-main-title">My Orders</h1>
+              <p class="phoenix-main-subtitle">Track and manage your orders.</p>
+            </div>
+            <div class="d-flex gap-2">
               <div class="dropdown">
-                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <button class="btn phoenix-btn-secondary btn-sm dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                   <%= filterDisplay %>
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="filterDropdown">
@@ -35,22 +40,22 @@
                   <li><a class="dropdown-item <%= currentFilter === 'Returned' ? 'active' : '' %>" href="/orders?filter=Returned&sort=<%= currentSort %>">Returned Orders</a></li>
                 </ul>
               </div>
-            </div>
-            <div class="dropdown">
-              <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                <%= sortDisplay %>
-              </button>
-              <ul class="dropdown-menu" aria-labelledby="sortDropdown">
-                <li><a class="dropdown-item <%= currentSort === 'createdAt-desc' ? 'active' : '' %>" href="/orders?filter=<%= currentFilter %>&sort=createdAt-desc">Newest First</a></li>
-                <li><a class="dropdown-item <%= currentSort === 'createdAt-asc' ? 'active' : '' %>" href="/orders?filter=<%= currentFilter %>&sort=createdAt-asc">Oldest First</a></li>
-                <li><a class="dropdown-item <%= currentSort === 'total-desc' ? 'active' : '' %>" href="/orders?filter=<%= currentFilter %>&sort=total-desc">Price: High to Low</a></li>
-                <li><a class="dropdown-item <%= currentSort === 'total-asc' ? 'active' : '' %>" href="/orders?filter=<%= currentFilter %>&sort=total-asc">Price: Low to High</a></li>
-              </ul>
+              <div class="dropdown">
+                <button class="btn phoenix-btn-secondary btn-sm dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                  <%= sortDisplay %>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                  <li><a class="dropdown-item <%= currentSort === 'createdAt-desc' ? 'active' : '' %>" href="/orders?filter=<%= currentFilter %>&sort=createdAt-desc">Newest First</a></li>
+                  <li><a class="dropdown-item <%= currentSort === 'createdAt-asc' ? 'active' : '' %>" href="/orders?filter=<%= currentFilter %>&sort=createdAt-asc">Oldest First</a></li>
+                  <li><a class="dropdown-item <%= currentSort === 'total-desc' ? 'active' : '' %>" href="/orders?filter=<%= currentFilter %>&sort=total-desc">Price: High to Low</a></li>
+                  <li><a class="dropdown-item <%= currentSort === 'total-asc' ? 'active' : '' %>" href="/orders?filter=<%= currentFilter %>&sort=total-asc">Price: Low to High</a></li>
+                </ul>
+              </div>
             </div>
           </div>
           
           <!-- Orders List -->
-          <div class="orders-list">
+            <div class="orders-list">
             <% if (orders && orders.length > 0) { %>
               <% orders.forEach(order => { %>
                 <div class="order-card mb-4">
