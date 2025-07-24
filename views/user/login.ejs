@@ -4,12 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - Phoenix</title>
+
+    <!-- Font imports for the new typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Audiowide:wght@400&family=Raleway:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
+
+    <!-- Icon and Bootstrap -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
@@ -19,144 +23,209 @@
       rel="stylesheet"
     />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <link rel="stylesheet" href="/styles/user/loginPage.css" />
+
     <style>
-      /* Black Circle Loader */
+      /* Validation styling that works with our elegant theme */
+      .is-valid {
+        border-color: #456882 !important;
+        box-shadow: 0 0 0 2px rgba(69, 104, 130, 0.2) !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23456882' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        padding-right: calc(1.5em + 0.75rem) !important;
+      }
+
+      .is-invalid {
+        border-color: #d63031 !important;
+        box-shadow: 0 0 0 2px rgba(214, 48, 49, 0.2) !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23d63031'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23d63031' stroke='none'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        padding-right: calc(1.5em + 0.75rem) !important;
+      }
+
+      /* Full Page Loader with new colors */
       .full-page-loader {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(255, 255, 255, 0.9);
+        background-color: rgba(249, 243, 239, 0.95);
         display: none;
         justify-content: center;
         align-items: center;
         flex-direction: column;
         z-index: 9999;
+        backdrop-filter: blur(10px);
       }
-      
+
       .circle-loader {
-        border: 6px solid #f3f3f3; /* Light grey background */
-        border-top: 6px solid black; /* Black top */
+        border: 6px solid rgba(210, 193, 182, 0.3);
+        border-top: 6px solid #1b3c53;
         border-radius: 50%;
         width: 50px;
         height: 50px;
         animation: spin 1s linear infinite;
         margin-bottom: 20px;
       }
-      
+
       .loader-message {
+        font-family: "Montserrat", sans-serif;
         font-weight: 500;
-        color: #333;
+        color: #1b3c53;
+        font-size: 1rem;
       }
 
       @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
       }
     </style>
   </head>
-  <body
-    class="paper-texture d-flex align-items-center justify-content-center min-vh-100 py-3"
-  >
+
+  <body class="elegant-body">
     <!-- Full Page Loader -->
     <div class="full-page-loader" id="fullPageLoader">
       <div class="circle-loader"></div>
       <div class="loader-message">Logging in...</div>
     </div>
-    
-    <div class="container">
-      <div class="login-container mx-auto bg-white row">
-        <div class="col-md-5 p-0 image-side d-none d-md-block">
-          <div class="overlay">
-            <div class="text-white">
-              <h2 class="h3 fw-bold mb-1">Welcome Back</h2>
-              <p class="mb-0 small">Continue your audio journey.</p>
+
+    <!-- Animated background particles -->
+    <div class="bg-particles">
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+    </div>
+
+    <div class="login-wrapper">
+      <div class="container">
+        <div class="login-card">
+          <!-- Left side - Brand section (simplified) -->
+          <div class="brand-section">
+            <div class="brand-content">
+              <div class="brand-logo">
+                <img
+                  src="../../assets/phoenix-logo.png"
+                  alt="Phoenix Logo"
+                  class="logo-img"
+                />
+                <h1 class="brand-title">Phoenix</h1>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right side - Form section -->
+          <div class="form-section">
+            <div class="form-container">
+              <div class="form-header">
+                <h2 class="form-title">Welcome Back</h2>
+                <p class="form-subtitle">
+                  Sign in to continue your audio journey
+                </p>
+              </div>
+
+              <form id="userLogin" method="post" class="login-form">
+                <div class="input-group-custom">
+                  <label for="email" class="form-label-custom"
+                    >Email Address</label
+                  >
+                  <div class="input-wrapper">
+                    <input
+                      type="email"
+                      name="email"
+                      class="form-input-custom"
+                      id="email"
+                      placeholder="Enter your email address"
+                    />
+                    <i class="ri-mail-line input-icon"></i>
+                  </div>
+                  <div id="emailError" class="error-message"></div>
+                </div>
+
+                <div class="input-group-custom">
+                  <label for="password" class="form-label-custom"
+                    >Password</label
+                  >
+                  <div class="input-wrapper">
+                    <input
+                      type="password"
+                      name="password"
+                      class="form-input-custom"
+                      id="password"
+                      placeholder="Enter your password"
+                    />
+                    <i class="ri-lock-line input-icon"></i>
+                    <button
+                      class="password-toggle toggle-password"
+                      type="button"
+                      tabindex="-1"
+                    >
+                      <i class="ri-eye-off-line"></i>
+                    </button>
+                  </div>
+                  <div id="passwordError" class="error-message"></div>
+                </div>
+
+                <div class="forgot-password-wrapper">
+                  <a href="/forgotPassword" class="forgot-password-link"
+                    >Forgot your password?</a
+                  >
+                </div>
+
+                <button type="submit" class="btn-login" id="submitButton">
+                  <span class="btn-text">Sign In</span>
+                  <i class="ri-arrow-right-line btn-icon"></i>
+                </button>
+
+                <div class="divider-custom">
+                  <span>or continue with</span>
+                </div>
+
+                <a href="/auth/google" class="btn-google">
+                  <i class="ri-google-fill"></i>
+                  <span>Sign in with Google</span>
+                </a>
+
+                <div class="form-footer">
+                  <p class="signup-link">
+                    Don't have an account?
+                    <a href="/signup" class="link-primary">Create one here</a>
+                  </p>
+                </div>
+              </form>
             </div>
           </div>
         </div>
-        <div class="col-12 col-md-7 form-side">
-          <div class="text-center mb-4">
-            <div class="d-flex align-items-center justify-content-center mb-2">
-              <img
-                src="../../assets/phoenix-logo.png"
-                alt="Phoenix Logo"
-                class="me-2"
-                height="30"
-              />
-              <span class="logo-text fs-4">Phoenix</span>
-            </div>
-            <h2 class="fw-bold h4">Log in to your account</h2>
-            <p class="text-muted small mb-3">Pick up where you left off</p>
-          </div>
-          <form id="userLogin" method="post">
-            <div class="compact-mb">
-              <label for="email" class="form-label">Email Address</label>
-              <input
-                type="email"
-                name="email"
-                class="form-control form-control-sm"
-                id="email"
-                placeholder="Enter your email"
-              />
-              <div id="emailError" class="text-danger small mt-1"></div>
-            </div>
-            <div class="compact-mb">
-              <label for="password" class="form-label">Password</label>
-              <div class="input-group">
-                <input
-                  type="password"
-                  name="password"
-                  class="form-control form-control-sm"
-                  id="password"
-                  placeholder="Enter your password"
-                />
-                <button class="btn btn-outline-secondary btn-sm toggle-password" type="button" tabindex="-1">
-                  <i class="ri-eye-off-line"></i>
-                </button>
-              </div>
-              <div id="passwordError" class="text-danger small mt-1"></div>
-            </div>
-            <a href="/forgotPassword" class="forgot-password text-decoration-none"
-              >Forgot password?</a
-            >
-            <button
-              type="submit"
-              class="btn btn-primary btn-sm w-100 mb-2 py-2"
-              id="submitButton"
-            >
-              Log In
-            </button>
-            <div class="divider">
-              <span>OR</span>
-            </div>
-            <a href="/auth/google" class="btn btn-google w-100 mb-3">
-              <i class="ri-google-fill"></i>
-              Continue with Google
-            </a>
-          </form>
-          <div class="text-center mt-3">
-            <p class="small text-muted mb-0">
-              Don't have an account?
-              <a href="/signup" class="text-decoration-none fw-medium">Sign up</a>
-            </p>
-          </div>
+
+        <div class="footer-text">
+          <p>&copy; 2025 Phoenix Audio. All rights reserved.</p>
         </div>
       </div>
     </div>
+
     <script>
       // Handle query parameters for various error states
       const urlParams = new URLSearchParams(window.location.search);
       const error = urlParams.get("error");
-      
+
       if (error === "blocked") {
         Swal.fire({
           icon: "error",
           title: "Account Blocked",
           text: "Your account has been blocked by the administrator. Please contact support for assistance.",
           confirmButtonText: "OK",
-          confirmButtonColor: "#d33"
+          confirmButtonColor: "#1B3C53",
         });
       } else if (error === "account_not_found") {
         Swal.fire({
@@ -164,7 +233,7 @@
           title: "Account Not Found",
           text: "Your account could not be found. Please sign up or contact support.",
           confirmButtonText: "OK",
-          confirmButtonColor: "#f39c12"
+          confirmButtonColor: "#456882",
         });
       } else if (error === "auth_error") {
         Swal.fire({
@@ -172,7 +241,7 @@
           title: "Authentication Error",
           text: "There was an error with your session. Please log in again.",
           confirmButtonText: "OK",
-          confirmButtonColor: "#d33"
+          confirmButtonColor: "#d63031",
         });
       }
 
@@ -191,17 +260,17 @@
       }
 
       // Password toggle functionality
-      document.querySelectorAll('.toggle-password').forEach(button => {
-        button.addEventListener('click', function() {
-          const input = this.previousElementSibling;
-          const icon = this.querySelector('i');
+      document.querySelectorAll(".toggle-password").forEach((button) => {
+        button.addEventListener("click", function () {
+          const input = this.parentElement.querySelector("input");
+          const icon = this.querySelector("i");
 
-          if (input.type === 'password') {
-            input.type = 'text';
-            icon.classList.replace('ri-eye-off-line', 'ri-eye-line');
+          if (input.type === "password") {
+            input.type = "text";
+            icon.classList.replace("ri-eye-off-line", "ri-eye-line");
           } else {
-            input.type = 'password';
-            icon.classList.replace('ri-eye-line', 'ri-eye-off-line');
+            input.type = "password";
+            icon.classList.replace("ri-eye-line", "ri-eye-off-line");
           }
         });
       });
@@ -223,111 +292,139 @@
         }
       });
 
-      document.getElementById("password").addEventListener("input", function () {
-        const password = this.value;
-        const passwordError = document.getElementById("passwordError");
-        if (password === "") {
-          passwordError.textContent = "";
-          resetValidation(this);
-        } else if (password.length < 8) {
-          passwordError.textContent = "Password must be at least 8 characters";
-          setInvalid(this);
-        } else {
-          passwordError.textContent = "";
-          setValid(this);
-        }
-      });
+      document
+        .getElementById("password")
+        .addEventListener("input", function () {
+          const password = this.value;
+          const passwordError = document.getElementById("passwordError");
+          if (password === "") {
+            passwordError.textContent = "";
+            resetValidation(this);
+          } else if (password.length < 8) {
+            passwordError.textContent =
+              "Password must be at least 8 characters";
+            setInvalid(this);
+          } else {
+            passwordError.textContent = "";
+            setValid(this);
+          }
+        });
 
       // Show full page loader function
       function showLoader() {
-        const loader = document.getElementById('fullPageLoader');
-        loader.style.display = 'flex';
+        const loader = document.getElementById("fullPageLoader");
+        loader.style.display = "flex";
       }
 
       // Form submission
-      document.getElementById("userLogin").addEventListener("submit", async (event) => {
-        event.preventDefault();
-        const email = document.getElementById("email").value.trim().toLowerCase();
-        const password = document.getElementById("password").value;
-        const submitButton = document.getElementById("submitButton");
-        document.getElementById("emailError").textContent = "";
-        document.getElementById("passwordError").textContent = "";
-        let isValid = true;
+      document
+        .getElementById("userLogin")
+        .addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const email = document
+            .getElementById("email")
+            .value.trim()
+            .toLowerCase();
+          const password = document.getElementById("password").value;
+          const submitButton = document.getElementById("submitButton");
+          const btnText = submitButton.querySelector(".btn-text");
+          const btnIcon = submitButton.querySelector(".btn-icon");
 
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        if (!email || !emailRegex.test(email)) {
-          document.getElementById("emailError").textContent = "Valid email is required";
-          setInvalid(document.getElementById("email"));
-          isValid = false;
-        }
-        if (!password || password.length < 8) {
-          document.getElementById("passwordError").textContent =
-            "Password must be at least 8 characters";
-          setInvalid(document.getElementById("password"));
-          isValid = false;
-        }
+          document.getElementById("emailError").textContent = "";
+          document.getElementById("passwordError").textContent = "";
+          let isValid = true;
 
-        if (isValid) {
-          try {
-            submitButton.disabled = true;
-            submitButton.innerHTML =
-              '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Logging In...';
-            const response = await fetch("/login", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ email, password }),
-            });
-            const result = await response.json();
-            
-            if (result.success) {
-              // Show full page loader instead of SweetAlert
-              showLoader();
-              // Redirect after a short delay
-              setTimeout(() => {
-                window.location.href = "/";
-              }, 1000);
-            } else {
-              submitButton.disabled = false;
-              submitButton.textContent = "Log In";
-              
-              if (response.status === 403 && result.message.includes("verify")) {
-                Swal.fire({
-                  icon: "warning",
-                  title: "Verification Required",
-                  text: "Please verify your email first",
-                  confirmButtonText: "Go to Verification",
-                }).then(() => {
-                  window.location.href = "/verify-otp";
-                });
-              } else if (response.status === 403 && result.message.includes("blocked")) {
-                Swal.fire({
-                  icon: "error",
-                  title: "Account Blocked",
-                  text: result.message || "Your account is blocked. Please contact support.",
-                  confirmButtonText: "OK",
-                });
-              } else {
-                Swal.fire({
-                  icon: "error",
-                  title: "Sign In Failed",
-                  text: result.message || "Something went wrong!",
-                  confirmButtonText: "Try Again",
-                });
-              }
-            }
-          } catch (error) {
-            console.error("Signin error:", error);
-            submitButton.disabled = false;
-            submitButton.textContent = "Log In";
-            Swal.fire({
-              icon: "error",
-              title: "Error",
-              text: "Unable to connect to the server. Please try again later.",
-              confirmButtonText: "OK",
-            });
+          const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+          if (!email || !emailRegex.test(email)) {
+            document.getElementById("emailError").textContent =
+              "Valid email is required";
+            setInvalid(document.getElementById("email"));
+            isValid = false;
           }
-        }
-      });
+          if (!password || password.length < 8) {
+            document.getElementById("passwordError").textContent =
+              "Password must be at least 8 characters";
+            setInvalid(document.getElementById("password"));
+            isValid = false;
+          }
+
+          if (isValid) {
+            try {
+              submitButton.disabled = true;
+              btnText.textContent = "Signing In...";
+              btnIcon.className = "ri-loader-4-line btn-icon rotating";
+
+              const response = await fetch("/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
+              });
+              const result = await response.json();
+
+              if (result.success) {
+                // Show full page loader instead of SweetAlert
+                showLoader();
+                // Redirect after a short delay
+                setTimeout(() => {
+                  window.location.href = "/";
+                }, 1000);
+              } else {
+                submitButton.disabled = false;
+                btnText.textContent = "Sign In";
+                btnIcon.className = "ri-arrow-right-line btn-icon";
+
+                if (
+                  response.status === 403 &&
+                  result.message.includes("verify")
+                ) {
+                  Swal.fire({
+                    icon: "warning",
+                    title: "Verification Required",
+                    text: "Please verify your email first",
+                    confirmButtonText: "Go to Verification",
+                    confirmButtonColor: "#456882",
+                  }).then(() => {
+                    window.location.href = "/verify-otp";
+                  });
+                } else if (
+                  response.status === 403 &&
+                  result.message.includes("blocked")
+                ) {
+                  Swal.fire({
+                    icon: "error",
+                    title: "Account Blocked",
+                    text:
+                      result.message ||
+                      "Your account is blocked. Please contact support.",
+                    confirmButtonText: "OK",
+                    confirmButtonColor: "#d63031",
+                  });
+                } else {
+                  Swal.fire({
+                    icon: "error",
+                    title: "Sign In Failed",
+                    text: result.message || "Something went wrong!",
+                    confirmButtonText: "Try Again",
+                    confirmButtonColor: "#d63031",
+                  });
+                }
+              }
+            } catch (error) {
+              console.error("Signin error:", error);
+              submitButton.disabled = false;
+              btnText.textContent = "Sign In";
+              btnIcon.className = "ri-arrow-right-line btn-icon";
+
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Unable to connect to the server. Please try again later.",
+                confirmButtonText: "OK",
+                confirmButtonColor: "#d63031",
+              });
+            }
+          }
+        });
     </script>
   </body>
 </html>
