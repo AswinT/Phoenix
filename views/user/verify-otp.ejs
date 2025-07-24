@@ -3,120 +3,170 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OTP Verification</title>
+    <title>OTP Verification - Phoenix</title>
+
+    <!-- Font imports for the new typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Audiowide:wght@400&family=Raleway:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icon and Bootstrap -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
+    />
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <link rel="stylesheet" href="/styles/user/verifyOtp.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <link rel="stylesheet" href="/styles/user/verifyOtp.css" />
   </head>
-  <body>
-    <div class="container">
-      <div class="otp-card">
-        <div class="otp-header">
-          <i class="fas fa-shield-alt otp-icon"></i>
-          <h3 class="mb-0">OTP Verification</h3>
+
+  <body class="elegant-body">
+    <!-- Animated background particles -->
+    <div class="bg-particles">
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+    </div>
+
+    <div class="otp-wrapper">
+      <div class="container">
+        <div class="otp-card">
+          <!-- Left side - Brand section (simplified) -->
+          <div class="brand-section">
+            <div class="brand-content">
+              <div class="brand-logo">
+                <img
+                  src="../../assets/phoenix-logo.png"
+                  alt="Phoenix Logo"
+                  class="logo-img"
+                />
+                <h1 class="brand-title">Phoenix</h1>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right side - OTP Form section -->
+          <div class="form-section">
+            <div class="form-container">
+              <div class="otp-header">
+                <div class="otp-icon-wrapper">
+                  <i class="ri-shield-check-line otp-icon"></i>
+                </div>
+                <h2 class="form-title">Verify Your Account</h2>
+                <p class="form-subtitle">Enter the verification code sent to</p>
+                <p class="user-email" id="userEmail">
+                  <%= maskedEmail || 'your***@example.com' %>
+                </p>
+              </div>
+
+              <!-- Timer display -->
+              <div class="timer-container">
+                <div class="timer-display" id="timerDisplay">
+                  <i class="ri-time-line timer-icon"></i>
+                  <span>Code expires in: </span>
+                  <span class="timer" id="timer">01:00</span>
+                </div>
+                <div class="timer-expired" id="timerExpired">
+                  <i class="ri-error-warning-line"></i>
+                  <span>OTP has expired. Please request a new one.</span>
+                </div>
+              </div>
+
+              <form id="otpForm" class="otp-form">
+                <div class="otp-inputs-wrapper">
+                  <div class="otp-inputs">
+                    <input
+                      type="text"
+                      class="otp-input"
+                      name="digit1"
+                      maxlength="1"
+                    />
+                    <input
+                      type="text"
+                      class="otp-input"
+                      name="digit2"
+                      maxlength="1"
+                    />
+                    <input
+                      type="text"
+                      class="otp-input"
+                      name="digit3"
+                      maxlength="1"
+                    />
+                    <input
+                      type="text"
+                      class="otp-input"
+                      name="digit4"
+                      maxlength="1"
+                    />
+                    <input
+                      type="text"
+                      class="otp-input"
+                      name="digit5"
+                      maxlength="1"
+                    />
+                    <input
+                      type="text"
+                      class="otp-input"
+                      name="digit6"
+                      maxlength="1"
+                    />
+                  </div>
+                  <p class="otp-helper-text">Enter the 6-digit code</p>
+                </div>
+
+                <button type="submit" class="btn-verify" id="submitBtn">
+                  <span class="btn-text">Verify Code</span>
+                  <i class="ri-arrow-right-line btn-icon"></i>
+                </button>
+
+                <div id="statusMessage" class="status-message"></div>
+
+                <div class="resend-section">
+                  <p class="resend-text">Didn't receive the code?</p>
+                  <a href="#" class="btn-resend" id="resendBtn">
+                    <i class="ri-refresh-line resend-icon"></i>
+                    <span>Resend Code</span>
+                  </a>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
 
-        <div class="otp-body">
-          <p class="text-center mb-1">Enter the verification code sent to</p>
-          <h5 class="text-center mb-4" id="userEmail">
-            <%= maskedEmail || 'your***@example.com' %>
-          </h5>
-
-          <!-- Timer display -->
-          <div class="timer-container">
-            <p>Code expires in: <span class="timer" id="timer">00:30</span></p>
-            <p class="timer-expired" id="timerExpired">OTP has expired. Please request a new one.</p>
-          </div>
-
-          <form id="otpForm">
-            <div class="otp-inputs">
-              <input
-                type="text"
-                class="otp-input"
-                name="digit1"
-                maxlength="1"
-                required
-              />
-              <input
-                type="text"
-                class="otp-input"
-                name="digit2"
-                maxlength="1"
-                required
-              />
-              <input
-                type="text"
-                class="otp-input"
-                name="digit3"
-                maxlength="1"
-                required
-              />
-              <input
-                type="text"
-                class="otp-input"
-                name="digit4"
-                maxlength="1"
-                required
-              />
-              <input
-                type="text"
-                class="otp-input"
-                name="digit5"
-                maxlength="1"
-                required
-              />
-              <input
-                type="text"
-                class="otp-input"
-                name="digit6"
-                maxlength="1"
-                required
-              />
-            </div>
-
-            <div class="d-grid gap-2">
-              <button type="submit" class="btn btn-verify btn-primary">
-                Verify
-              </button>
-            </div>
-          </form>
-
-          <div id="statusMessage" class="status-message"></div>
-
-          <div class="text-center mt-4">
-            <p class="mb-1">Didn't receive the code?</p>
-            <a href="#" class="btn-resend" id="resendBtn">Resend Code</a>
-          </div>
+        <div class="footer-text">
+          <p>&copy; 2025 Phoenix Audio. All rights reserved.</p>
         </div>
       </div>
     </div>
+
     <script>
       const inputs = document.querySelectorAll(".otp-input");
       const otpForm = document.getElementById("otpForm");
       const statusMessage = document.getElementById("statusMessage");
       const resendBtn = document.getElementById("resendBtn");
       const timerElement = document.getElementById("timer");
+      const timerDisplay = document.getElementById("timerDisplay");
       const timerExpiredElement = document.getElementById("timerExpired");
-      const submitBtn = otpForm.querySelector('button[type="submit"]');
+      const submitBtn = document.getElementById("submitBtn");
 
-      let timeLeft = 30; // 30 seconds timer
+      let timeLeft = 60; // 60 seconds timer
       let timerId;
 
       // Start timer function
       function startTimer() {
         // Reset timer UI
-        timerElement.style.display = 'inline';
-        timerExpiredElement.style.display = 'none';
+        timerDisplay.style.display = "flex";
+        timerExpiredElement.style.display = "none";
         submitBtn.disabled = false;
 
         // Clear any existing timer
@@ -144,22 +194,26 @@
       function updateTimerDisplay() {
         const minutes = Math.floor(timeLeft / 60);
         const seconds = timeLeft % 60;
-        timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        timerElement.textContent = `${minutes
+          .toString()
+          .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 
         // Change color when time is running out
         if (timeLeft <= 10) {
-          timerElement.style.color = '#dc3545'; // Red color
+          timerElement.style.color = "#d63031"; // Red color
+          timerElement.classList.add("timer-urgent");
         } else {
-          timerElement.style.color = '#212529'; // Default color
+          timerElement.style.color = "#456882"; // Default color
+          timerElement.classList.remove("timer-urgent");
         }
       }
 
       // Handle expired OTP
       function handleExpiredOTP() {
-        timerElement.style.display = 'none';
-        timerExpiredElement.style.display = 'block';
+        timerDisplay.style.display = "none";
+        timerExpiredElement.style.display = "flex";
         submitBtn.disabled = true;
-        showStatus('OTP has expired. Please request a new one.', 'error');
+        showStatus("OTP has expired. Please request a new one.", "error");
       }
 
       // Auto-advance to next input field and prevent letters
@@ -168,7 +222,7 @@
           let value = input.value;
 
           // Remove any non-digit characters
-          value = value.replace(/\D/g, '');
+          value = value.replace(/\D/g, "");
 
           // Update input value with only digits
           input.value = value;
@@ -182,17 +236,22 @@
         // Prevent non-digit characters from being typed
         input.addEventListener("keypress", (e) => {
           // Allow backspace, delete, tab, escape, enter
-          if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
-              // Allow Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
-              (e.keyCode === 65 && e.ctrlKey === true) ||
-              (e.keyCode === 67 && e.ctrlKey === true) ||
-              (e.keyCode === 86 && e.ctrlKey === true) ||
-              (e.keyCode === 88 && e.ctrlKey === true)) {
+          if (
+            [8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
+            // Allow Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+            (e.keyCode === 65 && e.ctrlKey === true) ||
+            (e.keyCode === 67 && e.ctrlKey === true) ||
+            (e.keyCode === 86 && e.ctrlKey === true) ||
+            (e.keyCode === 88 && e.ctrlKey === true)
+          ) {
             return;
           }
 
           // Ensure that it is a number and stop the keypress
-          if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+          if (
+            (e.shiftKey || e.keyCode < 48 || e.keyCode > 57) &&
+            (e.keyCode < 96 || e.keyCode > 105)
+          ) {
             e.preventDefault();
           }
         });
@@ -206,17 +265,26 @@
         // Prevent paste of non-digit content
         input.addEventListener("paste", (e) => {
           e.preventDefault();
-          const paste = (e.clipboardData || window.clipboardData).getData('text');
-          const digitsOnly = paste.replace(/\D/g, '');
+          const paste = (e.clipboardData || window.clipboardData).getData(
+            "text"
+          );
+          const digitsOnly = paste.replace(/\D/g, "");
 
           if (digitsOnly) {
             // Fill current and subsequent inputs with pasted digits
-            for (let i = 0; i < digitsOnly.length && (index + i) < inputs.length; i++) {
+            for (
+              let i = 0;
+              i < digitsOnly.length && index + i < inputs.length;
+              i++
+            ) {
               inputs[index + i].value = digitsOnly[i];
             }
 
             // Focus on the next empty input or the last filled input
-            const nextIndex = Math.min(index + digitsOnly.length, inputs.length - 1);
+            const nextIndex = Math.min(
+              index + digitsOnly.length,
+              inputs.length - 1
+            );
             inputs[nextIndex].focus();
           }
         });
@@ -228,130 +296,154 @@
 
         // Check if timer expired
         if (timeLeft <= 0) {
-          showStatus('OTP has expired. Please request a new one.', 'error');
+          showStatus("OTP has expired. Please request a new one.", "error");
           return;
         }
 
         // Collect OTP digits
-        const otpDigits = Array.from(inputs).map(input => input.value);
-        const otpCode = otpDigits.join('');
+        const otpDigits = Array.from(inputs).map((input) => input.value);
+        const otpCode = otpDigits.join("");
 
         // Check if all digits are filled
-        if (otpDigits.some(digit => digit === '')) {
-          showStatus('Please enter all 6 digits of the OTP code', 'error');
+        if (otpDigits.some((digit) => digit === "")) {
+          showStatus("Please enter all 6 digits of the OTP code", "error");
           return;
         }
 
         // Check if all digits are numbers
-        if (otpDigits.some(digit => !/^\d$/.test(digit))) {
-          showStatus('OTP must contain only numbers', 'error');
+        if (otpDigits.some((digit) => !/^\d$/.test(digit))) {
+          showStatus("OTP must contain only numbers", "error");
           return;
         }
 
         // Prepare data for submission
         const formData = {
           otp: otpCode,
-          email: document.getElementById('userEmail').textContent.trim()
+          email: document.getElementById("userEmail").textContent.trim(),
         };
 
         try {
           // Show loading state
-          const originalBtnText = submitBtn.textContent;
+          const btnText = submitBtn.querySelector(".btn-text");
+          const btnIcon = submitBtn.querySelector(".btn-icon");
+
           submitBtn.disabled = true;
-          submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Verifying...';
+          btnText.textContent = "Verifying...";
+          btnIcon.className = "ri-loader-4-line btn-icon rotating";
 
           // Send OTP to backend
-          const response = await fetch('/verify-otp', {
-            method: 'POST',
+          const response = await fetch("/verify-otp", {
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(formData),
           });
 
           const data = await response.json();
 
           // Reset button state
           submitBtn.disabled = false;
-          submitBtn.textContent = originalBtnText;
+          btnText.textContent = "Verify Code";
+          btnIcon.className = "ri-arrow-right-line btn-icon";
 
           if (data.success) {
             // Stop the timer
             clearInterval(timerId);
 
-            showStatus('OTP verified successfully! Redirecting...', 'success');
-            // Redirect after successful verification (optional)
+            showStatus("OTP verified successfully! Redirecting...", "success");
+            // Redirect after successful verification
             setTimeout(() => {
-              window.location.href = '/login'; // Change to your redirect URL
+              window.location.href = "/login";
             }, 2000);
           } else {
-            showStatus(data.message || 'Invalid OTP. Please try again.', 'error');
+            showStatus(
+              data.message || "Invalid OTP. Please try again.",
+              "error"
+            );
           }
         } catch (error) {
-          console.error('Error:', error);
-          showStatus('Failed to verify OTP. Please try again.', 'error');
+          console.error("Error:", error);
+          showStatus("Failed to verify OTP. Please try again.", "error");
+
+          const btnText = submitBtn.querySelector(".btn-text");
+          const btnIcon = submitBtn.querySelector(".btn-icon");
           submitBtn.disabled = false;
-          submitBtn.textContent = originalBtnText;
+          btnText.textContent = "Verify Code";
+          btnIcon.className = "ri-arrow-right-line btn-icon";
         }
       });
 
       // Handle resend code
-      resendBtn.addEventListener('click', async (e) => {
+      resendBtn.addEventListener("click", async (e) => {
         e.preventDefault();
-        const email = document.getElementById('userEmail').textContent.trim();
+        const email = document.getElementById("userEmail").textContent.trim();
 
         try {
-          resendBtn.textContent = 'Sending...';
-          resendBtn.style.pointerEvents = 'none';
+          const resendText = resendBtn.querySelector("span");
+          const resendIcon = resendBtn.querySelector(".resend-icon");
 
-          const response = await fetch('/resend-signup-otp', {
-            method: 'POST',
+          resendText.textContent = "Sending...";
+          resendIcon.className = "ri-loader-4-line resend-icon rotating";
+          resendBtn.style.pointerEvents = "none";
+
+          const response = await fetch("/auth/resend-otp", {
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
-            body: JSON.stringify({ email })
+            body: JSON.stringify({ email }),
           });
 
           const data = await response.json();
 
           if (data.success) {
-
             startTimer();
+            showStatus("New OTP code sent successfully!", "success");
 
-            showStatus('New OTP code sent successfully!', 'success');
             // Clear previous inputs
-            inputs.forEach(input => {
-              input.value = '';
+            inputs.forEach((input) => {
+              input.value = "";
             });
             inputs[0].focus();
           } else {
-            showStatus(data.message || 'Failed to resend OTP. Please try again.', 'error');
+            showStatus(
+              data.message || "Failed to resend OTP. Please try again.",
+              "error"
+            );
           }
         } catch (error) {
-          console.error('Error:', error);
-          showStatus('Failed to resend OTP. Please try again.', 'error');
+          console.error("Error:", error);
+          showStatus("Failed to resend OTP. Please try again.", "error");
         } finally {
-          resendBtn.textContent = 'Resend Code';
-          resendBtn.style.pointerEvents = 'auto';
+          const resendText = resendBtn.querySelector("span");
+          const resendIcon = resendBtn.querySelector(".resend-icon");
+
+          resendText.textContent = "Resend Code";
+          resendIcon.className = "ri-refresh-line resend-icon";
+          resendBtn.style.pointerEvents = "auto";
         }
       });
 
       // Helper function to show status messages
       function showStatus(message, type) {
         statusMessage.textContent = message;
-        statusMessage.className = 'status-message';
-        statusMessage.classList.add(type === 'success' ? 'status-success' : 'status-error');
-        statusMessage.style.display = 'block';
+        statusMessage.className = "status-message";
+        statusMessage.classList.add(
+          type === "success" ? "status-success" : "status-error"
+        );
+        statusMessage.style.display = "block";
 
         // Hide message after 5 seconds
         setTimeout(() => {
-          statusMessage.style.display = 'none';
+          statusMessage.style.display = "none";
         }, 5000);
       }
 
       // Initialize timer on page load
-      document.addEventListener('DOMContentLoaded', () => {
+      document.addEventListener("DOMContentLoaded", () => {
         startTimer();
+        inputs[0].focus(); // Focus on first input
       });
     </script>
   </body>
