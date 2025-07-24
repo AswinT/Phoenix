@@ -166,6 +166,9 @@ router.get('/otpForgotPassword', (req, res) => {
 router.post('/otpForgotPassword', (req, res) => {
   res.redirect(307, '/password/verify-otp');
 });
+router.post('/resend-otp', (req, res) => {
+  res.redirect(307, '/password/resend-otp');
+});
 
 // Legacy authentication routes
 router.get('/signup', (req, res) => {
