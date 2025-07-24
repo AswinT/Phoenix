@@ -11,7 +11,13 @@ const pageNotFound = async (req, res) => {
 };
 const loadHomePage = async (req, res) => {
   try {
-    const categories = await categoryController.getCategories();
+    let categories = [];
+    try {
+      categories = await categoryController.getCategories();
+    } catch (categoryError) {
+      console.error('Failed to load categories:', categoryError);
+      // Continue with empty categories array to prevent complete page failure
+    }
     const LIMIT = 4;
     const topSellingProductsRaw = await Product.find({ isListed: true, isDeleted: false })
       .populate({

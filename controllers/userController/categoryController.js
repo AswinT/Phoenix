@@ -1,9 +1,10 @@
 const Category = require('../../models/categorySchema');
 const getCategories = async (_req, _res) => {
   try {
-    const categories = await Category.find({ isListed: true }).sort({
-      createdAt: -1,
-    });
+    const categories = await Category.find({ isListed: true })
+      .sort({ createdAt: -1 })
+      .maxTimeMS(30000)
+      .lean();
     return categories;
   } catch (error) {
     console.error('Error fetching categories:', error);

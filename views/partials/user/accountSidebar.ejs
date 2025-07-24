@@ -1,435 +1,1099 @@
-<!-- Sidebar -->
-<div class="col-lg-3 profile-sidebar">
-  <div class="card border-0 shadow-sm mb-4">
-    <div class="card-body p-4 text-center">
-      <div class="position-relative mx-auto mb-3">
-        <div class="profile-image-container">
-          <img
-            id="profileImage"
-            src="<%= user.profileImage || '/api/placeholder/120/120' %>"
-            alt="Profile"
-            class="rounded-circle img-thumbnail"
-            onerror="this.src='/api/placeholder/120/120'; this.onerror=null;"
-          />
+<!-- PHOENIX SIDEBAR -->
+<div class="col-lg-3 col-md-4 mb-4">
+  <div class="phoenix-sidebar">
+    <!-- Profile Section -->
+    <div class="phoenix-profile">
+      <div class="phoenix-avatar">
+        <img
+          src="<%= user.profileImage || '/api/placeholder/100/100' %>"
+          alt="<%= user.fullName %>"
+          class="phoenix-avatar-img"
+          onerror="this.src='/api/placeholder/100/100'; this.onerror=null;"
+        />
+        <div class="phoenix-avatar-badge">
+          <i class="ri-check-line"></i>
         </div>
       </div>
-      <h5 class="fw-bold mb-1"><%= user.fullName %></h5>
-      <p class="text-muted small mb-0"><%= user.email %></p>
+      <h3 class="phoenix-profile-name"><%= user.fullName %></h3>
+      <p class="phoenix-profile-email"><%= user.email %></p>
     </div>
-  </div>
 
-  <div class="card border-0 shadow-sm">
-    <div class="list-group list-group-flush rounded-0">
-      <div class="bg-dark text-white p-3 fw-medium">Manage My Account</div>
-      <a
-        href="/profile"
-        class="list-group-item list-group-item-action sidebar-nav-link"
-        data-page="profile"
+    <!-- Navigation Section -->
+    <div class="phoenix-nav">
+      <div class="phoenix-nav-header">Account Management</div>
+
+      <div class="phoenix-nav-item">
+        <a
+          href="/profile"
+          class="phoenix-nav-link"
+          data-page="profile"
+        >
+          <i class="ri-user-3-line phoenix-nav-icon"></i>
+          <span class="phoenix-nav-text">My Profile</span>
+        </a>
+      </div>
+
+      <div class="phoenix-nav-item">
+        <a
+          href="/address"
+          class="phoenix-nav-link"
+          data-page="address"
+        >
+          <i class="ri-map-pin-line phoenix-nav-icon"></i>
+          <span class="phoenix-nav-text">Address Book</span>
+        </a>
+      </div>
+
+      <div class="phoenix-nav-item">
+        <a href="/orders" class="phoenix-nav-link" data-page="orders">
+          <i class="ri-box-3-line phoenix-nav-icon"></i>
+          <span class="phoenix-nav-text">My Orders</span>
+          <% if (locals.orderCount && locals.orderCount > 0) { %>
+          <span class="phoenix-nav-badge"
+            ><%= locals.orderCount %></span
+          >
+          <% } %>
+        </a>
+      </div>
+
+      <div class="phoenix-nav-item">
+        <a
+          href="/wishlist"
+          class="phoenix-nav-link"
+          data-page="wishlist"
+        >
+          <i class="ri-heart-3-line phoenix-nav-icon"></i>
+          <span class="phoenix-nav-text">My Wishlist</span>
+          <% if (locals.wishlistCount && locals.wishlistCount > 0) {
+          %>
+          <span class="phoenix-nav-badge"
+            ><%= locals.wishlistCount %></span
+          >
+          <% } %>
+        </a>
+      </div>
+
+      <div class="phoenix-nav-item">
+        <a href="/wallet" class="phoenix-nav-link" data-page="wallet">
+          <i class="ri-wallet-3-line phoenix-nav-icon"></i>
+          <span class="phoenix-nav-text">Wallet</span>
+        </a>
+      </div>
+
+      <div class="phoenix-nav-item">
+        <a
+          href="/user-coupons"
+          class="phoenix-nav-link"
+          data-page="coupons"
+        >
+          <i class="ri-coupon-3-line phoenix-nav-icon"></i>
+          <span class="phoenix-nav-text">Coupons</span>
+        </a>
+      </div>
+
+      <div class="phoenix-nav-item">
+        <a
+          href="/referrals"
+          class="phoenix-nav-link"
+          data-page="referrals"
+        >
+          <i class="ri-share-forward-line phoenix-nav-icon"></i>
+          <span class="phoenix-nav-text">Referrals</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Actions Section -->
+    <div class="phoenix-actions">
+      <button
+        class="phoenix-action-btn"
+        data-bs-toggle="modal"
+        data-bs-target="#phoenixPasswordModal"
       >
-        <i class="bi bi-person me-2"></i> My Profile
-      </a>
-      <a href="/address" class="list-group-item list-group-item-action sidebar-nav-link" data-page="address">
-        <i class="bi bi-geo-alt me-2"></i> Address Book
-      </a>
-      <a href="/orders" class="list-group-item list-group-item-action sidebar-nav-link" data-page="orders">
-        <i class="bi bi-box me-2"></i> My Orders
-      </a>
-      <a href="/wishlist" class="list-group-item list-group-item-action sidebar-nav-link" data-page="wishlist">
-        <i class="bi bi-heart me-2"></i> My Wishlist
-      </a>
-      <a href="/wallet" class="list-group-item list-group-item-action sidebar-nav-link" data-page="wallet">
-        <i class="bi bi-wallet2 me-2"></i> Wallet
-      </a>
-      <a href="/user-coupons" class="list-group-item list-group-item-action sidebar-nav-link" data-page="coupons">
-        <i class="bi bi-ticket-perforated me-2"></i> Coupons
-      </a>
-      <a href="/referrals" class="list-group-item list-group-item-action sidebar-nav-link" data-page="referrals">
-        <i class="bi bi-share me-2"></i> Referrals
-      </a>
-      <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#passwordChangeModal">
-        <i class="bi bi-lock me-2"></i> Change Password
-      </a>
+        <i class="ri-lock-password-line me-2"></i>
+        Change Password
+      </button>
     </div>
   </div>
 </div>
 
-<!-- Password Change Modal -->
-<div class="modal fade" id="passwordChangeModal" tabindex="-1" aria-labelledby="passwordChangeModalLabel" aria-hidden="true">
+<!-- PASSWORD CHANGE MODAL -->
+<div
+  class="modal fade phoenix-modal"
+  id="phoenixPasswordModal"
+  tabindex="-1"
+  aria-labelledby="phoenixPasswordModalLabel"
+  aria-hidden="true"
+>
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header border-0">
-        <h5 class="modal-title" id="passwordChangeModalLabel">Change Password</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-header">
+        <h5 class="modal-title" id="phoenixPasswordModalLabel">
+          <i class="ri-shield-keyhole-line me-2"></i>
+          Change Password
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
       </div>
       <div class="modal-body">
-        <form id="passwordChangeForm">
+        <form id="phoenixPasswordForm">
           <div class="mb-3">
-            <label for="currentPassword" class="form-label">Current Password</label>
+            <label for="phoenixCurrentPassword" class="phoenix-form-label"
+              >Current Password</label
+            >
             <div class="input-group">
-              <span class="input-group-text bg-light border-end-0">
-                <i class="bi bi-lock"></i>
-              </span>
-              <input 
-                type="password" 
-                class="form-control border-start-0" 
-                id="currentPassword" 
+              <input
+                type="password"
+                class="form-control phoenix-form-control"
+                id="phoenixCurrentPassword"
                 name="currentPassword"
-                placeholder="Enter your current password" 
+                placeholder="Enter your current password"
                 required
               />
-              <button class="btn btn-outline-secondary border-start-0 toggle-password" type="button" tabindex="-1">
-                <i class="bi bi-eye-slash"></i>
+              <button
+                class="btn phoenix-btn-secondary phoenix-toggle-password"
+                type="button"
+              >
+                <i class="ri-eye-off-line"></i>
               </button>
             </div>
-            <div id="currentPasswordError" class="text-danger small mt-1"></div>
+            <div
+              id="phoenixCurrentPasswordError"
+              class="phoenix-error-message"
+            ></div>
           </div>
-          
+
           <div class="mb-3">
-            <label for="newPassword" class="form-label">New Password</label>
+            <label for="phoenixNewPassword" class="phoenix-form-label"
+              >New Password</label
+            >
             <div class="input-group">
-              <span class="input-group-text bg-light border-end-0">
-                <i class="bi bi-shield-lock"></i>
-              </span>
-              <input 
-                type="password" 
-                class="form-control border-start-0" 
-                id="newPassword" 
+              <input
+                type="password"
+                class="form-control phoenix-form-control"
+                id="phoenixNewPassword"
                 name="newPassword"
-                placeholder="Enter your new password" 
+                placeholder="Enter your new password"
                 required
               />
-              <button class="btn btn-outline-secondary border-start-0 toggle-password" type="button" tabindex="-1">
-                <i class="bi bi-eye-slash"></i>
+              <button
+                class="btn phoenix-btn-secondary phoenix-toggle-password"
+                type="button"
+              >
+                <i class="ri-eye-off-line"></i>
               </button>
             </div>
-            <div id="newPasswordError" class="text-danger small mt-1"></div>
-            <div class="password-strength mt-2 d-none">
-              <div class="progress" style="height: 5px;">
-                <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            <div
+              id="phoenixNewPasswordError"
+              class="phoenix-error-message"
+            ></div>
+            <div class="phoenix-password-strength mt-2 d-none">
+              <div class="progress" style="height: 6px; border-radius: 3px">
+                <div
+                  class="progress-bar"
+                  role="progressbar"
+                  style="width: 0%"
+                  aria-valuenow="0"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                ></div>
               </div>
-              <small class="password-feedback text-muted"></small>
+              <small
+                class="phoenix-password-feedback text-muted mt-1 d-block"
+              ></small>
             </div>
           </div>
-          
+
           <div class="mb-3">
-            <label for="confirmPassword" class="form-label">Confirm New Password</label>
+            <label for="phoenixConfirmPassword" class="phoenix-form-label"
+              >Confirm New Password</label
+            >
             <div class="input-group">
-              <span class="input-group-text bg-light border-end-0">
-                <i class="bi bi-shield-check"></i>
-              </span>
-              <input 
-                type="password" 
-                class="form-control border-start-0" 
-                id="confirmPassword" 
+              <input
+                type="password"
+                class="form-control phoenix-form-control"
+                id="phoenixConfirmPassword"
                 name="confirmPassword"
-                placeholder="Confirm your new password" 
+                placeholder="Confirm your new password"
                 required
               />
-              <button class="btn btn-outline-secondary border-start-0 toggle-password" type="button" tabindex="-1">
-                <i class="bi bi-eye-slash"></i>
+              <button
+                class="btn phoenix-btn-secondary phoenix-toggle-password"
+                type="button"
+              >
+                <i class="ri-eye-off-line"></i>
               </button>
             </div>
-            <div id="confirmPasswordError" class="text-danger small mt-1"></div>
+            <div
+              id="phoenixConfirmPasswordError"
+              class="phoenix-error-message"
+            ></div>
           </div>
         </form>
       </div>
-      <div class="modal-footer border-0">
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-        <button type="submit" form="passwordChangeForm" class="btn btn-dark" id="passwordChangeBtn">
-          <i class="bi bi-check-circle me-2"></i>Update Password
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn phoenix-btn-secondary"
+          data-bs-dismiss="modal"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          form="phoenixPasswordForm"
+          class="btn phoenix-btn-primary"
+          id="phoenixPasswordBtn"
+        >
+          <i class="ri-check-circle-line me-2"></i>Update Password
         </button>
       </div>
     </div>
   </div>
 </div>
+
+<style>
+  /* ═══════════════════════════════════════════════════════════════════════════════════════════ */
+  /* PHOENIX DESIGN SYSTEM - SIDEBAR COMPONENT */
+  /* ═══════════════════════════════════════════════════════════════════════════════════════════ */
+  :root {
+    /* Phoenix Color Palette */
+    --phoenix-primary: #1b3c53;
+    --phoenix-secondary: #456882;
+    --phoenix-beige: #d2c1b6;
+    --phoenix-cream: #f9f3ef;
+    --phoenix-white: #ffffff;
+    --phoenix-dark: #2d3748;
+    --phoenix-success: #00b894;
+    --phoenix-warning: #fdcb6e;
+    --phoenix-danger: #d63031;
+
+    /* Gradients */
+    --phoenix-gradient-main: linear-gradient(
+      135deg,
+      var(--phoenix-primary) 0%,
+      var(--phoenix-secondary) 100%
+    );
+    --phoenix-gradient-soft: linear-gradient(
+      135deg,
+      var(--phoenix-cream) 0%,
+      var(--phoenix-beige) 100%
+    );
+    --phoenix-gradient-card: linear-gradient(
+      145deg,
+      rgba(249, 243, 239, 0.95) 0%,
+      rgba(210, 193, 182, 0.85) 100%
+    );
+
+    /* Shadows & Effects */
+    --phoenix-shadow-soft: 0 8px 32px rgba(27, 60, 83, 0.12);
+    --phoenix-shadow-medium: 0 12px 40px rgba(27, 60, 83, 0.18);
+    --phoenix-shadow-strong: 0 16px 48px rgba(27, 60, 83, 0.25);
+    --phoenix-blur: blur(16px);
+
+    /* Typography */
+    --phoenix-font-brand: "Audiowide", cursive;
+    --phoenix-font-heading: "Montserrat", sans-serif;
+    --phoenix-font-body: "Raleway", sans-serif;
+
+    /* Spacing */
+    --phoenix-radius-sm: 12px;
+    --phoenix-radius-md: 16px;
+    --phoenix-radius-lg: 20px;
+    --phoenix-radius-xl: 24px;
+  }
+
+  /* ═══ SIDEBAR CONTAINER ═══ */
+  .phoenix-sidebar {
+    background: var(--phoenix-gradient-card);
+    border-radius: var(--phoenix-radius-xl);
+    box-shadow: var(--phoenix-shadow-medium);
+    backdrop-filter: var(--phoenix-blur);
+    border: 1px solid rgba(210, 193, 182, 0.3);
+    overflow: hidden;
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+
+  .phoenix-sidebar::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      45deg,
+      transparent 30%,
+      rgba(249, 243, 239, 0.1) 50%,
+      transparent 70%
+    );
+    animation: phoenixShimmer 3s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  @keyframes phoenixShimmer {
+    0%,
+    100% {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    50% {
+      transform: translateX(100%);
+      opacity: 1;
+    }
+  }
+
+  .phoenix-sidebar:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--phoenix-shadow-strong);
+  }
+
+  /* ═══ PROFILE SECTION ═══ */
+  .phoenix-profile {
+    position: relative;
+    z-index: 2;
+    padding: 2rem;
+    text-align: center;
+    background: var(--phoenix-gradient-main);
+    color: var(--phoenix-white);
+  }
+
+  .phoenix-profile::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+  }
+
+  .phoenix-avatar {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1.5rem;
+  }
+
+  .phoenix-avatar-img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+  }
+
+  .phoenix-avatar:hover .phoenix-avatar-img {
+    transform: scale(1.08);
+    border-color: var(--phoenix-cream);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+  }
+
+  .phoenix-avatar-badge {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 24px;
+    height: 24px;
+    background: var(--phoenix-success);
+    border: 3px solid var(--phoenix-white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    animation: phoenixPulse 2s infinite;
+  }
+
+  @keyframes phoenixPulse {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+  }
+
+  .phoenix-profile-name {
+    font-family: var(--phoenix-font-heading);
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .phoenix-profile-email {
+    font-family: var(--phoenix-font-body);
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin-bottom: 0;
+  }
+
+  /* ═══ NAVIGATION SECTION ═══ */
+  .phoenix-nav {
+    position: relative;
+    z-index: 2;
+    padding: 1rem 0;
+  }
+
+  .phoenix-nav-header {
+    padding: 1rem 1.5rem 0.5rem;
+    font-family: var(--phoenix-font-heading);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--phoenix-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid rgba(210, 193, 182, 0.2);
+    margin-bottom: 0.5rem;
+  }
+
+  .phoenix-nav-item {
+    margin: 0.25rem 1rem;
+    border-radius: var(--phoenix-radius-md);
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+
+  .phoenix-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    color: var(--phoenix-dark);
+    text-decoration: none;
+    font-family: var(--phoenix-font-body);
+    font-weight: 500;
+    font-size: 0.95rem;
+    background: transparent;
+    border: none;
+    width: 100%;
+    text-align: left;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+
+  .phoenix-nav-link::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    background: var(--phoenix-gradient-main);
+    transition: width 0.3s ease;
+    border-radius: 0 var(--phoenix-radius-sm) var(--phoenix-radius-sm) 0;
+  }
+
+  .phoenix-nav-link:hover {
+    background: rgba(255, 255, 255, 0.8);
+    color: var(--phoenix-primary);
+    transform: translateX(8px);
+    box-shadow: 0 4px 16px rgba(27, 60, 83, 0.1);
+    text-decoration: none;
+  }
+
+  .phoenix-nav-link:hover::before {
+    width: 4px;
+  }
+
+  .phoenix-nav-link.active {
+    background: var(--phoenix-gradient-main);
+    color: var(--phoenix-white);
+    font-weight: 600;
+    transform: translateX(4px);
+    box-shadow: 0 6px 20px rgba(27, 60, 83, 0.25);
+  }
+
+  .phoenix-nav-link.active::before {
+    width: 4px;
+    background: var(--phoenix-cream);
+  }
+
+  .phoenix-nav-icon {
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+
+  .phoenix-nav-link:hover .phoenix-nav-icon {
+    transform: scale(1.1);
+  }
+
+  .phoenix-nav-link.active .phoenix-nav-icon {
+    color: var(--phoenix-cream);
+  }
+
+  .phoenix-nav-text {
+    flex: 1;
+  }
+
+  .phoenix-nav-badge {
+    background: var(--phoenix-danger);
+    color: var(--phoenix-white);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+    animation: phoenixBounce 2s infinite;
+  }
+
+  @keyframes phoenixBounce {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+  }
+
+  /* ═══ SPECIAL ACTIONS ═══ */
+  .phoenix-actions {
+    padding: 1rem;
+    border-top: 1px solid rgba(210, 193, 182, 0.2);
+    background: rgba(249, 243, 239, 0.5);
+  }
+
+  .phoenix-action-btn {
+    width: 100%;
+    padding: 0.875rem 1.25rem;
+    background: var(--phoenix-gradient-soft);
+    border: 1px solid rgba(210, 193, 182, 0.3);
+    border-radius: var(--phoenix-radius-md);
+    color: var(--phoenix-primary);
+    font-family: var(--phoenix-font-heading);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .phoenix-action-btn::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(
+      circle,
+      rgba(27, 60, 83, 0.1) 0%,
+      transparent 70%
+    );
+    transition: all 0.4s ease;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .phoenix-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(27, 60, 83, 0.2);
+    color: var(--phoenix-primary);
+  }
+
+  .phoenix-action-btn:hover::before {
+    width: 200px;
+    height: 200px;
+  }
+
+  .phoenix-action-btn:active {
+    transform: translateY(0);
+  }
+
+  /* ═══ FORM ELEMENTS ═══ */
+  .phoenix-form-label {
+    font-family: var(--phoenix-font-heading);
+    font-weight: 600;
+    color: var(--phoenix-primary);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .phoenix-form-control {
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(210, 193, 182, 0.4);
+    border-radius: var(--phoenix-radius-sm);
+    color: var(--phoenix-dark);
+    font-family: var(--phoenix-font-body);
+    transition: all 0.3s ease;
+    padding: 0.75rem 1rem;
+  }
+
+  .phoenix-form-control:focus {
+    background: var(--phoenix-white);
+    border-color: var(--phoenix-secondary);
+    box-shadow: 0 0 0 0.2rem rgba(69, 104, 130, 0.2);
+    outline: none;
+  }
+
+  .phoenix-btn-primary {
+    background: var(--phoenix-gradient-main);
+    border: none;
+    color: var(--phoenix-white);
+    font-family: var(--phoenix-font-heading);
+    font-weight: 600;
+    padding: 0.875rem 1.5rem;
+    border-radius: var(--phoenix-radius-sm);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+
+  .phoenix-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(27, 60, 83, 0.3);
+    background: linear-gradient(
+      135deg,
+      var(--phoenix-secondary) 0%,
+      var(--phoenix-beige) 100%
+    );
+    color: var(--phoenix-white);
+  }
+
+  .phoenix-btn-secondary {
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(210, 193, 182, 0.4);
+    color: var(--phoenix-primary);
+    font-family: var(--phoenix-font-heading);
+    font-weight: 500;
+    padding: 0.875rem 1.5rem;
+    border-radius: var(--phoenix-radius-sm);
+    transition: all 0.3s ease;
+  }
+
+  .phoenix-btn-secondary:hover {
+    background: var(--phoenix-white);
+    border-color: var(--phoenix-secondary);
+    color: var(--phoenix-primary);
+  }
+
+  /* ═══ MODAL STYLING ═══ */
+  .phoenix-modal .modal-content {
+    background: var(--phoenix-gradient-card);
+    border: 1px solid rgba(210, 193, 182, 0.3);
+    border-radius: var(--phoenix-radius-xl);
+    box-shadow: var(--phoenix-shadow-strong);
+    backdrop-filter: var(--phoenix-blur);
+  }
+
+  .phoenix-modal .modal-header {
+    background: var(--phoenix-gradient-main);
+    color: var(--phoenix-white);
+    border-radius: var(--phoenix-radius-xl) var(--phoenix-radius-xl) 0 0;
+    border-bottom: none;
+  }
+
+  .phoenix-modal .modal-title {
+    font-family: var(--phoenix-font-heading);
+    font-weight: 600;
+  }
+
+  .phoenix-modal .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+  }
+
+  .phoenix-modal .modal-body {
+    padding: 2rem;
+  }
+
+  .phoenix-modal .modal-footer {
+    background: rgba(249, 243, 239, 0.5);
+    border-radius: 0 0 var(--phoenix-radius-xl) var(--phoenix-radius-xl);
+    border-top: 1px solid rgba(210, 193, 182, 0.2);
+  }
+
+  /* ═══ PASSWORD STRENGTH ═══ */
+  .phoenix-password-strength .progress {
+    height: 6px;
+    background: rgba(210, 193, 182, 0.3);
+    border-radius: 3px;
+  }
+
+  .phoenix-password-feedback {
+    font-family: var(--phoenix-font-heading);
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+    font-weight: 500;
+  }
+
+  /* ═══ ERROR MESSAGES ═══ */
+  .phoenix-error-message {
+    color: var(--phoenix-danger);
+    font-size: 0.8rem;
+    font-family: var(--phoenix-font-heading);
+    font-weight: 500;
+    margin-top: 0.25rem;
+  }
+
+  /* ═══ RESPONSIVE DESIGN ═══ */
+  @media (max-width: 991.98px) {
+    .phoenix-sidebar {
+      margin-bottom: 2rem;
+      border-radius: var(--phoenix-radius-lg);
+    }
+
+    .phoenix-profile {
+      padding: 1.5rem;
+    }
+
+    .phoenix-avatar-img {
+      width: 80px;
+      height: 80px;
+    }
+
+    .phoenix-nav-item {
+      margin: 0.2rem 0.75rem;
+    }
+
+    .phoenix-nav-link {
+      padding: 0.875rem 1rem;
+      gap: 0.875rem;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .phoenix-profile {
+      padding: 1.25rem;
+    }
+
+    .phoenix-avatar-img {
+      width: 70px;
+      height: 70px;
+    }
+
+    .phoenix-profile-name {
+      font-size: 1.2rem;
+    }
+
+    .phoenix-nav-link {
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+    }
+  }
+
+  /* ═══ LOADING SPINNER ══��� */
+  .spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+  }
+</style>
+
 <script>
-  // Password utility functions
-function setInvalid(input, errorElement, message) {
-  input.classList.add('is-invalid');
-  input.classList.remove('is-valid');
-  if (errorElement) errorElement.textContent = message;
-}
+  // ═══════════════════════════════════════════════════════════════════════════════════════════
+  // PHOENIX SIDEBAR COMPONENT SCRIPT
+  // ═══════════════════════════════════════════════════════════════════════════════════════════
 
-function setValid(input, errorElement) {
-  input.classList.remove('is-invalid');
-  input.classList.add('is-valid');
-  if (errorElement) errorElement.textContent = '';
-}
+  document.addEventListener("DOMContentLoaded", function () {
+    // ═══ ACTIVE STATE MANAGEMENT ═══
+    function setActiveNavItem() {
+      const currentPath = window.location.pathname;
+      const navLinks = document.querySelectorAll(".phoenix-nav-link");
 
-function clearValidation(input, errorElement) {
-  input.classList.remove('is-invalid', 'is-valid');
-  if (errorElement) errorElement.textContent = '';
-}
+      // Remove active class from all links
+      navLinks.forEach((link) => link.classList.remove("active"));
 
-// Password toggle functionality
-document.querySelectorAll('.toggle-password').forEach(button => {
-  button.addEventListener('click', function() {
-    const input = this.previousElementSibling;
-    const icon = this.querySelector('i');
-    
-    if (input.type === 'password') {
-      input.type = 'text';
-      icon.classList.replace('bi-eye-slash', 'bi-eye');
-    } else {
-      input.type = 'password';
-      icon.classList.replace('bi-eye', 'bi-eye-slash');
-    }
-  });
-});
+      // URL to page mapping
+      const urlPageMap = {
+        "/profile": "profile",
+        "/address": "address",
+        "/orders": "orders",
+        "/wishlist": "wishlist",
+        "/wallet": "wallet",
+        "/user-coupons": "coupons",
+        "/referrals": "referrals",
+      };
 
-// Password strength checker
-const newPasswordInput = document.getElementById('newPassword');
-const passwordStrengthBar = document.querySelector('.progress-bar');
-const passwordFeedback = document.querySelector('.password-feedback');
-const passwordStrength = document.querySelector('.password-strength');
+      // Handle nested routes
+      let currentPage = urlPageMap[currentPath];
+      if (!currentPage) {
+        if (currentPath.startsWith("/orders/")) currentPage = "orders";
+        else if (currentPath.startsWith("/address/"))
+          currentPage = "address";
+      }
 
-newPasswordInput.addEventListener('input', function() {
-  const password = this.value;
-  
-  if (password.length > 0) {
-    passwordStrength.classList.remove('d-none');
-    
-    // Calculate password strength
-    let strength = 0;
-    let feedback = '';
-    
-    // Password length
-    if (password.length >= 8) {
-      strength += 25;
-    }
-    
-    // Contains lowercase letters
-    if (/[a-z]/.test(password)) {
-      strength += 25;
-    }
-    
-    // Contains uppercase letters
-    if (/[A-Z]/.test(password)) {
-      strength += 25;
-    }
-    
-    // Contains numbers or special characters
-    if (/[0-9!@#$%^&*(),.?":{}|<>]/.test(password)) {
-      strength += 25;
-    }
-    
-    // Update progress bar
-    passwordStrengthBar.style.width = strength + '%';
-    
-    // Update color based on strength
-    if (strength < 50) {
-      passwordStrengthBar.className = 'progress-bar bg-danger';
-      feedback = 'Weak password';
-    } else if (strength < 75) {
-      passwordStrengthBar.className = 'progress-bar bg-warning';
-      feedback = 'Medium password';
-    } else {
-      passwordStrengthBar.className = 'progress-bar bg-success';
-      feedback = 'Strong password';
-    }
-    
-    passwordFeedback.textContent = feedback;
-  } else {
-    passwordStrength.classList.add('d-none');
-  }
-});
-
-// Password form validation
-const currentPasswordInput = document.getElementById('currentPassword');
-const confirmPasswordInput = document.getElementById('confirmPassword');
-const currentPasswordError = document.getElementById('currentPasswordError');
-const newPasswordError = document.getElementById('newPasswordError');
-const confirmPasswordError = document.getElementById('confirmPasswordError');
-
-// Validate password
-function validatePassword(password) {
-  // At least 8 characters, 1 uppercase, 1 lowercase, and 1 number or special character
-  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9!@#$%^&*(),.?":{}|<>]).{8,}$/;
-  return regex.test(password);
-}
-
-newPasswordInput.addEventListener('input', function() {
-  const password = this.value.trim();
-  
-  if (!password) {
-    clearValidation(this, newPasswordError);
-    return;
-  }
-  
-  if (!validatePassword(password)) {
-    setInvalid(this, newPasswordError, 'Password must be at least 8 characters with uppercase, lowercase, and number/special character');
-  } else {
-    setValid(this, newPasswordError);
-    
-    // Check confirmation match if it has a value
-    if (confirmPasswordInput.value.trim()) {
-      if (confirmPasswordInput.value.trim() !== password) {
-        setInvalid(confirmPasswordInput, confirmPasswordError, 'Passwords do not match');
-      } else {
-        setValid(confirmPasswordInput, confirmPasswordError);
+      // Set active state
+      if (currentPage) {
+        const activeLink = document.querySelector(
+          `[data-page="${currentPage}"]`
+        );
+        if (activeLink) {
+          activeLink.classList.add("active");
+        }
       }
     }
-  }
-});
 
-confirmPasswordInput.addEventListener('input', function() {
-  const confirmPassword = this.value.trim();
-  const newPassword = newPasswordInput.value.trim();
-  
-  if (!confirmPassword) {
-    clearValidation(this, confirmPasswordError);
-    return;
-  }
-  
-  if (confirmPassword !== newPassword) {
-    setInvalid(this, confirmPasswordError, 'Passwords do not match');
-  } else {
-    setValid(this, confirmPasswordError);
-  }
-});
+    // ═══ PASSWORD MODAL FUNCTIONALITY ═══
 
-// Password form submission
-document.getElementById('passwordChangeForm').addEventListener('submit', async function(event) {
-  event.preventDefault();
-  
-  const currentPassword = currentPasswordInput.value.trim();
-  const newPassword = newPasswordInput.value.trim();
-  const confirmPassword = confirmPasswordInput.value.trim();
-  let isValid = true;
-  
-  // Validate current password
-  if (!currentPassword) {
-    setInvalid(currentPasswordInput, currentPasswordError, 'Current password is required');
-    isValid = false;
-  } else {
-    setValid(currentPasswordInput, currentPasswordError);
-  }
-  
-  // Validate new password
-  if (!newPassword) {
-    setInvalid(newPasswordInput, newPasswordError, 'New password is required');
-    isValid = false;
-  } else if (!validatePassword(newPassword)) {
-    setInvalid(newPasswordInput, newPasswordError, 'Password must be at least 8 characters with uppercase, lowercase, and number/special character');
-    isValid = false;
-  } else {
-    setValid(newPasswordInput, newPasswordError);
-  }
-  
-  // Validate confirm password
-  if (!confirmPassword) {
-    setInvalid(confirmPasswordInput, confirmPasswordError, 'Please confirm your new password');
-    isValid = false;
-  } else if (confirmPassword !== newPassword) {
-    setInvalid(confirmPasswordInput, confirmPasswordError, 'Passwords do not match');
-    isValid = false;
-  } else {
-    setValid(confirmPasswordInput, confirmPasswordError);
-  }
-  
-  if (!isValid) return;
-  
-  const submitButton = document.getElementById('passwordChangeBtn');
-  const originalText = submitButton.innerHTML;
-  submitButton.disabled = true;
-  submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...';
-  
-  try {
-    const response = await fetch('/password/change', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        currentPassword,
-        newPassword,
-        confirmPassword
-      }),
-    });
-    
-    const result = await response.json();
-    
-    submitButton.disabled = false;
-    submitButton.innerHTML = originalText;
-    
-    if (result.success) {
-      bootstrap.Modal.getInstance(document.getElementById('passwordChangeModal')).hide();
-      // Reset form
-      this.reset();
-      clearValidation(currentPasswordInput, currentPasswordError);
-      clearValidation(newPasswordInput, newPasswordError);
-      clearValidation(confirmPasswordInput, confirmPasswordError);
-      passwordStrength.classList.add('d-none');
-      
-      Toast.fire({
-        icon: 'success',
-        title: 'Password updated successfully'
-      });
-    } else {
-      // Show specific error based on server response
-      if (result.field === 'currentPassword') {
-        setInvalid(currentPasswordInput, currentPasswordError, result.message || 'Current password is incorrect');
-      } else if (result.field === 'newPassword') {
-        setInvalid(newPasswordInput, newPasswordError, result.message || 'Invalid new password');
-      } else {
-        Toast.fire({
-          icon: 'error',
-          title: result.message || 'Failed to update password'
+    // Password toggle functionality
+    document
+      .querySelectorAll(".phoenix-toggle-password")
+      .forEach((button) => {
+        button.addEventListener("click", function () {
+          const input = this.parentElement.querySelector("input");
+          const icon = this.querySelector("i");
+
+          if (input.type === "password") {
+            input.type = "text";
+            icon.classList.replace("ri-eye-off-line", "ri-eye-line");
+          } else {
+            input.type = "password";
+            icon.classList.replace("ri-eye-line", "ri-eye-off-line");
+          }
         });
-      }
+      });
+
+    // Password strength checker
+    const newPasswordInput = document.getElementById("phoenixNewPassword");
+    const passwordStrengthBar = document.querySelector(
+      ".phoenix-password-strength .progress-bar"
+    );
+    const passwordFeedback = document.querySelector(
+      ".phoenix-password-feedback"
+    );
+    const passwordStrength = document.querySelector(
+      ".phoenix-password-strength"
+    );
+
+    if (newPasswordInput) {
+      newPasswordInput.addEventListener("input", function () {
+        const password = this.value;
+
+        if (password.length > 0) {
+          passwordStrength.classList.remove("d-none");
+
+          let strength = 0;
+          let feedback = "";
+
+          if (password.length >= 8) strength += 25;
+          if (/[a-z]/.test(password)) strength += 25;
+          if (/[A-Z]/.test(password)) strength += 25;
+          if (/[0-9!@#$%^&*(),.?":{}|<>]/.test(password)) strength += 25;
+
+          passwordStrengthBar.style.width = strength + "%";
+
+          if (strength < 50) {
+            passwordStrengthBar.className = "progress-bar bg-danger";
+            feedback = "Weak password";
+          } else if (strength < 75) {
+            passwordStrengthBar.className = "progress-bar bg-warning";
+            feedback = "Medium password";
+          } else {
+            passwordStrengthBar.className = "progress-bar bg-success";
+            feedback = "Strong password";
+          }
+
+          passwordFeedback.textContent = feedback;
+        } else {
+          passwordStrength.classList.add("d-none");
+        }
+      });
     }
-  } catch (error) {
-    console.error('Password change error:', error);
-    submitButton.disabled = false;
-    submitButton.innerHTML = originalText;
-    
-    Toast.fire({
-      icon: 'error',
-      title: 'Server error. Please try again.'
-    });
-  }
-});
 
-// Account Sidebar Active State Management
-document.addEventListener('DOMContentLoaded', function() {
-  // Get current URL path
-  const currentPath = window.location.pathname;
+    // Form validation helpers
+    function setInvalid(input, errorElement, message) {
+      input.classList.add("is-invalid");
+      input.classList.remove("is-valid");
+      if (errorElement) errorElement.textContent = message;
+    }
 
-  // Remove active class from all sidebar nav links
-  const sidebarLinks = document.querySelectorAll('.sidebar-nav-link');
-  sidebarLinks.forEach(link => {
-    link.classList.remove('primary-bg');
+    function setValid(input, errorElement) {
+      input.classList.remove("is-invalid");
+      input.classList.add("is-valid");
+      if (errorElement) errorElement.textContent = "";
+    }
+
+    function clearValidation(input, errorElement) {
+      input.classList.remove("is-invalid", "is-valid");
+      if (errorElement) errorElement.textContent = "";
+    }
+
+    // Password validation
+    function validatePassword(password) {
+      return /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9!@#$%^&*(),.?":{}|<>]).{8,}$/.test(
+        password
+      );
+    }
+
+    // Password form submission
+    const passwordForm = document.getElementById("phoenixPasswordForm");
+    if (passwordForm) {
+      passwordForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const currentPassword = document
+          .getElementById("phoenixCurrentPassword")
+          .value.trim();
+        const newPassword = document
+          .getElementById("phoenixNewPassword")
+          .value.trim();
+        const confirmPassword = document
+          .getElementById("phoenixConfirmPassword")
+          .value.trim();
+
+        const currentPasswordError = document.getElementById(
+          "phoenixCurrentPasswordError"
+        );
+        const newPasswordError = document.getElementById(
+          "phoenixNewPasswordError"
+        );
+        const confirmPasswordError = document.getElementById(
+          "phoenixConfirmPasswordError"
+        );
+
+        let isValid = true;
+
+        // Validate current password
+        if (!currentPassword) {
+          setInvalid(
+            document.getElementById("phoenixCurrentPassword"),
+            currentPasswordError,
+            "Current password is required"
+          );
+          isValid = false;
+        }
+
+        // Validate new password
+        if (!newPassword) {
+          setInvalid(
+            document.getElementById("phoenixNewPassword"),
+            newPasswordError,
+            "New password is required"
+          );
+          isValid = false;
+        } else if (!validatePassword(newPassword)) {
+          setInvalid(
+            document.getElementById("phoenixNewPassword"),
+            newPasswordError,
+            "Password must be at least 8 characters with uppercase, lowercase, and number/special character"
+          );
+          isValid = false;
+        }
+
+        // Validate confirm password
+        if (!confirmPassword) {
+          setInvalid(
+            document.getElementById("phoenixConfirmPassword"),
+            confirmPasswordError,
+            "Please confirm your new password"
+          );
+          isValid = false;
+        } else if (confirmPassword !== newPassword) {
+          setInvalid(
+            document.getElementById("phoenixConfirmPassword"),
+            confirmPasswordError,
+            "Passwords do not match"
+          );
+          isValid = false;
+        }
+
+        if (!isValid) return;
+
+        const submitButton = document.getElementById("phoenixPasswordBtn");
+        const originalText = submitButton.innerHTML;
+        submitButton.disabled = true;
+        submitButton.innerHTML =
+          '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...';
+
+        try {
+          const response = await fetch("/password/change", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              currentPassword,
+              newPassword,
+              confirmPassword,
+            }),
+          });
+
+          const result = await response.json();
+
+          submitButton.disabled = false;
+          submitButton.innerHTML = originalText;
+
+          if (result.success) {
+            // Close modal and reset form
+            const modal = bootstrap.Modal.getInstance(
+              document.getElementById("phoenixPasswordModal")
+            );
+            modal.hide();
+            passwordForm.reset();
+            passwordStrength.classList.add("d-none");
+
+            // Clear all validations
+            [
+              document.getElementById("phoenixCurrentPassword"),
+              document.getElementById("phoenixNewPassword"),
+              document.getElementById("phoenixConfirmPassword"),
+            ].forEach((input) => {
+              clearValidation(input, null);
+            });
+
+            // Show success toast
+            if (window.Swal) {
+              Swal.fire({
+                icon: "success",
+                title: "Success!",
+                text: "Password updated successfully",
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+              });
+            }
+          } else {
+            // Handle specific errors
+            if (result.field === "currentPassword") {
+              setInvalid(
+                document.getElementById("phoenixCurrentPassword"),
+                currentPasswordError,
+                result.message || "Current password is incorrect"
+              );
+            } else {
+              if (window.Swal) {
+                Swal.fire({
+                  icon: "error",
+                  title: "Error",
+                  text: result.message || "Failed to update password",
+                });
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Password change error:", error);
+          submitButton.disabled = false;
+          submitButton.innerHTML = originalText;
+
+          if (window.Swal) {
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "Server error. Please try again.",
+            });
+          }
+        }
+      });
+    }
+
+    // Initialize active state
+    setActiveNavItem();
   });
-
-  // URL to page mapping for account sidebar
-  const urlPageMap = {
-    '/profile': 'profile',
-    '/address': 'address',
-    '/orders': 'orders',
-    '/wishlist': 'wishlist',
-    '/wallet': 'wallet',
-    '/user-coupons': 'coupons',
-    '/referrals': 'referrals'
-  };
-
-  // Get the page identifier for current URL
-  let currentPage = urlPageMap[currentPath];
-
-  // Handle special cases for order details and other nested pages
-  if (!currentPage) {
-    if (currentPath.startsWith('/orders/')) {
-      currentPage = 'orders';
-    } else if (currentPath.startsWith('/address/')) {
-      currentPage = 'address';
-    }
-  }
-
-  // If we have a matching page, set it as active
-  if (currentPage) {
-    const activeLink = document.querySelector(`[data-page="${currentPage}"]`);
-    if (activeLink) {
-      activeLink.classList.add('primary-bg');
-    }
-  }
-});
 </script>

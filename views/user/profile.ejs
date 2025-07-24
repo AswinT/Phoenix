@@ -1,744 +1,1676 @@
 <%- include("../partials/user/header") %>
 
-<div class="container py-5">
-  <!-- Breadcrumbs -->
-  <nav aria-label="breadcrumb" class="mb-4">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="/">Home</a></li>
-      <li class="breadcrumb-item"><a href="/user/dashboard">My Account</a></li>
-      <li class="breadcrumb-item active" aria-current="page">My Profile</li>
-    </ol>
-  </nav>
-
-  <div class="row g-4">
-    <%- include("../partials/user/accountSidebar") %>
-
-    <!-- Main Content -->
-    <div class="col-lg-9">
-      <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header bg-white p-4 border-0">
-          <h4 class="mb-0">Personal Information</h4>
-        </div>
-        <div class="card-body p-4">
-          <!-- Profile Image Section -->
-          <div class="text-center mb-4">
-            <div class="position-relative mx-auto mb-3" style="width: 120px; height: 120px;">
-              <div class="profile-image-container">
-                <img
-                  id="profileImageMain"
-                  src="<%= user.profileImage || '/api/placeholder/120/120' %>"
-                  alt="Profile"
-                  class="rounded-circle img-thumbnail"
-                  onerror="this.src='/api/placeholder/120/120'; this.onerror=null;"
-                />
-                <div class="profile-image-overlay">
-                  <label for="profileImageUpload" class="upload-icon">
-                    <i class="bi bi-camera-fill"></i>
-                  </label>
-                  <input
-                    type="file"
-                    id="profileImageUpload"
-                    accept="image/*"
-                    class="d-none"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <form id="profileForm">
-            <div class="row g-3">
-              <div class="col-md-12 mb-3">
-                <label for="fullName" class="form-label">Full Name</label>
-                <div class="input-group">
-                  <span class="input-group-text bg-light border-end-0">
-                    <i class="bi bi-person"></i>
-                  </span>
-                  <input
-                    type="text"
-                    class="form-control border-start-0"
-                    id="fullName"
-                    name="fullName"
-                    value="<%= user.fullName %>"
-                    placeholder="Enter your full name"
-                  />
-                </div>
-                <div id="fullNameError" class="text-danger small mt-1"></div>
-              </div>
-
-              <div class="col-md-6 mb-3">
-                <label for="email" class="form-label">Email Address</label>
-                <div class="input-group">
-                  <span class="input-group-text bg-light border-end-0">
-                    <i class="bi bi-envelope"></i>
-                  </span>
-                  <input
-                    type="email"
-                    class="form-control bg-light border-start-0"
-                    id="email"
-                    name="email"
-                    value="<%= user.email %>"
-                    placeholder="example@gmail.com"
-                    readonly
-                  />
-                </div>
-                <small class="text-muted">Email cannot be edited directly</small>
-              </div>
-
-              <div class="col-md-6 mb-3">
-                <label for="phone" class="form-label">Phone Number</label>
-                <div class="input-group">
-                  <span class="input-group-text bg-light border-end-0">
-                    <i class="bi bi-telephone"></i>
-                  </span>
-                  <input
-                    type="tel"
-                    class="form-control border-start-0"
-                    id="phone"
-                    name="phone"
-                    value="<%= user.phone %>"
-                    placeholder="+91 12345 67890"
-                  />
-                </div>
-                <div id="phoneError" class="text-danger small mt-1"></div>
-              </div>
-
-              <div class="col-12 d-flex flex-wrap justify-content-between align-items-center mt-4">
-                <button type="button" class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#emailUpdateModal">
-                  <i class="bi bi-envelope-check me-2"></i>Update Email
-                </button>
-                <button type="submit" class="btn btn-dark px-4 py-2">
-                  <i class="bi bi-check2-circle me-2"></i>Save Changes
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Email Update Modal -->
-<div class="modal fade" id="emailUpdateModal" tabindex="-1" aria-labelledby="emailUpdateModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header border-0">
-        <h5 class="modal-title" id="emailUpdateModalLabel">Update Email Address</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p class="text-muted small mb-3">Enter your new email address to receive a verification code</p>
-        <form action="/request-email-update" id="emailUpdateForm">
-          <div class="mb-3">
-            <label for="currentEmail" class="form-label">Current Email</label>
-            <div class="input-group">
-              <span class="input-group-text bg-light border-end-0">
-                <i class="bi bi-envelope"></i>
-              </span>
-              <input type="email" class="form-control bg-light border-start-0" id="currentEmail" value="<%= user.email %>" readonly />
-            </div>
-          </div>
-          <div class="mb-3">
-            <label for="newEmail" class="form-label">New Email Address</label>
-            <div class="input-group">
-              <span class="input-group-text bg-light border-end-0">
-                <i class="bi bi-envelope-plus"></i>
-              </span>
-              <input type="email" class="form-control border-start-0" id="newEmail" name="email" placeholder="Enter your new email address" />
-            </div>
-            <div id="newEmailError" class="text-danger small mt-1"></div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer border-0">
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-        <button type="submit" form="emailUpdateForm" class="btn btn-dark" id="emailUpdateSubmitBtn">
-          <i class="bi bi-send me-2"></i>Send OTP
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Image Crop Modal -->
-<div class="modal fade" id="imageCropModal" tabindex="-1" aria-labelledby="imageCropModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content">
-      <div class="modal-header border-0">
-        <h5 class="modal-title" id="imageCropModalLabel">Crop Profile Image</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body text-center">
-        <div class="img-container">
-          <img id="imageToCrop" src="" alt="Image to crop" style="max-width: 100%;">
-        </div>
-      </div>
-      <div class="modal-footer border-0">
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-dark" id="cropImageBtn">
-          <i class="bi bi-crop me-2"></i>Crop & Upload
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Add Bootstrap Icons CDN -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"/>
-<!-- Add Cropper.js CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css"/>
-<!-- Add SweetAlert2 CDN -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<!-- Add Cropper.js JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-
 <style>
-  /* Custom styling */
-  .primary-bg {
-    background-color: #f0f0f0;
-    color: #1a1a1a;
-    font-weight: 500;
-  }
+      /* ════════════════════════════════════════════════════════════���══════════════════════════════ */
+      /* PHOENIX DESIGN SYSTEM */
+      /* ═══════════════════════════════════════════════════════════════════════════════════════════ */
+      :root {
+        /* Phoenix Color Palette */
+        --phoenix-primary: #1b3c53;
+        --phoenix-secondary: #456882;
+        --phoenix-beige: #d2c1b6;
+        --phoenix-cream: #f9f3ef;
+        --phoenix-white: #ffffff;
+        --phoenix-dark: #2d3748;
+        --phoenix-success: #00b894;
+        --phoenix-warning: #fdcb6e;
+        --phoenix-danger: #d63031;
 
-  .primary-bg:hover {
-    background-color: #e5e5e5;
-    color: #000;
-  }
+        /* Gradients */
+        --phoenix-gradient-main: linear-gradient(
+          135deg,
+          var(--phoenix-primary) 0%,
+          var(--phoenix-secondary) 100%
+        );
+        --phoenix-gradient-soft: linear-gradient(
+          135deg,
+          var(--phoenix-cream) 0%,
+          var(--phoenix-beige) 100%
+        );
+        --phoenix-gradient-card: linear-gradient(
+          145deg,
+          rgba(249, 243, 239, 0.95) 0%,
+          rgba(210, 193, 182, 0.85) 100%
+        );
 
-  .breadcrumb-item + .breadcrumb-item::before {
-    content: "›";
-    font-weight: bold;
-  }
+        /* Shadows & Effects */
+        --phoenix-shadow-soft: 0 8px 32px rgba(27, 60, 83, 0.12);
+        --phoenix-shadow-medium: 0 12px 40px rgba(27, 60, 83, 0.18);
+        --phoenix-shadow-strong: 0 16px 48px rgba(27, 60, 83, 0.25);
+        --phoenix-blur: blur(16px);
 
-  .breadcrumb a {
-    color: #333;
-    text-decoration: none;
-  }
+        /* Typography */
+        --phoenix-font-brand: "Audiowide", cursive;
+        --phoenix-font-heading: "Montserrat", sans-serif;
+        --phoenix-font-body: "Raleway", sans-serif;
 
-  .breadcrumb a:hover {
-    color: #000;
-    text-decoration: underline;
-  }
-
-  /* Profile image container */
-  .profile-image-container {
-    position: relative;
-    width: 120px;
-    height: 120px;
-    margin: 0 auto;
-  }
-
-  .profile-image-container img {
-    width: 120px;
-    height: 120px;
-    object-fit: cover;
-  }
-
-  .profile-image-overlay {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    background-color: rgba(0, 0, 0, 0.7);
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .upload-icon {
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    margin: 0;
-  }
-
-  .profile-image-overlay:hover {
-    background-color: rgba(0, 0, 0, 0.9);
-  }
-
-  @media (max-width: 991px) {
-    .profile-sidebar {
-      margin-bottom: 2rem;
-    }
-  }
-
-  /* Card styling */
-  .card {
-    transition: transform 0.2s;
-    border-radius: 10px;
-  }
-
-  .card-header {
-    border-radius: 10px 10px 0 0 !important;
-  }
-
-  /* Validation styling */
-  .is-valid {
-    border-color: #198754 !important;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right calc(0.375em + 0.1875rem) center;
-    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-    padding-right: calc(1.5em + 0.75rem) !important;
-  }
-
-  .is-invalid {
-    border-color: #dc3545 !important;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right calc(0.375em + 0.1875rem) center;
-    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-    padding-right: calc(1.5em + 0.75rem) !important;
-  }
-
-  /* Cropper container */
-  .img-container {
-    max-height: 400px;
-    overflow: hidden;
-  }
-</style>
-
-<script>
-// Validation helper functions
-function setInvalid(element, errorElement, message) {
-  element.classList.add("is-invalid");
-  element.classList.remove("is-valid");
-  errorElement.textContent = message;
-}
-
-function setValid(element, errorElement) {
-  element.classList.add("is-valid");
-  element.classList.remove("is-invalid");
-  errorElement.textContent = "";
-}
-
-function clearValidation(element, errorElement) {
-  element.classList.remove("is-invalid", "is-valid");
-  errorElement.textContent = "";
-}
-
-// Email validation function
-function validateEmail(email) {
-  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  if (!emailRegex.test(email)) return false;
-
-  const disposableDomains = [
-    "mailinator.com",
-    "tempmail.com",
-    "temp-mail.org",
-    "guerrillamail.com",
-    "yopmail.com",
-    "sharklasers.com",
-  ];
-  const domain = email.split("@")[1];
-  return !disposableDomains.includes(domain);
-}
-
-// Full Name validation
-function validateFullName(fullName) {
-  const trimmedName = fullName.trim();
-  if (trimmedName.length < 3) return false;
-
-  const nameWords = trimmedName.split(/\s+/).filter((word) => word.length > 0);
-  if (nameWords.length < 2) return false;
-
-  return /^[A-Za-z\s'-]+$/.test(trimmedName);
-}
-
-// Phone Number validation
-function validatePhoneNumber(phoneNumber) {
-  if (!phoneNumber) return true; // Phone is optional
-  const cleanPhone = phoneNumber.replace(/\D/g, "");
-  if (
-    cleanPhone.length !== 10 &&
-    (cleanPhone.length < 11 || cleanPhone.length > 15)
-  ) {
-    return false;
-  }
-  if (
-    /^(.)\1+$/.test(cleanPhone) ||
-    /^0{10}$/.test(cleanPhone) ||
-    /^1{10}$/.test(cleanPhone)
-  ) {
-    return false;
-  }
-  return true;
-}
-
-// Toast configuration
-const Toast = Swal.mixin({
-  toast: true,
-  position: "bottom-end",
-  showConfirmButton: false,
-  timer: 3000,
-  timerProgressBar: true,
-  didOpen: (toast) => {
-    toast.addEventListener("mouseenter", Swal.stopTimer);
-    toast.addEventListener("mouseleave", Swal.resumeTimer);
-  },
-});
-
-// Loader configuration
-const Loader = Swal.mixin({
-  title: "Uploading Image...",
-  text: "Please wait while your image is being processed.",
-  allowOutsideClick: false,
-  allowEscapeKey: false,
-  showConfirmButton: false,
-  didOpen: () => {
-    Swal.showLoading();
-  },
-});
-
-// Profile Image Upload with Cropping
-let cropper;
-document
-  .getElementById("profileImageUpload")
-  .addEventListener("change", function (event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      Toast.fire({
-        icon: "error",
-        title: "Please select an image file",
-      });
-      return;
-    }
-
-    // Show crop modal
-    const imageToCrop = document.getElementById("imageToCrop");
-    const cropModal = new bootstrap.Modal(document.getElementById("imageCropModal"), {
-      keyboard: false,
-    });
-
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      imageToCrop.src = e.target.result;
-      cropModal.show();
-
-      // Initialize Cropper.js
-      if (cropper) {
-        cropper.destroy();
+        /* Spacing */
+        --phoenix-radius-sm: 12px;
+        --phoenix-radius-md: 16px;
+        --phoenix-radius-lg: 20px;
+        --phoenix-radius-xl: 24px;
       }
-      cropper = new Cropper(imageToCrop, {
-        aspectRatio: 1,
-        viewMode: 1,
-        autoCropArea: 0.8,
-        responsive: true,
-        guides: true,
-        center: true,
-        highlight: true,
-        background: false,
-        dragMode: 'move',
-        cropBoxMovable: true,
-        cropBoxResizable: true,
-      });
-    };
-    reader.readAsDataURL(file);
-  });
 
-// Crop and Upload Image
-document.getElementById("cropImageBtn").addEventListener("click", async function () {
-  if (!cropper) return;
+      /* ═══ GLOBAL STYLES ═══ */
+      body {
+        font-family: var(--phoenix-font-body);
+        background: linear-gradient(
+          135deg,
+          var(--phoenix-cream) 0%,
+          #f0ebe5 50%,
+          var(--phoenix-beige) 100%
+        );
+        min-height: 100vh;
+        color: var(--phoenix-dark);
+      }
 
-  // Get cropped canvas
-  const canvas = cropper.getCroppedCanvas({
-    width: 300,
-    height: 300,
-  });
+      .phoenix-container {
+        background: var(--phoenix-gradient-card);
+        min-height: 100vh;
+        padding: 2rem 0;
+      }
 
-  // Convert canvas to blob
-  canvas.toBlob(async (blob) => {
-    const formData = new FormData();
-    formData.append("profileImage", blob, "profile-image.jpg");
+      /* ═══ SIDEBAR CONTAINER ═══ */
+      .phoenix-sidebar {
+        background: var(--phoenix-gradient-card);
+        border-radius: var(--phoenix-radius-xl);
+        box-shadow: var(--phoenix-shadow-medium);
+        backdrop-filter: var(--phoenix-blur);
+        border: 1px solid rgba(210, 193, 182, 0.3);
+        overflow: hidden;
+        position: relative;
+        transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      }
 
-    // Hide crop modal
-    bootstrap.Modal.getInstance(document.getElementById("imageCropModal")).hide();
+      .phoenix-sidebar::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          45deg,
+          transparent 30%,
+          rgba(249, 243, 239, 0.1) 50%,
+          transparent 70%
+        );
+        animation: phoenixShimmer 3s ease-in-out infinite;
+        pointer-events: none;
+        z-index: 1;
+      }
 
-    // Show loader
-    Loader.fire();
+      @keyframes phoenixShimmer {
+        0%,
+        100% {
+          transform: translateX(-100%);
+          opacity: 0;
+        }
+        50% {
+          transform: translateX(100%);
+          opacity: 1;
+        }
+      }
 
-    try {
-      const response = await fetch("/users/profile/image", {
-        method: "POST",
-        body: formData,
-      });
-      const result = await response.json();
+      .phoenix-sidebar:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--phoenix-shadow-strong);
+      }
 
-      // Close loader
-      Swal.close();
+      /* ═══ PROFILE SECTION ═══ */
+      .phoenix-profile {
+        position: relative;
+        z-index: 2;
+        padding: 2rem;
+        text-align: center;
+        background: var(--phoenix-gradient-main);
+        color: var(--phoenix-white);
+      }
 
-      if (result.success) {
-        document.getElementById("profileImageMain").src = result.profileImage;
-        document.getElementById("profileImage").src = result.profileImage; // Update sidebar image
-        Toast.fire({
-          icon: "success",
-          title: "Profile image uploaded successfully",
+      .phoenix-profile::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60%;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.3),
+          transparent
+        );
+      }
+
+      .phoenix-avatar {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+      }
+
+      .phoenix-avatar-img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid rgba(255, 255, 255, 0.9);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+      }
+
+      .phoenix-avatar:hover .phoenix-avatar-img {
+        transform: scale(1.08);
+        border-color: var(--phoenix-cream);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+      }
+
+      .phoenix-avatar-badge {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        width: 24px;
+        height: 24px;
+        background: var(--phoenix-success);
+        border: 3px solid var(--phoenix-white);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        animation: phoenixPulse 2s infinite;
+      }
+
+      @keyframes phoenixPulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+
+      .phoenix-profile-name {
+        font-family: var(--phoenix-font-heading);
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .phoenix-profile-email {
+        font-family: var(--phoenix-font-body);
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin-bottom: 0;
+      }
+
+      /* ═══ NAVIGATION SECTION ═══ */
+      .phoenix-nav {
+        position: relative;
+        z-index: 2;
+        padding: 1rem 0;
+      }
+
+      .phoenix-nav-header {
+        padding: 1rem 1.5rem 0.5rem;
+        font-family: var(--phoenix-font-heading);
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--phoenix-secondary);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-bottom: 1px solid rgba(210, 193, 182, 0.2);
+        margin-bottom: 0.5rem;
+      }
+
+      .phoenix-nav-item {
+        margin: 0.25rem 1rem;
+        border-radius: var(--phoenix-radius-md);
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      }
+
+      .phoenix-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        color: var(--phoenix-dark);
+        text-decoration: none;
+        font-family: var(--phoenix-font-body);
+        font-weight: 500;
+        font-size: 0.95rem;
+        background: transparent;
+        border: none;
+        width: 100%;
+        text-align: left;
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      }
+
+      .phoenix-nav-link::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 0;
+        background: var(--phoenix-gradient-main);
+        transition: width 0.3s ease;
+        border-radius: 0 var(--phoenix-radius-sm) var(--phoenix-radius-sm) 0;
+      }
+
+      .phoenix-nav-link:hover {
+        background: rgba(255, 255, 255, 0.8);
+        color: var(--phoenix-primary);
+        transform: translateX(8px);
+        box-shadow: 0 4px 16px rgba(27, 60, 83, 0.1);
+        text-decoration: none;
+      }
+
+      .phoenix-nav-link:hover::before {
+        width: 4px;
+      }
+
+      .phoenix-nav-link.active {
+        background: var(--phoenix-gradient-main);
+        color: var(--phoenix-white);
+        font-weight: 600;
+        transform: translateX(4px);
+        box-shadow: 0 6px 20px rgba(27, 60, 83, 0.25);
+      }
+
+      .phoenix-nav-link.active::before {
+        width: 4px;
+        background: var(--phoenix-cream);
+      }
+
+      .phoenix-nav-icon {
+        font-size: 1.1rem;
+        width: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+      }
+
+      .phoenix-nav-link:hover .phoenix-nav-icon {
+        transform: scale(1.1);
+      }
+
+      .phoenix-nav-link.active .phoenix-nav-icon {
+        color: var(--phoenix-cream);
+      }
+
+      .phoenix-nav-text {
+        flex: 1;
+      }
+
+      .phoenix-nav-badge {
+        background: var(--phoenix-danger);
+        color: var(--phoenix-white);
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 0.2rem 0.5rem;
+        border-radius: 10px;
+        min-width: 18px;
+        text-align: center;
+        animation: phoenixBounce 2s infinite;
+      }
+
+      @keyframes phoenixBounce {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+
+      /* ═══ SPECIAL ACTIONS ═══ */
+      .phoenix-actions {
+        padding: 1rem;
+        border-top: 1px solid rgba(210, 193, 182, 0.2);
+        background: rgba(249, 243, 239, 0.5);
+      }
+
+      .phoenix-action-btn {
+        width: 100%;
+        padding: 0.875rem 1.25rem;
+        background: var(--phoenix-gradient-soft);
+        border: 1px solid rgba(210, 193, 182, 0.3);
+        border-radius: var(--phoenix-radius-md);
+        color: var(--phoenix-primary);
+        font-family: var(--phoenix-font-heading);
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .phoenix-action-btn::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: radial-gradient(
+          circle,
+          rgba(27, 60, 83, 0.1) 0%,
+          transparent 70%
+        );
+        transition: all 0.4s ease;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .phoenix-action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(27, 60, 83, 0.2);
+        color: var(--phoenix-primary);
+      }
+
+      .phoenix-action-btn:hover::before {
+        width: 200px;
+        height: 200px;
+      }
+
+      .phoenix-action-btn:active {
+        transform: translateY(0);
+      }
+
+      /* ═══ MAIN CONTENT AREA ═══ */
+      .phoenix-main-content {
+        background: var(--phoenix-gradient-card);
+        border-radius: var(--phoenix-radius-xl);
+        box-shadow: var(--phoenix-shadow-medium);
+        backdrop-filter: var(--phoenix-blur);
+        border: 1px solid rgba(210, 193, 182, 0.3);
+        padding: 2rem;
+        min-height: 500px;
+      }
+
+      .phoenix-main-title {
+        font-family: var(--phoenix-font-brand);
+        color: var(--phoenix-primary);
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        text-shadow: 0 2px 4px rgba(27, 60, 83, 0.1);
+      }
+
+      .phoenix-main-subtitle {
+        color: var(--phoenix-secondary);
+        font-family: var(--phoenix-font-body);
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+      }
+
+      /* ═══ PROFILE FORM STYLES ═══ */
+      .phoenix-profile-form {
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: var(--phoenix-radius-lg);
+        padding: 2rem;
+        border: 1px solid rgba(210, 193, 182, 0.3);
+        box-shadow: var(--phoenix-shadow-soft);
+      }
+
+      .phoenix-form-section {
+        margin-bottom: 2rem;
+      }
+
+      .phoenix-form-section-title {
+        font-family: var(--phoenix-font-heading);
+        color: var(--phoenix-primary);
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid rgba(210, 193, 182, 0.3);
+      }
+
+      .phoenix-form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .phoenix-form-label {
+        font-family: var(--phoenix-font-heading);
+        font-weight: 600;
+        color: var(--phoenix-primary);
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        display: block;
+      }
+
+      .phoenix-form-control {
+        background: rgba(255, 255, 255, 0.9);
+        border: 2px solid rgba(210, 193, 182, 0.4);
+        border-radius: var(--phoenix-radius-sm);
+        color: var(--phoenix-dark);
+        font-family: var(--phoenix-font-body);
+        transition: all 0.3s ease;
+        padding: 0.75rem 1rem;
+        width: 100%;
+      }
+
+      .phoenix-form-control:focus {
+        background: var(--phoenix-white);
+        border-color: var(--phoenix-secondary);
+        box-shadow: 0 0 0 0.2rem rgba(69, 104, 130, 0.2);
+        outline: none;
+      }
+
+      .phoenix-form-control.is-valid {
+        border-color: var(--phoenix-success);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2300b894' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+      }
+
+      .phoenix-form-control.is-invalid {
+        border-color: var(--phoenix-danger);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23d63031'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23d63031' stroke='none'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.1875rem) center;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+      }
+
+      .phoenix-btn-primary {
+        background: var(--phoenix-gradient-main);
+        border: none;
+        color: var(--phoenix-white);
+        font-family: var(--phoenix-font-heading);
+        font-weight: 600;
+        padding: 0.875rem 1.5rem;
+        border-radius: var(--phoenix-radius-sm);
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      }
+
+      .phoenix-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(27, 60, 83, 0.3);
+        background: linear-gradient(
+          135deg,
+          var(--phoenix-secondary) 0%,
+          var(--phoenix-beige) 100%
+        );
+        color: var(--phoenix-white);
+      }
+
+      .phoenix-btn-secondary {
+        background: rgba(255, 255, 255, 0.9);
+        border: 2px solid rgba(210, 193, 182, 0.4);
+        color: var(--phoenix-primary);
+        font-family: var(--phoenix-font-heading);
+        font-weight: 500;
+        padding: 0.875rem 1.5rem;
+        border-radius: var(--phoenix-radius-sm);
+        transition: all 0.3s ease;
+      }
+
+      .phoenix-btn-secondary:hover {
+        background: var(--phoenix-white);
+        border-color: var(--phoenix-secondary);
+        color: var(--phoenix-primary);
+      }
+
+      /* ═══ MODAL STYLING ═══ */
+      .phoenix-modal .modal-content {
+        background: var(--phoenix-gradient-card);
+        border: 1px solid rgba(210, 193, 182, 0.3);
+        border-radius: var(--phoenix-radius-xl);
+        box-shadow: var(--phoenix-shadow-strong);
+        backdrop-filter: var(--phoenix-blur);
+      }
+
+      .phoenix-modal .modal-header {
+        background: var(--phoenix-gradient-main);
+        color: var(--phoenix-white);
+        border-radius: var(--phoenix-radius-xl) var(--phoenix-radius-xl) 0 0;
+        border-bottom: none;
+      }
+
+      .phoenix-modal .modal-title {
+        font-family: var(--phoenix-font-heading);
+        font-weight: 600;
+      }
+
+      .phoenix-modal .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%);
+      }
+
+      .phoenix-modal .modal-body {
+        padding: 2rem;
+      }
+
+      .phoenix-modal .modal-footer {
+        background: rgba(249, 243, 239, 0.5);
+        border-radius: 0 0 var(--phoenix-radius-xl) var(--phoenix-radius-xl);
+        border-top: 1px solid rgba(210, 193, 182, 0.2);
+      }
+
+      /* ═══ PASSWORD STRENGTH ═══ */
+      .phoenix-password-strength .progress {
+        height: 6px;
+        background: rgba(210, 193, 182, 0.3);
+        border-radius: 3px;
+      }
+
+      .phoenix-password-feedback {
+        font-family: var(--phoenix-font-heading);
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
+        font-weight: 500;
+      }
+
+      /* ═══ PROFILE IMAGE UPLOAD ═══ */
+      .phoenix-image-upload {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+      }
+
+      .phoenix-image-preview {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid rgba(210, 193, 182, 0.4);
+        box-shadow: var(--phoenix-shadow-soft);
+        transition: all 0.3s ease;
+      }
+
+      .phoenix-image-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(27, 60, 83, 0.8);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .phoenix-image-overlay:hover {
+        opacity: 1;
+      }
+
+      .phoenix-image-overlay i {
+        color: var(--phoenix-white);
+        font-size: 1.5rem;
+      }
+
+      .phoenix-file-input {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+      }
+
+      /* ═══ RESPONSIVE DESIGN ═══ */
+      @media (max-width: 991.98px) {
+        .phoenix-sidebar {
+          margin-bottom: 2rem;
+          border-radius: var(--phoenix-radius-lg);
+        }
+
+        .phoenix-profile {
+          padding: 1.5rem;
+        }
+
+        .phoenix-avatar-img {
+          width: 80px;
+          height: 80px;
+        }
+
+        .phoenix-nav-item {
+          margin: 0.2rem 0.75rem;
+        }
+
+        .phoenix-nav-link {
+          padding: 0.875rem 1rem;
+          gap: 0.875rem;
+        }
+
+        .phoenix-main-content {
+          padding: 1.5rem;
+        }
+
+        .phoenix-profile-form {
+          padding: 1.5rem;
+        }
+      }
+
+      @media (max-width: 575.98px) {
+        .phoenix-container {
+          padding: 1rem 0;
+        }
+
+        .phoenix-profile {
+          padding: 1.25rem;
+        }
+
+        .phoenix-avatar-img {
+          width: 70px;
+          height: 70px;
+        }
+
+        .phoenix-profile-name {
+          font-size: 1.2rem;
+        }
+
+        .phoenix-nav-link {
+          padding: 0.75rem 1rem;
+          font-size: 0.9rem;
+        }
+
+        .phoenix-main-content {
+          padding: 1.5rem;
+        }
+
+        .phoenix-main-title {
+          font-size: 1.6rem;
+        }
+
+        .phoenix-profile-form {
+          padding: 1.25rem;
+        }
+
+        .phoenix-image-preview {
+          width: 100px;
+          height: 100px;
+        }
+      }
+
+      /* ═══ LOADING SPINNER ═══ */
+      .spinner-border-sm {
+        width: 1rem;
+        height: 1rem;
+      }
+
+      /* ═══ TOAST STYLING ═══ */
+      .swal2-popup {
+        border-radius: var(--phoenix-radius-md);
+        font-family: var(--phoenix-font-body);
+      }
+
+      .swal2-title {
+        font-family: var(--phoenix-font-heading);
+        color: var(--phoenix-primary);
+      }
+
+      .swal2-confirm {
+        background: var(--phoenix-gradient-main) !important;
+        border-radius: var(--phoenix-radius-sm);
+      }
+
+      /* ═══ ERROR MESSAGES ═══ */
+      .phoenix-error-message {
+        color: var(--phoenix-danger);
+        font-size: 0.8rem;
+        font-family: var(--phoenix-font-heading);
+        font-weight: 500;
+        margin-top: 0.25rem;
+      }
+
+      .phoenix-success-message {
+        color: var(--phoenix-success);
+        font-size: 0.8rem;
+        font-family: var(--phoenix-font-heading);
+        font-weight: 500;
+        margin-top: 0.25rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="phoenix-container">
+      <div class="container-fluid">
+        <div class="row">
+          <!-- PHOENIX SIDEBAR -->
+          <div class="col-lg-3 col-md-4 mb-4">
+            <div class="phoenix-sidebar">
+              <!-- Profile Section -->
+              <div class="phoenix-profile">
+                <div class="phoenix-avatar">
+                  <img
+                    src="<%= user.profileImage || '/api/placeholder/100/100' %>"
+                    alt="<%= user.fullName %>"
+                    class="phoenix-avatar-img"
+                    onerror="this.src='/api/placeholder/100/100'; this.onerror=null;"
+                  />
+                  <div class="phoenix-avatar-badge">
+                    <i class="ri-check-line"></i>
+                  </div>
+                </div>
+                <h3 class="phoenix-profile-name"><%= user.fullName %></h3>
+                <p class="phoenix-profile-email"><%= user.email %></p>
+              </div>
+
+              <!-- Navigation Section -->
+              <div class="phoenix-nav">
+                <div class="phoenix-nav-header">Account Management</div>
+
+                <div class="phoenix-nav-item">
+                  <a
+                    href="/profile"
+                    class="phoenix-nav-link active"
+                    data-page="profile"
+                  >
+                    <i class="ri-user-3-line phoenix-nav-icon"></i>
+                    <span class="phoenix-nav-text">My Profile</span>
+                  </a>
+                </div>
+
+                <div class="phoenix-nav-item">
+                  <a
+                    href="/address"
+                    class="phoenix-nav-link"
+                    data-page="address"
+                  >
+                    <i class="ri-map-pin-line phoenix-nav-icon"></i>
+                    <span class="phoenix-nav-text">Address Book</span>
+                  </a>
+                </div>
+
+                <div class="phoenix-nav-item">
+                  <a href="/orders" class="phoenix-nav-link" data-page="orders">
+                    <i class="ri-box-3-line phoenix-nav-icon"></i>
+                    <span class="phoenix-nav-text">My Orders</span>
+                    <% if (locals.orderCount && locals.orderCount > 0) { %>
+                    <span class="phoenix-nav-badge"
+                      ><%= locals.orderCount %></span
+                    >
+                    <% } %>
+                  </a>
+                </div>
+
+                <div class="phoenix-nav-item">
+                  <a
+                    href="/wishlist"
+                    class="phoenix-nav-link"
+                    data-page="wishlist"
+                  >
+                    <i class="ri-heart-3-line phoenix-nav-icon"></i>
+                    <span class="phoenix-nav-text">My Wishlist</span>
+                    <% if (locals.wishlistCount && locals.wishlistCount > 0) {
+                    %>
+                    <span class="phoenix-nav-badge"
+                      ><%= locals.wishlistCount %></span
+                    >
+                    <% } %>
+                  </a>
+                </div>
+
+                <div class="phoenix-nav-item">
+                  <a href="/wallet" class="phoenix-nav-link" data-page="wallet">
+                    <i class="ri-wallet-3-line phoenix-nav-icon"></i>
+                    <span class="phoenix-nav-text">Wallet</span>
+                  </a>
+                </div>
+
+                <div class="phoenix-nav-item">
+                  <a
+                    href="/user-coupons"
+                    class="phoenix-nav-link"
+                    data-page="coupons"
+                  >
+                    <i class="ri-coupon-3-line phoenix-nav-icon"></i>
+                    <span class="phoenix-nav-text">Coupons</span>
+                  </a>
+                </div>
+
+                <div class="phoenix-nav-item">
+                  <a
+                    href="/referrals"
+                    class="phoenix-nav-link"
+                    data-page="referrals"
+                  >
+                    <i class="ri-share-forward-line phoenix-nav-icon"></i>
+                    <span class="phoenix-nav-text">Referrals</span>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Actions Section -->
+              <div class="phoenix-actions">
+                <button
+                  class="phoenix-action-btn"
+                  data-bs-toggle="modal"
+                  data-bs-target="#phoenixPasswordModal"
+                >
+                  <i class="ri-lock-password-line me-2"></i>
+                  Change Password
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- MAIN CONTENT AREA - PROFILE FORM -->
+          <div class="col-lg-9 col-md-8">
+            <div class="phoenix-main-content">
+              <h1 class="phoenix-main-title">My Profile</h1>
+              <p class="phoenix-main-subtitle">
+                Manage your personal information and account settings.
+              </p>
+
+              <div class="phoenix-profile-form">
+                <!-- Profile Image Section -->
+                <div class="phoenix-form-section">
+                  <h3 class="phoenix-form-section-title">
+                    <i class="ri-image-line me-2"></i>Profile Picture
+                  </h3>
+                  <div class="text-center">
+                    <div class="phoenix-image-upload">
+                      <img
+                        id="profileImagePreview"
+                        src="<%= user.profileImage || '/api/placeholder/120/120' %>"
+                        alt="Profile Preview"
+                        class="phoenix-image-preview"
+                        onerror="this.src='/api/placeholder/120/120'; this.onerror=null;"
+                      />
+                      <div class="phoenix-image-overlay" onclick="document.getElementById('profileImageInput').click()">
+                        <i class="ri-camera-line"></i>
+                      </div>
+                      <input
+                        type="file"
+                        id="profileImageInput"
+                        class="phoenix-file-input"
+                        accept="image/*"
+                        style="display: none;"
+                      />
+                    </div>
+                    <div class="mt-3">
+                      <button
+                        type="button"
+                        class="btn phoenix-btn-secondary me-2"
+                        onclick="document.getElementById('profileImageInput').click()"
+                      >
+                        <i class="ri-upload-2-line me-2"></i>Upload New Photo
+                      </button>
+                      <button
+                        type="button"
+                        class="btn phoenix-btn-secondary"
+                        id="removeImageBtn"
+                        style="display: none;"
+                      >
+                        <i class="ri-delete-bin-line me-2"></i>Remove Photo
+                      </button>
+                    </div>
+                    <small class="text-muted d-block mt-2">
+                      Recommended: Square image, at least 200x200 pixels
+                    </small>
+                  </div>
+                </div>
+
+                <!-- Personal Information Section -->
+                <div class="phoenix-form-section">
+                  <h3 class="phoenix-form-section-title">
+                    <i class="ri-user-line me-2"></i>Personal Information
+                  </h3>
+                  <form id="profileForm">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="phoenix-form-group">
+                          <label for="fullName" class="phoenix-form-label">Full Name</label>
+                          <input
+                            type="text"
+                            class="form-control phoenix-form-control"
+                            id="fullName"
+                            name="fullName"
+                            value="<%= user.fullName %>"
+                            required
+                          />
+                          <div id="fullNameError" class="phoenix-error-message"></div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="phoenix-form-group">
+                          <label for="email" class="phoenix-form-label">Email Address</label>
+                          <input
+                            type="email"
+                            class="form-control phoenix-form-control"
+                            id="email"
+                            name="email"
+                            value="<%= user.email %>"
+                            readonly
+                          />
+                          <small class="text-muted">
+                            Email cannot be changed. Contact support if needed.
+                          </small>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="phoenix-form-group">
+                          <label for="phone" class="phoenix-form-label">Phone Number</label>
+                          <input
+                            type="tel"
+                            class="form-control phoenix-form-control"
+                            id="phone"
+                            name="phone"
+                            value="<%= user.phone || '' %>"
+                            placeholder="Enter your phone number"
+                          />
+                          <div id="phoneError" class="phoenix-error-message"></div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="phoenix-form-group">
+                          <label for="dateOfBirth" class="phoenix-form-label">Date of Birth</label>
+                          <input
+                            type="date"
+                            class="form-control phoenix-form-control"
+                            id="dateOfBirth"
+                            name="dateOfBirth"
+                            value="<%= user.dateOfBirth ? user.dateOfBirth.toISOString().split('T')[0] : '' %>"
+                          />
+                          <div id="dateOfBirthError" class="phoenix-error-message"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="phoenix-form-group">
+                          <label for="gender" class="phoenix-form-label">Gender</label>
+                          <select
+                            class="form-control phoenix-form-control"
+                            id="gender"
+                            name="gender"
+                          >
+                            <option value="">Select Gender</option>
+                            <option value="male" <%= user.gender === 'male' ? 'selected' : '' %>>Male</option>
+                            <option value="female" <%= user.gender === 'female' ? 'selected' : '' %>>Female</option>
+                            <option value="other" <%= user.gender === 'other' ? 'selected' : '' %>>Other</option>
+                            <option value="prefer_not_to_say" <%= user.gender === 'prefer_not_to_say' ? 'selected' : '' %>>Prefer not to say</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="text-end">
+                      <button
+                        type="submit"
+                        class="btn phoenix-btn-primary"
+                        id="updateProfileBtn"
+                      >
+                        <i class="ri-save-line me-2"></i>Update Profile
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASSWORD CHANGE MODAL -->
+    <div
+      class="modal fade phoenix-modal"
+      id="phoenixPasswordModal"
+      tabindex="-1"
+      aria-labelledby="phoenixPasswordModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="phoenixPasswordModalLabel">
+              <i class="ri-shield-keyhole-line me-2"></i>
+              Change Password
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="phoenixPasswordForm">
+              <div class="mb-3">
+                <label for="phoenixCurrentPassword" class="phoenix-form-label"
+                  >Current Password</label
+                >
+                <div class="input-group">
+                  <input
+                    type="password"
+                    class="form-control phoenix-form-control"
+                    id="phoenixCurrentPassword"
+                    name="currentPassword"
+                    placeholder="Enter your current password"
+                    required
+                  />
+                  <button
+                    class="btn phoenix-btn-secondary phoenix-toggle-password"
+                    type="button"
+                  >
+                    <i class="ri-eye-off-line"></i>
+                  </button>
+                </div>
+                <div
+                  id="phoenixCurrentPasswordError"
+                  class="phoenix-error-message"
+                ></div>
+              </div>
+
+              <div class="mb-3">
+                <label for="phoenixNewPassword" class="phoenix-form-label"
+                  >New Password</label
+                >
+                <div class="input-group">
+                  <input
+                    type="password"
+                    class="form-control phoenix-form-control"
+                    id="phoenixNewPassword"
+                    name="newPassword"
+                    placeholder="Enter your new password"
+                    required
+                  />
+                  <button
+                    class="btn phoenix-btn-secondary phoenix-toggle-password"
+                    type="button"
+                  >
+                    <i class="ri-eye-off-line"></i>
+                  </button>
+                </div>
+                <div
+                  id="phoenixNewPasswordError"
+                  class="phoenix-error-message"
+                ></div>
+                <div class="phoenix-password-strength mt-2 d-none">
+                  <div class="progress" style="height: 6px; border-radius: 3px">
+                    <div
+                      class="progress-bar"
+                      role="progressbar"
+                      style="width: 0%"
+                      aria-valuenow="0"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    ></div>
+                  </div>
+                  <small
+                    class="phoenix-password-feedback text-muted mt-1 d-block"
+                  ></small>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="phoenixConfirmPassword" class="phoenix-form-label"
+                  >Confirm New Password</label
+                >
+                <div class="input-group">
+                  <input
+                    type="password"
+                    class="form-control phoenix-form-control"
+                    id="phoenixConfirmPassword"
+                    name="confirmPassword"
+                    placeholder="Confirm your new password"
+                    required
+                  />
+                  <button
+                    class="btn phoenix-btn-secondary phoenix-toggle-password"
+                    type="button"
+                  >
+                    <i class="ri-eye-off-line"></i>
+                  </button>
+                </div>
+                <div
+                  id="phoenixConfirmPasswordError"
+                  class="phoenix-error-message"
+                ></div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn phoenix-btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              form="phoenixPasswordForm"
+              class="btn phoenix-btn-primary"
+              id="phoenixPasswordBtn"
+            >
+              <i class="ri-check-circle-line me-2"></i>Update Password
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // ═══════════════════════════════════════════════════════════════════════════════════════════
+      // PHOENIX PROFILE PAGE SCRIPT
+      // ══════��════════════════════════════════════════════════════════════════════════════════════
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // ═══ UTILITY FUNCTIONS ═══
+        function setInvalid(input, errorElement, message) {
+          input.classList.add("is-invalid");
+          input.classList.remove("is-valid");
+          if (errorElement) errorElement.textContent = message;
+        }
+
+        function setValid(input, errorElement) {
+          input.classList.remove("is-invalid");
+          input.classList.add("is-valid");
+          if (errorElement) errorElement.textContent = "";
+        }
+
+        function clearValidation(input, errorElement) {
+          input.classList.remove("is-invalid", "is-valid");
+          if (errorElement) errorElement.textContent = "";
+        }
+
+        // ═══ PROFILE IMAGE UPLOAD ═══
+        const profileImageInput = document.getElementById("profileImageInput");
+        const profileImagePreview = document.getElementById("profileImagePreview");
+        const removeImageBtn = document.getElementById("removeImageBtn");
+
+        profileImageInput.addEventListener("change", function (event) {
+          const file = event.target.files[0];
+          if (file) {
+            // Validate file type
+            if (!file.type.startsWith("image/")) {
+              Swal.fire({
+                icon: "error",
+                title: "Invalid File",
+                text: "Please select a valid image file.",
+              });
+              return;
+            }
+
+            // Validate file size (5MB limit)
+            if (file.size > 5 * 1024 * 1024) {
+              Swal.fire({
+                icon: "error",
+                title: "File Too Large",
+                text: "Please select an image smaller than 5MB.",
+              });
+              return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              profileImagePreview.src = e.target.result;
+              removeImageBtn.style.display = "inline-block";
+            };
+            reader.readAsDataURL(file);
+
+            // Upload image immediately
+            uploadProfileImage(file);
+          }
         });
-      } else {
-        Toast.fire({
-          icon: "error",
-          title: result.message || "Failed to upload image",
+
+        removeImageBtn.addEventListener("click", function () {
+          profileImagePreview.src = "/api/placeholder/120/120";
+          profileImageInput.value = "";
+          removeImageBtn.style.display = "none";
+          
+          // Remove image from server
+          removeProfileImage();
         });
-      }
-    } catch (error) {
-      console.error("Image upload error:", error);
-      Swal.close();
-      Toast.fire({
-        icon: "error",
-        title: "Server error. Please try again.",
+
+        async function uploadProfileImage(file) {
+          const formData = new FormData();
+          formData.append("profileImage", file);
+
+          try {
+            const response = await fetch("/users/profile/image", {
+              method: "POST",
+              body: formData,
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+              Swal.fire({
+                icon: "success",
+                title: "Success!",
+                text: "Profile image updated successfully",
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+              });
+            } else {
+              throw new Error(result.message || "Failed to upload image");
+            }
+          } catch (error) {
+            console.error("Image upload error:", error);
+            Swal.fire({
+              icon: "error",
+              title: "Upload Failed",
+              text: error.message || "Failed to upload image",
+            });
+            
+            // Reset image preview on error
+            profileImagePreview.src = "<%= user.profileImage || '/api/placeholder/120/120' %>";
+            profileImageInput.value = "";
+          }
+        }
+
+        async function removeProfileImage() {
+          try {
+            const response = await fetch("/users/profile/image", {
+              method: "DELETE",
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+              Swal.fire({
+                icon: "success",
+                title: "Success!",
+                text: "Profile image removed successfully",
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+              });
+            } else {
+              throw new Error(result.message || "Failed to remove image");
+            }
+          } catch (error) {
+            console.error("Image removal error:", error);
+            Swal.fire({
+              icon: "error",
+              title: "Removal Failed",
+              text: error.message || "Failed to remove image",
+            });
+          }
+        }
+
+        // ═══ PROFILE FORM VALIDATION ═══
+        const profileForm = document.getElementById("profileForm");
+        const fullNameInput = document.getElementById("fullName");
+        const phoneInput = document.getElementById("phone");
+        const dateOfBirthInput = document.getElementById("dateOfBirth");
+
+        // Validation functions
+        function validateFullName(name) {
+          return name.trim().length >= 2 && /^[a-zA-Z\s]+$/.test(name.trim());
+        }
+
+        function validatePhone(phone) {
+          if (!phone.trim()) return true; // Optional field
+          return /^[\+]?[1-9][\d]{0,15}$/.test(phone.replace(/[\s\-\(\)]/g, ""));
+        }
+
+        function validateDateOfBirth(date) {
+          if (!date) return true; // Optional field
+          const birthDate = new Date(date);
+          const today = new Date();
+          const age = today.getFullYear() - birthDate.getFullYear();
+          return age >= 13 && age <= 120;
+        }
+
+        // Real-time validation
+        fullNameInput.addEventListener("input", function () {
+          const fullNameError = document.getElementById("fullNameError");
+          const name = this.value.trim();
+
+          if (!name) {
+            clearValidation(this, fullNameError);
+          } else if (!validateFullName(name)) {
+            setInvalid(this, fullNameError, "Please enter a valid full name (letters and spaces only, minimum 2 characters)");
+          } else {
+            setValid(this, fullNameError);
+          }
+        });
+
+        phoneInput.addEventListener("input", function () {
+          const phoneError = document.getElementById("phoneError");
+          const phone = this.value.trim();
+
+          if (!phone) {
+            clearValidation(this, phoneError);
+          } else if (!validatePhone(phone)) {
+            setInvalid(this, phoneError, "Please enter a valid phone number");
+          } else {
+            setValid(this, phoneError);
+          }
+        });
+
+        dateOfBirthInput.addEventListener("change", function () {
+          const dateOfBirthError = document.getElementById("dateOfBirthError");
+          const date = this.value;
+
+          if (!date) {
+            clearValidation(this, dateOfBirthError);
+          } else if (!validateDateOfBirth(date)) {
+            setInvalid(this, dateOfBirthError, "Please enter a valid date of birth (age must be between 13-120)");
+          } else {
+            setValid(this, dateOfBirthError);
+          }
+        });
+
+        // Profile form submission
+        profileForm.addEventListener("submit", async function (event) {
+          event.preventDefault();
+
+          const formData = new FormData(this);
+          const data = Object.fromEntries(formData.entries());
+
+          // Validate all fields
+          let isValid = true;
+
+          if (!validateFullName(data.fullName)) {
+            setInvalid(fullNameInput, document.getElementById("fullNameError"), "Please enter a valid full name");
+            isValid = false;
+          }
+
+          if (data.phone && !validatePhone(data.phone)) {
+            setInvalid(phoneInput, document.getElementById("phoneError"), "Please enter a valid phone number");
+            isValid = false;
+          }
+
+          if (data.dateOfBirth && !validateDateOfBirth(data.dateOfBirth)) {
+            setInvalid(dateOfBirthInput, document.getElementById("dateOfBirthError"), "Please enter a valid date of birth");
+            isValid = false;
+          }
+
+          if (!isValid) return;
+
+          const submitButton = document.getElementById("updateProfileBtn");
+          const originalText = submitButton.innerHTML;
+          submitButton.disabled = true;
+          submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...';
+
+          try {
+            const response = await fetch("/users/profile", {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data),
+            });
+
+            const result = await response.json();
+
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalText;
+
+            if (result.success) {
+              Swal.fire({
+                icon: "success",
+                title: "Success!",
+                text: "Profile updated successfully",
+                confirmButtonColor: "#1b3c53",
+              });
+
+              // Update sidebar profile name if changed
+              if (data.fullName !== "<%= user.fullName %>") {
+                document.querySelector(".phoenix-profile-name").textContent = data.fullName;
+              }
+            } else {
+              throw new Error(result.message || "Failed to update profile");
+            }
+          } catch (error) {
+            console.error("Profile update error:", error);
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalText;
+
+            Swal.fire({
+              icon: "error",
+              title: "Update Failed",
+              text: error.message || "Failed to update profile",
+            });
+          }
+        });
+
+        // ═══ PASSWORD MODAL FUNCTIONALITY ═══
+
+        // Password toggle functionality
+        document
+          .querySelectorAll(".phoenix-toggle-password")
+          .forEach((button) => {
+            button.addEventListener("click", function () {
+              const input = this.parentElement.querySelector("input");
+              const icon = this.querySelector("i");
+
+              if (input.type === "password") {
+                input.type = "text";
+                icon.classList.replace("ri-eye-off-line", "ri-eye-line");
+              } else {
+                input.type = "password";
+                icon.classList.replace("ri-eye-line", "ri-eye-off-line");
+              }
+            });
+          });
+
+        // Password strength checker
+        const newPasswordInput = document.getElementById("phoenixNewPassword");
+        const passwordStrengthBar = document.querySelector(
+          ".phoenix-password-strength .progress-bar"
+        );
+        const passwordFeedback = document.querySelector(
+          ".phoenix-password-feedback"
+        );
+        const passwordStrength = document.querySelector(
+          ".phoenix-password-strength"
+        );
+
+        if (newPasswordInput) {
+          newPasswordInput.addEventListener("input", function () {
+            const password = this.value;
+
+            if (password.length > 0) {
+              passwordStrength.classList.remove("d-none");
+
+              let strength = 0;
+              let feedback = "";
+
+              if (password.length >= 8) strength += 25;
+              if (/[a-z]/.test(password)) strength += 25;
+              if (/[A-Z]/.test(password)) strength += 25;
+              if (/[0-9!@#$%^&*(),.?":{}|<>]/.test(password)) strength += 25;
+
+              passwordStrengthBar.style.width = strength + "%";
+
+              if (strength < 50) {
+                passwordStrengthBar.className = "progress-bar bg-danger";
+                feedback = "Weak password";
+              } else if (strength < 75) {
+                passwordStrengthBar.className = "progress-bar bg-warning";
+                feedback = "Medium password";
+              } else {
+                passwordStrengthBar.className = "progress-bar bg-success";
+                feedback = "Strong password";
+              }
+
+              passwordFeedback.textContent = feedback;
+            } else {
+              passwordStrength.classList.add("d-none");
+            }
+          });
+        }
+
+        // Password validation
+        function validatePassword(password) {
+          return /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9!@#$%^&*(),.?":{}|<>]).{8,}$/.test(
+            password
+          );
+        }
+
+        // Password form submission
+        const passwordForm = document.getElementById("phoenixPasswordForm");
+        if (passwordForm) {
+          passwordForm.addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const currentPassword = document
+              .getElementById("phoenixCurrentPassword")
+              .value.trim();
+            const newPassword = document
+              .getElementById("phoenixNewPassword")
+              .value.trim();
+            const confirmPassword = document
+              .getElementById("phoenixConfirmPassword")
+              .value.trim();
+
+            const currentPasswordError = document.getElementById(
+              "phoenixCurrentPasswordError"
+            );
+            const newPasswordError = document.getElementById(
+              "phoenixNewPasswordError"
+            );
+            const confirmPasswordError = document.getElementById(
+              "phoenixConfirmPasswordError"
+            );
+
+            let isValid = true;
+
+            // Validate current password
+            if (!currentPassword) {
+              setInvalid(
+                document.getElementById("phoenixCurrentPassword"),
+                currentPasswordError,
+                "Current password is required"
+              );
+              isValid = false;
+            }
+
+            // Validate new password
+            if (!newPassword) {
+              setInvalid(
+                document.getElementById("phoenixNewPassword"),
+                newPasswordError,
+                "New password is required"
+              );
+              isValid = false;
+            } else if (!validatePassword(newPassword)) {
+              setInvalid(
+                document.getElementById("phoenixNewPassword"),
+                newPasswordError,
+                "Password must be at least 8 characters with uppercase, lowercase, and number/special character"
+              );
+              isValid = false;
+            }
+
+            // Validate confirm password
+            if (!confirmPassword) {
+              setInvalid(
+                document.getElementById("phoenixConfirmPassword"),
+                confirmPasswordError,
+                "Please confirm your new password"
+              );
+              isValid = false;
+            } else if (confirmPassword !== newPassword) {
+              setInvalid(
+                document.getElementById("phoenixConfirmPassword"),
+                confirmPasswordError,
+                "Passwords do not match"
+              );
+              isValid = false;
+            }
+
+            if (!isValid) return;
+
+            const submitButton = document.getElementById("phoenixPasswordBtn");
+            const originalText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML =
+              '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...';
+
+            try {
+              const response = await fetch("/password/change", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  currentPassword,
+                  newPassword,
+                  confirmPassword,
+                }),
+              });
+
+              const result = await response.json();
+
+              submitButton.disabled = false;
+              submitButton.innerHTML = originalText;
+
+              if (result.success) {
+                // Close modal and reset form
+                const modal = bootstrap.Modal.getInstance(
+                  document.getElementById("phoenixPasswordModal")
+                );
+                modal.hide();
+                passwordForm.reset();
+                passwordStrength.classList.add("d-none");
+
+                // Clear all validations
+                [
+                  document.getElementById("phoenixCurrentPassword"),
+                  document.getElementById("phoenixNewPassword"),
+                  document.getElementById("phoenixConfirmPassword"),
+                ].forEach((input) => {
+                  clearValidation(input, null);
+                });
+
+                // Show success toast
+                Swal.fire({
+                  icon: "success",
+                  title: "Success!",
+                  text: "Password updated successfully",
+                  toast: true,
+                  position: "top-end",
+                  showConfirmButton: false,
+                  timer: 3000,
+                  timerProgressBar: true,
+                });
+              } else {
+                // Handle specific errors
+                if (result.field === "currentPassword") {
+                  setInvalid(
+                    document.getElementById("phoenixCurrentPassword"),
+                    currentPasswordError,
+                    result.message || "Current password is incorrect"
+                  );
+                } else {
+                  Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: result.message || "Failed to update password",
+                  });
+                }
+              }
+            } catch (error) {
+              console.error("Password change error:", error);
+              submitButton.disabled = false;
+              submitButton.innerHTML = originalText;
+
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Server error. Please try again.",
+              });
+            }
+          });
+        }
       });
-    } finally {
-      // Clean up cropper
-      if (cropper) {
-        cropper.destroy();
-        cropper = null;
-      }
-      // Reset file input
-      document.getElementById("profileImageUpload").value = "";
-    }
-  }, "image/jpeg", 0.8);
-});
-
-// Clean up cropper on modal hide
-document.getElementById("imageCropModal").addEventListener("hidden.bs.modal", function () {
-  if (cropper) {
-    cropper.destroy();
-    cropper = null;
-  }
-  document.getElementById("profileImageUpload").value = "";
-});
-
-// Profile form validation
-const fullNameInput = document.getElementById("fullName");
-const phoneInput = document.getElementById("phone");
-const fullNameError = document.getElementById("fullNameError");
-const phoneError = document.getElementById("phoneError");
-
-fullNameInput.addEventListener("input", function () {
-  const fullName = this.value.trim();
-  if (!fullName) {
-    clearValidation(this, fullNameError);
-  } else if (!validateFullName(fullName)) {
-    const nameWords = fullName.split(/\s+/).filter((word) => word.length > 0);
-    if (nameWords.length < 2) {
-      setInvalid(this, fullNameError, "Please provide both first and last name");
-    } else if (!/^[A-Za-z\s'-]+$/.test(fullName)) {
-      setInvalid(this, fullNameError, "Name contains invalid characters");
-    } else {
-      setInvalid(this, fullNameError, "Full name must be at least 3 characters");
-    }
-  } else {
-    setValid(this, fullNameError);
-  }
-});
-
-phoneInput.addEventListener("input", function () {
-  const phoneNumber = this.value.trim();
-  if (!phoneNumber) {
-    clearValidation(this, phoneError);
-  } else if (!validatePhoneNumber(phoneNumber)) {
-    const cleanPhone = phoneNumber.replace(/\D/g, "");
-    if (
-      /^(.)\1+$/.test(cleanPhone) ||
-      /^0{10}$/.test(cleanPhone) ||
-      /^1{10}$/.test(cleanPhone)
-    ) {
-      setInvalid(this, phoneError, "Please enter a valid phone number");
-    } else {
-      setInvalid(
-        this,
-        phoneError,
-        "Phone number must be 10 digits or include a valid country code"
-      );
-    }
-  } else {
-    setValid(this, phoneError);
-  }
-});
-
-// Profile form submission
-document.getElementById("profileForm").addEventListener("submit", async function (event) {
-  event.preventDefault();
-
-  const fullName = fullNameInput.value.trim();
-  const phone = phoneInput.value.trim();
-  let isValid = true;
-
-  // Validate fullName
-  if (!fullName || !validateFullName(fullName)) {
-    const nameWords = fullName.split(/\s+/).filter((word) => word.length > 0);
-    if (nameWords.length < 2) {
-      setInvalid(fullNameInput, fullNameError, "Please provide both first and last name");
-    } else {
-      setInvalid(
-        fullNameInput,
-        fullNameError,
-        "Full name must be at least 3 characters with valid characters"
-      );
-    }
-    isValid = false;
-  }
-
-  // Validate phone
-  if (phone && !validatePhoneNumber(phone)) {
-    setInvalid(phoneInput, phoneError, "Valid phone number is required");
-    isValid = false;
-  }
-
-  if (!isValid) return;
-
-  const submitButton = this.querySelector('button[type="submit"]');
-  const originalText = submitButton.innerHTML;
-  submitButton.disabled = true;
-  submitButton.innerHTML =
-    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
-
-  try {
-    const response = await fetch("/users/profile", {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ fullName, phone }),
-    });
-    const result = await response.json();
-
-    submitButton.disabled = false;
-    submitButton.innerHTML = originalText;
-
-    if (result.success) {
-      // Update UI immediately
-      document.querySelector(".card-body h5").textContent = result.user.fullName;
-      fullNameInput.value = result.user.fullName;
-      phoneInput.value = result.user.phone || "";
-      Toast.fire({
-        icon: "success",
-        title: "Profile updated successfully",
-      });
-    } else {
-      Toast.fire({
-        icon: "error",
-        title: result.message || "Failed to update profile",
-      });
-    }
-  } catch (error) {
-    console.error("Profile update error:", error);
-    submitButton.disabled = false;
-    submitButton.innerHTML = originalText;
-    Toast.fire({
-      icon: "error",
-      title: "Server error. Please try again.",
-    });
-  }
-});
-
-// Email update form validation
-const newEmailInput = document.getElementById("newEmail");
-const newEmailError = document.getElementById("newEmailError");
-const currentEmail = document.getElementById("currentEmail").value.trim();
-
-newEmailInput.addEventListener("input", function () {
-  const email = this.value.trim();
-  if (!email) {
-    setInvalid(this, newEmailError, "This field is needed");
-  } else if (email.toLowerCase() === currentEmail.toLowerCase()) {
-    setInvalid(this, newEmailError, "New email must be different from current email");
-  } else if (!validateEmail(email)) {
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(email)) {
-      setInvalid(this, newEmailError, "Please enter a valid email address");
-    } else {
-      setInvalid(this, newEmailError, "Please use a non-disposable email address");
-    }
-  } else {
-    setValid(this, newEmailError);
-  }
-});
-
-// Add blur event to show validation message when field loses focus
-newEmailInput.addEventListener("blur", function () {
-  const email = this.value.trim();
-  if (!email) {
-    setInvalid(this, newEmailError, "This field is needed");
-  }
-});
-
-// Add focus event to clear validation when field gains focus (if empty)
-newEmailInput.addEventListener("focus", function () {
-  const email = this.value.trim();
-  if (!email && this.classList.contains("is-invalid")) {
-    clearValidation(this, newEmailError);
-  }
-});
-
-// Email update form submission
-document.getElementById("emailUpdateForm").addEventListener("submit", async function (event) {
-  event.preventDefault();
-
-  const email = newEmailInput.value.trim();
-  let isValid = true;
-
-  if (!email) {
-  setInvalid(newEmailInput, newEmailError, "This field is needed");
-  isValid = false;
-  } else if (!validateEmail(email)) {
-  setInvalid(newEmailInput, newEmailError, "Valid email is required (non-disposable)");
-  isValid = false;
-  } else if (email.toLowerCase() === currentEmail.toLowerCase()) {
-  setInvalid(newEmailInput, newEmailError, "New email must be different from current email");
-  isValid = false;
-  }
-
-  if (!isValid) return;
-
-  const submitButton = document.getElementById("emailUpdateSubmitBtn");
-  const originalText = submitButton.innerHTML;
-  submitButton.disabled = true;
-  submitButton.innerHTML =
-    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
-
-  try {
-    const response = await fetch("/users/profile/email/request", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email }),
-    });
-    const result = await response.json();
-
-    submitButton.disabled = false;
-    submitButton.innerHTML = originalText;
-
-    if (result.success) {
-      bootstrap.Modal.getInstance(document.getElementById("emailUpdateModal")).hide();
-      Toast.fire({
-        icon: "success",
-        title: "OTP sent to your new email",
-      });
-      setTimeout(() => {
-        window.location.href = "/verify-email-otp";
-      }, 1000);
-    } else {
-      setInvalid(newEmailInput, newEmailError, result.message || "Failed to send OTP");
-    }
-  } catch (error) {
-    console.error("Email update error:", error);
-    submitButton.disabled = false;
-    submitButton.innerHTML = originalText;
-    Toast.fire({
-      icon: "error",
-      title: "Server error. Please try again.",
-    });
-  }
-});
-</script>
+    </script>
 
 <%- include("../partials/user/footer") %>
