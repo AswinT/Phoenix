@@ -587,6 +587,23 @@
         transition: all 0.3s ease;
       }
 
+      .phoenix-image-initials-preview {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: var(--phoenix-cream);
+        color: var(--phoenix-primary);
+        border: 4px solid rgba(210, 193, 182, 0.4);
+        box-shadow: var(--phoenix-shadow-soft);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--phoenix-font-heading);
+        font-size: 2.5rem;
+        font-weight: 700;
+        transition: all 0.3s ease;
+      }
+
       .phoenix-image-overlay {
         position: absolute;
         top: 0;
@@ -693,6 +710,12 @@
           width: 100px;
           height: 100px;
         }
+
+        .phoenix-image-initials-preview {
+          width: 100px;
+          height: 100px;
+          font-size: 2rem;
+        }
       }
 
       /* ═══ LOADING SPINNER ═══ */
@@ -758,13 +781,22 @@
                   </h3>
                   <div class="text-center">
                     <div class="phoenix-image-upload">
-                      <img
-                        id="profileImagePreview"
-                        src="<%= user.profileImage || '/api/placeholder/120/120' %>"
-                        alt="Profile Preview"
-                        class="phoenix-image-preview"
-                        onerror="this.src='/api/placeholder/120/120'; this.onerror=null;"
-                      />
+                      <% if (user.profileImage) { %>
+                        <img
+                          id="profileImagePreview"
+                          src="<%= user.profileImage %>"
+                          alt="Profile Preview"
+                          class="phoenix-image-preview"
+                          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                        />
+                        <div class="phoenix-image-initials-preview" style="display: none;">
+                          <%= user.fullName ? user.fullName.trim().split(' ').filter(n => n.length > 0).map(n => n.charAt(0)).slice(0, 2).join('').toUpperCase() : 'U' %>
+                        </div>
+                      <% } else { %>
+                        <div class="phoenix-image-initials-preview" id="profileImagePreview">
+                          <%= user.fullName ? user.fullName.trim().split(' ').filter(n => n.length > 0).map(n => n.charAt(0)).slice(0, 2).join('').toUpperCase() : 'U' %>
+                        </div>
+                      <% } %>
                       <div class="phoenix-image-overlay" onclick="document.getElementById('profileImageInput').click()">
                         <i class="ri-camera-line"></i>
                       </div>
@@ -1076,7 +1108,8 @@
         const profileImagePreview = document.getElementById("profileImagePreview");
         const removeImageBtn = document.getElementById("removeImageBtn");
 
-        profileImageInput.addEventListener("change", function (event) {
+        // Define the image change handler function
+        function handleImageChange(event) {
           const file = event.target.files[0];
           if (file) {
             // Validate file type
@@ -1101,20 +1134,63 @@
 
             const reader = new FileReader();
             reader.onload = function (e) {
-              profileImagePreview.src = e.target.result;
+              // Replace initials with image
+              const imageUpload = document.querySelector('.phoenix-image-upload');
+              imageUpload.innerHTML = `
+                <img
+                  id="profileImagePreview"
+                  src="${e.target.result}"
+                  alt="Profile Preview"
+                  class="phoenix-image-preview"
+                />
+                <div class="phoenix-image-overlay" onclick="document.getElementById('profileImageInput').click()">
+                  <i class="ri-camera-line"></i>
+                </div>
+                <input
+                  type="file"
+                  id="profileImageInput"
+                  class="phoenix-file-input"
+                  accept="image/*"
+                  style="display: none;"
+                />
+              `;
               removeImageBtn.style.display = "inline-block";
+              
+              // Re-attach event listener to new input
+              document.getElementById("profileImageInput").addEventListener("change", handleImageChange);
             };
             reader.readAsDataURL(file);
 
             // Upload image immediately
             uploadProfileImage(file);
           }
-        });
+        }
+
+        profileImageInput.addEventListener("change", handleImageChange);
 
         removeImageBtn.addEventListener("click", function () {
-          profileImagePreview.src = "/api/placeholder/120/120";
-          profileImageInput.value = "";
+          // Replace image with initials
+          const imageUpload = document.querySelector('.phoenix-image-upload');
+          const userInitials = '<%= user.fullName ? user.fullName.trim().split(" ").filter(n => n.length > 0).map(n => n.charAt(0)).slice(0, 2).join("").toUpperCase() : "U" %>';
+          imageUpload.innerHTML = `
+            <div class="phoenix-image-initials-preview" id="profileImagePreview">
+              ${userInitials}
+            </div>
+            <div class="phoenix-image-overlay" onclick="document.getElementById('profileImageInput').click()">
+              <i class="ri-camera-line"></i>
+            </div>
+            <input
+              type="file"
+              id="profileImageInput"
+              class="phoenix-file-input"
+              accept="image/*"
+              style="display: none;"
+            />
+          `;
           removeImageBtn.style.display = "none";
+          
+          // Re-attach event listener to new input
+          document.getElementById("profileImageInput").addEventListener("change", handleImageChange);
           
           // Remove image from server
           removeProfileImage();

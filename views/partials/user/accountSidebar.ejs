@@ -4,12 +4,21 @@
     <!-- Profile Section -->
     <div class="phoenix-profile">
       <div class="phoenix-avatar">
-        <img
-          src="<%= user.profileImage || '/api/placeholder/100/100' %>"
-          alt="<%= user.fullName %>"
-          class="phoenix-avatar-img"
-          onerror="this.src='/api/placeholder/100/100'; this.onerror=null;"
-        />
+        <% if (user.profileImage) { %>
+          <img
+            src="<%= user.profileImage %>"
+            alt="<%= user.fullName %>"
+            class="phoenix-avatar-img"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+          />
+          <div class="phoenix-avatar-initials" style="display: none;">
+            <%= user.fullName ? user.fullName.trim().split(' ').filter(n => n.length > 0).map(n => n.charAt(0)).slice(0, 2).join('').toUpperCase() : 'U' %>
+          </div>
+        <% } else { %>
+          <div class="phoenix-avatar-initials">
+            <%= user.fullName ? user.fullName.trim().split(' ').filter(n => n.length > 0).map(n => n.charAt(0)).slice(0, 2).join('').toUpperCase() : 'U' %>
+          </div>
+        <% } %>
         <div class="phoenix-avatar-badge">
           <i class="ri-check-line"></i>
         </div>
@@ -402,6 +411,30 @@
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
   }
 
+  .phoenix-avatar-initials {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: var(--phoenix-cream);
+    color: var(--phoenix-primary);
+    border: 4px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--phoenix-font-heading);
+    font-size: 2rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+  }
+
+  .phoenix-avatar:hover .phoenix-avatar-initials {
+    transform: scale(1.08);
+    border-color: var(--phoenix-cream);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+    background: var(--phoenix-white);
+  }
+
   .phoenix-avatar-badge {
     position: absolute;
     bottom: 5px;
@@ -759,6 +792,12 @@
       height: 80px;
     }
 
+    .phoenix-avatar-initials {
+      width: 80px;
+      height: 80px;
+      font-size: 1.6rem;
+    }
+
     .phoenix-nav-item {
       margin: 0.2rem 0.75rem;
     }
@@ -777,6 +816,12 @@
     .phoenix-avatar-img {
       width: 70px;
       height: 70px;
+    }
+
+    .phoenix-avatar-initials {
+      width: 70px;
+      height: 70px;
+      font-size: 1.4rem;
     }
 
     .phoenix-profile-name {
