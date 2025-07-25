@@ -999,3 +999,33 @@ h6 {
     justify-content: center;
   }
 }
+
+/* Make shop content use full width */
+.shop-content-section .container {
+  max-width: 100% !important;
+  padding-left: 2rem !important;
+  padding-right: 2rem !important;
+}
+
+/* Ensure products grid uses full available width */
+.products-grid {
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Responsive adjustments for full width */
+@media (max-width: 768px) {
+  .shop-content-section .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .shop-content-section .container {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+}
