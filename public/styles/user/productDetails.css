@@ -12,7 +12,9 @@ body {
      width: 100%;
      height: auto;
      border-radius: 0.5rem;
-     object-fit: cover;
+     object-fit: contain;
+     object-position: center;
+     background: #f8f9fa;
    }
    
    .thumbnail {
@@ -280,8 +282,10 @@ body {
      width: 100%;
      height: auto;
      aspect-ratio: 1/1.2;
-     object-fit: cover;
+     object-fit: contain;
+     object-position: center;
      transition: transform 0.3s ease;
+     background: #f8f9fa;
    }
    
    .product-card:hover .product-image {
@@ -358,8 +362,10 @@ body {
    position: absolute;
    width: 100%;
    height: 100%;
-   object-fit: cover;
+   object-fit: contain;
+   object-position: center;
    transition: all 0.3s ease;
+   background: #f8f9fa;
  }
  
  /* Magnifier glass */
