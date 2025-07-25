@@ -1,248 +1,14 @@
 <%- include("../partials/user/header") %>
-<style>
-  /* Shop Banner Styles */
-  .shop-banner-section {
-    background-image: url('/assets/shopPageBanner.jpeg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    position: relative;
-    height: 400px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-  }
 
-  .shop-banner-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(26, 26, 26, 0.7), rgba(0, 0, 0, 0.5));
-    z-index: 1;
-  }
-
-  .shop-banner-content {
-    position: relative;
-    z-index: 10;
-    color: #ffffff;
-    text-align: center;
-    animation: fadeInUp 1s ease-out;
-  }
-
-  .shop-banner-title {
-    font-size: 3.5rem;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-  }
-
-  .shop-banner-subtitle {
-    font-size: 1.25rem;
-    font-weight: 400;
-    margin-bottom: 2rem;
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
-    opacity: 0.95;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .shop-breadcrumb .breadcrumb {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border-radius: 25px;
-    padding: 0.75rem 1.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-  }
-
-  .shop-breadcrumb .breadcrumb-item a {
-    color: #ffffff;
-    text-decoration: none;
-    font-weight: 500;
-    transition: all 0.3s ease;
-  }
-
-  .shop-breadcrumb .breadcrumb-item a:hover {
-    color: #f8f9fa;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-  }
-
-  .shop-breadcrumb .breadcrumb-item.active {
-    color: #cccccc;
-    font-weight: 500;
-  }
-
-  .shop-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
-    color: #cccccc;
-    content: "›";
-    font-weight: 600;
-  }
-
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .shop-banner-section {
-      height: 300px;
-      background-attachment: scroll;
-    }
-
-    .shop-banner-title {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .shop-banner-subtitle {
-      font-size: 1.1rem;
-      margin-bottom: 1.5rem;
-    }
-  }
-
-  @media (max-width: 576px) {
-    .shop-banner-section {
-      height: 250px;
-    }
-
-    .shop-banner-title {
-      font-size: 2rem;
-      line-height: 1.2;
-    }
-
-    .shop-banner-subtitle {
-      font-size: 1rem;
-      padding: 0 1rem;
-    }
-
-    .shop-breadcrumb .breadcrumb {
-      padding: 0.5rem 1rem;
-      font-size: 0.9rem;
-    }
-  }
-
-  /* Enhanced integration with dark navigation */
-  .shop-banner-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 100px;
-    background: linear-gradient(180deg, rgba(26, 26, 26, 0.3) 0%, transparent 100%);
-    z-index: 2;
-    pointer-events: none;
-  }
-
-  /* Subtle parallax effect on scroll */
-  .shop-banner-section {
-    transition: transform 0.1s ease-out;
-  }
-
-  /* Enhanced text effects */
-  .shop-banner-title {
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    filter: drop-shadow(2px 2px 8px rgba(0, 0, 0, 0.7));
-  }
-
-  /* Smooth transition for mobile */
-  @media (max-width: 768px) {
-    .shop-banner-title {
-      background: #ffffff;
-      -webkit-text-fill-color: #ffffff;
-      filter: none;
-      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
-    }
-  }
-
-  /* Existing styles */
-  .offer-badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: #e53935;
-    color: white;
-    padding: 0.25rem 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border-radius: 2px;
-    z-index: 1;
-  }
-  .original-price {
-    text-decoration: line-through;
-    color: #6b7280;
-    font-size: 0.875rem;
-    margin-right: 0.5rem;
-  }
-
-  /* Shop Page Pricing Styles */
-  .shop-product-price .current-price {
-    font-weight: 700;
-    color: #e53935;
-    font-size: 1rem;
-  }
-
-  .shop-product-price .original-price {
-    font-size: 0.85rem;
-    color: #6c757d;
-    text-decoration: line-through;
-    margin-right: 0.5rem;
-  }
-
-  /* Enhanced Offer Badge for Shop Page */
-  .offer-badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: linear-gradient(135deg, #e53935, #c62828);
-    color: white;
-    padding: 0.3rem 0.6rem;
-    font-size: 0.75rem;
-    font-weight: 700;
-    border-radius: 15px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    box-shadow: 0 2px 6px rgba(229, 57, 53, 0.3);
-    z-index: 2;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0% { box-shadow: 0 2px 6px rgba(229, 57, 53, 0.3); }
-    50% { box-shadow: 0 4px 12px rgba(229, 57, 53, 0.5); }
-    100% { box-shadow: 0 2px 6px rgba(229, 57, 53, 0.3); }
-  }
-
-  /* Mobile Responsive Badge */
-  @media (max-width: 576px) {
-    .offer-badge {
-      top: 8px;
-      right: 8px;
-      padding: 0.25rem 0.5rem;
-      font-size: 0.7rem;
-    }
-  }
-</style>
 <!-- Shop Banner Section -->
 <section class="shop-banner-section">
-  <div class="shop-banner-overlay"></div>
+  <div class="audio-visualizer-shop">
+    <div class="frequency-bar-shop" style="--delay: 0s; --height: 15px;"></div>
+    <div class="frequency-bar-shop" style="--delay: 0.2s; --height: 25px;"></div>
+    <div class="frequency-bar-shop" style="--delay: 0.4s; --height: 20px;"></div>
+    <div class="frequency-bar-shop" style="--delay: 0.6s; --height: 30px;"></div>
+    <div class="frequency-bar-shop" style="--delay: 0.8s; --height: 18px;"></div>
+  </div>
   <div class="container">
     <div class="row align-items-center justify-content-center text-center">
       <div class="col-lg-8">
@@ -262,16 +28,16 @@
 </section>
 
 <!-- Shop Content -->
-<section class="py-5 bg-white">
+<section class="shop-content-section">
   <div class="container">
     <div class="row g-4">
       <!-- Filters Sidebar -->
       <div class="col-lg-3">
         <div class="filters-container">
-          <div class="filter-card">
+          <div class="filter-card floating-card">
             <div class="filter-header">
               <h3 class="filter-title">
-                <i class="ri-filter-3-line me-2"></i>Filters
+                <i class="ri-equalizer-line me-2"></i>Filters
               </h3>
               <button class="filter-toggle d-lg-none" onclick="toggleFilters()">
                 <i class="ri-arrow-down-s-line"></i>
@@ -282,7 +48,7 @@
               <!-- Category Filter -->
               <div class="filter-section">
                 <h4 class="filter-section-title">
-                  <i class="ri-folder-line me-2"></i>Categories
+                  <i class="ri-folder-music-line me-2"></i>Categories
                 </h4>
                 <div class="filter-dropdown-container">
                   <select class="filter-dropdown" id="categorySelect" multiple>
@@ -300,7 +66,7 @@
               <!-- Brand Filter -->
               <div class="filter-section">
                 <h4 class="filter-section-title">
-                  <i class="ri-price-tag-3-line me-2"></i>Brands
+                  <i class="ri-headphone-line me-2"></i>Brands
                 </h4>
                 <div class="filter-dropdown-container">
                   <select class="filter-dropdown" id="brandSelect" multiple>
@@ -337,10 +103,10 @@
 
               <!-- Filter Actions -->
               <div class="filter-actions">
-                <button class="btn-apply" onclick="applyFilters()">
+                <button class="btn-apply-filters" onclick="applyFilters()">
                   <i class="ri-check-line me-2"></i>Apply Filters
                 </button>
-                <button class="btn-reset" onclick="resetFilters()">
+                <button class="btn-reset-filters" onclick="resetFilters()">
                   <i class="ri-refresh-line me-2"></i>Reset
                 </button>
               </div>
@@ -352,10 +118,10 @@
       <!-- Products Grid -->
       <div class="col-lg-9">
         <!-- Sort and View Options -->
-        <div class="shop-controls">
+        <div class="shop-controls floating-card">
           <div class="sort-section">
             <div class="sort-label">
-              <i class="ri-sort-desc me-2"></i>Sort by:
+              <i class="ri-sound-module-line me-2"></i>Sort by:
             </div>
             <div class="sort-dropdown">
               <select class="custom-select" id="sortSelect" onchange="sortProducts()">
@@ -386,15 +152,15 @@
         </div>
 
         <!-- Products -->
-        <div class="row g-4" id="productGrid">
+        <div class="products-grid" id="productGrid">
           <% if (products && products.length > 0) { %>
             <% products.forEach(product => { %>
-              <div class="col-sm-6 col-md-4 product-item"
+              <div class="product-item"
                    data-category="<%= product.category._id %>"
                    data-price="<%= product.finalPrice %>"
                    data-date="<%= new Date(product.createdAt).getTime() %>"
                    data-stock="<%= product.stock %>">
-                <div class="product-card bg-white h-100">
+                <div class="product-card floating-card">
                   <div class="product-image-container">
                     <%
                       const now = new Date();
@@ -403,58 +169,61 @@
                       const isNew = diffDays <= 30;
                     %>
                     <% if (isNew) { %>
-                      <span class="product-tag">New</span>
+                      <span class="product-badge new-badge">New</span>
                     <% } %>
 
                     <% if (product.discountPercentage > 0) { %>
-                      <span class="offer-badge"><%= Math.round(product.discountPercentage) %>% OFF</span>
+                      <span class="product-badge offer-badge"><%= Math.round(product.discountPercentage) %>% OFF</span>
                     <% } %>
 
-                    <a href="/products/<%= product._id %>" class="text-decoration-none">
+                    <a href="/products/<%= product._id %>" class="product-image-link">
                       <img src="<%= product.mainImage || '/api/placeholder/500/600' %>" alt="<%= product.model %>" class="product-image" />
+                      <div class="product-overlay">
+                        <div class="quick-view-btn">Quick View</div>
+                      </div>
                     </a>
                   </div>
-                  <div class="p-3">
-                    <h3 class="fs-5 fw-semibold mb-1">
-                      <a href="/products/<%= product._id %>" class="text-dark text-decoration-none"><%= product.model %></a>
+                  <div class="product-info">
+                    <div class="product-brand"><%= product.brand %></div>
+                    <h3 class="product-title">
+                      <a href="/products/<%= product._id %>"><%= product.model %></a>
                     </h3>
-                    <p class="text-muted small mb-2"><%= product.brand %></p>
-                    <div class="d-flex justify-content-between align-items-center">
-                      <div class="shop-product-price">
-                        <% if (product.discountPercentage > 0) { %>
-                          <div class="d-flex align-items-center gap-1 flex-wrap">
-                            <span class="original-price">₹<%= product.regularPrice.toFixed(2) %></span>
-                            <span class="current-price">₹<%= product.finalPrice.toFixed(2) %></span>
-                          </div>
-                          <% if (product.bestOfferTitle) { %>
-                            <small class="d-block text-success mt-1"><%= product.bestOfferTitle %></small>
-                          <% } %>
-                        <% } else { %>
+                    <div class="product-price">
+                      <% if (product.discountPercentage > 0) { %>
+                        <div class="price-group">
                           <span class="current-price">₹<%= product.finalPrice.toFixed(2) %></span>
+                          <span class="original-price">₹<%= product.regularPrice.toFixed(2) %></span>
+                        </div>
+                        <% if (product.bestOfferTitle) { %>
+                          <div class="offer-text"><%= product.bestOfferTitle %></div>
                         <% } %>
-                      </div>
-                      <div class="d-flex gap-2 align-items-center">
-                        <button class="btn-wishlist-shop" data-product-id="<%= product._id %>">
-                          <i class="ri-heart-line"></i>
-                        </button>
-                        <button class="add-to-cart border-0" data-product-id="<%= product._id %>" <%= product.stock === 0 ? 'disabled' : '' %>>
-                          <i class="ri-shopping-cart-line"></i>
-                        </button>
-                      </div>
+                      <% } else { %>
+                        <span class="current-price">₹<%= product.finalPrice.toFixed(2) %></span>
+                      <% } %>
+                    </div>
+                    <div class="product-actions">
+                      <button class="btn-wishlist-shop" data-product-id="<%= product._id %>">
+                        <i class="ri-heart-line"></i>
+                      </button>
+                      <button class="btn-add-cart-shop add-to-cart" data-product-id="<%= product._id %>" <%= product.stock === 0 ? 'disabled' : '' %>>
+                        <i class="ri-shopping-cart-line"></i>
+                        <span>Add to Cart</span>
+                      </button>
                     </div>
                   </div>
                 </div>
               </div>
             <% }) %>
           <% } else { %>
-            <div class="col-12 text-center">
-              <p class="text-muted">No products available at the moment.</p>
+            <div class="empty-state">
+              <i class="ri-headphone-line"></i>
+              <p>No products available at the moment.</p>
             </div>
           <% } %>
         </div>
 
         <!-- Pagination -->
-        <div class="d-flex justify-content-center mt-5">
+        <div class="pagination-container">
           <nav aria-label="Page navigation">
             <ul class="pagination">
               <li class="page-item <%= pagination.hasPrevPage ? '' : 'disabled' %>">
@@ -498,13 +267,13 @@
               </li>
             </ul>
           </nav>
-        </div>
 
-        <!-- Product Count Information -->
-        <div class="text-center text-muted mt-2">
-          <% const startItem = (pagination.currentPage - 1) * 12 + 1; %>
-          <% const endItem = Math.min(pagination.currentPage * 12, totalProducts); %>
-          Showing <%= startItem %> to <%= endItem %> of <%= totalProducts %> products
+          <!-- Product Count Information -->
+          <div class="product-count-info">
+            <% const startItem = (pagination.currentPage - 1) * 12 + 1; %>
+            <% const endItem = Math.min(pagination.currentPage * 12, totalProducts); %>
+            Showing <%= startItem %> to <%= endItem %> of <%= totalProducts %> products
+          </div>
         </div>
       </div>
     </div>
@@ -512,590 +281,6 @@
 </section>
 
 <%- include("../partials/user/footer") %>
-
-<style>
-  /* ===== ENHANCED FILTER & SORT STYLING ===== */
-  
-  /* Filter Container */
-  .filters-container {
-    position: sticky;
-    top: 90px;
-    margin-bottom: 2rem;
-  }
-
-  .filter-card {
-    background: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    overflow: hidden;
-    transition: all 0.3s ease;
-  }
-
-  .filter-card:hover {
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-  }
-
-  /* Filter Header */
-  .filter-header {
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-    color: white;
-    padding: 1.25rem 1.5rem;
-    display: flex;
-    justify-content: between;
-    align-items: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  .filter-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    letter-spacing: -0.02em;
-  }
-
-  .filter-toggle {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 0.25rem;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-  }
-
-  .filter-toggle:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  /* Filter Content */
-  .filter-content {
-    padding: 1.5rem;
-  }
-
-  /* Filter Sections */
-  .filter-section {
-    margin-bottom: 2rem;
-  }
-
-  .filter-section:last-child {
-    margin-bottom: 0;
-  }
-
-  .filter-section-title {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #2d2d2d;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    letter-spacing: -0.01em;
-  }
-
-  /* Filter Dropdown Styles */
-  .filter-dropdown-container {
-    position: relative;
-  }
-
-  .filter-dropdown {
-    width: 100%;
-    appearance: none;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 0.75rem 2.5rem 0.75rem 1rem;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #2d2d2d;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    min-height: 45px;
-  }
-
-  .filter-dropdown:focus {
-    outline: none;
-    border-color: #1a1a1a;
-    box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
-  }
-
-  .filter-dropdown:hover {
-    border-color: #cbd5e0;
-  }
-
-  .dropdown-arrow {
-    position: absolute;
-    right: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #6b7280;
-    pointer-events: none;
-    font-size: 1.1rem;
-    transition: transform 0.2s ease;
-  }
-
-  .filter-dropdown:focus + .dropdown-arrow {
-    transform: translateY(-50%) rotate(180deg);
-  }
-
-  /* Multi-select dropdown styling */
-  .filter-dropdown option {
-    padding: 0.5rem;
-    font-size: 0.9rem;
-    color: #2d2d2d;
-  }
-
-  .filter-dropdown option:checked {
-    background: #1a1a1a;
-    color: white;
-  }
-
-  /* Price Filter */
-  .price-filter {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
-
-  /* Price Inputs */
-  .price-inputs {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .price-input-group {
-    flex: 1;
-    position: relative;
-    display: flex;
-    align-items: center;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    overflow: hidden;
-    transition: all 0.2s ease;
-  }
-
-  .price-input-group:focus-within {
-    border-color: #1a1a1a;
-    box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
-  }
-
-  .price-currency {
-    background: #e2e8f0;
-    color: #4a5568;
-    padding: 0.75rem;
-    font-weight: 600;
-    font-size: 0.9rem;
-  }
-
-  .price-input {
-    border: none;
-    background: transparent;
-    padding: 0.75rem;
-    font-size: 0.9rem;
-    color: #2d2d2d;
-    font-weight: 500;
-    width: 100%;
-    outline: none;
-  }
-
-  .price-input::placeholder {
-    color: #9ca3af;
-  }
-
-  .price-separator {
-    color: #6b7280;
-    font-weight: 600;
-    font-size: 0.9rem;
-  }
-
-  /* Filter Actions */
-  .filter-actions {
-    display: flex;
-    gap: 0.75rem;
-    margin-top: 1.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #f1f5f9;
-  }
-
-  .btn-apply {
-    flex: 1;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-    color: white;
-    border: none;
-    padding: 0.875rem 1.25rem;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .btn-apply:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(26, 26, 26, 0.3);
-  }
-
-  .btn-reset {
-    flex: 1;
-    background: white;
-    color: #6b7280;
-    border: 1px solid #e2e8f0;
-    padding: 0.875rem 1.25rem;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .btn-reset:hover {
-    background: #f8fafc;
-    border-color: #cbd5e0;
-    color: #4a5568;
-  }
-
-  /* Shop Controls */
-  .shop-controls {
-    background: white;
-    border-radius: 12px;
-    padding: 1.25rem 1.5rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-    border: 1px solid rgba(0, 0, 0, 0.04);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-
-  /* Sort Section */
-  .sort-section {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .sort-label {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #4a5568;
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
-  }
-
-  .sort-dropdown {
-    position: relative;
-  }
-
-  .custom-select {
-    appearance: none;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 0.75rem 2.5rem 0.75rem 1rem;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #2d2d2d;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    min-width: 200px;
-  }
-
-  .custom-select:focus {
-    outline: none;
-    border-color: #1a1a1a;
-    box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
-  }
-
-  .sort-arrow {
-    position: absolute;
-    right: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #6b7280;
-    pointer-events: none;
-    font-size: 1.1rem;
-  }
-
-  /* View Section */
-  .view-section {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .view-label {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #4a5568;
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
-  }
-
-  .view-options {
-    display: flex;
-    background: #f8fafc;
-    border-radius: 8px;
-    padding: 0.25rem;
-    border: 1px solid #e2e8f0;
-  }
-
-  .view-btn {
-    background: transparent;
-    border: none;
-    padding: 0.5rem 0.75rem;
-    border-radius: 6px;
-    color: #6b7280;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
-  }
-
-  .view-btn:hover {
-    color: #4a5568;
-    background: rgba(26, 26, 26, 0.05);
-  }
-
-  .view-btn.active {
-    background: #1a1a1a;
-    color: white;
-    box-shadow: 0 2px 4px rgba(26, 26, 26, 0.1);
-  }
-
-  /* Mobile Responsive */
-  @media (max-width: 991.98px) {
-    .filters-container {
-      position: relative;
-      top: 0;
-      margin-bottom: 1.5rem;
-    }
-
-    .filter-content {
-      display: none;
-    }
-
-    .filter-content.show {
-      display: block;
-    }
-
-    .shop-controls {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 1.5rem;
-    }
-
-    .sort-section,
-    .view-section {
-      justify-content: space-between;
-    }
-
-    .custom-select {
-      min-width: auto;
-      flex: 1;
-    }
-  }
-
-  @media (max-width: 576px) {
-    .filter-header {
-      padding: 1rem 1.25rem;
-    }
-
-    .filter-content {
-      padding: 1.25rem;
-    }
-
-    .filter-actions {
-      flex-direction: column;
-    }
-
-    .shop-controls {
-      padding: 1rem;
-    }
-
-    .sort-section,
-    .view-section {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0.75rem;
-    }
-
-    .view-section {
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .price-inputs {
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .price-separator {
-      display: none;
-    }
-  }
-
-  /* Product styles */
-  .product-actions {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(255, 255, 255, 0.9);
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.5rem;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: all 0.3s ease;
-  }
-
-  .product-card:hover .product-actions {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .action-btn {
-    width: 2rem;
-    height: 2rem;
-    border-radius: 50%;
-    border: none;
-    background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-  }
-
-  .action-btn:hover {
-    background-color: #000;
-    color: #fff;
-  }
-
-  .page-link {
-    color: #000;
-    border-radius: 0.25rem;
-    margin: 0 0.2rem;
-  }
-
-  .page-item.active .page-link {
-    background-color: #000;
-    border-color: #000;
-  }
-
-  .filters-container {
-    position: sticky;
-    top: 90px;
-  }
-
-  @media (max-width: 991.98px) {
-    .filters-container {
-      position: relative;
-      top: 0;
-    }
-  }
-
-  .add-to-cart {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
-    background-color: #000;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-  }
-
-  .add-to-cart:hover {
-    background-color: #333;
-  }
-
-  .btn-wishlist-shop {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
-    background-color: #fff;
-    color: #000;
-    border: 2px solid #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    cursor: pointer;
-  }
-
-  .btn-wishlist-shop:hover {
-    background-color: #000;
-    color: #fff;
-  }
-
-  .btn-wishlist-shop.wishlisted {
-    background-color: #dc3545;
-    border-color: #dc3545;
-    color: #fff;
-  }
-
-  .btn-wishlist-shop.wishlisted:hover {
-    background-color: #c82333;
-    border-color: #c82333;
-  }
-
-  @media (max-width: 767.98px) {
-    .product-actions {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .product-image-container {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .product-image {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1/1.2;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-  }
-
-  .product-card:hover .product-image {
-    transform: scale(1.05);
-  }
-
-  .product-tag {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background-color: #000;
-    color: #fff;
-    padding: 0.25rem 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border-radius: 2px;
-    z-index: 1;
-  }
-</style>
 
 <script>
   // Filter functions for server-side filtering and pagination
@@ -1153,11 +338,11 @@
   function resetFilters() {
     // Reset category dropdown
     const categorySelect = document.getElementById('categorySelect');
-    categorySelect.selectedIndex = 0; // Select "All Categories"
+    categorySelect.selectedIndex = 0;
     
     // Reset brand dropdown
     const brandSelect = document.getElementById('brandSelect');
-    brandSelect.selectedIndex = 0; // Select "All Brands"
+    brandSelect.selectedIndex = 0;
 
     // Reset price range
     document.getElementById('minPriceInput').value = 0;
@@ -1193,10 +378,8 @@
     const categorySelect = document.getElementById('categorySelect');
     
     if (categoryParams.length > 0) {
-      // Clear default selection
       categorySelect.selectedIndex = -1;
       
-      // Select the categories from URL
       Array.from(categorySelect.options).forEach(option => {
         if (categoryParams.includes(option.value)) {
           option.selected = true;
@@ -1209,10 +392,8 @@
     const brandSelect = document.getElementById('brandSelect');
     
     if (brandParams.length > 0) {
-      // Clear default selection
       brandSelect.selectedIndex = -1;
       
-      // Select the brands from URL
       Array.from(brandSelect.options).forEach(option => {
         if (brandParams.includes(option.value)) {
           option.selected = true;
@@ -1329,7 +510,6 @@
           const result = await response.json();
 
           if (response.status === 401 || !result.success) {
-            console.log('Shop wishlist authentication error - redirecting to login');
             Swal.fire({
               toast: true,
               position: 'top-end',
