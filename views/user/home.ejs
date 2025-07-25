@@ -1,5 +1,8 @@
 <%- include("../partials/user/header") %>
 
+<!-- Include Modern Product Card Styles -->
+<link rel="stylesheet" href="/styles/user/modern-product-card.css">
+
 <!-- Hero Section without Color Mask -->
 <section class="hero-section">
   <div class="audio-visualizer">
@@ -91,65 +94,114 @@
         <div class="title-underline"></div>
       </div>
     </div>
-    <div class="products-grid-fixed">
+    <div class="modern-products-grid home-layout">
       <% if (newArrivals && newArrivals.length > 0) { %> <% newArrivals.slice(0,
       4).forEach((product, index) => { %>
+      <%
+        const now = new Date();
+        const createdAt = new Date(product.createdAt);
+        const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24);
+        const isNew = diffDays <= 30;
+        const stockStatus = product.stock > 10 ? 'in-stock' : product.stock > 0 ? 'low-stock' : 'out-of-stock';
+        const stockText = product.stock > 10 ? 'In Stock' : product.stock > 0 ? `Only ${product.stock} left` : 'Out of Stock';
+      %>
       <div
-        class="product-card floating-card"
+        class="modern-product-card"
         data-aos="fade-up"
         data-aos-delay="<%= index * 100 %>"
       >
-        <div class="product-image-wrapper">
-          <% if (product.isNew) { %>
-          <span class="product-badge new-badge">New</span>
-          <% } %> <% if (product.activeOffer) { %>
-          <span class="product-badge offer-badge">
-            <%= Math.round(product.discountPercentage) %>% OFF
-          </span>
-          <% } %>
-          <a href="/products/<%= product._id %>" class="product-image-link">
+        <!-- Product Image Section -->
+        <div class="modern-product-image-section">
+          <!-- Product Badges -->
+          <div class="modern-product-badges">
+            <% if (isNew) { %>
+            <span class="modern-product-badge modern-badge-new">New</span>
+            <% } %>
+            <% if (product.activeOffer && product.discountPercentage > 0) { %>
+            <span class="modern-product-badge modern-badge-offer">
+              <%= Math.round(product.discountPercentage) %>% OFF
+            </span>
+            <% } %>
+          </div>
+
+          <!-- Wishlist Button -->
+          <button class="modern-wishlist-btn btn-wishlist" data-product-id="<%= product._id %>">
+            <i class="ri-heart-line"></i>
+          </button>
+
+          <!-- Product Image -->
+          <a href="/products/<%= product._id %>">
             <img
               src="<%= product.mainImage || '/api/placeholder/600/800' %>"
               alt="<%= product.model %>"
-              class="product-image"
+              class="modern-product-image"
             />
-            <div class="product-overlay">
-              <div class="quick-view-btn">Quick View</div>
-            </div>
           </a>
+
+          <!-- Quick View Overlay -->
+          <div class="modern-quick-view-overlay">
+            <button class="modern-quick-view-btn" onclick="window.location.href='/products/<%= product._id %>'">
+              Quick View
+            </button>
+          </div>
         </div>
-        <div class="product-info">
-          <div class="product-brand"><%= product.brand %></div>
-          <h3 class="product-title">
+
+        <!-- Product Info Section -->
+        <div class="modern-product-info">
+          <!-- Brand -->
+          <div class="modern-product-brand"><%= product.brand %></div>
+
+          <!-- Title -->
+          <h3 class="modern-product-title">
             <a href="/products/<%= product._id %>"><%= product.model %></a>
           </h3>
-          <div class="product-price">
-            <% if (product.activeOffer) { %>
-            <div class="price-group">
-              <span class="current-price"
-                >₹<%= product.finalPrice.toFixed(2) %></span
-              >
-              <span class="original-price"
-                >₹<%= product.regularPrice.toFixed(2) %></span
-              >
+
+          <!-- Rating (placeholder for future implementation) -->
+          <div class="modern-product-rating">
+            <div class="modern-rating-stars">
+              <i class="ri-star-fill modern-rating-star"></i>
+              <i class="ri-star-fill modern-rating-star"></i>
+              <i class="ri-star-fill modern-rating-star"></i>
+              <i class="ri-star-fill modern-rating-star"></i>
+              <i class="ri-star-line modern-rating-star empty"></i>
             </div>
-            <div class="offer-text"><%= product.activeOffer.title %></div>
+            <span class="modern-rating-count">(4.2)</span>
+          </div>
+
+          <!-- Price -->
+          <div class="modern-product-price">
+            <% if (product.activeOffer && product.discountPercentage > 0) { %>
+            <div class="modern-price-group">
+              <span class="modern-current-price">₹<%= product.finalPrice.toFixed(2) %></span>
+              <span class="modern-original-price">₹<%= product.regularPrice.toFixed(2) %></span>
+              <span class="modern-discount-badge">Save ₹<%= (product.regularPrice - product.finalPrice).toFixed(0) %></span>
+            </div>
+            <% if (product.activeOffer && product.activeOffer.title) { %>
+            <p class="modern-offer-text"><%= product.activeOffer.title %></p>
+            <% } %>
             <% } else { %>
-            <span class="current-price"
-              >₹<%= product.regularPrice.toFixed(2) %></span
-            >
+            <div class="modern-price-group">
+              <span class="modern-current-price">₹<%= product.regularPrice.toFixed(2) %></span>
+            </div>
             <% } %>
           </div>
-          <div class="product-actions">
-            <button class="btn-wishlist" data-product-id="<%= product._id %>">
-              <i class="ri-heart-line"></i>
-            </button>
-            <button
-              class="btn-add-cart-rect add-to-cart"
+
+          <!-- Stock Status -->
+          <div class="modern-stock-status">
+            <span class="modern-stock-indicator modern-stock-<%= stockStatus %>">
+              <%= stockText %>
+            </span>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="modern-product-actions">
+            <button 
+              class="modern-add-to-cart-btn add-to-cart" 
               data-product-id="<%= product._id %>"
+              <%= product.stock === 0 ? 'disabled' : '' %>
             >
               <i class="ri-shopping-cart-line"></i>
-              <span>Add to Cart</span>
+              <span><%= product.stock === 0 ? 'Out of Stock' : 'Add to Cart' %></span>
             </button>
           </div>
         </div>
