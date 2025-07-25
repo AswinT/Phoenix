@@ -1,204 +1,325 @@
 <%- include("../partials/user/header") %>
 
-<!-- Hero Section -->
+<!-- Hero Section without Color Mask -->
 <section class="hero-section">
+  <div class="audio-visualizer">
+    <div class="frequency-bar" style="--delay: 0s; --height: 20px"></div>
+    <div class="frequency-bar" style="--delay: 0.1s; --height: 35px"></div>
+    <div class="frequency-bar" style="--delay: 0.2s; --height: 25px"></div>
+    <div class="frequency-bar" style="--delay: 0.3s; --height: 40px"></div>
+    <div class="frequency-bar" style="--delay: 0.4s; --height: 15px"></div>
+    <div class="frequency-bar" style="--delay: 0.5s; --height: 30px"></div>
+    <div class="frequency-bar" style="--delay: 0.6s; --height: 45px"></div>
+    <div class="frequency-bar" style="--delay: 0.7s; --height: 25px"></div>
+    <div class="frequency-bar" style="--delay: 0.8s; --height: 35px"></div>
+    <div class="frequency-bar" style="--delay: 0.9s; --height: 20px"></div>
+  </div>
   <div class="container">
-    <div class="hero-content text-white">
-      <h1 class="display-4 fw-bold mb-4">Discover Sound That Moves You</h1>
-      <p class="fs-5 mb-4">PREMIUM HEADPHONE EXPERIENCE</p>
-      <div class="d-flex flex-column flex-sm-row gap-3">
-        <!-- <a href="/shopPage" class="btn btn-light px-4 py-2 fw-medium">Shop Now</a> -->
-        <a href="/shopPage" class="btn btn-outline-light px-4 py-2 fw-medium">Explore Collections</a>
+    <div class="hero-content">
+      <div class="hero-badge">PREMIUM AUDIO EXPERIENCE</div>
+      <h1 class="hero-title">Discover Sound That Moves You</h1>
+      <p class="hero-subtitle">
+        Experience crystal-clear audio with our curated collection of premium
+        headphones
+      </p>
+      <div class="hero-buttons">
+        <a href="/shopPage" class="btn-premium">
+          <span class="btn-text">Explore Collections</span>
+          <div class="btn-bg"></div>
+        </a>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Featured Categories -->
-<section class="py-5 bg-white">
+<!-- Featured Categories (All in One Line) -->
+<section class="categories-section">
   <div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="fs-1 fw-bold">Browse Categories</h2>
-      <a href="/shopPage" class="text-dark text-decoration-none hover-dark">View All</a>
+    <div class="section-header">
+      <div class="section-title-group">
+        <h2 class="section-title">Browse Categories</h2>
+        <div class="title-underline"></div>
+      </div>
     </div>
-    <div class="row g-4">
-      <% if (categories && categories.length > 0) { %>
-        <% categories.slice(0, 3).forEach(category => { %>
-          <div class="col-md-4">
-            <div class="category-card shadow-sm">
-              <img src="<%= category.image %>" alt="<%= category.name %>" />
-              <div class="category-overlay">
-                <h3 class="text-white fs-4 fw-bold mb-2"><%= category.name %></h3>
-                <a href="/shopPage?category=<%= category._id %>" class="text-white text-decoration-underline">Explore</a>
+    <div class="categories-container">
+      <div class="categories-grid">
+        <% if (categories && categories.length > 0) { %> <%
+        categories.forEach((category, index) => { %>
+        <div
+          class="category-card floating-card"
+          data-aos="fade-up"
+          data-aos-delay="<%= index * 100 %>"
+        >
+          <div class="category-image">
+            <img src="<%= category.image %>" alt="<%= category.name %>" />
+            <div class="category-overlay">
+              <div class="sound-pulse">
+                <div class="pulse-ring"></div>
+                <div class="pulse-ring"></div>
+                <div class="pulse-ring"></div>
               </div>
             </div>
           </div>
-        <% }) %>
-      <% } else { %>
-        <div class="col-12 text-center">
-          <p>No categories available.</p>
+          <div class="category-content">
+            <h3 class="category-name"><%= category.name %></h3>
+            <a
+              href="/shopPage?category=<%= category._id %>"
+              class="category-link"
+            >
+              Explore Collection
+              <i class="ri-headphone-line"></i>
+            </a>
+          </div>
         </div>
+        <% }) %> <% } else { %>
+        <div class="empty-state">
+          <i class="ri-headphone-line"></i>
+          <p>No categories available at the moment.</p>
+        </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- New Arrivals (4 Cards Fixed) -->
+<section class="products-section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-title-group">
+        <h2 class="section-title">New Arrivals</h2>
+        <div class="title-underline"></div>
+      </div>
+    </div>
+    <div class="products-grid-fixed">
+      <% if (newArrivals && newArrivals.length > 0) { %> <% newArrivals.slice(0,
+      4).forEach((product, index) => { %>
+      <div
+        class="product-card floating-card"
+        data-aos="fade-up"
+        data-aos-delay="<%= index * 100 %>"
+      >
+        <div class="product-image-wrapper">
+          <% if (product.isNew) { %>
+          <span class="product-badge new-badge">New</span>
+          <% } %> <% if (product.activeOffer) { %>
+          <span class="product-badge offer-badge">
+            <%= Math.round(product.discountPercentage) %>% OFF
+          </span>
+          <% } %>
+          <a href="/products/<%= product._id %>" class="product-image-link">
+            <img
+              src="<%= product.mainImage || '/api/placeholder/600/800' %>"
+              alt="<%= product.model %>"
+              class="product-image"
+            />
+            <div class="product-overlay">
+              <div class="quick-view-btn">Quick View</div>
+            </div>
+          </a>
+        </div>
+        <div class="product-info">
+          <div class="product-brand"><%= product.brand %></div>
+          <h3 class="product-title">
+            <a href="/products/<%= product._id %>"><%= product.model %></a>
+          </h3>
+          <div class="product-price">
+            <% if (product.activeOffer) { %>
+            <div class="price-group">
+              <span class="current-price"
+                >₹<%= product.finalPrice.toFixed(2) %></span
+              >
+              <span class="original-price"
+                >₹<%= product.regularPrice.toFixed(2) %></span
+              >
+            </div>
+            <div class="offer-text"><%= product.activeOffer.title %></div>
+            <% } else { %>
+            <span class="current-price"
+              >₹<%= product.regularPrice.toFixed(2) %></span
+            >
+            <% } %>
+          </div>
+          <div class="product-actions">
+            <button class="btn-wishlist" data-product-id="<%= product._id %>">
+              <i class="ri-heart-line"></i>
+            </button>
+            <button
+              class="btn-add-cart-rect add-to-cart"
+              data-product-id="<%= product._id %>"
+            >
+              <i class="ri-shopping-cart-line"></i>
+              <span>Add to Cart</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <% }) %> <% } else { %>
+      <div class="empty-state">
+        <i class="ri-headphone-line"></i>
+        <p>No new arrivals available at the moment.</p>
+      </div>
       <% } %>
     </div>
   </div>
 </section>
 
-
-<!-- New Arrivals (Based on Date Added) -->
-<section class="py-5 bg-white">
+<!-- Enhanced Music Player Section -->
+<section class="music-player-section">
   <div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2 class="fs-1 fw-bold">New Arrivals</h2>
-      <a href="/shopPage" class="text-dark text-decoration-none hover-dark">View All</a>
-    </div>
-    <div class="row g-4">
-      <% if (newArrivals && newArrivals.length > 0) { %>
-        <% newArrivals.slice(0, 4).forEach(product => { %>
-          <div class="col-sm-6 col-md-4 col-lg-3">
-            <div class="product-card bg-white h-100">
-              <div class="product-image-container">
-                <% if (product.isNew) { %>
-                  <span class="product-tag">New</span>
-                <% } %>
-                <% if (product.activeOffer) { %>
-                  <span class="product-tag bg-danger">
-                    <%= Math.round(product.discountPercentage) %>% OFF
-                  </span>
-                <% } %>
-                <a href="/products/<%= product._id %>" class="text-decoration-none">
-                  <img src="<%= product.mainImage || '/api/placeholder/600/800' %>" alt="<%= product.model %>" class="product-image" />
-                </a>
-              </div>
-              <div class="p-3">
-                <h3 class="fs-5 fw-semibold mb-1">
-                  <a href="/products/<%= product._id %>" class="text-dark text-decoration-none"><%= product.model %></a>
-                </h3>
-                <p class="text-muted small mb-2"><%= product.brand %></p>
-                <div class="d-flex justify-content-between align-items-center">
-                  <div>
-                    <% if (product.activeOffer) { %>
-                      <div class="d-flex align-items-center gap-2">
-                        <span class="fw-bold text-danger">₹<%= product.finalPrice.toFixed(2) %></span>
-                        <span class="text-decoration-line-through text-muted small">₹<%= product.regularPrice.toFixed(2) %></span>
-                      </div>
-                      <small class="text-success d-block"><%= product.activeOffer.title %></small>
-                    <% } else { %>
-                      <span class="fw-bold">₹<%= product.regularPrice.toFixed(2) %></span>
-                    <% } %>
-                  </div>
-                  <div class="d-flex gap-2 align-items-center">
-                    <button class="btn-wishlist-home" data-product-id="<%= product._id %>">
-                      <i class="ri-heart-line"></i>
-                    </button>
-                    <button class="add-to-cart border-0" data-product-id="<%= product._id %>">
-                      <i class="ri-add-line"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
+    <div class="music-player-content">
+      <h2 class="player-title">Feel the Beat</h2>
+      <div class="music-player-interface">
+        <div class="player-left">
+          <div class="track-info">
+            <div class="track-title">Premium Sound Experience</div>
+            <div class="track-artist">Phoenix Audio</div>
+          </div>
+          <div class="player-controls">
+            <button class="control-btn prev-track">
+              <i class="ri-skip-back-line"></i>
+            </button>
+            <button class="control-btn play-btn-main">
+              <i class="ri-play-fill"></i>
+            </button>
+            <button class="control-btn next-track">
+              <i class="ri-skip-forward-line"></i>
+            </button>
+          </div>
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill"></div>
+            </div>
+            <div class="time-display">
+              <span class="current-time">1:23</span>
+              <span class="total-time">3:45</span>
             </div>
           </div>
-        <% }) %>
-      <% } else { %>
-        <div class="col-12 text-center">
-          <p>No new arrivals available.</p>
         </div>
-      <% } %>
+        <div class="player-right">
+          <div class="equalizer">
+            <div class="eq-bar" style="--delay: 0s"></div>
+            <div class="eq-bar" style="--delay: 0.1s"></div>
+            <div class="eq-bar" style="--delay: 0.2s"></div>
+            <div class="eq-bar" style="--delay: 0.3s"></div>
+            <div class="eq-bar" style="--delay: 0.4s"></div>
+            <div class="eq-bar" style="--delay: 0.5s"></div>
+            <div class="eq-bar" style="--delay: 0.6s"></div>
+            <div class="eq-bar" style="--delay: 0.7s"></div>
+            <div class="eq-bar" style="--delay: 0.8s"></div>
+            <div class="eq-bar" style="--delay: 0.9s"></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-
-<!-- Newsletter (unchanged) -->
+<!-- Simple Newsletter Section -->
 <section class="newsletter-section">
   <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-lg-6 text-center">
-        <h2 class="fs-1 fw-bold mb-3">Join Our Audio Journey</h2>
-        <p class="text-white-50 mb-4">
-          Subscribe to receive curated headphone recommendations, brand spotlights, and exclusive offers.
-        </p>
-        <form class="d-flex flex-column flex-sm-row gap-3 mb-3 mx-auto" style="max-width: 500px">
-          <input type="email" class="form-control" placeholder="Your email address" style="border-radius: 0.5rem" />
-          <button type="submit" class="btn btn-light fw-medium" style="border-radius: 0.5rem; white-space: nowrap">
-            Subscribe
-          </button>
-        </form>
-        <p class="small text-white-50">
-          By subscribing, you agree to our Privacy Policy and consent to receive updates from Phoenix.
-        </p>
-      </div>
+    <div class="newsletter-content">
+      <h3 class="newsletter-title">Stay Updated</h3>
+      <p class="newsletter-text">
+        Get the latest headphone releases and exclusive offers
+      </p>
+      <form class="newsletter-form">
+        <input
+          type="email"
+          class="newsletter-input"
+          placeholder="Your email address"
+        />
+        <button type="submit" class="newsletter-btn">Subscribe</button>
+      </form>
     </div>
   </div>
 </section>
 
 <%- include("../partials/user/footer") %>
 
-<style>
-  .btn-wishlist-home {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
-    background-color: #fff;
-    color: #000;
-    border: 2px solid #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    cursor: pointer;
-  }
-
-  .btn-wishlist-home:hover {
-    background-color: #000;
-    color: #fff;
-  }
-
-  .btn-wishlist-home.wishlisted {
-    background-color: #dc3545;
-    border-color: #dc3545;
-    color: #fff;
-  }
-
-  .btn-wishlist-home.wishlisted:hover {
-    background-color: #c82333;
-    border-color: #c82333;
-  }
-</style>
-
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener("DOMContentLoaded", function () {
+    // Initialize AOS
+    if (typeof AOS !== "undefined") {
+      AOS.init({
+        duration: 800,
+        once: true,
+        offset: 100,
+      });
+    }
+
+    // Music player animation
+    const playBtnMain = document.querySelector(".play-btn-main");
+    const eqBars = document.querySelectorAll(".eq-bar");
+    const progressFill = document.querySelector(".progress-fill");
+    let isPlaying = false;
+    let progressInterval;
+
+    if (playBtnMain) {
+      playBtnMain.addEventListener("click", () => {
+        isPlaying = !isPlaying;
+        const icon = playBtnMain.querySelector("i");
+
+        if (isPlaying) {
+          icon.className = "ri-pause-fill";
+          eqBars.forEach((bar) => bar.classList.add("playing"));
+          startProgress();
+        } else {
+          icon.className = "ri-play-fill";
+          eqBars.forEach((bar) => bar.classList.remove("playing"));
+          stopProgress();
+        }
+      });
+    }
+
+    function startProgress() {
+      let progress = 0;
+      progressInterval = setInterval(() => {
+        progress += 0.5;
+        if (progress >= 100) {
+          progress = 0;
+        }
+        if (progressFill) {
+          progressFill.style.width = progress + "%";
+        }
+      }, 100);
+    }
+
+    function stopProgress() {
+      if (progressInterval) {
+        clearInterval(progressInterval);
+      }
+    }
+
     // Cart and Wishlist functionality
-    const cartCountElement = document.querySelector('.cart-count');
-    const wishlistCountElement = document.querySelector('.wishlist-count');
+    const cartCountElement = document.querySelector(".cart-count");
+    const wishlistCountElement = document.querySelector(".wishlist-count");
 
     // Add to cart functionality
-    document.querySelectorAll('.add-to-cart').forEach(button => {
-      button.addEventListener('click', async function() {
+    document.querySelectorAll(".add-to-cart").forEach((button) => {
+      button.addEventListener("click", async function () {
         const productId = this.dataset.productId;
 
         try {
-          const response = await fetch('/api/cart/add', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ productId, quantity: 1 })
+          const response = await fetch("/api/cart/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ productId, quantity: 1 }),
           });
 
-          // Handle both success and error responses
           const result = await response.json();
-          console.log('Response status:', response.status);
-          // Check if it's a 401 Unauthorized or authentication error
+
           if (response.status === 401 || !result.success) {
-            // Show authentication required message and redirect
             Swal.fire({
               toast: true,
-              position: 'top-end',
-              icon: 'error',
-              title: result.message || 'Please log in to add items to your cart',
+              position: "top-end",
+              icon: "error",
+              title:
+                result.message || "Please log in to add items to your cart",
               showConfirmButton: false,
-              timer: 2000
+              timer: 2000,
             }).then(() => {
-              window.location.href = '/login';
+              window.location.href = "/login";
             });
           } else if (result.success) {
             if (cartCountElement) {
@@ -208,97 +329,86 @@
 
             Swal.fire({
               toast: true,
-              position: 'top-end',
-              icon: 'success',
+              position: "top-end",
+              icon: "success",
               title: result.message,
               showConfirmButton: false,
-              timer: 1500
+              timer: 1500,
             });
           } else {
-            // Check if it's an authentication error
-            if (result.message === 'Please log in to add items to your cart' || result.requiresAuth) {
+            if (
+              result.message === "Please log in to add items to your cart" ||
+              result.requiresAuth
+            ) {
               Swal.fire({
                 toast: true,
-                position: 'top-end',
-                icon: 'error',
+                position: "top-end",
+                icon: "error",
                 title: result.message,
                 showConfirmButton: false,
-                timer: 2000
+                timer: 2000,
               }).then(() => {
-                window.location.href = '/login';
+                window.location.href = "/login";
               });
             } else {
               Swal.fire({
                 toast: true,
-                position: 'top-end',
-                icon: 'error',
+                position: "top-end",
+                icon: "error",
                 title: result.message,
                 showConfirmButton: false,
-                timer: 1500
+                timer: 1500,
               });
             }
           }
         } catch (error) {
           Swal.fire({
             toast: true,
-            position: 'top-end',
-            icon: 'error',
-            title: 'Error adding to cart',
+            position: "top-end",
+            icon: "error",
+            title: "Error adding to cart",
             showConfirmButton: false,
-            timer: 1500
+            timer: 1500,
           });
         }
       });
     });
 
     // Wishlist functionality
-    document.querySelectorAll('.btn-wishlist-home').forEach(button => {
-      button.addEventListener('click', async function() {
+    document.querySelectorAll(".btn-wishlist").forEach((button) => {
+      button.addEventListener("click", async function () {
         const productId = this.dataset.productId;
 
         try {
-          const response = await fetch('/api/wishlist/toggle', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ productId })
+          const response = await fetch("/api/wishlist/toggle", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ productId }),
           });
 
-          // Handle both success and error responses
           const result = await response.json();
-          console.log('Wishlist response status:', response.status);
-          console.log('Wishlist response result:', result);
 
-          // Check if it's a 401 Unauthorized or authentication error
           if (response.status === 401 || !result.success) {
-            // Debug logging
-            console.log('Wishlist authentication error detected');
-            console.log('Status:', response.status);
-            console.log('Result:', result);
-
-            // Show authentication required message and redirect
             Swal.fire({
               toast: true,
-              position: 'top-end',
-              icon: 'error',
-              title: result.message || 'Please log in to manage your wishlist',
+              position: "top-end",
+              icon: "error",
+              title: result.message || "Please log in to manage your wishlist",
               showConfirmButton: false,
-              timer: 2000
+              timer: 2000,
             }).then(() => {
-              console.log('Redirecting to login...');
-              window.location.href = '/login';
+              window.location.href = "/login";
             });
           } else if (result.success) {
-            // Update button appearance
-            const icon = this.querySelector('i');
+            const icon = this.querySelector("i");
             if (result.isWishlisted) {
-              icon.className = 'ri-heart-fill';
-              this.classList.add('wishlisted');
+              icon.className = "ri-heart-fill";
+              this.classList.add("wishlisted");
             } else {
-              icon.className = 'ri-heart-line';
-              this.classList.remove('wishlisted');
+              icon.className = "ri-heart-line";
+              this.classList.remove("wishlisted");
             }
 
-            // Update wishlist count
             if (wishlistCountElement) {
               wishlistCountElement.textContent = result.wishlistCount;
               wishlistCountElement.dataset.count = result.wishlistCount;
@@ -306,56 +416,49 @@
 
             Swal.fire({
               toast: true,
-              position: 'top-end',
-              icon: 'success',
+              position: "top-end",
+              icon: "success",
               title: result.message,
               showConfirmButton: false,
-              timer: 1500
+              timer: 1500,
             });
           } else {
-            // Debug logging
-            console.log('Wishlist error response:', result);
-            console.log('Message:', result.message);
-            console.log('RequiresAuth:', result.requiresAuth);
-
-            // Check if it's an authentication error
-            if (result.message === 'Please log in to manage your wishlist' || result.requiresAuth) {
-              console.log('Authentication required - redirecting to login');
+            if (
+              result.message === "Please log in to manage your wishlist" ||
+              result.requiresAuth
+            ) {
               Swal.fire({
                 toast: true,
-                position: 'top-end',
-                icon: 'error',
+                position: "top-end",
+                icon: "error",
                 title: result.message,
                 showConfirmButton: false,
-                timer: 2000
+                timer: 2000,
               }).then(() => {
-                console.log('Redirecting to login...');
-                window.location.href = '/login';
+                window.location.href = "/login";
               });
             } else {
-              console.log('Other error:', result.message);
               Swal.fire({
                 toast: true,
-                position: 'top-end',
-                icon: 'error',
+                position: "top-end",
+                icon: "error",
                 title: result.message,
                 showConfirmButton: false,
-                timer: 1500
+                timer: 1500,
               });
             }
           }
         } catch (error) {
           Swal.fire({
             toast: true,
-            position: 'top-end',
-            icon: 'error',
-            title: 'Error managing wishlist',
+            position: "top-end",
+            icon: "error",
+            title: "Error managing wishlist",
             showConfirmButton: false,
-            timer: 1500
+            timer: 1500,
           });
         }
       });
     });
   });
 </script>
-
