@@ -1,1055 +1,685 @@
 <%- include("../partials/user/header") %>
 
-<div class="container py-5">
-  <!-- Breadcrumbs -->
-  <nav aria-label="breadcrumb" class="mb-4">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="/">Home</a></li>
-      <li class="breadcrumb-item"><a href="/cart">Cart</a></li>
-      <li class="breadcrumb-item active" aria-current="page">Checkout</li>
-    </ol>
-  </nav>
+<!-- Checkout Styles -->
+<link rel="stylesheet" href="/styles/user/checkout.css" />
 
-  <!-- Checkout Progress -->
-  <div class="checkout-progress mb-5">
-    <div class="row">
-      <div class="col-3">
-        <div class="checkout-step active" data-step="1">
-          <div class="checkout-step-icon">
-            <i class="bi bi-cart-check"></i>
-          </div>
-          <div class="checkout-step-label">Review</div>
+<!-- Checkout Page -->
+<section class="checkout-page-section">
+  <div class="container">
+    <!-- Breadcrumb -->
+    <nav class="checkout-breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item"><a href="/cart">Cart</a></li>
+        <li class="breadcrumb-item active">Checkout</li>
+      </ol>
+    </nav>
+
+    <!-- Checkout Header -->
+    <div class="checkout-header">
+      <div class="checkout-header-content">
+        <div class="checkout-icon">
+          <i class="ri-secure-payment-line"></i>
         </div>
+        <h1 class="checkout-title">Secure Checkout</h1>
+        <p class="checkout-subtitle">Complete your order with confidence</p>
       </div>
-      <div class="col-3">
-        <div class="checkout-step" data-step="2">
-          <div class="checkout-step-icon">
-            <i class="bi bi-geo-alt"></i>
+    </div>
+
+    <!-- Checkout Progress -->
+    <div class="checkout-progress-container">
+      <div class="checkout-progress floating-card">
+        <div class="progress-steps">
+          <div class="progress-step active" data-step="1">
+            <div class="step-icon">
+              <i class="ri-shopping-cart-line"></i>
+            </div>
+            <div class="step-info">
+              <span class="step-number">1</span>
+              <span class="step-label">Review Cart</span>
+            </div>
           </div>
-          <div class="checkout-step-label">Address</div>
-        </div>
-      </div>
-      <div class="col-3">
-        <div class="checkout-step" data-step="3">
-          <div class="checkout-step-icon">
-            <i class="bi bi-credit-card"></i>
+          <div class="progress-line"></div>
+          <div class="progress-step" data-step="2">
+            <div class="step-icon">
+              <i class="ri-map-pin-line"></i>
+            </div>
+            <div class="step-info">
+              <span class="step-number">2</span>
+              <span class="step-label">Address</span>
+            </div>
           </div>
-          <div class="checkout-step-label">Payment</div>
-        </div>
-      </div>
-      <div class="col-3">
-        <div class="checkout-step" data-step="4">
-          <div class="checkout-step-icon">
-            <i class="bi bi-check-circle"></i>
+          <div class="progress-line"></div>
+          <div class="progress-step" data-step="3">
+            <div class="step-icon">
+              <i class="ri-bank-card-line"></i>
+            </div>
+            <div class="step-info">
+              <span class="step-number">3</span>
+              <span class="step-label">Payment</span>
+            </div>
           </div>
-          <div class="checkout-step-label">Confirm</div>
+          <div class="progress-line"></div>
+          <div class="progress-step" data-step="4">
+            <div class="step-icon">
+              <i class="ri-check-line"></i>
+            </div>
+            <div class="step-info">
+              <span class="step-number">4</span>
+              <span class="step-label">Confirm</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Checkout Content -->
-  <div class="row g-4">
-    <!-- Main Checkout Area -->
-    <div class="col-lg-8">
-      <div class="card border-0 shadow-sm mb-4">
+    <div class="row g-4">
+      <!-- Main Checkout Content -->
+      <div class="col-lg-8">
         <!-- Step 1: Cart Review -->
-        <div class="checkout-step-content active" id="step-1-content">
-          <div class="card-header bg-white p-4 border-0">
-            <h4 class="mb-0">Review Your Cart</h4>
+        <div class="checkout-step-content floating-card active" id="step-1-content">
+          <div class="step-header">
+            <h3 class="step-title">
+              <i class="ri-shopping-cart-line"></i>
+              Review Your Cart
+            </h3>
+            <p class="step-subtitle">Verify your items before proceeding</p>
           </div>
-          <div class="card-body p-4">
-            <div class="cart-items">
+          
+          <div class="step-body">
+            <div class="cart-items-review">
               <% if (cartItems && cartItems.length > 0) { %>
                 <% cartItems.forEach(item => { %>
-                <div class="cart-item d-flex flex-wrap py-3 border-bottom">
-                  <div class="cart-item-image me-3">
+                <div class="cart-review-item">
+                  <div class="item-image">
                     <img
-                      src="<%= item.product && item.product.mainImage ? item.product.mainImage : 'https://via.placeholder.com/80' %>"
+                      src="<%= item.product && item.product.mainImage ? item.product.mainImage : '/api/placeholder/80/80' %>"
                       alt="<%= item.product && item.product.model ? item.product.model : 'Product Image' %>"
-                      class="img-fluid rounded"
-                      width="80"
-                      height="80"
-                      onerror="this.src='https://via.placeholder.com/80'"
+                      onerror="this.src='/api/placeholder/80/80'"
                     />
                   </div>
-                  <div class="cart-item-details flex-grow-1">
-                    <h5 class="mb-1">
+                  <div class="item-details">
+                    <h4 class="item-name">
                       <%= item.product && item.product.model ? item.product.model : 'Unknown Product' %>
-                    </h5>
-                    <p class="text-muted mb-1">
-                      <% if (item.product && item.product.brand) { %>
-                        <small><%= item.product.brand %></small> | 
-                      <% } %>
-                      <% if (item.offerDiscount && item.offerDiscount > 0) { %>
-                        <span class="text-decoration-line-through">₹<%= item.originalPrice.toFixed(2) %></span>
-                        <span class="ms-2 text-success">₹<%= item.discountedPrice.toFixed(2) %></span>
-                        <span class="ms-2 badge bg-danger">
-                          <%= item.discountPercentage %>% OFF
-                        </span>
-                      <% } else { %>
-                        Price: ₹<%= item.priceAtAddition ? item.priceAtAddition.toFixed(2) : '0.00' %>
-                      <% } %>
-                      <span class="ms-2">× <%= item.quantity || 1 %></span>
-                    </p>
-                    <div class="d-flex flex-column">
-                      <% if (item.offerDiscount && item.offerDiscount > 0) { %>
-                        <div class="text-success small">
-                          <i class="bi bi-tag-fill me-1"></i>Offer Discount: -₹<%= item.offerDiscount.toFixed(2) %>
-                        </div>
-                      <% } %>
+                    </h4>
+                    <div class="item-meta">
+                      <span class="item-brand">
+                        <i class="ri-headphone-line"></i>
+                        <%= item.product && item.product.brand ? item.product.brand : 'Unknown Brand' %>
+                      </span>
+                      <span class="item-quantity">Qty: <%= item.quantity || 1 %></span>
                     </div>
-                    <%
-                      const itemTotal = item.discountedPrice * item.quantity;
-                      const proportion = appliedCoupon ? (itemTotal / subtotal) : 0;
-                      const couponShare = appliedCoupon ? Math.round((couponDiscount * proportion) * 100) / 100 : 0;
-                    %>
-                    <div class="d-flex justify-content-between align-items-center mt-2">
-                      <div class="text-muted small">
-                        <!-- <div>Offer Discount: -₹<%= item.offerDiscount ? item.offerDiscount.toFixed(2) : '0.00' %></div> -->
-                        <% if (appliedCoupon) { %>
-                          <div>
-                            Coupon (<%= appliedCoupon.code %>):
-                            -₹<%= couponShare.toFixed(2) %>
-                            (<%= (proportion * 100).toFixed(2) %>%)
-                          </div>
-                        <% } %>
+                    <% if (item.offerDiscount && item.offerDiscount > 0) { %>
+                      <div class="offer-info">
+                        <i class="ri-price-tag-3-line"></i>
+                        Offer Applied: <%= item.discountPercentage %>% OFF
                       </div>
-                      <div class="fw-medium">
-                        Final Price: ₹<%= (itemTotal - couponShare).toFixed(2) %>
-                      </div>
-                    </div>
+                    <% } %>
                   </div>
-                  <div class="cart-item-actions ms-auto mt-2 mt-md-0">
-                    <button
-                      class="btn btn-sm btn-outline-danger remove-item"
-                      data-product-id="<%= item.product ? item.product._id : '' %>"
-                    >
-                      <i class="bi bi-trash me-1"></i>Remove
+                  <div class="item-pricing">
+                    <% if (item.offerDiscount && item.offerDiscount > 0) { %>
+                      <div class="price-original">₹<%= item.originalPrice.toFixed(2) %></div>
+                      <div class="price-current">₹<%= (item.discountedPrice * item.quantity).toFixed(2) %></div>
+                    <% } else { %>
+                      <div class="price-current">₹<%= (item.priceAtAddition * item.quantity).toFixed(2) %></div>
+                    <% } %>
+                  </div>
+                  <div class="item-actions">
+                    <button class="btn-remove-item" data-product-id="<%= item.product ? item.product._id : '' %>">
+                      <i class="ri-delete-bin-line"></i>
                     </button>
                   </div>
                 </div>
                 <% }) %>
               <% } else { %>
-                <div class="alert alert-info text-center">
-                  Your cart is empty. <a href="/shopPage">Continue shopping</a>.
+                <div class="empty-cart-message">
+                  <div class="empty-icon">
+                    <i class="ri-shopping-cart-line"></i>
+                  </div>
+                  <h4>Your cart is empty</h4>
+                  <p>Add some items to proceed with checkout</p>
+                  <a href="/shopPage" class="btn-continue-shopping">
+                    <i class="ri-arrow-left-line"></i>
+                    Continue Shopping
+                  </a>
                 </div>
               <% } %>
+            </div>
 
-              <!-- Coupon Code -->
-              <div class="mt-4">
-                <div id="couponInputSection" class="<%= appliedCoupon ? 'd-none' : '' %>">
-                  <div class="d-flex flex-wrap gap-2">
-                    <div class="flex-grow-1">
-                      <div class="input-group">
-                        <input
-                          type="text"
-                          class="form-control"
-                          placeholder="Enter coupon code"
-                          id="couponCode"
-                        />
-                        <button
-                          class="btn btn-dark"
-                          type="button"
-                          id="applyCoupon"
-                        >
-                          Apply
-                        </button>
-                      </div>
-                    </div>
-                    <button
-                      class="btn btn-outline-secondary"
-                      type="button"
-                      data-bs-toggle="modal"
-                      data-bs-target="#availableCouponsModal"
-                    >
-                      <i class="bi bi-ticket-perforated me-1"></i>View Coupons
-                    </button>
-                  </div>
+            <!-- Coupon Section -->
+            <% if (cartItems && cartItems.length > 0) { %>
+            <div class="coupon-section">
+              <div class="coupon-header">
+                <h4>
+                  <i class="ri-coupon-line"></i>
+                  Apply Coupon
+                </h4>
+              </div>
+              
+              <div id="couponInputSection" class="<%= appliedCoupon ? 'd-none' : '' %>">
+                <div class="coupon-input-group">
+                  <input
+                    type="text"
+                    class="coupon-input"
+                    placeholder="Enter coupon code"
+                    id="couponCode"
+                  />
+                  <button class="btn-apply-coupon" id="applyCoupon">
+                    Apply
+                  </button>
                 </div>
+                <button class="btn-view-coupons" data-bs-toggle="modal" data-bs-target="#availableCouponsModal">
+                  <i class="ri-eye-line"></i>
+                  View Available Coupons
+                </button>
+              </div>
 
-                <!-- Applied Coupon Section -->
-                <div id="appliedCouponSection" class="mt-3 <%= !appliedCoupon ? 'd-none' : '' %>">
-                  <div class="alert alert-success d-flex align-items-center">
-                    <i class="bi bi-ticket-perforated-fill me-2"></i>
-                    <div class="flex-grow-1">
-                      Coupon <strong id="appliedCouponCode"><%= appliedCoupon ? appliedCoupon.code : '' %></strong> applied!
-                      <span class="d-block small">
+              <div id="appliedCouponSection" class="applied-coupon <%= !appliedCoupon ? 'd-none' : '' %>">
+                <div class="coupon-success">
+                  <div class="coupon-info">
+                    <i class="ri-coupon-fill"></i>
+                    <div>
+                      <span class="coupon-code" id="appliedCouponCode">
+                        <%= appliedCoupon ? appliedCoupon.code : '' %>
+                      </span>
+                      <span class="coupon-desc">
                         <%= appliedCoupon ? (appliedCoupon.discountType === 'percentage' ? `${appliedCoupon.discountValue}% off` : `₹${appliedCoupon.discountValue} off`) : '' %>
                       </span>
                     </div>
-                    <button id="removeCoupon" class="btn btn-sm btn-outline-dark">
-                      <i class="bi bi-x"></i> Remove
-                    </button>
                   </div>
+                  <button class="btn-remove-coupon" id="removeCoupon">
+                    <i class="ri-close-line"></i>
+                  </button>
                 </div>
               </div>
             </div>
+            <% } %>
           </div>
-          <div
-            class="card-footer bg-white p-4 border-0 d-flex justify-content-between"
-          >
-            <a href="/cart" class="btn btn-outline-dark">
-              <i class="bi bi-arrow-left me-2"></i>Back to Cart
+
+          <div class="step-footer">
+            <a href="/cart" class="btn-secondary">
+              <i class="ri-arrow-left-line"></i>
+              Back to Cart
             </a>
             <% if (cartItems && cartItems.length > 0) { %>
-            <button class="btn btn-dark next-step" data-next="2">
-              Continue to Address<i class="bi bi-arrow-right ms-2"></i>
-            </button>
-            <% } else { %>
-            <button class="btn btn-dark" disabled>
-              Continue to Address<i class="bi bi-arrow-right ms-2"></i>
+            <button class="btn-primary next-step" data-next="2">
+              Continue to Address
+              <i class="ri-arrow-right-line"></i>
             </button>
             <% } %>
           </div>
         </div>
 
         <!-- Step 2: Address Selection -->
-        <div class="checkout-step-content" id="step-2-content">
-          <div class="card-header bg-white p-4 border-0">
-            <h4 class="mb-0">Select Delivery Address</h4>
+        <div class="checkout-step-content floating-card" id="step-2-content">
+          <div class="step-header">
+            <h3 class="step-title">
+              <i class="ri-map-pin-line"></i>
+              Delivery Address
+            </h3>
+            <p class="step-subtitle">Choose where to deliver your order</p>
           </div>
-          <div class="card-body p-4">
-            <div class="row g-3" id="addressSelectionContainer">
-              <% if (addresses && addresses.length > 0) { %> <%
-              addresses.forEach((address, index) => { %>
-              <div class="col-md-6" data-address-id="<%= address._id %>">
-                <div
-                  class="card h-100 border shadow-sm address-card <%= index === 0 ? 'selected' : '' %>"
-                >
-                  <div class="card-body position-relative">
-                    <% if (address.isDefault) { %>
-                    <span
-                      class="badge bg-success position-absolute end-0 top-0 mt-3 me-3"
-                      >Default</span
-                    >
-                    <% } %>
-                    <div
-                      class="form-check position-absolute start-0 top-0 mt-3 ms-3"
-                    >
-                      <input class="form-check-input" type="radio"
-                      name="selectedAddress" id="address<%= address._id %>"
-                      value="<%= address._id %>" <%= index === 0 ? 'checked' :
-                      '' %> >
-                      <label
-                        class="form-check-label"
-                        for="address<%= address._id %>"
-                      ></label>
+          
+          <div class="step-body">
+            <div class="addresses-grid" id="addressSelectionContainer">
+              <% if (addresses && addresses.length > 0) { %>
+                <% addresses.forEach((address, index) => { %>
+                <div class="address-option" data-address-id="<%= address._id %>">
+                  <div class="address-card <%= index === 0 ? 'selected' : '' %>">
+                    <div class="address-radio">
+                      <input
+                        type="radio"
+                        name="selectedAddress"
+                        id="address<%= address._id %>"
+                        value="<%= address._id %>"
+                        <%= index === 0 ? 'checked' : '' %>
+                      />
+                      <label for="address<%= address._id %>"></label>
                     </div>
-                    <div class="ps-4">
-                      <h5 class="mb-3"><%= address.fullName %></h5>
-                      <p class="mb-1"><%= address.street %></p>
-                      <p class="mb-1">
-                        <%= address.district %>, <%= address.state %> - <%=
-                        address.pincode %>
-                      </p>
-                      <% if (address.landmark) { %>
-                      <p class="mb-1">Landmark: <%= address.landmark %></p>
-                      <% } %>
-                      <p class="mb-3">Phone: <%= address.phone %></p>
+                    <% if (address.isDefault) { %>
+                      <span class="default-badge">Default</span>
+                    <% } %>
+                    <div class="address-content">
+                      <h5 class="address-name"><%= address.fullName %></h5>
+                      <div class="address-details">
+                        <p><%= address.street %></p>
+                        <p><%= address.district %>, <%= address.state %> - <%= address.pincode %></p>
+                        <% if (address.landmark) { %>
+                          <p>Landmark: <%= address.landmark %></p>
+                        <% } %>
+                        <div class="address-phone">
+                          <i class="ri-phone-line"></i>
+                          <%= address.phone %>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <% }) %> <% } else { %>
-              <div class="col-12 text-center py-5">
-                <div class="mb-4">
-                  <i
-                    class="bi bi-geo-alt-fill text-muted"
-                    style="font-size: 3rem"
-                  ></i>
-                </div>
-                <h5 class="text-muted mb-3">No addresses found</h5>
-                <p class="text-muted mb-4">
-                  Please add a delivery address to proceed.
-                </p>
-              </div>
+                <% }) %>
               <% } %>
-
-              <!-- Add New Address Card -->
-              <div class="col-md-6">
-                <div
-                  class="card h-100 border shadow-sm address-card add-address"
-                  data-bs-toggle="modal"
-                  data-bs-target="#addAddressModal"
-                >
-                  <div
-                    class="card-body d-flex flex-column align-items-center justify-content-center text-center p-4"
-                  >
-                    <div class="add-address-icon mb-3">
-                      <i class="bi bi-plus-circle"></i>
-                    </div>
-                    <h5 class="mb-2">Add New Address</h5>
-                    <p class="text-muted mb-0">
-                      Add a new delivery address for your order
-                    </p>
+              
+              <!-- Add New Address -->
+              <div class="address-option add-new">
+                <div class="add-address-card" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+                  <div class="add-address-icon">
+                    <i class="ri-add-line"></i>
+                  </div>
+                  <div class="add-address-text">
+                    <h5>Add New Address</h5>
+                    <p>Add a new delivery address</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div
-            class="card-footer bg-white p-4 border-0 d-flex justify-content-between"
-          >
-            <button class="btn btn-outline-dark prev-step" data-prev="1">
-              <i class="bi bi-arrow-left me-2"></i>Back to Cart
+
+          <div class="step-footer">
+            <button class="btn-secondary prev-step" data-prev="1">
+              <i class="ri-arrow-left-line"></i>
+              Back to Cart
             </button>
-            <button
-              class="btn btn-dark next-step"
-              data-next="3"
-              id="continueToPaymentBtn"
-            >
-              Continue to Payment<i class="bi bi-arrow-right ms-2"></i>
+            <button class="btn-primary next-step" data-next="3" id="continueToPaymentBtn">
+              Continue to Payment
+              <i class="ri-arrow-right-line"></i>
             </button>
           </div>
         </div>
 
         <!-- Step 3: Payment Method -->
-        <div class="checkout-step-content" id="step-3-content">
-          <div class="card-header bg-white p-4 border-0">
-            <h4 class="mb-0">Select Payment Method</h4>
+        <div class="checkout-step-content floating-card" id="step-3-content">
+          <div class="step-header">
+            <h3 class="step-title">
+              <i class="ri-bank-card-line"></i>
+              Payment Method
+            </h3>
+            <p class="step-subtitle">Choose your preferred payment option</p>
           </div>
-          <div class="card-body p-4">
+          
+          <div class="step-body">
             <div class="payment-methods">
-              <div class="accordion" id="paymentAccordion">
-                <!-- Razorpay Payment -->
-                <div class="accordion-item border mb-3 rounded">
-                  <h2 class="accordion-header">
-                    <button
-                      class="accordion-button"
-                      type="button"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#razorpayPayment"
-                      aria-expanded="true"
-                      aria-controls="razorpayPayment"
-                    >
-                      <div class="d-flex align-items-center">
-                        <div class="payment-icon me-3">
-                          <i class="bi bi-credit-card-2-front"></i>
-                        </div>
-                        <div>
-                          <span class="fw-medium">Pay Online</span>
-                          <small class="d-block text-muted"
-                            >Pay using Razorpay's secure payment gateway</small
-                          >
-                        </div>
-                      </div>
-                    </button>
-                  </h2>
-                  <div
-                    id="razorpayPayment"
-                    class="accordion-collapse collapse show"
-                    data-bs-parent="#paymentAccordion"
-                  >
-                    <div class="accordion-body">
-                      <div
-                        class="alert alert-info d-flex align-items-center"
-                        role="alert"
-                      >
-                        <i class="bi bi-info-circle-fill me-2"></i>
-                        <div>
-                          You will be redirected to Razorpay's secure payment gateway to complete your payment.
-                        </div>
-                      </div>
-                      <div class="payment-options mt-4">
-                        <p class="mb-3">Accepted payment methods:</p>
-                        <div class="d-flex flex-wrap gap-3 mb-3">
-                          <div class="payment-option">
-                            <img
-                              src="/api/placeholder/60/40?query=visa"
-                              alt="Visa"
-                              class="img-fluid"
-                            />
-                          </div>
-                          <div class="payment-option">
-                            <img
-                              src="/api/placeholder/60/40?query=mastercard"
-                              alt="Mastercard"
-                              class="img-fluid"
-                            />
-                          </div>
-                          <div class="payment-option">
-                            <img
-                              src="/api/placeholder/60/40?query=rupay"
-                              alt="RuPay"
-                              class="img-fluid"
-                            />
-                          </div>
-                          <div class="payment-option">
-                            <img
-                              src="/api/placeholder/60/40?query=upi"
-                              alt="UPI"
-                              class="img-fluid"
-                            />
-                          </div>
-                          <div class="payment-option">
-                            <img
-                              src="/api/placeholder/60/40?query=netbanking"
-                              alt="Netbanking"
-                              class="img-fluid"
-                            />
-                          </div>
-                        </div>
-
-                      </div>
+              <!-- Online Payment -->
+              <div class="payment-option">
+                <div class="payment-card" data-payment="razorpay">
+                  <div class="payment-radio">
+                    <input type="radio" name="paymentMethod" id="razorpay" value="razorpay" checked />
+                    <label for="razorpay"></label>
+                  </div>
+                  <div class="payment-icon">
+                    <i class="ri-bank-card-line"></i>
+                  </div>
+                  <div class="payment-info">
+                    <h5>Pay Online</h5>
+                    <p>Secure payment via Razorpay</p>
+                    <div class="payment-badges">
+                      <span class="payment-badge">Cards</span>
+                      <span class="payment-badge">UPI</span>
+                      <span class="payment-badge">Netbanking</span>
                     </div>
                   </div>
                 </div>
+                <div class="payment-details">
+                  <div class="security-info">
+                    <i class="ri-shield-check-line"></i>
+                    <span>256-bit SSL secured</span>
+                  </div>
+                </div>
+              </div>
 
+              <!-- Cash on Delivery -->
+              <div class="payment-option <%= !isCodEligible ? 'disabled' : '' %>">
+                <div class="payment-card" data-payment="cod">
+                  <div class="payment-radio">
+                    <input type="radio" name="paymentMethod" id="cod" value="cod" <%= !isCodEligible ? 'disabled' : '' %> />
+                    <label for="cod"></label>
+                  </div>
+                  <div class="payment-icon">
+                    <i class="ri-hand-coin-line"></i>
+                  </div>
+                  <div class="payment-info">
+                    <h5>Cash on Delivery</h5>
+                    <% if (isCodEligible) { %>
+                      <p>Pay when your order arrives</p>
+                    <% } else { %>
+                      <p class="text-danger">Not available for orders above ₹1,000</p>
+                    <% } %>
+                  </div>
+                </div>
+                <% if (!isCodEligible) { %>
+                  <div class="payment-details">
+                    <div class="warning-info">
+                      <i class="ri-information-line"></i>
+                      <span>Your order total is ₹<%= totalAmount ? totalAmount.toFixed(2) : '0.00' %></span>
+                    </div>
+                  </div>
+                <% } %>
+              </div>
 
-
-
-
-                <!-- Cash on Delivery -->
-                <div class="accordion-item border mb-3 rounded <%= !isCodEligible ? 'opacity-50' : '' %>">
-                  <h2 class="accordion-header">
-                    <button
-                      class="accordion-button collapsed"
-                      type="button"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#codPayment"
-                      aria-expanded="false"
-                      aria-controls="codPayment"
-                      <%= !isCodEligible ? 'disabled' : '' %>
-                    >
-                      <div class="d-flex align-items-center">
-                        <div class="payment-icon me-3">
-                          <i class="bi bi-cash"></i>
-                        </div>
-                        <div>
-                          <span class="fw-medium">Cash on Delivery</span>
-                          <% if (isCodEligible) { %>
-                            <small class="d-block text-muted">Pay when your order is delivered</small>
-                          <% } else { %>
-                            <small class="d-block text-danger">Not available for orders above ₹1,000</small>
-                          <% } %>
-                        </div>
-                      </div>
-                    </button>
-                  </h2>
-                  <% if (isCodEligible) { %>
-                    <div
-                      id="codPayment"
-                      class="accordion-collapse collapse"
-                      data-bs-parent="#paymentAccordion"
-                    >
-                      <div class="accordion-body">
-                        <div
-                          class="alert alert-info d-flex align-items-center"
-                          role="alert"
-                        >
-                          <i class="bi bi-info-circle-fill me-2"></i>
-                          <div>
-                            You will pay ₹<%= totalAmount ? totalAmount.toFixed(2)
-                            : '0.00' %> when your order is delivered. Please keep
-                            exact change ready.
-                          </div>
-                        </div>
-
-                      </div>
+              <!-- Wallet -->
+              <div class="payment-option <%= !isWalletEligible ? 'disabled' : '' %>">
+                <div class="payment-card" data-payment="wallet">
+                  <div class="payment-radio">
+                    <input type="radio" name="paymentMethod" id="wallet" value="wallet" <%= !isWalletEligible ? 'disabled' : '' %> />
+                    <label for="wallet"></label>
+                  </div>
+                  <div class="payment-icon">
+                    <i class="ri-wallet-line"></i>
+                  </div>
+                  <div class="payment-info">
+                    <h5>Wallet Balance</h5>
+                    <% if (isWalletEligible) { %>
+                      <p>Available: ₹<%= walletBalance ? walletBalance.toFixed(2) : '0.00' %></p>
+                    <% } else { %>
+                      <p class="text-danger">Insufficient balance</p>
+                    <% } %>
+                  </div>
+                </div>
+                <div class="payment-details">
+                  <% if (isWalletEligible) { %>
+                    <div class="success-info">
+                      <i class="ri-check-line"></i>
+                      <span>Remaining: ₹<%= (walletBalance - totalAmount).toFixed(2) %></span>
                     </div>
                   <% } else { %>
-                    <div
-                      id="codPayment"
-                      class="accordion-collapse collapse"
-                      data-bs-parent="#paymentAccordion"
-                    >
-                      <div class="accordion-body">
-                        <div
-                          class="alert alert-warning d-flex align-items-center"
-                          role="alert"
-                        >
-                          <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                          <div>
-                            <strong>Cash on Delivery is not available for orders above ₹1,000.</strong>
-                            <br>
-                            Your order total is ₹<%= totalAmount ? totalAmount.toFixed(2) : '0.00' %>.
-                            Please choose an online payment method to proceed.
-                          </div>
-                        </div>
-                        <div class="mt-3">
-                          <p class="mb-2 fw-medium">Available payment options:</p>
-                          <ul class="list-unstyled mb-0">
-                            <li class="mb-1"><i class="bi bi-credit-card-2-front me-2 text-primary"></i>Pay Online (Recommended)</li>
-                            <li class="mb-1"><i class="bi bi-wallet2 me-2 text-warning"></i>Wallet</li>
-                          </ul>
-                        </div>
-                      </div>
+                    <div class="warning-info">
+                      <i class="ri-information-line"></i>
+                      <span>Need ₹<%= totalAmount ? (totalAmount - walletBalance).toFixed(2) : '0.00' %> more</span>
                     </div>
                   <% } %>
-                </div>
-
-                <!-- Wallet -->
-                <div class="accordion-item border mb-3 rounded <%= !isWalletEligible ? 'opacity-50' : '' %>">
-                  <h2 class="accordion-header">
-                    <button
-                      class="accordion-button collapsed"
-                      type="button"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#walletPayment"
-                      aria-expanded="false"
-                      aria-controls="walletPayment"
-                      <%= !isWalletEligible ? 'disabled' : '' %>
-                    >
-                      <div class="d-flex align-items-center">
-                        <div class="payment-icon me-3">
-                          <i class="bi bi-wallet2"></i>
-                        </div>
-                        <div>
-                          <span class="fw-medium">Wallet</span>
-                          <% if (isWalletEligible) { %>
-                            <small class="d-block text-muted">Pay using your wallet balance</small>
-                          <% } else { %>
-                            <small class="d-block text-danger">Insufficient wallet balance</small>
-                          <% } %>
-                        </div>
-                      </div>
-                    </button>
-                  </h2>
-                  <div
-                    id="walletPayment"
-                    class="accordion-collapse collapse"
-                    data-bs-parent="#paymentAccordion"
-                  >
-                    <div class="accordion-body">
-                      <div
-                        class="d-flex justify-content-between align-items-center mb-3"
-                      >
-                        <div>
-                          <h6 class="mb-1">Available Balance</h6>
-                          <h5 class="mb-0 fw-bold" id="walletBalanceDisplay">₹<%= walletBalance ? walletBalance.toFixed(2) : '0.00' %></h5>
-                        </div>
-                        <small class="text-muted">
-                          <i class="bi bi-info-circle me-1"></i>
-                          Credited via refunds & referrals
-                        </small>
-                      </div>
-
-                      <% if (isWalletEligible) { %>
-                        <!-- Sufficient balance -->
-                        <div class="alert alert-success d-flex align-items-center" role="alert">
-                          <i class="bi bi-check-circle-fill me-2"></i>
-                          <div>
-                            <strong>Great! You have sufficient balance.</strong>
-                            <br>
-                            Order Total: ₹<%= totalAmount ? totalAmount.toFixed(2) : '0.00' %>
-                            <br>
-                            Remaining Balance: ₹<%= (walletBalance - totalAmount).toFixed(2) %>
-                          </div>
-                        </div>
-
-                      <% } else { %>
-                        <!-- Insufficient balance -->
-                        <div class="alert alert-warning d-flex align-items-center" role="alert">
-                          <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                          <div>
-                            <strong>Insufficient wallet balance.</strong>
-                            <br>
-                            Order Total: ₹<%= totalAmount ? totalAmount.toFixed(2) : '0.00' %>
-                            <br>
-                            You need ₹<%= totalAmount ? (totalAmount - walletBalance).toFixed(2) : '0.00' %> more to complete this order.
-                          </div>
-                        </div>
-                        <div class="mt-3">
-                          <p class="mb-2 fw-medium">Options:</p>
-                          <ul class="list-unstyled mb-0">
-                            <li class="mb-1"><i class="bi bi-plus-circle me-2 text-primary"></i><a href="/wallet" class="text-decoration-none">Add money to wallet</a></li>
-                            <li class="mb-1"><i class="bi bi-credit-card-2-front me-2 text-success"></i>Pay Online (Recommended)</li>
-                            <% if (isCodEligible) { %>
-                              <li class="mb-1"><i class="bi bi-cash me-2 text-warning"></i>Cash on Delivery</li>
-                            <% } %>
-                          </ul>
-                        </div>
-                      <% } %>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <div
-            class="card-footer bg-white p-4 border-0 d-flex justify-content-between"
-          >
-            <button class="btn btn-outline-dark prev-step" data-prev="2">
-              <i class="bi bi-arrow-left me-2"></i>Back to Address
+
+          <div class="step-footer">
+            <button class="btn-secondary prev-step" data-prev="2">
+              <i class="ri-arrow-left-line"></i>
+              Back to Address
             </button>
-            <button class="btn btn-dark next-step" data-next="4">
-              Review Order<i class="bi bi-arrow-right ms-2"></i>
+            <button class="btn-primary next-step" data-next="4">
+              Review Order
+              <i class="ri-arrow-right-line"></i>
             </button>
           </div>
         </div>
 
         <!-- Step 4: Order Confirmation -->
-        <div class="checkout-step-content" id="step-4-content">
-          <div class="card-header bg-white p-4 border-0">
-            <h4 class="mb-0">Review & Confirm Order</h4>
+        <div class="checkout-step-content floating-card" id="step-4-content">
+          <div class="step-header">
+            <h3 class="step-title">
+              <i class="ri-check-line"></i>
+              Review & Confirm
+            </h3>
+            <p class="step-subtitle">Final review before placing your order</p>
           </div>
-          <div class="card-body p-4">
-            <div class="order-summary">
-              <!-- Delivery Address -->
-              <div class="order-section mb-4">
-                <div
-                  class="d-flex justify-content-between align-items-center mb-3"
-                >
-                  <h5 class="mb-0">Delivery Address</h5>
-                  <button
-                    class="btn btn-sm btn-link text-dark p-0"
-                    data-step="2"
-                  >
-                    Change
-                  </button>
+          
+          <div class="step-body">
+            <!-- Order Summary Sections -->
+            <div class="order-review-sections">
+              <!-- Address Summary -->
+              <div class="review-section">
+                <div class="review-header">
+                  <h4>
+                    <i class="ri-map-pin-line"></i>
+                    Delivery Address
+                  </h4>
+                  <button class="btn-change" data-step="2">Change</button>
                 </div>
-                <div class="card border" id="selectedAddressSummary">
-                  <!-- Dynamically populated via JavaScript -->
+                <div class="review-content" id="selectedAddressSummary">
+                  <!-- Populated by JavaScript -->
                 </div>
               </div>
 
-              <!-- Payment Method -->
-              <div class="order-section mb-4">
-                <div
-                  class="d-flex justify-content-between align-items-center mb-3"
-                >
-                  <h5 class="mb-0">Payment Method</h5>
-                  <button
-                    class="btn btn-sm btn-link text-dark p-0"
-                    data-step="3"
-                  >
-                    Change
-                  </button>
+              <!-- Payment Summary -->
+              <div class="review-section">
+                <div class="review-header">
+                  <h4>
+                    <i class="ri-bank-card-line"></i>
+                    Payment Method
+                  </h4>
+                  <button class="btn-change" data-step="3">Change</button>
                 </div>
-                <div class="card border" id="paymentMethodSummary">
-                  <div class="card-body">
-                    <div class="d-flex align-items-center">
-                      <div class="payment-icon me-3">
-                        <i class="bi bi-cash"></i>
-                      </div>
-                      <div>
-                        <h6 class="mb-1" id="paymentMethodText">Cash on Delivery</h6>
-                        <p class="mb-0 text-muted" id="paymentMethodDetails">Pay when your order is delivered</p>
-                      </div>
-                    </div>
-                  </div>
+                <div class="review-content" id="paymentMethodSummary">
+                  <!-- Populated by JavaScript -->
                 </div>
               </div>
 
-              <!-- Order Items -->
-              <div class="order-section mb-4">
-                <div
-                  class="d-flex justify-content-between align-items-center mb-3"
-                >
-                  <h5 class="mb-0">
+              <!-- Items Summary -->
+              <div class="review-section">
+                <div class="review-header">
+                  <h4>
+                    <i class="ri-shopping-cart-line"></i>
                     Order Items (<%= cartItems ? cartItems.length : 0 %>)
-                  </h5>
-                  <button
-                    class="btn btn-sm btn-link text-dark p-0"
-                    data-step="1"
-                  >
-                    Change
-                  </button>
+                  </h4>
+                  <button class="btn-change" data-step="1">Change</button>
                 </div>
-                <div class="card border">
-                  <div class="card-body p-0">
-                    <div class="list-group list-group-flush">
-                      <% if (cartItems && cartItems.length > 0) { %>
-                        <% cartItems.forEach(item => { %>
-                        <div class="list-group-item py-3">
-                          <div class="d-flex">
-                            <div class="flex-shrink-0 me-3">
-                              <img
-                                src="<%= item.product && item.product.mainImage ? item.product.mainImage : 'https://via.placeholder.com/60' %>"
-                                alt="<%= item.product && item.product.model ? item.product.model : 'Product Image' %>"
-                                class="img-fluid rounded"
-                                width="60"
-                                height="60"
-                                onerror="this.src='https://via.placeholder.com/60'"
-                              />
-                            </div>
-                            <div class="flex-grow-1">
-                              <h6 class="mb-1">
-                                <%= item.product && item.product.model ? item.product.model : 'Unknown Product' %>
-                              </h6>
-                              <p class="text-muted mb-1 small">
-                                <% if (item.offerDiscount && item.offerDiscount > 0) { %>
-                                  <span class="text-decoration-line-through">₹<%= item.originalPrice.toFixed(2) %></span>
-                                  <span class="ms-2 text-success">₹<%= item.discountedPrice.toFixed(2) %></span>
-                                <% } else { %>
-                                  Price: ₹<%= item.priceAtAddition ? item.priceAtAddition.toFixed(2) : '0.00' %>
-                                <% } %>
-                                <span class="ms-2">× <%= item.quantity || 1 %></span>
-                              </p>
-                              <div class="d-flex flex-column">
-                                <% if (item.offerDiscount && item.offerDiscount > 0) { %>
-                                  <div class="text-success small">
-                                    <i class="bi bi-tag-fill me-1"></i>Offer Discount: -₹<%= item.offerDiscount.toFixed(2) %>
-                                  </div>
-                                <% } %>
-                              </div>
-                              <%
-                                const itemTotal = item.discountedPrice * item.quantity;
-                                const proportion = appliedCoupon ? (itemTotal / subtotal) : 0;
-                                const couponShare = appliedCoupon ? Math.round((couponDiscount * proportion) * 100) / 100 : 0;
-                              %>
-                              <div class="d-flex justify-content-between align-items-center mt-2">
-                                <div class="text-muted small">
-                                  <div>Offer Discount: -₹<%= item.offerDiscount ? item.offerDiscount.toFixed(2) : '0.00' %></div>
-                                  <% if (appliedCoupon) { %>
-                                    <div>
-                                      Coupon (<%= appliedCoupon.code %>):
-                                      <% const itemTotal = item.discountedPrice * item.quantity; %>
-                                      <% const proportion = itemTotal / subtotal; %>
-                                      <% const couponShare = Math.round((couponDiscount * proportion) * 100) / 100; %>
-                                      -₹<%= couponShare.toFixed(2) %>
-                                      (<%= (proportion * 100).toFixed(2) %>%)
-                                    </div>
-                                  <% } %>
-                                </div>
-                                <div class="fw-medium">
-                                  Final Price: ₹<%= ((item.discountedPrice * item.quantity) - (couponShare || 0)).toFixed(2) %>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                <div class="review-content">
+                  <div class="items-summary">
+                    <% if (cartItems && cartItems.length > 0) { %>
+                      <% cartItems.forEach(item => { %>
+                      <div class="summary-item">
+                        <div class="summary-item-image">
+                          <img
+                            src="<%= item.product && item.product.mainImage ? item.product.mainImage : '/api/placeholder/60/60' %>"
+                            alt="<%= item.product && item.product.model ? item.product.model : 'Product Image' %>"
+                          />
                         </div>
-                        <% }) %>
-                      <% } else { %>
-                        <div class="list-group-item py-3">
-                          <p class="text-muted mb-0">No items in cart</p>
+                        <div class="summary-item-details">
+                          <h6><%= item.product && item.product.model ? item.product.model : 'Unknown Product' %></h6>
+                          <p>Qty: <%= item.quantity || 1 %> × ₹<%= item.discountedPrice ? item.discountedPrice.toFixed(2) : '0.00' %></p>
                         </div>
-                      <% } %>
-                    </div>
+                        <div class="summary-item-price">
+                          ₹<%= ((item.discountedPrice || 0) * (item.quantity || 1)).toFixed(2) %>
+                        </div>
+                      </div>
+                      <% }) %>
+                    <% } %>
                   </div>
                 </div>
               </div>
-
-
             </div>
           </div>
-          <div
-            class="card-footer bg-white p-4 border-0 d-flex justify-content-between"
-          >
-            <button class="btn btn-outline-dark prev-step" data-prev="3">
-              <i class="bi bi-arrow-left me-2"></i>Back to Payment
+
+          <div class="step-footer">
+            <button class="btn-secondary prev-step" data-prev="3">
+              <i class="ri-arrow-left-line"></i>
+              Back to Payment
             </button>
-            <button class="btn btn-success" id="placeOrderBtn">
-              <i class="bi bi-bag-check me-2"></i>Place Order
+            <button class="btn-place-order" id="placeOrderBtn">
+              <i class="ri-secure-payment-line"></i>
+              Place Order
             </button>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Order Summary Sidebar -->
-    <div class="col-lg-4">
-      <div
-        class="card border-0 shadow-sm mb-4 sticky-lg-top"
-        style="top: 20px; z-index: 1"
-      >
-        <div class="card-header bg-white p-4 border-0">
-          <h4 class="mb-0">Order Summary</h4>
-        </div>
-        <div class="card-body p-4">
-          <div class="summary-item d-flex justify-content-between mb-3">
-            <span class="text-muted">Subtotal (<%= cartItems ? cartItems.length : 0 %> items)</span>
-            <span class="fw-medium" id="subtotal" data-value="<%= originalSubtotal %>" data-after-offers="<%= subtotal %>">₹<%= originalSubtotal ? originalSubtotal.toFixed(2) : '0.00' %></span>
+      <!-- Order Summary Sidebar -->
+      <div class="col-lg-4">
+        <div class="order-summary-sidebar floating-card" id="orderSummary">
+          <div class="summary-header">
+            <h3>
+              <i class="ri-file-list-3-line"></i>
+              Order Summary
+            </h3>
           </div>
-
-          <% if (offerDiscount && offerDiscount > 0) { %>
-          <div class="summary-item d-flex justify-content-between mb-3">
-            <span class="text-muted">Offer Discount</span>
-            <span class="fw-medium text-success">-₹<%= offerDiscount.toFixed(2) %></span>
-          </div>
-          <% } %>
-
-          <!-- Applied Coupon Section -->
-          <div id="appliedCouponSection" class="summary-item d-flex justify-content-between mb-3 <%= !appliedCoupon ? 'd-none' : '' %>">
-            <span class="text-muted d-flex align-items-center">
-              <i class="bi bi-ticket-perforated-fill me-2"></i>
-              Coupon: <span id="appliedCouponCode" class="ms-1 fw-medium"><%= appliedCoupon ? appliedCoupon.code : '' %></span>
-              <button id="removeCoupon" class="btn btn-sm text-danger p-0 ms-2" style="font-size: 0.8rem;">
-                <i class="bi bi-x-circle"></i> Remove
-              </button>
-            </span>
-            <span class="fw-medium text-success" id="couponDiscount">-₹<%= couponDiscount ? couponDiscount.toFixed(2) : '0.00' %></span>
-          </div>
-
-          <div class="summary-item d-flex justify-content-between mb-3">
-            <span class="text-muted">Shipping</span>
-            <span class="fw-medium">₹0</span>
-          </div>
-
-          <div class="summary-item d-flex justify-content-between mb-3">
-            <span class="text-muted">Tax (8%)</span>
-            <span class="fw-medium" id="tax">₹<%= tax ? tax.toFixed(2) : '0.00' %></span>
-          </div>
-
-          <hr />
-
-          <div class="summary-item d-flex justify-content-between mb-3">
-            <span class="fw-bold">Total</span>
-            <span class="fw-bold fs-5" id="totalAmount">₹<%= totalAmount ? totalAmount.toFixed(2) : '0.00' %></span>
-          </div>
-
-          <% if (offerDiscount > 0 || (appliedCoupon && couponDiscount > 0)) { %>
-          <div class="alert alert-success mb-3">
-            <div class="d-flex align-items-center mb-2">
-              <i class="bi bi-piggy-bank-fill me-2"></i>
-              <span class="fw-medium">Your Savings</span>
+          
+          <div class="summary-content">
+            <div class="summary-row">
+              <span class="summary-label">Subtotal (<%= cartItems ? cartItems.length : 0 %> items)</span>
+              <span class="summary-value">₹<%= originalSubtotal ? originalSubtotal.toFixed(2) : '0.00' %></span>
             </div>
-            <% if (offerDiscount > 0) { %>
-            <div class="d-flex justify-content-between small">
-              <span>Offer Discount:</span>
-              <span>₹<%= offerDiscount.toFixed(2) %></span>
+
+            <% if (offerDiscount && offerDiscount > 0) { %>
+            <div class="summary-row discount">
+              <span class="summary-label">
+                <i class="ri-price-tag-3-line"></i>
+                Offer Discount
+              </span>
+              <span class="summary-value">-₹<%= offerDiscount.toFixed(2) %></span>
             </div>
             <% } %>
-            <% if (appliedCoupon && couponDiscount > 0) { %>
-            <div class="d-flex justify-content-between small">
-              <span>Coupon Discount:</span>
-              <span>₹<%= couponDiscount.toFixed(2) %></span>
+
+            <div id="couponDiscountRow" class="summary-row discount <%= !appliedCoupon ? 'd-none' : '' %>">
+              <span class="summary-label">
+                <i class="ri-coupon-line"></i>
+                Coupon (<span id="couponCodeDisplay"><%= appliedCoupon ? appliedCoupon.code : '' %></span>)
+              </span>
+              <span class="summary-value" id="couponDiscountDisplay">-₹<%= couponDiscount ? couponDiscount.toFixed(2) : '0.00' %></span>
+            </div>
+
+            <div class="summary-row">
+              <span class="summary-label">
+                <i class="ri-truck-line"></i>
+                Shipping
+              </span>
+              <span class="summary-value free">FREE</span>
+            </div>
+
+            <div class="summary-row">
+              <span class="summary-label">Tax (8%)</span>
+              <span class="summary-value">₹<%= tax ? tax.toFixed(2) : '0.00' %></span>
+            </div>
+
+            <div class="summary-divider"></div>
+
+            <div class="summary-total">
+              <span class="total-label">Total Amount</span>
+              <span class="total-value">₹<%= totalAmount ? totalAmount.toFixed(2) : '0.00' %></span>
+            </div>
+
+            <% if ((offerDiscount > 0) || (appliedCoupon && couponDiscount > 0)) { %>
+            <div class="savings-info">
+              <div class="savings-header">
+                <i class="ri-gift-line"></i>
+                <span>Total Savings</span>
+              </div>
+              <div class="savings-amount">
+                ₹<%= (offerDiscount + (couponDiscount || 0)).toFixed(2) %>
+              </div>
             </div>
             <% } %>
-            <div class="d-flex justify-content-between fw-medium mt-1">
-              <span>Total Savings:</span>
-              <span>₹<%= (offerDiscount + (couponDiscount || 0)).toFixed(2) %></span>
-            </div>
-          </div>
-          <% } %>
 
-          <!-- Delivery Info -->
-          <div class="delivery-info mt-4">
-            <div class="d-flex align-items-center mb-2">
-              <i class="bi bi-truck me-2 text-success"></i>
-              <span>Free Delivery</span>
-            </div>
-            <div class="d-flex align-items-center mb-2">
-              <i class="bi bi-calendar-check me-2 text-success"></i>
-              <span>Estimated Delivery: 3-5 business days</span>
-            </div>
-            <div class="d-flex align-items-center">
-              <i class="bi bi-shield-check me-2 text-success"></i>
-              <span>Secure Payment</span>
-            </div>
-          </div>
-
-          <!-- Need Help -->
-          <div class="need-help mt-4">
-            <h6 class="mb-2">Need Help?</h6>
-            <div class="d-flex align-items-center mb-2">
-              <i class="bi bi-telephone me-2"></i>
-              <span>Call us at: +91 1234567890</span>
-            </div>
-            <div class="d-flex align-items-center">
-              <i class="bi bi-envelope me-2"></i>
-              <span>Email us at: support@example.com</span>
+            <!-- Delivery Info -->
+            <div class="delivery-promises">
+              <div class="promise-item">
+                <i class="ri-truck-line"></i>
+                <span>Free delivery on all orders</span>
+              </div>
+              <div class="promise-item">
+                <i class="ri-time-line"></i>
+                <span>Delivery in 3-5 business days</span>
+              </div>
+              <div class="promise-item">
+                <i class="ri-shield-check-line"></i>
+                <span>Secure payment guaranteed</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-</div>
+</section>
 
 <!-- Add Address Modal -->
-<div
-  class="modal fade"
-  id="addAddressModal"
-  tabindex="-1"
-  aria-labelledby="addAddressModalLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content">
-      <div class="modal-header border-0">
-        <h5 class="modal-title" id="addAddressModalLabel">Add New Address</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        ></button>
+<div class="modal fade" id="addAddressModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content modern-modal">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="ri-map-pin-add-line"></i>
+          Add New Address
+        </h5>
+        <button type="button" class="btn-close-modal" data-bs-dismiss="modal">
+          <i class="ri-close-line"></i>
+        </button>
       </div>
       <div class="modal-body">
-        <form id="addressForm">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label for="fullName" class="form-label">Full Name</label>
+        <form id="addressForm" class="address-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="fullName">Full Name</label>
               <div class="input-group">
-                <span class="input-group-text bg-light border-end-0">
-                  <i class="bi bi-person"></i>
-                </span>
-                <input
-                  type="text"
-                  class="form-control border-start-0"
-                  id="fullName"
-                  name="fullName"
-                  placeholder="Enter full name"
-                />
+                <i class="ri-user-line"></i>
+                <input type="text" id="fullName" name="fullName" placeholder="Enter your full name" />
               </div>
-              <div id="fullNameError" class="text-danger small mt-1"></div>
+              <div class="form-error" id="fullNameError"></div>
             </div>
-
-            <div class="col-md-6">
-              <label for="phone" class="form-label">Phone Number</label>
+            <div class="form-group">
+              <label for="phone">Phone Number</label>
               <div class="input-group">
-                <span class="input-group-text bg-light border-end-0">
-                  <i class="bi bi-telephone"></i>
-                </span>
-                <input
-                  type="tel"
-                  class="form-control border-start-0"
-                  id="phone"
-                  name="phone"
-                  placeholder="+91 12345 67890"
-                  required
-                />
+                <i class="ri-phone-line"></i>
+                <input type="tel" id="phone" name="phone" placeholder="+91 12345 67890" />
               </div>
-              <div id="phoneError" class="text-danger small mt-1"></div>
+              <div class="form-error" id="phoneError"></div>
             </div>
+          </div>
 
-            <div class="col-md-6">
-              <label for="pincode" class="form-label">PIN Code</label>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="pincode">PIN Code</label>
               <div class="input-group">
-                <span class="input-group-text bg-light border-end-0">
-                  <i class="bi bi-geo"></i>
-                </span>
-                <input
-                  type="text"
-                  class="form-control border-start-0"
-                  id="pincode"
-                  name="pincode"
-                  placeholder="Enter 6-digit pincode"
-                  required
-                />
+                <i class="ri-map-pin-line"></i>
+                <input type="text" id="pincode" name="pincode" placeholder="Enter 6-digit pincode" />
               </div>
-              <div id="pincodeError" class="text-danger small mt-1"></div>
+              <div class="form-error" id="pincodeError"></div>
             </div>
-
-            <div class="col-md-6">
-              <label for="state" class="form-label">State</label>
+            <div class="form-group">
+              <label for="state">State</label>
               <div class="input-group">
-                <span class="input-group-text bg-light border-end-0">
-                  <i class="bi bi-geo-alt"></i>
-                </span>
-                <select
-                  class="form-select border-start-0"
-                  id="state"
-                  name="state"
-                  required
-                >
-                  <option value="" selected disabled>Select your state</option>
-                  <option value="Andhra Pradesh">Andhra Pradesh</option>
-                  <option value="Arunachal Pradesh">Arunachal Pradesh</option>
-                  <option value="Assam">Assam</option>
-                  <option value="Bihar">Bihar</option>
-                  <option value="Chhattisgarh">Chhattisgarh</option>
-                  <option value="Goa">Goa</option>
-                  <option value="Gujarat">Gujarat</option>
-                  <option value="Haryana">Haryana</option>
-                  <option value="Himachal Pradesh">Himachal Pradesh</option>
-                  <option value="Jharkhand">Jharkhand</option>
-                  <option value="Karnataka">Karnataka</option>
+                <i class="ri-government-line"></i>
+                <select id="state" name="state">
+                  <option value="">Select your state</option>
+                  <!-- Add all states here -->
                   <option value="Kerala">Kerala</option>
-                  <option value="Madhya Pradesh">Madhya Pradesh</option>
-                  <option value="Maharashtra">Maharashtra</option>
-                  <option value="Manipur">Manipur</option>
-                  <option value="Meghalaya">Meghalaya</option>
-                  <option value="Mizoram">Mizoram</option>
-                  <option value="Nagaland">Nagaland</option>
-                  <option value="Odisha">Odisha</option>
-                  <option value="Punjab">Punjab</option>
-                  <option value="Rajasthan">Rajasthan</option>
-                  <option value="Sikkim">Sikkim</option>
+                  <option value="Karnataka">Karnataka</option>
                   <option value="Tamil Nadu">Tamil Nadu</option>
-                  <option value="Telangana">Telangana</option>
-                  <option value="Tripura">Tripura</option>
-                  <option value="Uttar Pradesh">Uttar Pradesh</option>
-                  <option value="Uttarakhand">Uttarakhand</option>
-                  <option value="West Bengal">West Bengal</option>
+                  <!-- Add more states as needed -->
                 </select>
               </div>
-              <div id="stateError" class="text-danger small mt-1"></div>
+              <div class="form-error" id="stateError"></div>
             </div>
+          </div>
 
-            <div class="col-md-6">
-              <label for="district" class="form-label">District</label>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="district">District</label>
               <div class="input-group">
-                <span class="input-group-text bg-light border-end-0">
-                  <i class="bi bi-geo-alt"></i>
-                </span>
-                <input
-                  type="text"
-                  class="form-control border-start-0"
-                  id="district"
-                  name="district"
-                  placeholder="Enter your district"
-                  required
-                />
+                <i class="ri-building-line"></i>
+                <input type="text" id="district" name="district" placeholder="Enter your district" />
               </div>
-              <div id="districtError" class="text-danger small mt-1"></div>
+              <div class="form-error" id="districtError"></div>
             </div>
-
-            <div class="col-md-6">
-              <label for="landmark" class="form-label"
-                >Landmark (Optional)</label
-              >
+            <div class="form-group">
+              <label for="landmark">Landmark (Optional)</label>
               <div class="input-group">
-                <span class="input-group-text bg-light border-end-0">
-                  <i class="bi bi-signpost"></i>
-                </span>
-                <input
-                  type="text"
-                  class="form-control border-start-0"
-                  id="landmark"
-                  name="landmark"
-                  placeholder="Enter a nearby landmark"
-                />
+                <i class="ri-navigation-line"></i>
+                <input type="text" id="landmark" name="landmark" placeholder="Nearby landmark" />
               </div>
             </div>
+          </div>
 
-            <div class="col-12">
-              <label for="street" class="form-label">Street Address</label>
-              <div class="input-group">
-                <span class="input-group-text bg-light border-end-0">
-                  <i class="bi bi-house-door"></i>
-                </span>
-                <textarea
-                  class="form-control border-start-0"
-                  id="street"
-                  name="street"
-                  rows="2"
-                  placeholder="Enter your complete address with house/building number, street, locality"
-                  required
-                ></textarea>
-              </div>
-              <div id="streetError" class="text-danger small mt-1"></div>
+          <div class="form-group full-width">
+            <label for="street">Complete Address</label>
+            <div class="input-group">
+              <i class="ri-home-line"></i>
+              <textarea id="street" name="street" rows="3" placeholder="House/Building number, Street, Locality"></textarea>
             </div>
+            <div class="form-error" id="streetError"></div>
+          </div>
 
-            <div class="col-12">
-              <div class="form-check mt-2">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  id="isDefault"
-                  name="isDefault"
-                />
-                <label class="form-check-label" for="isDefault">
-                  Set as default address
-                </label>
-              </div>
+          <div class="form-group full-width">
+            <div class="checkbox-group">
+              <input type="checkbox" id="isDefault" name="isDefault" />
+              <label for="isDefault">Set as default address</label>
             </div>
           </div>
         </form>
       </div>
-      <div class="modal-footer border-0">
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-          Cancel
-        </button>
-        <button
-          type="submit"
-          form="addressForm"
-          class="btn btn-dark"
-          id="saveAddressBtn"
-        >
-          <i class="bi bi-check-circle me-2"></i>Save Address
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" form="addressForm" class="btn-primary" id="saveAddressBtn">
+          <i class="ri-check-line"></i>
+          Save Address
         </button>
       </div>
     </div>
@@ -1057,33 +687,32 @@
 </div>
 
 <!-- Available Coupons Modal -->
-<div class="modal fade" id="availableCouponsModal" tabindex="-1" aria-labelledby="availableCouponsModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content">
+<div class="modal fade" id="availableCouponsModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modern-modal">
       <div class="modal-header">
-        <h5 class="modal-title" id="availableCouponsModalLabel">Available Coupons</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title">
+          <i class="ri-coupon-line"></i>
+          Available Coupons
+        </h5>
+        <button type="button" class="btn-close-modal" data-bs-dismiss="modal">
+          <i class="ri-close-line"></i>
+        </button>
       </div>
       <div class="modal-body">
         <% if (availableCoupons && availableCoupons.length > 0) { %>
-          <div class="available-coupons">
+          <div class="coupons-list">
             <% availableCoupons.forEach(coupon => { %>
-              <div class="coupon-item mb-3 p-3 border rounded">
-                <div class="d-flex justify-content-between align-items-start">
-                  <div>
-                    <h6 class="mb-1"><%= coupon.code %></h6>
-                    <p class="mb-2 small text-muted"><%= coupon.description || 'No description available' %></p>
-                    <div class="coupon-details small">
-                      <div class="mb-1"><strong><%= coupon.discountDisplay %></strong></div>
-                      <% if (coupon.minOrderAmount > 0) { %>
-                        <div class="text-muted">Min. Order: ₹<%= coupon.minOrderAmount %></div>
-                      <% } %>
-                    </div>
-                  </div>
-                  <button
-                    class="btn btn-sm btn-outline-dark apply-coupon-btn"
-                    data-coupon-code="<%= coupon.code %>"
-                  >
+              <div class="coupon-card">
+                <div class="coupon-left">
+                  <div class="coupon-code"><%= coupon.code %></div>
+                  <div class="coupon-discount"><%= coupon.discountDisplay %></div>
+                  <% if (coupon.minOrderAmount > 0) { %>
+                    <div class="coupon-condition">Min. Order: ₹<%= coupon.minOrderAmount %></div>
+                  <% } %>
+                </div>
+                <div class="coupon-right">
+                  <button class="btn-apply-coupon-modal" data-coupon-code="<%= coupon.code %>">
                     Apply
                   </button>
                 </div>
@@ -1091,1483 +720,402 @@
             <% }) %>
           </div>
         <% } else { %>
-          <div class="text-center py-4">
-            <i class="bi bi-ticket-perforated-fill text-muted" style="font-size: 2rem;"></i>
-            <p class="mt-3 mb-0">No coupons available for this order</p>
+          <div class="no-coupons">
+            <i class="ri-coupon-line"></i>
+            <h4>No coupons available</h4>
+            <p>Check back later for exciting offers!</p>
           </div>
         <% } %>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Order Success Modal removed - using success page instead -->
+<%- include("../partials/user/footer") %>
 
-<!-- Add Bootstrap Icons CDN -->
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
-/>
-<!-- Add SweetAlert2 CDN -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<!-- Add Razorpay CDN -->
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-<style>
-  /* Custom styling */
-  .breadcrumb-item + .breadcrumb-item::before {
-    content: "›";
-    font-weight: bold;
-  }
-
-  .breadcrumb a {
-    color: #333;
-    text-decoration: none;
-  }
-
-  .breadcrumb a:hover {
-    color: #000;
-    text-decoration: underline;
-  }
-
-  /* Checkout Progress */
-  .checkout-progress {
-    position: relative;
-  }
-
-  .checkout-progress::before {
-    content: "";
-    position: absolute;
-    top: 30px;
-    left: 15%;
-    right: 15%;
-    height: 2px;
-    background-color: #e0e0e0;
-    z-index: 0;
-  }
-
-  .checkout-step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    z-index: 1;
-  }
-
-  .checkout-step-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background-color: #f0f0f0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 10px;
-    border: 2px solid #e0e0e0;
-    font-size: 1.5rem;
-    color: #6c757d;
-    transition: all 0.3s ease;
-  }
-
-  .checkout-step.active .checkout-step-icon {
-    background-color: #212529;
-    border-color: #212529;
-    color: white;
-  }
-
-  .checkout-step.completed .checkout-step-icon {
-    background-color: #198754;
-    border-color: #198754;
-    color: white;
-  }
-
-  .checkout-step-label {
-    font-weight: 500;
-    color: #6c757d;
-    transition: all 0.3s ease;
-  }
-
-  .checkout-step.active .checkout-step-label,
-  .checkout-step.completed .checkout-step-label {
-    color: #212529;
-    font-weight: 600;
-  }
-
-  /* Checkout Step Content */
-  .checkout-step-content {
-    display: none;
-  }
-
-  .checkout-step-content.active {
-    display: block;
-  }
-
-  /* Address Cards */
-  .address-card {
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: 1px solid #dee2e6;
-  }
-
-  .address-card:hover {
-    border-color: #adb5bd;
-  }
-
-  .address-card.selected {
-    border-color: #212529;
-    box-shadow: 0 0 0 1px #212529;
-  }
-
-  .add-address {
-    border: 1px dashed #adb5bd;
-    background-color: #f8f9fa;
-    transition: all 0.2s ease;
-  }
-
-  .add-address:hover {
-    border-color: #212529;
-    background-color: #f0f0f0;
-  }
-
-  .add-address-icon {
-    font-size: 2.5rem;
-    color: #6c757d;
-  }
-
-  /* Modal Styling */
-  .modal-content {
-    border: none;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  }
-
-  .modal-header {
-    padding: 1.5rem 1.5rem 0;
-  }
-
-  .modal-body {
-    padding: 1.5rem;
-  }
-
-  .modal-footer {
-    padding: 0 1.5rem 1.5rem;
-  }
-
-  /* Form Styling */
-  .form-control, .form-select {
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
-    transition: all 0.2s ease;
-  }
-
-  .form-control:focus, .form-select:focus {
-    border-color: #212529;
-    box-shadow: 0 0 0 0.2rem rgba(33, 37, 41, 0.1);
-  }
-
-  .input-group-text {
-    border: 1px solid #e0e0e0;
-    border-radius: 8px 0 0 8px;
-    background-color: #f8f9fa;
-  }
-
-  .form-control.border-start-0 {
-    border-left: none;
-    border-radius: 0 8px 8px 0;
-  }
-
-  .form-select.border-start-0 {
-    border-left: none;
-    border-radius: 0 8px 8px 0;
-  }
-
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .modal-lg {
-      max-width: 95%;
-      margin: 1rem auto;
-    }
-
-    .modal-body {
-      padding: 1rem;
-    }
-
-    .modal-header, .modal-footer {
-      padding-left: 1rem;
-      padding-right: 1rem;
-    }
-  }
-
-  /* Payment Methods */
-  .payment-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #f0f0f0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-  }
-
-  .accordion-button:not(.collapsed) {
-    background-color: #f8f9fa;
-    color: #212529;
-    box-shadow: none;
-  }
-
-  .upi-app-option {
-    text-align: center;
-    cursor: pointer;
-    padding: 10px;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-    width: 80px;
-  }
-
-  .upi-app-option:hover {
-    background-color: #f0f0f0;
-  }
-
-  .upi-app-option img {
-    border-radius: 10px;
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
-  }
-
-  .upi-app-option span {
-    display: block;
-    font-size: 0.8rem;
-    margin-top: 5px;
-  }
-
-  /* Cart Items */
-  .cart-item {
-    transition: all 0.2s ease;
-  }
-
-  .cart-item:last-child {
-    border-bottom: none !important;
-  }
-
-  /* Validation styling */
-  .is-valid {
-    border-color: #198754 !important;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right calc(0.375em + 0.1875rem) center;
-    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-    padding-right: calc(1.5em + 0.75rem) !important;
-  }
-
-  .is-invalid {
-    border-color: #dc3545 !important;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right calc(0.375em + 0.1875rem) center;
-    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-    padding-right: calc(1.5em + 0.75rem) !important;
-  }
-
-  /* Coupon Item Styling */
-  .coupon-item {
-    transition: all 0.2s ease;
-  }
-
-  .coupon-item:hover {
-    background-color: #f8f9fa;
-  }
-
-  .apply-coupon-btn {
-    white-space: nowrap;
-  }
-
-  /* Payment options */
-  .payment-option {
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  @media (max-width: 767.98px) {
-    .checkout-progress::before {
-      left: 10%;
-      right: 10%;
-    }
-
-    .checkout-step-icon {
-      width: 50px;
-      height: 50px;
-      font-size: 1.2rem;
-    }
-
-    .checkout-step-label {
-      font-size: 0.8rem;
-    }
-  }
-</style>
-
 <script>
-  // Validation helper functions (reused from address page)
-  function setInvalid(element, errorElement, message) {
-    element.classList.add("is-invalid");
-    element.classList.remove("is-valid");
-    errorElement.textContent = message;
-  }
+// Checkout functionality will go here
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize checkout functionality
+  initializeCheckout();
+});
 
-  function setValid(element, errorElement) {
-    element.classList.add("is-valid");
-    element.classList.remove("is-invalid");
-    errorElement.textContent = "";
-  }
+function initializeCheckout() {
+  // Step navigation
+  setupStepNavigation();
+  
+  // Address functionality
+  setupAddressFunctionality();
+  
+  // Payment functionality
+  setupPaymentFunctionality();
+  
+  // Coupon functionality
+  setupCouponFunctionality();
+  
+  // Order placement
+  setupOrderPlacement();
+}
 
-  function clearValidation(element, errorElement) {
-    element.classList.remove("is-invalid", "is-valid");
-    errorElement.textContent = "";
-  }
-
-  function validateFullName(fullName) {
-    const trimmedName = fullName.trim();
-    if (trimmedName.length < 3) return false;
-    return /^[A-Za-z\s'-]+$/.test(trimmedName);
-  }
-
-  function validatePhoneNumber(phoneNumber) {
-    const cleanPhone = phoneNumber.replace(/\D/g, "");
-    if (cleanPhone.length !== 10) return false;
-    if (
-      /^(.)\1+$/.test(cleanPhone) ||
-      /^0{10}$/.test(cleanPhone) ||
-      /^1{10}$/.test(cleanPhone)
-    )
-      return false;
-    return true;
-  }
-
-  function validatePincode(pincode) {
-    const cleanPincode = pincode.replace(/\D/g, "");
-    return cleanPincode.length === 6 && /^\d+$/.test(cleanPincode);
-  }
-
-  // Toast configuration
-  const Toast = Swal.mixin({
-    toast: true,
-    position: "bottom-end",
-    showConfirmButton: false,
-    timer: 3000,
-    timerProgressBar: true,
-    didOpen: (toast) => {
-      toast.addEventListener("mouseenter", Swal.stopTimer);
-      toast.addEventListener("mouseleave", Swal.resumeTimer);
-    },
+function setupStepNavigation() {
+  // Navigation between steps
+  document.querySelectorAll('.next-step').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const nextStep = parseInt(this.dataset.next);
+      goToStep(nextStep);
+    });
   });
-
-  document.addEventListener("DOMContentLoaded", function () {
-    // Initialize tooltips
-    const tooltipTriggerList = [].slice.call(
-      document.querySelectorAll('[data-bs-toggle="tooltip"]')
-    );
-    tooltipTriggerList.map(function (tooltipTriggerEl) {
-      return new bootstrap.Tooltip(tooltipTriggerEl);
+  
+  document.querySelectorAll('.prev-step').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const prevStep = parseInt(this.dataset.prev);
+      goToStep(prevStep);
     });
-
-    // Checkout steps navigation
-    const checkoutSteps = document.querySelectorAll(".checkout-step");
-    const checkoutStepContents = document.querySelectorAll(
-      ".checkout-step-content"
-    );
-
-    // Next step buttons
-    document.querySelectorAll(".next-step").forEach((button) => {
-      button.addEventListener("click", function () {
-        const nextStep = parseInt(this.getAttribute("data-next"));
-        goToStep(nextStep);
-      });
+  });
+  
+  document.querySelectorAll('.btn-change').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const step = parseInt(this.dataset.step);
+      goToStep(step);
     });
+  });
+}
 
-    // Previous step buttons
-    document.querySelectorAll(".prev-step").forEach((button) => {
-      button.addEventListener("click", function () {
-        const prevStep = parseInt(this.getAttribute("data-prev"));
-        goToStep(prevStep);
-      });
-    });
-
-    // Change buttons in review step
-    document.querySelectorAll(".order-section button").forEach((button) => {
-      button.addEventListener("click", function () {
-        const step = parseInt(this.getAttribute("data-step"));
-        goToStep(step);
-      });
-    });
-
-    // Go to specific step
-    function goToStep(stepNumber) {
-      checkoutStepContents.forEach((content) => {
-        content.classList.remove("active");
-      });
-      document
-        .getElementById(`step-${stepNumber}-content`)
-        .classList.add("active");
-      checkoutSteps.forEach((step, index) => {
-        const stepNum = index + 1;
-        if (stepNum < stepNumber) {
-          step.classList.remove("active");
-          step.classList.add("completed");
-        } else if (stepNum === stepNumber) {
-          step.classList.add("active");
-          step.classList.remove("completed");
-        } else {
-          step.classList.remove("active", "completed");
-        }
-      });
-      window.scrollTo({
-        top: document.querySelector(".checkout-progress").offsetTop - 20,
-        behavior: "smooth",
-      });
+function goToStep(stepNumber) {
+  // Hide all step contents
+  document.querySelectorAll('.checkout-step-content').forEach(content => {
+    content.classList.remove('active');
+  });
+  
+  // Show target step
+  document.getElementById(`step-${stepNumber}-content`).classList.add('active');
+  
+  // Update progress indicator
+  document.querySelectorAll('.progress-step').forEach((step, index) => {
+    const stepNum = index + 1;
+    step.classList.remove('active', 'completed');
+    
+    if (stepNum < stepNumber) {
+      step.classList.add('completed');
+    } else if (stepNum === stepNumber) {
+      step.classList.add('active');
     }
+  });
+  
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
-    // Form validation
-    const addressForm = document.getElementById("addressForm");
-    const fullNameInput = document.getElementById("fullName");
-    const phoneInput = document.getElementById("phone");
-    const pincodeInput = document.getElementById("pincode");
-    const districtInput = document.getElementById("district");
-    const stateInput = document.getElementById("state");
-    const streetInput = document.getElementById("street");
-
-    const fullNameError = document.getElementById("fullNameError");
-    const phoneError = document.getElementById("phoneError");
-    const pincodeError = document.getElementById("pincodeError");
-    const districtError = document.getElementById("districtError");
-    const stateError = document.getElementById("stateError");
-    const streetError = document.getElementById("streetError");
-
-    // Input validation
-    fullNameInput.addEventListener("input", function () {
-      const fullName = this.value.trim();
-      if (!fullName) {
-        clearValidation(this, fullNameError);
-      } else if (!validateFullName(fullName)) {
-        setInvalid(
-          this,
-          fullNameError,
-          "Please enter a valid name (min 3 characters)"
-        );
-      } else {
-        setValid(this, fullNameError);
-      }
+function setupAddressFunctionality() {
+  // Address selection
+  document.querySelectorAll('.address-card').forEach(card => {
+    card.addEventListener('click', function() {
+      // Remove selection from all cards
+      document.querySelectorAll('.address-card').forEach(c => c.classList.remove('selected'));
+      
+      // Select this card
+      this.classList.add('selected');
+      
+      // Check the radio button
+      const radio = this.querySelector('input[type="radio"]');
+      if (radio) radio.checked = true;
+      
+      // Update summary
+      updateAddressSummary();
     });
-
-    phoneInput.addEventListener("input", function () {
-      const phone = this.value.trim();
-      if (!phone) {
-        clearValidation(this, phoneError);
-      } else if (!validatePhoneNumber(phone)) {
-        setInvalid(
-          this,
-          phoneError,
-          "Please enter a valid 10-digit phone number"
-        );
-      } else {
-        setValid(this, phoneError);
-      }
-    });
-
-    pincodeInput.addEventListener("input", function () {
-      const pincode = this.value.trim();
-      if (!pincode) {
-        clearValidation(this, pincodeError);
-      } else if (!validatePincode(pincode)) {
-        setInvalid(this, pincodeError, "Please enter a valid 6-digit pincode");
-      } else {
-        setValid(this, pincodeError);
-      }
-    });
-
-    districtInput.addEventListener("input", function () {
-      const district = this.value.trim();
-      if (!district) {
-        clearValidation(this, districtError);
-      } else if (district.length < 3) {
-        setInvalid(
-          this,
-          districtError,
-          "District name must be at least 3 characters"
-        );
-      } else {
-        setValid(this, districtError);
-      }
-    });
-
-    stateInput.addEventListener("change", function () {
-      const state = this.value;
-      if (!state) {
-        clearValidation(this, stateError);
-      } else {
-        setValid(this, stateError);
-      }
-    });
-
-    streetInput.addEventListener("input", function () {
-      const street = this.value.trim();
-      if (!street) {
-        clearValidation(this, streetError);
-      } else if (street.length < 10) {
-        setInvalid(
-          this,
-          streetError,
-          "Please enter a complete address (min 10 characters)"
-        );
-      } else {
-        setValid(this, streetError);
-      }
-    });
-
-    // Validate form
-    function validateForm() {
-      const fullName = fullNameInput.value.trim();
-      const phone = phoneInput.value.trim();
-      const pincode = pincodeInput.value.trim();
-      const district = districtInput.value.trim();
-      const state = stateInput.value;
-      const street = streetInput.value.trim();
-
-      let isValid = true;
-
-      if (!fullName || !validateFullName(fullName)) {
-        setInvalid(fullNameInput, fullNameError, "Valid full name is required");
-        isValid = false;
-      }
-
-      if (!phone || !validatePhoneNumber(phone)) {
-        setInvalid(phoneInput, phoneError, "Valid phone number is required");
-        isValid = false;
-      }
-
-      if (!pincode || !validatePincode(pincode)) {
-        setInvalid(
-          pincodeInput,
-          pincodeError,
-          "Valid 6-digit pincode is required"
-        );
-        isValid = false;
-      }
-
-      if (!district || district.length < 3) {
-        setInvalid(districtInput, districtError, "District is required");
-        isValid = false;
-      }
-
-      if (!state) {
-        setInvalid(stateInput, stateError, "Please select a state");
-        isValid = false;
-      }
-
-      if (!street || street.length < 10) {
-        setInvalid(streetInput, streetError, "Complete address is required");
-        isValid = false;
-      }
-
-      return isValid;
+  });
+  
+  // Continue to payment validation
+  document.getElementById('continueToPaymentBtn').addEventListener('click', function() {
+    const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+    if (!selectedAddress) {
+      showNotification('error', 'Please select a delivery address');
+      return;
     }
+    goToStep(3);
+  });
+}
 
-    // Get form data
-    function getFormData() {
-      return {
-        fullName: fullNameInput.value.trim(),
-        phone: phoneInput.value.trim(),
-        pincode: pincodeInput.value.trim(),
-        district: districtInput.value.trim(),
-        state: stateInput.value,
-        street: streetInput.value.trim(),
-        landmark: document.getElementById("landmark").value.trim(),
-        isDefault: document.getElementById("isDefault").checked,
-      };
+function setupPaymentFunctionality() {
+  // Payment method selection
+  document.querySelectorAll('.payment-card').forEach(card => {
+    card.addEventListener('click', function() {
+      const radio = this.querySelector('input[type="radio"]');
+      if (radio && !radio.disabled) {
+        radio.checked = true;
+        
+        // Update visual selection
+        document.querySelectorAll('.payment-card').forEach(c => c.classList.remove('selected'));
+        this.classList.add('selected');
+        
+        // Update summary
+        updatePaymentSummary();
+      }
+    });
+  });
+}
+
+function setupCouponFunctionality() {
+  // Apply coupon
+  document.getElementById('applyCoupon').addEventListener('click', applyCoupon);
+  
+  // Remove coupon
+  const removeCouponBtn = document.getElementById('removeCoupon');
+  if (removeCouponBtn) {
+    removeCouponBtn.addEventListener('click', removeCoupon);
+  }
+  
+  // Apply from modal
+  document.querySelectorAll('.btn-apply-coupon-modal').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const couponCode = this.dataset.couponCode;
+      document.getElementById('couponCode').value = couponCode;
+      
+      // Close modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('availableCouponsModal'));
+      if (modal) modal.hide();
+      
+      // Apply coupon
+      applyCoupon();
+    });
+  });
+}
+
+function setupOrderPlacement() {
+  document.getElementById('placeOrderBtn').addEventListener('click', function() {
+    // Validate all selections
+    const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+    const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
+    
+    if (!selectedAddress) {
+      showNotification('error', 'Please select a delivery address');
+      goToStep(2);
+      return;
     }
+    
+    if (!selectedPayment) {
+      showNotification('error', 'Please select a payment method');
+      goToStep(3);
+      return;
+    }
+    
+    // Place order based on payment method
+    const paymentMethod = selectedPayment.value;
+    placeOrder(paymentMethod);
+  });
+}
 
-    // Create address card HTML
-    function createAddressCard(address, isSelected = false) {
-      return `
-      <div class="col-md-6" data-address-id="${address._id}">
-        <div class="card h-100 border shadow-sm address-card ${
-          isSelected ? "selected" : ""
-        }">
-          <div class="card-body position-relative">
-            ${
-              address.isDefault
-                ? '<span class="badge bg-success position-absolute end-0 top-0 mt-3 me-3">Default</span>'
-                : ""
-            }
-            <div class="form-check position-absolute start-0 top-0 mt-3 ms-3">
-              <input class="form-check-input" type="radio" name="selectedAddress" id="address${
-                address._id
-              }" value="${address._id}" ${isSelected ? "checked" : ""}>
-              <label
-                class="form-check-label"
-                for="address${
-                address._id
-              }"></label>
-            </div>
-            <div class="ps-4">
-              <h5 class="mb-3">${address.fullName}</h5>
-              <p class="mb-1">${address.street}</p>
-              <p class="mb-1">${
-                address.district
-              }, ${address.state} - ${address.pincode}</p>
-              ${
-                address.landmark
-                  ? `<p class="mb-1">Landmark: ${address.landmark}</p>`
-                  : ""
-              }
-              <p class="mb-0">Phone: ${address.phone}</p>
-            </div>
+// Helper functions
+function updateAddressSummary() {
+  const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+  if (selectedAddress) {
+    const addressCard = selectedAddress.closest('.address-card');
+    const addressData = {
+      name: addressCard.querySelector('.address-name').textContent,
+      details: Array.from(addressCard.querySelectorAll('.address-details p')).map(p => p.textContent).join(', '),
+      phone: addressCard.querySelector('.address-phone').textContent
+    };
+    
+    const summaryHtml = `
+      <div class="address-summary">
+        <h6>${addressData.name}</h6>
+        <p>${addressData.details}</p>
+        <div class="phone-info">
+          <i class="ri-phone-line"></i>
+          ${addressData.phone}
+        </div>
+      </div>
+    `;
+    
+    document.getElementById('selectedAddressSummary').innerHTML = summaryHtml;
+  }
+}
+
+function updatePaymentSummary() {
+  const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
+  if (selectedPayment) {
+    const paymentCard = selectedPayment.closest('.payment-card');
+    const paymentInfo = paymentCard.querySelector('.payment-info');
+    const icon = paymentCard.querySelector('.payment-icon i').classList[0];
+    
+    const summaryHtml = `
+      <div class="payment-summary">
+        <div class="payment-method">
+          <i class="${icon}"></i>
+          <div>
+            <h6>${paymentInfo.querySelector('h5').textContent}</h6>
+            <p>${paymentInfo.querySelector('p').textContent}</p>
           </div>
         </div>
       </div>
     `;
-    }
-
-    // Update payment method summary
-    function updatePaymentMethodSummary() {
-      const summaryContainer = document.getElementById('paymentMethodSummary');
-      const paymentMethodText = document.getElementById('paymentMethodText');
-      const paymentMethodDetails = document.getElementById('paymentMethodDetails');
-      const paymentIcon = summaryContainer.querySelector('.payment-icon i');
-      const activePaymentMethod = document.querySelector('.accordion-collapse.show')?.id;
-
-      let displayName = 'None';
-      let details = 'No payment method selected';
-      let iconClass = 'bi bi-question';
-
-      if (activePaymentMethod === 'codPayment') {
-        displayName = 'Cash on Delivery';
-        details = 'Pay when your order is delivered';
-        iconClass = 'bi bi-cash';
-      } else if (activePaymentMethod === 'walletPayment') {
-        displayName = 'Wallet';
-        details = 'Pay using your wallet balance';
-        iconClass = 'bi bi-wallet2';
-      } else if (activePaymentMethod === 'razorpayPayment') {
-        displayName = 'Pay Online';
-        details = 'Pay using Razorpay\'s secure payment gateway';
-        iconClass = 'bi bi-credit-card-2-front';
-      }
-
-      paymentMethodText.textContent = displayName;
-      paymentMethodDetails.textContent = details;
-      paymentIcon.className = iconClass;
-    }
-
-    // Update payment method summary when accordion changes
-    document.querySelectorAll('.accordion-collapse').forEach(collapse => {
-      collapse.addEventListener('shown.bs.collapse', function() {
-        updatePaymentMethodSummary();
-      });
-    });
-
-    // Update selected address summary
-    function updateSelectedAddressSummary(address) {
-      const summaryContainer = document.getElementById(
-        "selectedAddressSummary"
-      );
-      summaryContainer.innerHTML = `
-      <div class="card-body">
-        <h6 class="mb-2">${address.fullName}</h6>
-        <p class="mb-1">${address.street}</p>
-        <p class="mb-1">${address.district}, ${address.state} - ${
-        address.pincode
-      }</p>
-        ${
-          address.landmark
-            ? `<p class="mb-1">Landmark: ${address.landmark}</p>`
-            : ""
-        }
-        <p class="mb-0">Phone: ${address.phone}</p>
-      </div>
-    `;
-    }
-
-    // Add new address
-    async function addAddress(formData) {
-      try {
-        const response = await fetch("/users/addresses", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || "Failed to add address");
-        }
-
-        return data;
-      } catch (error) {
-        console.error("Error adding address:", error);
-        throw error;
-      }
-    }
-
-    // Reset form
-    function resetForm() {
-      addressForm.reset();
-      clearValidation(fullNameInput, fullNameError);
-      clearValidation(phoneInput, phoneError);
-      clearValidation(pincodeInput, pincodeError);
-      clearValidation(districtInput, districtError);
-      clearValidation(stateInput, stateError);
-      clearValidation(streetInput, streetError);
-    }
-
-    // Form submission
-    addressForm.addEventListener("submit", async function (event) {
-      event.preventDefault();
-
-      if (!validateForm()) return;
-
-      const formData = getFormData();
-      const submitButton = document.getElementById("saveAddressBtn");
-      const originalText = submitButton.innerHTML;
-      submitButton.disabled = true;
-      submitButton.innerHTML =
-        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
-
-      try {
-        const result = await addAddress(formData);
-
-        // Add the new address card to the DOM
-        const addressContainer = document.getElementById(
-          "addressSelectionContainer"
-        );
-        const noAddressesMessage = addressContainer.querySelector(
-          ".col-12.text-center"
-        );
-
-        if (noAddressesMessage) {
-          addressContainer.innerHTML = "";
-        }
-
-        const addressCardHTML = createAddressCard(result.address, true);
-        addressContainer.insertAdjacentHTML("afterbegin", addressCardHTML);
-
-        // Attach event listener to the new address card
-        const newAddressCard = addressContainer.querySelector(`[data-address-id="${result.address._id}"] .address-card`);
-        if (newAddressCard) {
-          attachAddressCardListener(newAddressCard);
-        }
-
-        // Update selected address summary
-        updateSelectedAddressSummary(result.address);
-
-        // Update radio button states
-        document
-          .querySelectorAll('input[name="selectedAddress"]')
-          .forEach((radio) => {
-            radio.checked = radio.value === result.address._id;
-          });
-
-        // Update visual selection
-        document.querySelectorAll(".address-card").forEach((card) => {
-          card.classList.remove("selected");
-          if (
-            card.parentElement.getAttribute("data-address-id") ===
-            result.address._id
-          ) {
-            card.classList.add("selected");
-          }
-        });
-
-        Toast.fire({
-          icon: "success",
-          title: "Address added successfully",
-        });
-
-        // Close modal and reset form
-        const modal = bootstrap.Modal.getInstance(
-          document.getElementById("addAddressModal")
-        );
-        modal.hide();
-        resetForm();
-
-        // Refresh page if set as default
-        if (formData.isDefault) {
-          setTimeout(() => {
-            location.reload();
-          }, 1000);
-        }
-      } catch (error) {
-        Toast.fire({
-          icon: "error",
-          title: error.message || "Server error. Please try again.",
-        });
-      } finally {
-        submitButton.disabled = false;
-        submitButton.innerHTML = originalText;
-      }
-    });
-
-    // Function to attach event listener to address card
-    function attachAddressCardListener(card) {
-      card.addEventListener("click", function () {
-        document.querySelectorAll(".address-card").forEach((c) => {
-          c.classList.remove("selected");
-        });
-        this.classList.add("selected");
-        const radio = this.querySelector('input[type="radio"]');
-        if (radio) {
-          radio.checked = true;
-        }
-
-        // Update selected address summary
-        const addressId = this.parentElement.getAttribute("data-address-id");
-        const address = {
-          _id: addressId,
-          fullName: this.querySelector("h5").textContent,
-          street: this.querySelectorAll("p")[0].textContent,
-          district: this.querySelectorAll("p")[1].textContent.split(", ")[0],
-          state: this.querySelectorAll("p")[1]
-            .textContent.split(", ")[1]
-            .split(" - ")[0],
-          pincode: this.querySelectorAll("p")[1].textContent.split(" - ")[1],
-          phone: this.querySelector("p:last-child").textContent.replace(
-            "Phone: ",
-            ""
-          ),
-          landmark:
-            this.querySelectorAll("p").length > 3
-              ? this.querySelectorAll("p")[2].textContent.replace(
-                  "Landmark: ",
-                  ""
-                )
-              : "",
-        };
-        updateSelectedAddressSummary(address);
-      });
-    }
-
-    // Address selection - attach listeners to existing cards
-    document
-      .querySelectorAll(".address-card:not(.add-address)")
-      .forEach((card) => {
-        attachAddressCardListener(card);
-      });
-
-    // Initialize selected address summary
-    const selectedAddress = document.querySelector(
-      'input[name="selectedAddress"]:checked'
-    );
-    if (selectedAddress) {
-      const card = selectedAddress.closest(".address-card");
-      const address = {
-        _id: selectedAddress.value,
-        fullName: card.querySelector("h5").textContent,
-        street: card.querySelectorAll("p")[0].textContent,
-        district: card.querySelectorAll("p")[1].textContent.split(", ")[0],
-        state: card
-          .querySelectorAll("p")[1]
-          .textContent.split(", ")[1]
-          .split(" - ")[0],
-        pincode: card.querySelectorAll("p")[1].textContent.split(" - ")[1],
-        phone: card
-          .querySelector("p:last-child")
-          .textContent.replace("Phone: ", ""),
-        landmark:
-          card.querySelectorAll("p").length > 3
-            ? card
-                .querySelectorAll("p")[2]
-                .textContent.replace("Landmark: ", "")
-            : "",
-      };
-      updateSelectedAddressSummary(address);
-    }
-
-    // Validate address selection before proceeding to payment
-    document.getElementById('continueToPaymentBtn').addEventListener('click', function() {
-      const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
-      if (!selectedAddress) {
-        Toast.fire({
-          icon: 'error',
-          title: 'Please select a delivery address or add a new one'
-        });
-        return;
-      }
-      updatePaymentMethodSummary(); // Update payment method summary
-      goToStep(3);
-    });
-
-    // Update payment method summary when navigating from Step 3 to Step 4
-    document.querySelector('#step-3-content .next-step').addEventListener('click', function() {
-      const paymentMethod = document.querySelector('.accordion-collapse.show')?.id;
-      if (!paymentMethod) {
-        Toast.fire({
-          icon: 'error',
-          title: 'Please select a payment method'
-        });
-        return;
-      }
-      updatePaymentMethodSummary();
-      goToStep(4);
-    });
-
-
-
-
-
-    // Remove item from cart
-    document.querySelectorAll(".remove-item").forEach((button) => {
-      button.addEventListener("click", function () {
-        const productId = this.getAttribute("data-product-id");
-        if (!productId) {
-          Toast.fire({
-            icon: "error",
-            title: "Invalid product",
-          });
-          return;
-        }
-        fetch("/api/cart/remove", {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ productId }),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.success) {
-              Toast.fire({
-                icon: "success",
-                title: "Item removed from cart",
-              });
-              setTimeout(() => {
-                window.location.reload();
-              }, 1500);
-            } else {
-              Toast.fire({
-                icon: "error",
-                title: data.message || "Failed to remove item",
-              });
-            }
-          })
-          .catch((error) => {
-            console.error("Error removing item:", error);
-            Toast.fire({
-              icon: "error",
-              title: "Server error",
-            });
-          });
-      });
-    });
-
-    // Apply coupon
-    const applyCouponBtn = document.getElementById("applyCoupon");
-    const couponCodeInput = document.getElementById("couponCode");
-
-    if (applyCouponBtn) {
-      applyCouponBtn.addEventListener("click", function () {
-        const couponCode = couponCodeInput.value.trim();
-        if (!couponCode) {
-          Toast.fire({
-            icon: "error",
-            title: "Please enter a coupon code",
-          });
-          return;
-        }
-
-        // Disable button during API call
-        applyCouponBtn.disabled = true;
-        applyCouponBtn.innerHTML =
-          '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Applying...';
-
-        fetch("/api/checkout/apply-coupon", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ couponCode }),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.success) {
-              // Show success message
-              Toast.fire({
-                icon: "success",
-                title: data.message,
-              });
-
-              // Update UI with applied coupon
-              document.getElementById("appliedCouponSection").classList.remove("d-none");
-              document.getElementById("appliedCouponCode").textContent = data.coupon.code;
-
-              // Update discount amount
-              const discount = data.discount.toFixed(2);
-              document.getElementById("couponDiscount").textContent = `-₹${discount}`;
-
-              // Update total
-              const subtotalAfterOffers = parseFloat(document.getElementById("subtotal").getAttribute("data-after-offers"));
-              const tax = parseFloat((subtotalAfterOffers - data.discount) * 0.08).toFixed(2);
-              const total = (subtotalAfterOffers - data.discount + parseFloat(tax)).toFixed(2);
-
-              document.getElementById("tax").textContent = `₹${tax}`;
-              document.getElementById("totalAmount").textContent = `₹${total}`;
-
-              // Hide coupon input
-              document.getElementById("couponInputSection").classList.add("d-none");
-
-              // Refresh page to update all calculations
-              setTimeout(() => {
-                window.location.reload();
-              }, 1500);
-            } else {
-              // Show error message
-              Toast.fire({
-                icon: "error",
-                title: data.message,
-              });
-            }
-          })
-          .catch((error) => {
-            console.error("Error applying coupon:", error);
-            Toast.fire({
-              icon: "error",
-              title: "Failed to apply coupon. Please try again.",
-            });
-          })
-          .finally(() => {
-            // Re-enable button
-            applyCouponBtn.disabled = false;
-            applyCouponBtn.innerHTML = "Apply";
-          });
-      });
-    }
-
-    // Remove coupon
-    const removeCouponBtn = document.getElementById("removeCoupon");
-    if (removeCouponBtn) {
-      removeCouponBtn.addEventListener("click", function () {
-        fetch("/api/checkout/remove-coupon", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.success) {
-              Toast.fire({
-                icon: "success",
-                title: data.message,
-              });
-
-              // Refresh page to update all calculations
-              setTimeout(() => {
-                window.location.reload();
-              }, 1000);
-            } else {
-              Toast.fire({
-                icon: "error",
-                title: data.message,
-              });
-            }
-          })
-          .catch((error) => {
-            console.error("Error removing coupon:", error);
-            Toast.fire({
-              icon: "error",
-              title: "Failed to remove coupon",
-            });
-          });
-      });
-    }
-
-    // Available coupons modal
-    const applyCouponFromModal = document.querySelectorAll(".apply-coupon-btn");
-    applyCouponFromModal.forEach((button) => {
-      button.addEventListener("click", function () {
-        const couponCode = this.getAttribute("data-coupon-code");
-        couponCodeInput.value = couponCode;
-
-        // Close modal
-        const modal = bootstrap.Modal.getInstance(document.getElementById("availableCouponsModal"));
-        if (modal) {
-          modal.hide();
-        }
-
-        // Trigger apply coupon
-        applyCouponBtn.click();
-      });
-    });
-
-    // Razorpay integration
-    let razorpayOrderId = '';
-
-    // Function to create Razorpay order
-    async function createRazorpayOrder() {
-      const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
-
-      if (!selectedAddress) {
-        Toast.fire({
-          icon: 'error',
-          title: 'Please select a delivery address'
-        });
-        return false;
-      }
-
-
-
-      try {
-        const response = await fetch('/api/checkout/create-payment', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            addressId: selectedAddress.value
-          })
-        });
-
-        const data = await response.json();
-
-        if (!data.success) {
-          Toast.fire({
-            icon: 'error',
-            title: data.message || 'Failed to create order'
-          });
-          return false;
-        }
-
-        razorpayOrderId = data.order.id;
-        return data;
-      } catch (error) {
-        console.error('Error creating Razorpay order:', error);
-        Toast.fire({
-          icon: 'error',
-          title: 'Failed to create order'
-        });
-        return false;
-      }
-    }
-
-    // Function to open Razorpay payment form
-    function openRazorpayCheckout(orderData) {
-    const options = {
-    key: orderData.key,
-    amount: orderData.amount,
-    currency: orderData.currency,
-    name: orderData.name,
-    description: `Order #${orderData.orderNumber} - Total: ₹${(orderData.amount / 100).toFixed(2)}`,
-    order_id: orderData.order.id,
-    prefill: orderData.prefill,
-    theme: {
-    color: '#198754'
-    },
-    modal: {
-    ondismiss: function() {
-    console.log('Payment modal closed');
-    // Handle modal dismissal as potential payment failure
-    handlePaymentFailure('Payment cancelled by user');
-    },
-    // Handle payment failures from Razorpay's failure page
-    escape: false,
-    confirm_close: false
-    },
-    handler: function(response) {
-    verifyPayment(response);
-    },
-    // Add retry configuration to redirect to our order page
-    retry: {
-    enabled: false // Disable Razorpay's built-in retry to use our custom flow
-    },
-    // Handle payment failures
-        };
-
-      // Log for debugging
-      console.log('Razorpay Payment:', {
-        amount: orderData.amount,
-        amountInRupees: (orderData.amount / 100).toFixed(2),
-        breakdown: orderData.priceBreakdown
-      });
-
-      const rzp = new Razorpay(options);
-      rzp.open();
-    }
-
-    // Function to verify payment
-    async function verifyPayment(response) {
-      try {
-        const verifyResponse = await fetch('/api/checkout/verify-payment', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(response)
-        });
-
-        const data = await verifyResponse.json();
-
-        if (data.success) {
-          // Redirect to success page
-          window.location.href = `/order-success/${data.orderId}`;
-        } else {
-          // Handle payment failure
-          handlePaymentFailure(data.message);
-        }
-      } catch (error) {
-        console.error('Error verifying payment:', error);
-        handlePaymentFailure('Failed to verify payment');
-      }
-    }
-
-    // Function to handle payment failure
-    async function handlePaymentFailure(errorMessage) {
-    try {
-    // Disable the place order button immediately
-    const placeOrderBtn = document.getElementById("placeOrderBtn");
-    if (placeOrderBtn) {
-      placeOrderBtn.disabled = true;
-      placeOrderBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Payment Failed...';
-    }
-
-    const response = await fetch('/api/checkout/payment-failure', {
-    method: 'POST',
-    headers: {
-    'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-    razorpay_order_id: razorpayOrderId,
-    error_description: errorMessage
-    })
+    
+    document.getElementById('paymentMethodSummary').innerHTML = summaryHtml;
+  }
+}
+
+async function applyCoupon() {
+  const couponCode = document.getElementById('couponCode').value.trim();
+  if (!couponCode) {
+    showNotification('error', 'Please enter a coupon code');
+    return;
+  }
+  
+  try {
+    const response = await fetch('/api/checkout/apply-coupon', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ couponCode })
     });
     
     const data = await response.json();
     
-    if (data.canRetry && data.orderId) {
-    // Redirect directly to order details page without showing toast message
-    window.location.href = data.redirectUrl || `/orders/${data.orderId}`;
+    if (data.success) {
+      showNotification('success', data.message);
+      setTimeout(() => window.location.reload(), 1500);
     } else {
-    // Use redirect URL from backend response if available
-    const redirectUrl = data.redirectUrl || `/payment-failure?error=${encodeURIComponent(errorMessage)}`;
-    
-    Toast.fire({
-    icon: 'error',
-    title: data.message || 'Payment failed',
-    text: 'Redirecting...',
-    timer: 2000,
-    timerProgressBar: true,
-    showConfirmButton: false
+      showNotification('error', data.message);
+    }
+  } catch (error) {
+    showNotification('error', 'Failed to apply coupon');
+  }
+}
+
+async function removeCoupon() {
+  try {
+    const response = await fetch('/api/checkout/remove-coupon', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
     });
     
-    setTimeout(() => {
-    window.location.href = redirectUrl;
-    }, 2000);
+    const data = await response.json();
+    
+    if (data.success) {
+      showNotification('success', data.message);
+      setTimeout(() => window.location.reload(), 1000);
+    } else {
+      showNotification('error', data.message);
     }
-    } catch (error) {
-    console.error('Error handling payment failure:', error);
-    // Disable the place order button on error as well
-    const placeOrderBtn = document.getElementById("placeOrderBtn");
-    if (placeOrderBtn) {
-      placeOrderBtn.disabled = true;
-      placeOrderBtn.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Error Occurred';
+  } catch (error) {
+    showNotification('error', 'Failed to remove coupon');
+  }
+}
+
+async function placeOrder(paymentMethod) {
+  const orderData = {
+    addressId: document.querySelector('input[name="selectedAddress"]:checked').value,
+    paymentMethod: paymentMethod
+  };
+  
+  try {
+    if (paymentMethod === 'razorpay') {
+      // Handle Razorpay payment
+      await processRazorpayPayment(orderData);
+    } else {
+      // Handle COD and Wallet payments
+      await processDirectPayment(orderData);
     }
-    // Fallback to orders page
-    window.location.href = '/orders';
-    }
-    }
+  } catch (error) {
+    showNotification('error', 'Failed to place order');
+  }
+}
 
-    // Place order button
-    const placeOrderBtn = document.getElementById("placeOrderBtn");
-    if (placeOrderBtn) {
-      placeOrderBtn.addEventListener("click", async function () {
-        const selectedAddress = document.querySelector(
-          'input[name="selectedAddress"]:checked'
-        );
-        const paymentMethod = document.querySelector(
-          ".accordion-collapse.show"
-        )?.id;
-
-
-
-        // Validate address selection
-        if (!selectedAddress) {
-          Toast.fire({
-            icon: "error",
-            title: "Please select a delivery address",
-          });
-          return;
-        }
-
-        // Determine payment method
-        let paymentMethodValue;
-        if (paymentMethod === "codPayment") {
-          // Check COD eligibility first
-          const totalAmount = parseFloat(document.getElementById("totalAmount").textContent.replace('₹', '').replace(',', ''));
-          if (totalAmount > 1000) {
-            Toast.fire({
-              icon: "error",
-              title: "Cash on Delivery is not available for orders above ₹1,000",
-            });
-            return;
-          }
-
-
-          paymentMethodValue = "COD";
-        } else if (paymentMethod === "razorpayPayment") {
-          paymentMethodValue = "Razorpay";
-        } else if (paymentMethod === "walletPayment") {
-          // Get real-time total from backend to ensure accuracy
-          try {
-            const response = await fetch('/api/checkout/current-total');
-            const result = await response.json();
-
-            if (result.success) {
-              const { total, walletBalance, isWalletEligible } = result.data;
-
-              if (!isWalletEligible) {
-                Toast.fire({
-                  icon: "error",
-                  title: `Insufficient wallet balance. You need ₹${(total - walletBalance).toFixed(2)} more to complete this order.`,
-                });
-                return;
-              }
-            } else {
-              Toast.fire({
-                icon: "error",
-                title: "Unable to validate wallet balance. Please try again.",
-              });
-              return;
-            }
-          } catch (error) {
-            console.error('Error validating wallet balance:', error);
-            Toast.fire({
-              icon: "error",
-              title: "Unable to validate wallet balance. Please try again.",
-            });
-            return;
-          }
-
-
-          paymentMethodValue = "Wallet";
-        } else {
-          Toast.fire({
-            icon: "error",
-            title: "Please select a payment method",
-          });
-          return;
-        }
-
-        this.disabled = true;
-        this.innerHTML =
-          '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
-
-        try {
-          if (paymentMethodValue === "Razorpay") {
-            // Handle Razorpay payment
-            const orderData = await createRazorpayOrder();
-            if (orderData) {
-              this.disabled = false;
-              this.innerHTML = '<i class="bi bi-bag-check me-2"></i>Place Order';
-              openRazorpayCheckout(orderData);
-            } else {
-              this.disabled = false;
-              this.innerHTML = '<i class="bi bi-bag-check me-2"></i>Place Order';
-            }
-          } else if (paymentMethodValue === "COD") {
-            // Handle COD payment
-            const response = await fetch("/checkout/place-order", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                addressId: selectedAddress.value,
-                paymentMethod: paymentMethodValue,
-              }),
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-              // Show success toast and redirect directly to success page
-              Toast.fire({
-                icon: "success",
-                title: `Order #${data.orderNumber} placed successfully!`,
-                timer: 2000
-              });
-
-              // Redirect to order success page immediately
-              setTimeout(() => {
-                window.location.href = `/order-success/${data.orderId}`;
-              }, 1500);
-            } else {
-              Toast.fire({
-                icon: "error",
-                title: data.message || "Failed to place order",
-              });
-            }
-          } else if (paymentMethodValue === "Wallet") {
-            // Handle Wallet payment
-            const response = await fetch("/checkout/place-order", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                addressId: selectedAddress.value,
-                paymentMethod: paymentMethodValue,
-              }),
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-              // Show success toast and redirect directly to success page
-              Toast.fire({
-                icon: "success",
-                title: `Order #${data.orderNumber} placed and paid successfully!`,
-                timer: 2000
-              });
-
-              // Redirect to order success page immediately
-              setTimeout(() => {
-                window.location.href = `/order-success/${data.orderId}`;
-              }, 1500);
-            } else {
-              Toast.fire({
-                icon: "error",
-                title: data.message || "Failed to place order",
-              });
-            }
-          } else {
-            // Handle other payment methods (not implemented yet)
-            Toast.fire({
-              icon: "info",
-              title: `${paymentMethodValue} payment is not yet implemented. Please use Cash on Delivery or Razorpay.`,
-            });
-          }
-        } catch (error) {
-          console.error("Error placing order:", error);
-          Toast.fire({
-            icon: "error",
-            title: "Server error",
-          });
-        } finally {
-          this.disabled = false;
-          this.innerHTML = '<i class="bi bi-bag-check me-2"></i>Place Order';
-        }
-      });
-    }
+async function processRazorpayPayment(orderData) {
+  // Create Razorpay order
+  const response = await fetch('/api/checkout/create-payment', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(orderData)
   });
-</script>
+  
+  const data = await response.json();
+  
+  if (data.success) {
+    const options = {
+      key: data.key,
+      amount: data.amount,
+      currency: 'INR',
+      name: data.name,
+      description: data.description,
+      order_id: data.order.id,
+      handler: function(response) {
+        // Verify payment
+        verifyRazorpayPayment(response);
+      },
+      modal: {
+        ondismiss: function() {
+          showNotification('error', 'Payment cancelled');
+        }
+      }
+    };
+    
+    const rzp = new Razorpay(options);
+    rzp.open();
+  } else {
+    showNotification('error', data.message || 'Failed to create payment order');
+  }
+}
 
-<%- include("../partials/user/footer") %>
+async function verifyRazorpayPayment(response) {
+  try {
+    const verifyResponse = await fetch('/api/checkout/verify-payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(response)
+    });
+    
+    const data = await verifyResponse.json();
+    
+    if (data.success) {
+      showNotification('success', 'Payment successful! Redirecting...');
+      setTimeout(() => {
+        window.location.href = `/order-success/${data.orderId}`;
+      }, 1500);
+    } else {
+      showNotification('error', data.message || 'Payment verification failed');
+    }
+  } catch (error) {
+    console.error('Error verifying payment:', error);
+    showNotification('error', 'Failed to verify payment');
+  }
+}
+
+async function processDirectPayment(orderData) {
+  const response = await fetch('/api/checkout/place-order', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(orderData)
+  });
+  
+  const data = await response.json();
+  
+  if (data.success) {
+    showNotification('success', 'Order placed successfully!');
+    setTimeout(() => {
+      window.location.href = `/order-success/${data.orderId}`;
+    }, 2000);
+  } else {
+    showNotification('error', data.message);
+  }
+}
+
+function showNotification(type, message) {
+  Swal.fire({
+    toast: true,
+    position: 'top-end',
+    icon: type,
+    title: message,
+    showConfirmButton: false,
+    timer: 3000
+  });
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+  updateAddressSummary();
+  updatePaymentSummary();
+});
+</script>
