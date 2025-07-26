@@ -1045,17 +1045,56 @@ async function processRazorpayPayment(orderData) {
         // Verify payment
         verifyRazorpayPayment(response);
       },
+      prefill: data.prefill,
+      theme: data.theme,
       modal: {
         ondismiss: function() {
-          showNotification('error', 'Payment cancelled');
+          handlePaymentFailure('Payment was cancelled by user');
         }
       }
     };
     
     const rzp = new Razorpay(options);
     rzp.open();
+    
+    // Handle payment failure
+    rzp.on('payment.failed', function(response) {
+      handlePaymentFailure(response.error.description || 'Payment failed');
+    });
   } else {
     showNotification('error', data.message || 'Failed to create payment order');
+  }
+}
+
+async function handlePaymentFailure(reason) {
+  try {
+    const response = await fetch('/api/checkout/payment-failure', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        error_description: reason
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (data.canRetry && data.redirectUrl) {
+      showNotification('error', data.message || 'Payment failed. Redirecting to order details...');
+      setTimeout(() => {
+        window.location.href = data.redirectUrl;
+      }, 2000);
+    } else {
+      showNotification('error', data.message || 'Payment failed. Redirecting to orders...');
+      setTimeout(() => {
+        window.location.href = data.redirectUrl || '/orders';
+      }, 2000);
+    }
+  } catch (error) {
+    console.error('Error handling payment failure:', error);
+    showNotification('error', 'Payment failed. Redirecting to orders...');
+    setTimeout(() => {
+      window.location.href = '/orders';
+    }, 2000);
   }
 }
 
@@ -1075,11 +1114,23 @@ async function verifyRazorpayPayment(response) {
         window.location.href = `/order-success/${data.orderId}`;
       }, 1500);
     } else {
-      showNotification('error', data.message || 'Payment verification failed');
+      // Handle payment failure - redirect to order details page
+      if (data.redirectUrl) {
+        showNotification('error', data.message || 'Payment failed. Redirecting to order details...');
+        setTimeout(() => {
+          window.location.href = data.redirectUrl;
+        }, 2000);
+      } else {
+        showNotification('error', data.message || 'Payment verification failed');
+      }
     }
   } catch (error) {
     console.error('Error verifying payment:', error);
-    showNotification('error', 'Failed to verify payment');
+    // Handle network errors by redirecting to orders page
+    showNotification('error', 'Payment verification failed. Redirecting to orders...');
+    setTimeout(() => {
+      window.location.href = '/orders';
+    }, 2000);
   }
 }
 
