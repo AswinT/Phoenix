@@ -154,6 +154,46 @@
   transform: scale(1.1);
 }
 
+/* Small Cart Icon - Bottom Right Corner */
+.modern-cart-icon {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-bounce);
+  z-index: 10;
+  font-size: 0.85rem;
+  box-shadow: 0 2px 8px rgba(27, 60, 83, 0.3);
+  border: 2px solid var(--white);
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.8);
+}
+
+.modern-product-card:hover .modern-cart-icon {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+}
+
+.modern-cart-icon:hover {
+  background: var(--secondary-color-1);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(27, 60, 83, 0.4);
+}
+
+.modern-cart-icon:active {
+  transform: scale(0.95);
+}
+
 /* Quick View Overlay */
 .modern-quick-view-overlay {
   position: absolute;
