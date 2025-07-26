@@ -1,194 +1,228 @@
 <%- include("../partials/user/header") %>
-<style>
-  /* Existing styles */
-  .offer-badge {
-    display: inline-block;
-    background-color: #e53935;
-    color: white;
-    padding: 0.15rem 0.5rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border-radius: 2px;
-    margin-left: 0.5rem;
-  }
-  
-  .offer-title {
-    font-size: 0.75rem;
-    color: #4caf50;
-  }
 
-  .original-price {
-    text-decoration: line-through;
-    color: #6b7280;
-    font-size: 0.875rem;
-    margin-right: 0.5rem;
-  }
+<!-- Cart Styles -->
+<link rel="stylesheet" href="/styles/user/cart.css" />
 
-  .discounted-price {
-    color: #000;
-    font-weight: bold;
-  }
-
-  /* Spinner styles */
-  .cart-item.updating {
-    opacity: 0.7;
-    pointer-events: none;
-    position: relative;
-  }
-
-  .cart-item.updating::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 24px;
-    height: 24px;
-    border: 3px solid #000;
-    border-top: 3px solid transparent;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    transform: translate(-50%, -50%);
-    z-index: 10;
-  }
-
-  @keyframes spin {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
-  }
-</style>
-<!-- Cart Header Section -->
-<section class="py-5 bg-light">
+<!-- Cart Page -->
+<section class="cart-page-section">
   <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-lg-8 text-center">
-        <h1 class="display-5 fw-bold mb-2">Your Cart</h1>
-        <p class="text-muted mb-0">Review and modify your selected products</p>
+    <!-- Breadcrumb -->
+    <nav class="cart-breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item"><a href="/shopPage">Shop</a></li>
+        <li class="breadcrumb-item active">Cart</li>
+      </ol>
+    </nav>
+
+    <!-- Cart Header -->
+    <div class="cart-header">
+      <div class="cart-header-content">
+        <div class="cart-icon">
+          <i class="ri-shopping-cart-line"></i>
+        </div>
+        <h1 class="cart-title">Your Cart</h1>
+        <p class="cart-subtitle">Review and modify your selected products</p>
       </div>
     </div>
-  </div>
-</section>
 
-<!-- Cart Content Section -->
-<section class="py-5">
-  <div class="container">
-    <div class="row g-5">
-      <!-- Cart Items -->
+    <div class="row g-4">
+      <!-- Cart Items Column -->
       <div class="col-lg-8">
         <!-- Empty Cart State -->
-        <div class="empty-cart text-center py-5 <%= cartItems.length === 0 ? '' : 'd-none' %>">
-          <div class="mb-4">
-            <i class="ri-shopping-cart-line" style="font-size: 4rem; color: #ccc;"></i>
+        <div class="empty-cart-container <%= cartItems.length === 0 ? '' : 'd-none' %>">
+          <div class="empty-cart-card">
+            <div class="empty-cart-icon">
+              <i class="ri-shopping-cart-line"></i>
+            </div>
+            <h3 class="empty-cart-title">Your cart is empty</h3>
+            <p class="empty-cart-text">Looks like you haven't found your perfect headphones yet</p>
+            <a href="/shopPage" class="btn-continue-shopping">
+              <i class="ri-headphone-line"></i>
+              Continue Shopping
+            </a>
           </div>
-          <h3 class="fs-4 fw-semibold mb-3">Your cart is empty</h3>
-          <p class="text-muted mb-4">Looks like you haven't found your perfect headphones yet</p>
-          <a href="/shopPage" class="btn btn-dark px-4 py-2">Continue Shopping</a>
         </div>
 
         <!-- Cart Items List -->
-        <div class="cart-items <%= cartItems.length === 0 ? 'd-none' : '' %>">
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fs-4 fw-bold">Items (<%= cartItems.reduce((sum, item) => sum + item.quantity, 0) %>)</h2>
-            <button class="btn btn-link text-dark p-0 text-decoration-none" id="clearCartBtn">Clear Cart</button>
+        <div class="cart-items-container <%= cartItems.length === 0 ? 'd-none' : '' %>">
+          <div class="cart-items-header">
+            <h2 class="items-count">Items (<%= cartItems.reduce((sum, item) => sum + item.quantity, 0) %>)</h2>
+            <button class="btn-clear-cart" id="clearCartBtn">
+              <i class="ri-delete-bin-line"></i>
+              Clear Cart
+            </button>
           </div>
 
-          <% cartItems.forEach(item => { %>
-            <div class="cart-item bg-white p-4 mb-3 rounded shadow-sm" data-product-id="<%= item.product._id %>">
-              <div class="row align-items-center">
-                <div class="col-md-2 col-4 mb-3 mb-md-0">
-                  <div class="position-relative">
-                    <img src="<%= item.product.mainImage || '/api/placeholder/150/200' %>" alt="<%= item.product.title %>" class="img-fluid rounded" />
-                    <% if (item.product.activeOffer && item.product.discountPercentage > 0) { %>
-                      <span class="position-absolute top-0 end-0 offer-badge"><%= item.product.discountPercentage %>% OFF</span>
-                    <% } %>
+          <div class="cart-items-list">
+            <% cartItems.forEach(item => { %>
+              <div class="cart-item floating-card" data-product-id="<%= item.product._id %>">
+                <div class="cart-item-content">
+                  <!-- Product Image -->
+                  <div class="product-image-section">
+                    <div class="product-image-wrapper">
+                      <img src="<%= item.product.mainImage || '/api/placeholder/150/200' %>" alt="<%= item.product.model %>" class="product-image" />
+                      <% if (item.product.activeOffer && item.product.discountPercentage > 0) { %>
+                        <span class="discount-badge">
+                          <%= Math.round(item.product.discountPercentage) %>% OFF
+                        </span>
+                      <% } %>
+                    </div>
                   </div>
-                </div>
-                <div class="col-md-6 col-8 mb-3 mb-md-0">
-                  <h3 class="fs-5 fw-semibold mb-1"><%= item.product.model %></h3>
-                  <p class="text-muted small mb-1"><%= item.product.brand %></p>
-                  <p class="small mb-0"><%= item.product.connectivity %></p>
-                  <% if (item.product.activeOffer) { %>
-                    <p class="offer-title mt-1"><i class="ri-price-tag-3-line"></i> <%= item.product.activeOffer.title %></p>
-                  <% } %>
-                  <span class="stock-status <%= item.product.stock > 10 ? 'in-stock' : item.product.stock > 0 ? 'low-stock' : 'out-of-stock' %>">
-                    <i class="ri-<%= item.product.stock > 10 ? 'checkbox-circle-line' : item.product.stock > 0 ? 'alert-line' : 'close-circle-line' %> me-1"></i>
-                    <%= item.product.stock > 10 ? `In Stock (${item.product.stock} units available)` : item.product.stock > 0 ? `Low Stock (${item.product.stock} units left)` : 'Out of Stock' %>
-                  </span>
-                </div>
-                <div class="col-md-2 col-6 text-md-center">
-                  <div class="quantity-selector d-flex align-items-center">
-                    <button class="btn btn-sm btn-outline-dark quantity-btn">-</button>
-                    <input type="number" class="form-control form-control-sm mx-2 text-center quantity-input" value="<%= item.quantity %>" min="1" max="<%= Math.min(5, item.product.stock) %>" style="width: 50px;" />
-                    <button class="btn btn-sm btn-outline-dark quantity-btn">+</button>
+
+                  <!-- Product Details -->
+                  <div class="product-details-section">
+                    <div class="product-info">
+                      <h3 class="product-title"><%= item.product.model %></h3>
+                      <div class="product-meta">
+                        <span class="product-brand">
+                          <i class="ri-headphone-line"></i>
+                          <%= item.product.brand %>
+                        </span>
+                        <% if (item.product.connectivity) { %>
+                          <span class="product-connectivity">
+                            <i class="ri-wireless-charging-line"></i>
+                            <%= item.product.connectivity %>
+                          </span>
+                        <% } %>
+                      </div>
+                      
+                      <% if (item.product.activeOffer) { %>
+                        <div class="offer-info">
+                          <i class="ri-gift-line"></i>
+                          <%= item.product.activeOffer.title %>
+                        </div>
+                      <% } %>
+
+                      <!-- Stock Status -->
+                      <div class="stock-status stock-<%= item.product.stock > 10 ? 'in-stock' : item.product.stock > 0 ? 'low-stock' : 'out-of-stock' %>">
+                        <i class="<%= item.product.stock > 10 ? 'ri-checkbox-circle-line' : item.product.stock > 0 ? 'ri-error-warning-line' : 'ri-close-circle-line' %>"></i>
+                        <%= item.product.stock > 10 ? `In Stock (${item.product.stock} available)` : item.product.stock > 0 ? `Low Stock (${item.product.stock} left)` : 'Out of Stock' %>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div class="col-md-2 col-6 text-end">
-                  <div class="d-flex flex-column align-items-end">
-                    <% if (item.product.discountPercentage > 0) { %>
-                      <span class="original-price">₹<%= item.product.regularPrice.toFixed(2) %></span>
-                      <span class="discounted-price fw-bold">₹<%= (item.quantity * item.product.finalPrice).toFixed(2) %></span>
-                    <% } else { %>
-                      <span class="fw-bold">₹<%= (item.quantity * item.product.finalPrice).toFixed(2) %></span>
-                    <% } %>
-                    <button class="btn btn-link text-danger p-0 small text-decoration-none remove-item">Remove</button>
+
+                  <!-- Quantity & Price Section -->
+                  <div class="quantity-price-section">
+                    <!-- Quantity Controls -->
+                    <div class="quantity-section">
+                      <label class="quantity-label">Quantity:</label>
+                      <div class="quantity-controls">
+                        <button class="quantity-btn quantity-minus">
+                          <i class="ri-subtract-line"></i>
+                        </button>
+                        <input type="number" class="quantity-input" value="<%= item.quantity %>" min="1" max="<%= Math.min(5, item.product.stock) %>" readonly>
+                        <button class="quantity-btn quantity-plus">
+                          <i class="ri-add-line"></i>
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Price & Actions -->
+                    <div class="price-actions-section">
+                      <div class="price-display">
+                        <% if (item.product.discountPercentage > 0) { %>
+                          <span class="original-price">₹<%= item.product.regularPrice.toFixed(2) %></span>
+                          <span class="discounted-price">₹<%= (item.quantity * item.product.finalPrice).toFixed(2) %></span>
+                        <% } else { %>
+                          <span class="current-price">₹<%= (item.quantity * item.product.finalPrice).toFixed(2) %></span>
+                        <% } %>
+                      </div>
+                      <button class="btn-remove-item remove-item">
+                        <i class="ri-delete-bin-line"></i>
+                        Remove
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          <% }) %>
-        </div>
+            <% }) %>
+          </div>
 
-        <!-- Continue Shopping -->
-        <div class="mt-4">
-          <a href="/shopPage" class="text-dark d-flex align-items-center text-decoration-none">
-            <i class="ri-arrow-left-line me-2"></i> Continue Shopping
-          </a>
+          <!-- Continue Shopping Link -->
+          <div class="continue-shopping-section">
+            <a href="/shopPage" class="continue-shopping-link">
+              <i class="ri-arrow-left-line"></i>
+              Continue Shopping
+            </a>
+          </div>
         </div>
       </div>
 
-      <!-- Order Summary -->
+      <!-- Order Summary Column -->
       <div class="col-lg-4">
-        <div class="order-summary bg-white p-4 rounded shadow-sm <%= cartItems.length === 0 ? 'd-none' : '' %>" id="orderSummary">
-          <h2 class="fs-4 fw-bold mb-4">Order Summary</h2>
-          
-          <!-- Subtotal -->
-          <div class="d-flex justify-content-between mb-3">
-            <span>Subtotal (<%= cartItems.reduce((sum, item) => sum + item.quantity, 0) %> items)</span>
-            <span class="fw-semibold">₹<%= (parseFloat(totalAmount) + parseFloat(totalDiscount)).toFixed(2) %></span>
-          </div>
-          
-          <!-- Discount -->
-          <% if (totalDiscount > 0) { %>
-            <div class="d-flex justify-content-between mb-3 text-success">
-              <span>Discount</span>
-              <span class="fw-semibold">-₹<%= totalDiscount %></span>
+        <div class="order-summary-container <%= cartItems.length === 0 ? 'd-none' : '' %>" id="orderSummary">
+          <div class="order-summary-card floating-card">
+            <div class="summary-header">
+              <h2 class="summary-title">Order Summary</h2>
+              <div class="summary-icon">
+                <i class="ri-file-list-3-line"></i>
+              </div>
             </div>
-          <% } %>
-          
-          <!-- Shipping -->
-          <div class="d-flex justify-content-between mb-3">
-            <span>Shipping</span>
-            <span class="fw-semibold">₹0</span>
-          </div>
-          
-          <hr class="my-3">
-          
-          <!-- Total -->
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <span class="fs-5 fw-bold">Total</span>
-            <span class="fs-5 fw-bold">₹<%= totalAmount %></span>
-          </div>
-          
-          <!-- Checkout Button -->
-          <a href="/checkout" class="btn btn-dark w-100 py-3 fw-medium">Proceed to Checkout</a>
-          
-          <!-- Payment Methods -->
-          <div class="payment-methods mt-3 text-center">
-            <p class="text-muted small mb-2">We accept</p>
-            <div class="d-flex justify-content-center gap-2">
-              <div class="payment-icon"><i class="ri-visa-line"></i></div>
-              <div class="payment-icon"><i class="ri-mastercard-line"></i></div>
-              <div class="payment-icon"><i class="ri-paypal-line"></i></div>
-              <div class="payment-icon"><i class="ri-apple-line"></i></div>
+            
+            <div class="summary-content">
+              <!-- Subtotal -->
+              <div class="summary-row">
+                <span class="summary-label">Subtotal (<%= cartItems.reduce((sum, item) => sum + item.quantity, 0) %> items)</span>
+                <span class="summary-value">₹<%= (parseFloat(totalAmount) + parseFloat(totalDiscount)).toFixed(2) %></span>
+              </div>
+              
+              <!-- Discount -->
+              <% if (totalDiscount > 0) { %>
+                <div class="summary-row discount-row">
+                  <span class="summary-label">
+                    <i class="ri-price-tag-3-line"></i>
+                    Discount
+                  </span>
+                  <span class="summary-value discount-value">-₹<%= totalDiscount %></span>
+                </div>
+              <% } %>
+              
+              <!-- Shipping -->
+              <div class="summary-row">
+                <span class="summary-label">
+                  <i class="ri-truck-line"></i>
+                  Shipping
+                </span>
+                <span class="summary-value free-shipping">FREE</span>
+              </div>
+              
+              <div class="summary-divider"></div>
+              
+              <!-- Total -->
+              <div class="summary-total">
+                <span class="total-label">Total</span>
+                <span class="total-value">₹<%= totalAmount %></span>
+              </div>
+              
+              <!-- Checkout Button -->
+              <a href="/checkout" class="btn-checkout">
+                <i class="ri-secure-payment-line"></i>
+                <span>Proceed to Checkout</span>
+              </a>
+              
+              <!-- Security Info -->
+              <div class="security-info">
+                <div class="security-item">
+                  <i class="ri-shield-check-line"></i>
+                  <span>Secure checkout</span>
+                </div>
+                <div class="security-item">
+                  <i class="ri-arrow-go-back-line"></i>
+                  <span>Easy returns</span>
+                </div>
+              </div>
+              
+              <!-- Payment Methods -->
+              <div class="payment-methods">
+                <div class="payment-methods-title">We accept</div>
+                <div class="payment-icons">
+                  <div class="payment-icon"><i class="ri-visa-line"></i></div>
+                  <div class="payment-icon"><i class="ri-mastercard-line"></i></div>
+                  <div class="payment-icon"><i class="ri-paypal-line"></i></div>
+                  <div class="payment-icon"><i class="ri-apple-pay-line"></i></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -198,54 +232,57 @@
 </section>
 
 <!-- You May Also Like Section -->
-<section class="py-5 bg-light">
+<% if (relatedProducts && relatedProducts.length > 0) { %>
+<section class="related-products-section">
   <div class="container">
-    <h2 class="fs-2 fw-bold mb-4">You May Also Like</h2>
-    <div class="row g-4">
-      <% relatedProducts.forEach(product => { %>
-        <div class="col-6 col-md-3">
-          <div class="product-card bg-white h-100">
-            <div class="product-image-container">
-              <% 
-                const now = new Date();
-                const createdAt = new Date(product.createdAt);
-                const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24);
-                const isNew = diffDays <= 30;
-              %>
-              <% if (isNew) { %>
-                <span class="product-tag">New</span>
-              <% } %>
-              
-              <% if (product.activeOffer && product.discountPercentage > 0) { %>
-                <span class="position-absolute top-0 end-0 offer-badge"><%= product.discountPercentage %>% OFF</span>
-              <% } %>
-              
-              <a href="/products/<%= product._id %>" class="text-decoration-none">
-                <img src="<%= product.mainImage || '/api/placeholder/600/800' %>" alt="<%= product.model %>" class="product-image" />
-              </a>
+    <div class="section-header">
+      <h2 class="section-title">You May Also Like</h2>
+      <div class="title-underline"></div>
+    </div>
+    <div class="related-products-grid">
+      <% relatedProducts.slice(0, 4).forEach(product => { %>
+        <div class="related-product-card floating-card">
+          <div class="related-product-image">
+            <% if (product.activeOffer && product.discountPercentage > 0) { %>
+              <span class="related-discount-badge">
+                <%= Math.round(product.discountPercentage) %>% OFF
+              </span>
+            <% } %>
+            <a href="/products/<%= product._id %>">
+              <img src="<%= product.mainImage || '/api/placeholder/300/300' %>" alt="<%= product.model %>">
+            </a>
+            <div class="related-product-overlay">
+              <button class="btn-quick-add add-to-cart" data-product-id="<%= product._id %>">
+                <i class="ri-shopping-cart-line"></i>
+              </button>
             </div>
-            <div class="p-3">
-              <h3 class="fs-5 fw-semibold mb-1">
-                <a href="/products/<%= product._id %>" class="text-dark text-decoration-none"><%= product.model %></a>
-              </h3>
-              <p class="text-muted small mb-2"><%= product.brand %></p>
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <% if (product.activeOffer && product.discountPercentage > 0) { %>
-                    <span class="original-price">₹<%= product.regularPrice.toFixed(2) %></span>
-                    <span class="fw-bold">₹<%= product.finalPrice.toFixed(2) %></span>
-                  <% } else { %>
-                    <span class="fw-bold">₹<%= product.finalPrice.toFixed(2) %></span>
-                  <% } %>
-                  <span class="stock-status <%= product.stock > 10 ? 'in-stock' : product.stock > 0 ? 'low-stock' : 'out-of-stock' %>">
-                    <i class="ri-<%= product.stock > 10 ? 'checkbox-circle-line' : product.stock > 0 ? 'alert-line' : 'close-circle-line' %> me-1"></i>
-                    <%= product.stock > 10 ? 'In Stock' : product.stock > 0 ? 'Low Stock' : 'Out of Stock' %>
-                  </span>
-                </div>
-                <button class="add-to-cart border-0" data-product-id="<%= product._id %>">
-                  <i class="ri-add-line"></i>
-                </button>
+          </div>
+          <div class="related-product-info">
+            <div class="related-brand"><%= product.brand %></div>
+            <h4 class="related-title">
+              <a href="/products/<%= product._id %>"><%= product.model %></a>
+            </h4>
+            <div class="related-rating">
+              <div class="related-stars">
+                <i class="ri-star-fill"></i>
+                <i class="ri-star-fill"></i>
+                <i class="ri-star-fill"></i>
+                <i class="ri-star-fill"></i>
+                <i class="ri-star-half-line"></i>
               </div>
+              <span class="related-rating-text">(4.2)</span>
+            </div>
+            <div class="related-price">
+              <% if (product.discountPercentage > 0) { %>
+                <span class="related-original-price">₹<%= product.regularPrice.toFixed(2) %></span>
+                <span class="related-current-price">₹<%= product.finalPrice.toFixed(2) %></span>
+              <% } else { %>
+                <span class="related-current-price">₹<%= product.regularPrice.toFixed(2) %></span>
+              <% } %>
+            </div>
+            <div class="related-stock stock-<%= product.stock > 10 ? 'in-stock' : product.stock > 0 ? 'low-stock' : 'out-of-stock' %>">
+              <i class="<%= product.stock > 10 ? 'ri-checkbox-circle-line' : product.stock > 0 ? 'ri-error-warning-line' : 'ri-close-circle-line' %>"></i>
+              <%= product.stock > 10 ? 'In Stock' : product.stock > 0 ? 'Low Stock' : 'Out of Stock' %>
             </div>
           </div>
         </div>
@@ -253,181 +290,17 @@
     </div>
   </div>
 </section>
+<% } %>
 
 <%- include("../partials/user/footer") %>
-
-<style>
-  /* Existing styles unchanged */
-  body {
-    font-family: "Inter", sans-serif;
-    color: #1a1a1a;
-    background-color: #f9f9f9;
-  }
-  
-  .cart-item {
-    transition: all 0.2s ease;
-  }
-  
-  .cart-item:hover {
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-  }
-  
-  .quantity-btn {
-    width: 28px;
-    height: 28px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .quantity-btn:focus {
-    box-shadow: none;
-  }
-  
-  .form-control:focus {
-    box-shadow: none;
-    border-color: #000;
-  }
-  
-  .btn-dark {
-    background-color: #000;
-    border-color: #000;
-  }
-  
-  .btn-dark:hover {
-    background-color: #333;
-    border-color: #333;
-  }
-  
-  .btn-outline-dark:hover {
-    background-color: #000;
-    border-color: #000;
-  }
-  
-  .product-image-container {
-    height: 16rem;
-    overflow: hidden;
-    position: relative;
-  }
-  
-  .product-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: top;
-    transition: transform 0.5s ease;
-  }
-  
-  .product-card:hover .product-image {
-    transform: scale(1.05);
-  }
-  
-  .product-tag {
-    position: absolute;
-    top: 0.75rem;
-    left: 0.75rem;
-    z-index: 10;
-    background-color: #000;
-    color: #fff;
-    font-size: 0.75rem;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-  }
-  
-  .add-to-cart {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 9999px;
-    background-color: #000;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-  }
-  
-  .add-to-cart:hover {
-    background-color: #333;
-  }
-  
-  .payment-icon {
-    width: 2rem;
-    height: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #6b7280;
-  }
-  
-  .stock-status {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 0.25rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    margin-top: 0.5rem;
-  }
-  
-  .in-stock {
-    background-color: #ecfdf5;
-    color: #047857;
-  }
-  
-  .low-stock {
-    background-color: #fffbeb;
-    color: #b45309;
-  }
-  
-  .out-of-stock {
-    background-color: #fef2f2;
-    color: #b91c1c;
-  }
-  
-  #orderSummary.fixed {
-    position: fixed;
-    top: 80px;
-    width: inherit;
-    max-width: inherit;
-  }
-  
-  @media (max-width: 767.98px) {
-    .quantity-selector {
-      justify-content: flex-start;
-    }
-    
-    #orderSummary.fixed {
-      position: fixed;
-      top: 80px;
-      z-index: 100;
-      transition: all 0.2s ease;
-    }
-    
-    .col-lg-4 {
-      position: relative;
-    }
-    
-    @media (max-width: 991.98px) {
-      #orderSummary.fixed {
-        position: static !important;
-        width: 100% !important;
-      }
-    }
-    
-    .stock-status {
-      padding: 0.15rem 0.5rem;
-      font-size: 0.75rem;
-    }
-  }
-</style>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   // DOM Elements
   const clearCartBtn = document.querySelector('#clearCartBtn');
-  const emptyCart = document.querySelector('.empty-cart');
-  const cartItemsContainer = document.querySelector('.cart-items');
+  const emptyCart = document.querySelector('.empty-cart-container');
+  const cartItemsContainer = document.querySelector('.cart-items-container');
   const orderSummary = document.querySelector('#orderSummary');
   const cartCountElement = document.querySelector('.cart-count');
   
@@ -456,20 +329,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Main Functions
   async function clearCart() {
-    // Show confirmation dialog
     const result = await Swal.fire({
       title: 'Clear Cart?',
       text: 'Are you sure you want to remove all items from your cart? This action cannot be undone.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#dc3545',
+      confirmButtonColor: '#1B3C53',
       cancelButtonColor: '#6c757d',
       confirmButtonText: 'Yes, clear it!',
       cancelButtonText: 'Cancel',
       reverseButtons: true
     });
 
-    // If user confirmed, proceed with clearing
     if (result.isConfirmed) {
       try {
         const response = await fetch('/api/cart/clear', {
@@ -506,19 +377,14 @@ document.addEventListener('DOMContentLoaded', function () {
     
     cartItems.forEach(item => {
       const productId = item.dataset.productId;
-      const minusBtn = item.querySelector('.quantity-btn:first-child');
-      const plusBtn = item.querySelector('.quantity-btn:last-child');
+      const minusBtn = item.querySelector('.quantity-minus');
+      const plusBtn = item.querySelector('.quantity-plus');
       const quantityInput = item.querySelector('.quantity-input');
       const removeBtn = item.querySelector('.remove-item');
 
-      if (!quantityInput) {
-        return;
-      }
+      if (!quantityInput) return;
 
-      // Preserve initial values
       quantityInput.dataset.previousValue = quantityInput.value;
-      
-      // Debounce timer
       let updateTimeout;
 
       minusBtn && minusBtn.addEventListener('click', function() {
@@ -556,7 +422,6 @@ document.addEventListener('DOMContentLoaded', function () {
         let value = parseInt(this.value);
         const maxValue = parseInt(this.getAttribute('max') || '999');
         
-        // Validate input
         if (isNaN(value) || value < 1) {
           value = 1;
         } else if (value > maxValue) {
@@ -608,13 +473,11 @@ document.addEventListener('DOMContentLoaded', function () {
       if (result.success) {
         quantityInput.dataset.previousValue = quantity;
         
-        // Update price display
-        const priceElement = item.querySelector('.discounted-price') || item.querySelector('.fw-bold');
+        const priceElement = item.querySelector('.discounted-price') || item.querySelector('.current-price');
         if (priceElement) {
           priceElement.textContent = `₹${result.itemTotal.toFixed(2)}`;
         }
         
-        // Update order summary
         if (typeof result.totalAmount === 'number') {
           updateOrderSummaryDOM(result.totalAmount, result.cartCount);
         }
@@ -627,10 +490,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         showNotification('success', result.message || 'Cart updated successfully');
         
-        // Reload the page to refresh the summary
         setTimeout(() => {
           window.location.reload();
-        }, 1000); // Delay to show notification and spinner
+        }, 1000);
       } else {
         quantityInput.value = previousValue;
         showNotification('error', result.message || 'Failed to update cart');
@@ -747,113 +609,9 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function updateOrderSummaryDOM(totalAmount, cartCount) {
-    const subtotalElement = findElement([
-      '#orderSummary .d-flex:first-child .fw-semibold',
-      '#orderSummary .d-flex:nth-child(1) .fw-semibold',
-      '#orderSummary .d-flex .fw-semibold'
-    ]);
-    
-    if (subtotalElement) {
-      subtotalElement.textContent = `₹${totalAmount.toFixed(2)}`;
-    }
-    
-    const totalElement = findElement([
-      '#orderSummary .d-flex:last-of-type .fs-5.fw-bold:last-child', 
-      '#orderSummary .d-flex:nth-child(4) .fs-5.fw-bold',
-      '#orderSummary .fs-5.fw-bold:last-child'
-    ]);
-    
-    if (totalElement) {
-      totalElement.textContent = `₹${totalAmount.toFixed(2)}`;
-    }
-    
-    if (cartCount !== undefined) {
-      const itemCountElement = findElement([
-        '#orderSummary .d-flex:first-child span:first-child',
-        '#orderSummary .d-flex:nth-child(1) span:first-child'
-      ]);
-      
-      if (itemCountElement) {
-        itemCountElement.textContent = `Subtotal (${cartCount} items)`;
-      }
-      
-      const cartItemsHeader = document.querySelector('.cart-items h2');
-      if (cartItemsHeader) {
-        cartItemsHeader.textContent = `Items (${cartCount})`;
-      }
-    }
-    
-    if (!subtotalElement || !totalElement) {
-      rebuildOrderSummary(totalAmount, cartCount);
-    }
-    
-    orderSummary.style.display = 'none';
-    orderSummary.offsetHeight;
-    orderSummary.style.display = '';
-  }
-  
-  function findElement(selectors) {
-    for (const selector of selectors) {
-      const element = document.querySelector(selector);
-      if (element) {
-        return element;
-      }
-    }
-    return null;
-  }
-  
-  function rebuildOrderSummary(totalAmount, cartCount) {
-    if (!orderSummary) {
-      return;
-    }
-    
-    const summaryHTML = `
-      <h2 class="fs-4 fw-bold mb-4">Order Summary</h2>
-      
-      <!-- Subtotal -->
-      <div class="d-flex justify-content-between mb-3">
-        <span>Subtotal (${cartCount || 0} items)</span>
-        <span class="fw-semibold">₹${(totalAmount + (parseFloat(totalDiscount) || 0)).toFixed(2)}</span>
-      </div>
-      
-      <!-- Discount -->
-      ${parseFloat(totalDiscount) > 0 ? `
-        <div class="d-flex justify-content-between mb-3 text-success">
-          <span>Discount</span>
-          <span class="fw-semibold">-₹${parseFloat(totalDiscount).toFixed(2)}</span>
-        </div>
-      ` : ''}
-      
-      <!-- Shipping -->
-      <div class="d-flex justify-content-between mb-3">
-        <span>Shipping</span>
-        <span class="fw-semibold">₹0</span>
-      </div>
-      
-      <hr class="my-3">
-      
-      <!-- Total -->
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <span class="fs-5 fw-bold">Total</span>
-        <span class="fs-5 fw-bold">₹${totalAmount.toFixed(2)}</span>
-      </div>
-      
-      <!-- Checkout Button -->
-      <a href="/checkout" class="btn btn-dark w-100 py-3 fw-medium">Proceed to Checkout</a>
-      
-      <!-- Payment Methods -->
-      <div class="payment-methods mt-3 text-center">
-        <p class="text-muted small mb-2">We accept</p>
-        <div class="d-flex justify-content-center gap-2">
-          <div class="payment-icon"><i class="ri-visa-line"></i></div>
-          <div class="payment-icon"><i class="ri-mastercard-line"></i></div>
-          <div class="payment-icon"><i class="ri-paypal-line"></i></div>
-          <div class="payment-icon"><i class="ri-apple-line"></i></div>
-        </div>
-      </div>
-    `;
-    
-    orderSummary.innerHTML = summaryHTML;
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
   }
 
   function handleOrderSummaryPosition() {
@@ -868,21 +626,18 @@ document.addEventListener('DOMContentLoaded', function () {
     
     if (window.innerWidth >= 992) {
       if (parentRect.top < 80 && parentRect.bottom > (summaryHeight + 80)) {
-        orderSummary.classList.add('fixed');
+        orderSummary.classList.add('sticky-summary');
         orderSummary.style.width = parentRect.width + 'px';
         orderSummary.style.maxHeight = (windowHeight - 100) + 'px';
-        orderSummary.style.overflowY = summaryHeight > (windowHeight - 100) ? 'auto' : 'visible';
       } else {
-        orderSummary.classList.remove('fixed');
+        orderSummary.classList.remove('sticky-summary');
         orderSummary.style.width = '';
         orderSummary.style.maxHeight = '';
-        orderSummary.style.overflowY = '';
       }
     } else {
-      orderSummary.classList.remove('fixed');
+      orderSummary.classList.remove('sticky-summary');
       orderSummary.style.width = '';
       orderSummary.style.maxHeight = '';
-      orderSummary.style.overflowY = '';
     }
   }
 

@@ -326,863 +326,857 @@
   }
 </style>
 
-<div class="container py-4">
-  <div class="row">
-    <%- include("../partials/user/accountSidebar", { user: {
-      id: user.id,
-      fullName: user.fullName,
-      email: user.email,
-      profileImage: user.profileImage
-    } }) %>
-
-    <!-- Main Content -->
-    <div class="col-lg-9">
-      <!-- Order Details Header -->
-      <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-        <div class="d-flex align-items-center gap-2 mb-2 mb-md-0">
-          <a href="/orders" class="text-decoration-none">
-            <i class="bi bi-arrow-left me-2"></i>Back to Orders
-          </a>
-        </div>
-        <h2 class="fs-4 fw-bold mb-0">Order Details</h2>
-      </div>
-
-      <!-- Order Status Card -->
-      <div class="order-card mb-4">
-        <div class="order-header d-flex justify-content-between align-items-center p-3">
-          <div>
-            <p class="mb-0 text-muted small">Order <%= order.orderNumber %></p>
-            <p class="mb-0 fw-medium">Placed on <%= order.formattedDate %></p>
+<!-- BEGIN PHOENIX LAYOUT -->
+<div class="phoenix-container">
+  <div class="container-fluid">
+    <div class="row g-4">
+      <%- include("../partials/user/accountSidebar", { user: {
+        id: user.id,
+        fullName: user.fullName,
+        email: user.email,
+        profileImage: user.profileImage
+      } }) %>
+      <!-- Main Content -->
+      <div class="col-lg-10">
+        <div class="phoenix-main-content mx-3 mx-md-4 mx-lg-5 pe-lg-5">
+          <!-- Order Details Header -->
+          <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center gap-2 mb-2 mb-md-0">
+              <a href="/orders" class="text-decoration-none">
+                <i class="bi bi-arrow-left me-2"></i>Back to Orders
+              </a>
+            </div>
+            <h2 class="fs-4 fw-bold mb-0">Order Details</h2>
           </div>
-          <div>
-            <% if (order.orderStatus === 'Delivered') { %>
-              <span class="badge bg-success">Delivered</span>
-            <% } else if (order.orderStatus === 'Shipped') { %>
-              <span class="badge bg-primary">Shipped</span>
-            <% } else if (order.orderStatus === 'Processing') { %>
-              <span class="badge bg-warning text-dark">Processing</span>
-            <% } else if (order.orderStatus === 'Cancelled') { %>
-              <span class="badge bg-secondary">Cancelled</span>
-            <% } else if (order.orderStatus === 'Partially Cancelled') { %>
-              <span class="badge bg-secondary">Partially Cancelled</span>
-            <% } else if (order.orderStatus === 'Placed') { %>
-              <span class="badge bg-info">Placed</span>
-            <% } else if (order.orderStatus === 'Returned') { %>
-              <span class="badge bg-danger">Returned</span>
-            <% } else if (order.orderStatus === 'Partially Returned') { %>
-              <span class="badge bg-danger">Partially Returned</span>
-            <% } else if (order.orderStatus === 'Return Requested') { %>
-              <span class="badge bg-warning">Return Requested</span>
-            <% } else if (order.orderStatus === 'Partially Return Requested') { %>
-              <span class="badge bg-warning">Partially Return Requested</span>
-            <% } else if (order.orderStatus === 'Pending Payment') { %>
-              <span class="badge bg-danger">
-                <i class="ri-error-warning-line"></i> Payment Pending
-              </span>
-            <% } %>
-          </div>
-        </div>
-      </div>
 
-      <!-- Order Timeline -->
-      <div class="order-card mb-4">
-        <div class="card-body p-4">
-          <h5 class="fw-bold mb-3">Order Status Timeline</h5>
-          <div class="order-timeline">
-            <% timeline.forEach(item => { %>
-              <div class="timeline-item <%= item.completed ? 'completed' : item.active ? 'active' : item.cancelled ? 'cancelled' : item.returned ? 'returned' : item.return_requested ? 'return-requested' : 'pending' %>">
-                <p class="fw-medium mb-0"><%= item.status %></p>
-                <p class="text-muted small mb-0"><%= item.timestamp %></p>
+          <!-- Order Status Card -->
+          <div class="order-card mb-4">
+            <div class="order-header d-flex justify-content-between align-items-center p-3">
+              <div>
+                <p class="mb-0 text-muted small">Order <%= order.orderNumber %></p>
+                <p class="mb-0 fw-medium">Placed on <%= order.formattedDate %></p>
               </div>
-            <% }) %>
-          </div>
-        </div>
-      </div>
-
-      <!-- Order Items -->
-      <div class="order-card mb-4">
-        <div class="card-body p-4">
-          <h5 class="fw-bold mb-3">Items in Your Order</h5>
-
-          <% order.items.forEach(item => { %>
-            <div class="d-flex mb-4 order-item">
-              <div class="order-item-image me-3">
-                <img
-                  src="<%= item.image || 'https://via.placeholder.com/120x160' %>"
-                  alt="<%= item.model || 'Product' %>"
-                  class="img-fluid rounded"
-                  onerror="this.src='https://via.placeholder.com/120x160'"
-                >
-              </div>
-              <div class="flex-grow-1">
-                <div class="d-flex justify-content-between mb-2">
-                  <h6 class="fw-semibold mb-1">
-                    <%= item.model || 'Unknown Product' %>
-                    <% if (item.status === 'Cancelled') { %>
-                      <span class="item-status cancelled">Cancelled</span>
-                    <% } else if (item.status === 'Returned') { %>
-                      <span class="item-status returned">Returned</span>
-                    <% } else if (item.status === 'Return Requested') { %>
-                      <span class="item-status return-requested">Return Requested</span>
-                    <% } else if (item.status === 'Active') { %>
-                      <span class="item-status active">Active</span>
-                    <% } %>
-                  </h6>
-                  <div class="text-end">
-                    <% if (item.discountedPrice && item.discountedPrice < item.originalPrice) { %>
-                      <p class="mb-0">
-                        <span class="text-decoration-line-through text-muted me-2">
-                          <%= item.formattedPrice %>
-                        </span>
-                        <span class="fw-medium">
-                          <%= item.formattedDiscountedPrice %>
-                        </span>
-                      </p>
-                      <% if (item.offerDiscount > 0) { %>
-                        <small class="text-success d-block">
-                          Save <%= item.discountPercentage %>% with offer
-                        </small>
-                      <% } %>
-                      <% if (item.couponDiscount > 0) { %>
-                        <small class="text-success d-block coupon-info">
-                          <i class="bi bi-ticket-perforated me-1"></i>
-                          <span data-bs-toggle="tooltip" title="Coupon discount applied to this item">
-                            -₹<%= typeof item.couponDiscount === 'number' ? item.couponDiscount.toFixed(2) : '0.00' %> coupon applied
-                          </span>
-                          <% 
-                          // Safely calculate percentage with fallbacks
-                          const couponProportion = item.couponProportion || item.priceBreakdown?.couponProportion || 0;
-                          let percentValue = 0;
-                          
-                          // Only calculate if proportion is valid
-                          if (couponProportion > 0) {
-                            percentValue = Math.round(couponProportion * 100);
-                            // Cap at 100% for display
-                            percentValue = Math.min(percentValue, 100); 
-                          }
-                          %>
-                          <i class="bi bi-info-circle ms-1" 
-                             data-bs-toggle="tooltip" 
-                             title="This represents <%= percentValue %>% of the total coupon discount"></i>
-                        </small>
-                      <% } %>
-                      <% if (item.finalPrice !== item.discountedPrice) { %>
-                        <p class="mb-0 mt-1 fw-bold text-success">
-                          <i class="bi bi-tag-fill me-1"></i>Final price: <%= item.formattedFinalPrice %>
-                        </p>
-                      <% } %>
-                    <% } else { %>
-                      <p class="fw-medium mb-0"><%= item.formattedPrice %></p>
-                      <% if (item.couponDiscount > 0) { %>
-                        <small class="text-success d-block coupon-info">
-                          <i class="bi bi-ticket-perforated me-1"></i>
-                          <span data-bs-toggle="tooltip" title="Coupon discount applied to this item">
-                            -₹<%= typeof item.couponDiscount === 'number' ? item.couponDiscount.toFixed(2) : '0.00' %> coupon applied
-                          </span>
-                          <% 
-                          // Safely calculate percentage with fallbacks
-                          const couponProportion = item.couponProportion || item.priceBreakdown?.couponProportion || 0;
-                          let percentValue = 0;
-                          
-                          // Only calculate if proportion is valid
-                          if (couponProportion > 0) {
-                            percentValue = Math.round(couponProportion * 100);
-                            // Cap at 100% for display
-                            percentValue = Math.min(percentValue, 100); 
-                          }
-                          %>
-                          <i class="bi bi-info-circle ms-1" 
-                             data-bs-toggle="tooltip" 
-                             title="This represents <%= percentValue %>% of the total coupon discount"></i>
-                        </small>
-                      <% } %>
-                    <% } %>
-                  </div>
-                </div>
-                <% if (item.offerTitle) { %>
-                  <p class="mb-2 text-success">
-                    <small><i class="bi bi-tag-fill me-1"></i><%= item.offerTitle %></small>
-                  </p>
+              <div>
+                <% if (order.orderStatus === 'Delivered') { %>
+                  <span class="badge bg-success">Delivered</span>
+                <% } else if (order.orderStatus === 'Shipped') { %>
+                  <span class="badge bg-primary">Shipped</span>
+                <% } else if (order.orderStatus === 'Processing') { %>
+                  <span class="badge bg-warning text-dark">Processing</span>
+                <% } else if (order.orderStatus === 'Cancelled') { %>
+                  <span class="badge bg-secondary">Cancelled</span>
+                <% } else if (order.orderStatus === 'Partially Cancelled') { %>
+                  <span class="badge bg-secondary">Partially Cancelled</span>
+                <% } else if (order.orderStatus === 'Placed') { %>
+                  <span class="badge bg-info">Placed</span>
+                <% } else if (order.orderStatus === 'Returned') { %>
+                  <span class="badge bg-danger">Returned</span>
+                <% } else if (order.orderStatus === 'Partially Returned') { %>
+                  <span class="badge bg-danger">Partially Returned</span>
+                <% } else if (order.orderStatus === 'Return Requested') { %>
+                  <span class="badge bg-warning">Return Requested</span>
+                <% } else if (order.orderStatus === 'Partially Return Requested') { %>
+                  <span class="badge bg-warning">Partially Return Requested</span>
+                <% } else if (order.orderStatus === 'Pending Payment') { %>
+                  <span class="badge bg-danger">
+                    <i class="ri-error-warning-line"></i> Payment Pending
+                  </span>
                 <% } %>
-                <p class="mb-2">Qty: <%= item.quantity || 1 %></p>
+              </div>
+            </div>
+          </div>
 
-                <!-- Individual Item Status -->
-                <div class="item-status-info mb-3">
-                  <h6 class="fw-semibold mb-2">Item Status:</h6>
-                  <div class="status-display">
-                    <% if (item.status === 'Active') { %>
-                      <% if (order.orderStatus === 'Delivered') { %>
-                        <span class="badge bg-success">
-                          <i class="ri-check-line"></i> Delivered
-                        </span>
-                      <% } else if (order.orderStatus === 'Shipped') { %>
-                        <span class="badge bg-info">
-                          <i class="ri-truck-line"></i> Shipped
-                        </span>
-                      <% } else if (order.orderStatus === 'Processing') { %>
-                        <span class="badge bg-warning">
-                          <i class="ri-time-line"></i> Processing
-                        </span>
-                      <% } else { %>
-                        <span class="badge bg-secondary">
-                          <i class="ri-shopping-bag-line"></i> Placed
-                        </span>
-                      <% } %>
-                    <% } else if (item.status === 'Cancelled') { %>
-                      <span class="badge bg-danger">
-                        <i class="ri-close-line"></i> Cancelled
-                      </span>
-                      <% if (item.cancelledAt) { %>
-                        <small class="text-muted d-block mt-1">
-                          Cancelled on <%= new Date(item.cancelledAt).toLocaleDateString() %>
-                        </small>
-                      <% } %>
-                    <% } else if (item.status === 'Returned') { %>
-                      <span class="badge bg-warning">
-                        <i class="ri-arrow-go-back-line"></i> Returned
-                      </span>
-                      <% if (item.returnedAt) { %>
-                        <small class="text-muted d-block mt-1">
-                          Returned on <%= new Date(item.returnedAt).toLocaleDateString() %>
-                        </small>
-                      <% } %>
-                    <% } else if (item.status === 'Return Requested') { %>
-                      <span class="badge bg-info">
-                        <i class="ri-question-line"></i> Return Requested
-                      </span>
-                      <small class="text-muted d-block mt-1">
-                        Awaiting admin approval
-                      </small>
-                    <% } %>
+          <!-- Timeline and Items Row -->
+          <div class="row g-3 mb-4">
+            <div class="col-lg-5">
+              <div class="order-card mb-0">
+                <div class="card-body p-3">
+                  <h5 class="fw-bold mb-3">Order Status Timeline</h5>
+                  <div class="order-timeline">
+                    <% timeline.forEach(item => { %>
+                      <div class="timeline-item <%= item.completed ? 'completed' : item.active ? 'active' : item.cancelled ? 'cancelled' : item.returned ? 'returned' : item.return_requested ? 'return-requested' : 'pending' %>">
+                        <p class="fw-medium mb-0"><%= item.status %></p>
+                        <p class="text-muted small mb-0"><%= item.timestamp %></p>
+                      </div>
+                    <% }) %>
                   </div>
                 </div>
-
-                <div class="d-flex flex-wrap gap-2 mt-2">
-                  <% if (item.status === 'Active') { %>
-                    <% if (item.canBeCancelled) { %>
-                      <button
-                        class="btn btn-outline-danger btn-sm"
-                        data-bs-toggle="modal"
-                        data-bs-target="#cancelItemModal<%= item.product._id || item.product %>"
-                      >
-                        <i class="ri-close-line"></i> Cancel Item
-                      </button>
-                    <% } %>
-
-                    <% if (item.canBeReturned) { %>
-                      <button
-                        class="btn btn-outline-warning btn-sm"
-                        data-bs-toggle="modal"
-                        data-bs-target="#returnItemModal<%= item.product._id || item.product %>"
-                      >
-                        <i class="ri-arrow-go-back-line"></i> Return Item
-                      </button>
-                    <% } %>
-
-                    <% if (order.orderStatus === 'Delivered') { %>
-                      <a href="#" class="btn btn-outline-dark btn-sm">
-                        <i class="ri-star-line"></i> Write Review
-                      </a>
-                      <a href="#" class="btn btn-outline-primary btn-sm" onclick="reorder('<%= order._id %>')">
-                        <i class="ri-shopping-cart-line"></i> Buy Again
-                      </a>
-                    <% } %>
-                  <% } else if (item.status === 'Cancelled') { %>
-                    <div class="cancelled-item-info">
-                      <span class="badge bg-danger mb-2">Cancelled</span>
-                      <% if (item.cancellationReason) { %>
-                        <div class="text-muted small mb-2">Reason: <%= item.cancellationReason %></div>
-                      <% } %>
-                      <!-- **FIXED: COD CANCELLATION DISPLAY LOGIC** -->
-                      <%
-                        // **FIX: Check if this is COD and whether payment was actually made**
-                        let showRefundInfo = true;
-                        let refundMessage = "Refund Processed";
-                        let refundIcon = "bi-check-circle text-success";
-                        let refundTextClass = "text-success";
-
-                        if (order.paymentMethod === 'COD') {
-                          // For COD, only show refund if order was delivered (payment collected)
-                          const wasDelivered = order.orderStatus === 'Delivered' ||
-                                             order.deliveredAt ||
-                                             item.status === 'Delivered';
-
-                          if (!wasDelivered) {
-                            // COD cancelled before delivery - no payment made, no refund needed
-                            showRefundInfo = false;
-                            refundMessage = "Order Cancelled";
-                            refundIcon = "bi-info-circle text-info";
-                            refundTextClass = "text-info";
-                          }
-                        }
-
-                        // ACCURATE REFUND CALCULATION - Using Money Calculator Logic
-                        let actualPaidAmount = 0;
-
-                        if (order.items.length === 1) {
-                          // Single item order - refund full order total (what customer paid)
-                          actualPaidAmount = order.total;
-                        } else {
-                          // Multi-item order - calculate proportional amount
-                          const itemFinalPrice = item.priceBreakdown?.finalPrice || (item.discountedPrice * item.quantity);
-                          const orderSubtotal = order.total - (order.tax || 0);
-                          const itemProportion = itemFinalPrice / orderSubtotal;
-                          actualPaidAmount = order.total * itemProportion;
-                        }
-                      %>
-
-                      <div class="refund-info-card">
-                        <div class="refund-status">
-                          <i class="bi <%= refundIcon %> me-1"></i>
-                          <span class="<%= refundTextClass %> fw-medium"><%= refundMessage %></span>
+              </div>
+            </div>
+            <div class="col-lg-7">
+              <div class="order-card mb-0">
+                <div class="card-body p-3">
+                  <h5 class="fw-bold mb-3">Items in Your Order</h5>
+                  <% order.items.forEach(item => { %>
+                    <div class="d-flex mb-4 order-item">
+                      <div class="order-item-image me-3">
+                        <img
+                          src="<%= item.image || 'https://via.placeholder.com/120x160' %>"
+                          alt="<%= item.model || 'Product' %>"
+                          class="img-fluid rounded"
+                          onerror="this.src='https://via.placeholder.com/120x160'"
+                        >
+                      </div>
+                      <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between mb-2">
+                          <h6 class="fw-semibold mb-1">
+                            <%= item.model || 'Unknown Product' %>
+                            <% if (item.status === 'Cancelled') { %>
+                              <span class="item-status cancelled">Cancelled</span>
+                            <% } else if (item.status === 'Returned') { %>
+                              <span class="item-status returned">Returned</span>
+                            <% } else if (item.status === 'Return Requested') { %>
+                              <span class="item-status return-requested">Return Requested</span>
+                            <% } %>
+                          </h6>
+                          <div class="text-end">
+                            <% if (item.discountedPrice && item.discountedPrice < item.originalPrice) { %>
+                              <p class="mb-0">
+                                <span class="text-decoration-line-through text-muted me-2">
+                                  <%= item.formattedPrice %>
+                                </span>
+                                <span class="fw-medium">
+                                  <%= item.formattedDiscountedPrice %>
+                                </span>
+                              </p>
+                              <% if (item.offerDiscount > 0) { %>
+                                <small class="text-success d-block">
+                                  Save <%= item.discountPercentage %>% with offer
+                                </small>
+                              <% } %>
+                              <% if (item.couponDiscount > 0) { %>
+                                <small class="text-success d-block coupon-info">
+                                  <i class="bi bi-ticket-perforated me-1"></i>
+                                  <span data-bs-toggle="tooltip" title="Coupon discount applied to this item">
+                                    -₹<%= typeof item.couponDiscount === 'number' ? item.couponDiscount.toFixed(2) : '0.00' %> coupon applied
+                                  </span>
+                                  <% 
+                                  // Safely calculate percentage with fallbacks
+                                  const couponProportion = item.couponProportion || item.priceBreakdown?.couponProportion || 0;
+                                  let percentValue = 0;
+                                  
+                                  // Only calculate if proportion is valid
+                                  if (couponProportion > 0) {
+                                    percentValue = Math.round(couponProportion * 100);
+                                    // Cap at 100% for display
+                                    percentValue = Math.min(percentValue, 100); 
+                                  }
+                                  %>
+                                  <i class="bi bi-info-circle ms-1" 
+                                     data-bs-toggle="tooltip" 
+                                     title="This represents <%= percentValue %>% of the total coupon discount"></i>
+                                </small>
+                              <% } %>
+                              <% if (item.finalPrice !== item.discountedPrice) { %>
+                                <p class="mb-0 mt-1 fw-bold text-success">
+                                  <i class="bi bi-tag-fill me-1"></i>Final price: <%= item.formattedFinalPrice %>
+                                </p>
+                              <% } %>
+                            <% } else { %>
+                              <p class="fw-medium mb-0"><%= item.formattedPrice %></p>
+                              <% if (item.couponDiscount > 0) { %>
+                                <small class="text-success d-block coupon-info">
+                                  <i class="bi bi-ticket-perforated me-1"></i>
+                                  <span data-bs-toggle="tooltip" title="Coupon discount applied to this item">
+                                    -₹<%= typeof item.couponDiscount === 'number' ? item.couponDiscount.toFixed(2) : '0.00' %> coupon applied
+                                  </span>
+                                  <% 
+                                  // Safely calculate percentage with fallbacks
+                                  const couponProportion = item.couponProportion || item.priceBreakdown?.couponProportion || 0;
+                                  let percentValue = 0;
+                                  
+                                  // Only calculate if proportion is valid
+                                  if (couponProportion > 0) {
+                                    percentValue = Math.round(couponProportion * 100);
+                                    // Cap at 100% for display
+                                    percentValue = Math.min(percentValue, 100); 
+                                  }
+                                  %>
+                                  <i class="bi bi-info-circle ms-1" 
+                                     data-bs-toggle="tooltip" 
+                                     title="This represents <%= percentValue %>% of the total coupon discount"></i>
+                                </small>
+                              <% } %>
+                            <% } %>
+                          </div>
                         </div>
-                        <div class="refund-details mt-1">
-                          <% if (showRefundInfo) { %>
-                            <div class="refund-breakdown">
-                              <small class="text-muted">Refunded to wallet:</small>
-                              <div class="fw-bold text-success">₹<%= actualPaidAmount.toFixed(2) %></div>
-                              <small class="text-muted">
-                                (Exact amount you paid for this item)
+                        <% if (item.offerTitle) { %>
+                          <p class="mb-2 text-success">
+                            <small><i class="bi bi-tag-fill me-1"></i><%= item.offerTitle %></small>
+                          </p>
+                        <% } %>
+                        <p class="mb-2">Qty: <%= item.quantity || 1 %></p>
+
+                        <!-- Individual Item Status -->
+                        <div class="item-status-info mb-3">
+                          <h6 class="fw-semibold mb-2">Item Status:</h6>
+                          <div class="status-display">
+                            <% if (item.status === 'Active') { %>
+                              <% if (order.orderStatus === 'Delivered') { %>
+                                <span class="badge bg-success">
+                                  <i class="ri-check-line"></i> Delivered
+                                </span>
+                              <% } else if (order.orderStatus === 'Shipped') { %>
+                                <span class="badge bg-info">
+                                  <i class="ri-truck-line"></i> Shipped
+                                </span>
+                              <% } else if (order.orderStatus === 'Processing') { %>
+                                <span class="badge bg-warning">
+                                  <i class="ri-time-line"></i> Processing
+                                </span>
+                              <% } else { %>
+                                <span class="badge bg-secondary">
+                                  <i class="ri-shopping-bag-line"></i> Placed
+                                </span>
+                              <% } %>
+                            <% } else if (item.status === 'Cancelled') { %>
+                              <span class="badge bg-danger">
+                                <i class="ri-close-line"></i> Cancelled
+                              </span>
+                              <% if (item.cancelledAt) { %>
+                                <small class="text-muted d-block mt-1">
+                                  Cancelled on <%= new Date(item.cancelledAt).toLocaleDateString() %>
+                                </small>
+                              <% } %>
+                            <% } else if (item.status === 'Returned') { %>
+                              <span class="badge bg-warning">
+                                <i class="ri-arrow-go-back-line"></i> Returned
+                              </span>
+                              <% if (item.returnedAt) { %>
+                                <small class="text-muted d-block mt-1">
+                                  Returned on <%= new Date(item.returnedAt).toLocaleDateString() %>
+                                </small>
+                              <% } %>
+                            <% } else if (item.status === 'Return Requested') { %>
+                              <span class="badge bg-info">
+                                <i class="ri-question-line"></i> Return Requested
+                              </span>
+                              <small class="text-muted d-block mt-1">
+                                Awaiting admin approval
                               </small>
+                            <% } %>
+                          </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2 mt-2">
+                          <% if (item.status === 'Active') { %>
+                            <% if (item.canBeCancelled) { %>
+                              <button
+                                class="btn btn-outline-danger btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#cancelItemModal<%= item.product._id || item.product %>"
+                              >
+                                <i class="ri-close-line"></i> Cancel Item
+                              </button>
+                            <% } %>
+
+                            <% if (item.canBeReturned) { %>
+                              <button
+                                class="btn btn-outline-warning btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#returnItemModal<%= item.product._id || item.product %>"
+                              >
+                                <i class="ri-arrow-go-back-line"></i> Return Item
+                              </button>
+                            <% } %>
+
+                            <% if (order.orderStatus === 'Delivered') { %>
+                              <a href="#" class="btn btn-outline-dark btn-sm">
+                                <i class="ri-star-line"></i> Write Review
+                              </a>
+                              <a href="#" class="btn btn-outline-primary btn-sm" onclick="reorder('<%= order._id %>')">
+                                <i class="ri-shopping-cart-line"></i> Buy Again
+                              </a>
+                            <% } %>
+                          <% } else if (item.status === 'Cancelled') { %>
+                            <div class="cancelled-item-info">
+                              <span class="badge bg-danger mb-2">Cancelled</span>
+                              <% if (item.cancellationReason) { %>
+                                <div class="text-muted small mb-2">Reason: <%= item.cancellationReason %></div>
+                              <% } %>
+                              <!-- **FIXED: COD CANCELLATION DISPLAY LOGIC** -->
+                              <%
+                                // **FIX: Check if this is COD and whether payment was actually made**
+                                let showRefundInfo = true;
+                                let refundMessage = "Refund Processed";
+                                let refundIcon = "bi-check-circle text-success";
+                                let refundTextClass = "text-success";
+
+                                if (order.paymentMethod === 'COD') {
+                                  // For COD, only show refund if order was delivered (payment collected)
+                                  const wasDelivered = order.orderStatus === 'Delivered' ||
+                                                     order.deliveredAt ||
+                                                     item.status === 'Delivered';
+
+                                  if (!wasDelivered) {
+                                    // COD cancelled before delivery - no payment made, no refund needed
+                                    showRefundInfo = false;
+                                    refundMessage = "Order Cancelled";
+                                    refundIcon = "bi-info-circle text-info";
+                                    refundTextClass = "text-info";
+                                  }
+                                }
+
+                                // ACCURATE REFUND CALCULATION - Using Money Calculator Logic
+                                let actualPaidAmount = 0;
+
+                                if (order.items.length === 1) {
+                                  // Single item order - refund full order total (what customer paid)
+                                  actualPaidAmount = order.total;
+                                } else {
+                                  // Multi-item order - calculate proportional amount
+                                  const itemFinalPrice = item.priceBreakdown?.finalPrice || (item.discountedPrice * item.quantity);
+                                  const orderSubtotal = order.total - (order.tax || 0);
+                                  const itemProportion = itemFinalPrice / orderSubtotal;
+                                  actualPaidAmount = order.total * itemProportion;
+                                }
+                              %>
+
+                              <div class="refund-info-card">
+                                <div class="refund-status">
+                                  <i class="bi <%= refundIcon %> me-1"></i>
+                                  <span class="<%= refundTextClass %> fw-medium"><%= refundMessage %></span>
+                                </div>
+                                <div class="refund-details mt-1">
+                                  <% if (showRefundInfo) { %>
+                                    <div class="refund-breakdown">
+                                      <small class="text-muted">Refunded to wallet:</small>
+                                      <div class="fw-bold text-success">₹<%= actualPaidAmount.toFixed(2) %></div>
+                                      <small class="text-muted">
+                                        (Exact amount you paid for this item)
+                                      </small>
+                                    </div>
+                                  <% } else { %>
+                                    <div class="refund-breakdown">
+                                      <small class="text-muted">No payment was collected for this COD order.</small>
+                                      <div class="fw-bold text-info">No refund required</div>
+                                      <small class="text-muted">
+                                        (Order was cancelled before delivery)
+                                      </small>
+                                    </div>
+                                  <% } %>
+                                </div>
+                              </div>
                             </div>
-                          <% } else { %>
-                            <div class="refund-breakdown">
-                              <small class="text-muted">No payment was collected for this COD order.</small>
-                              <div class="fw-bold text-info">No refund required</div>
-                              <small class="text-muted">
-                                (Order was cancelled before delivery)
-                              </small>
+                          <% } else if (item.status === 'Returned') { %>
+                            <div class="returned-item-info">
+                              <span class="badge bg-warning mb-2">Returned</span>
+                              <% if (item.returnReason) { %>
+                                <div class="text-muted small mb-2">Reason: <%= item.returnReason %></div>
+                              <% } %>
+                              <!-- **CORRECTED REFUND INFORMATION FOR RETURNED ITEMS** -->
+                              <%
+                                // **FIX: Check if refund was actually processed**
+                                let showRefund = true;
+                                if (order.paymentMethod === 'COD') {
+                                  // For COD, only show refund if order was delivered (payment was collected)
+                                  const wasDelivered = order.orderStatus === 'Delivered' || order.deliveredAt;
+                                  showRefund = wasDelivered;
+                                }
+
+                                // ACCURATE REFUND CALCULATION - Using Money Calculator Logic
+                                let actualPaidAmount = 0;
+
+                                if (order.items.length === 1) {
+                                  // Single item order - refund full order total (what customer paid)
+                                  actualPaidAmount = order.total;
+                                } else {
+                                  // Multi-item order - calculate proportional amount
+                                  const itemFinalPrice = item.priceBreakdown?.finalPrice || (item.discountedPrice * item.quantity);
+                                  const orderSubtotal = order.total - (order.tax || 0);
+                                  const itemProportion = itemFinalPrice / orderSubtotal;
+                                  actualPaidAmount = order.total * itemProportion;
+                                }
+                              %>
+
+                              <% if (showRefund) { %>
+                                <div class="refund-info-card">
+                                  <div class="refund-status">
+                                    <i class="bi bi-check-circle text-success me-1"></i>
+                                    <span class="text-success fw-medium">Refund Processed</span>
+                                  </div>
+                                  <div class="refund-details mt-1">
+                                    <div class="refund-breakdown">
+                                      <small class="text-muted">Refunded to wallet:</small>
+                                      <div class="fw-bold text-success">₹<%= actualPaidAmount.toFixed(2) %></div>
+                                      <small class="text-muted">
+                                        (Exact amount you paid for this item)
+                                      </small>
+                                    </div>
+                                  </div>
+                                </div>
+                              <% } else { %>
+                                <div class="refund-info-card">
+                                  <div class="refund-status">
+                                    <i class="bi bi-info-circle text-info me-1"></i>
+                                    <span class="text-info fw-medium">Order Cancelled</span>
+                                  </div>
+                                  <div class="refund-details mt-1">
+                                    <div class="refund-breakdown">
+                                      <small class="text-muted">No payment was collected for this COD order.</small>
+                                      <div class="fw-bold text-info">No refund required</div>
+                                      <small class="text-muted">
+                                        (Order was cancelled before delivery)
+                                      </small>
+                                    </div>
+                                  </div>
+                                </div>
+                              <% } %>
+                            </div>
+                          <% } else if (item.status === 'Return Requested') { %>
+                            <div class="return-requested-info">
+                              <span class="badge bg-info mb-2">Return Requested</span>
+                              <div class="text-muted small mb-2">Awaiting admin approval</div>
+
+                              <!-- **CORRECTED EXPECTED REFUND INFORMATION** -->
+                              <div class="expected-refund-card">
+                                <div class="expected-refund-status">
+                                  <i class="bi bi-clock text-warning me-1"></i>
+                                  <span class="text-warning fw-medium">Expected Refund</span>
+                                </div>
+                                <div class="expected-refund-details mt-1">
+                                  <%
+                                    // ACCURATE REFUND CALCULATION - Using Money Calculator Logic
+                                    let actualPaidAmount = 0;
+
+                                    if (order.items.length === 1) {
+                                      // Single item order - refund full order total (what customer paid)
+                                      actualPaidAmount = order.total;
+                                    } else {
+                                      // Multi-item order - calculate proportional amount
+                                      const itemFinalPrice = item.priceBreakdown?.finalPrice || (item.discountedPrice * item.quantity);
+                                      const orderSubtotal = order.total - (order.tax || 0);
+                                      const itemProportion = itemFinalPrice / orderSubtotal;
+                                      actualPaidAmount = order.total * itemProportion;
+                                    }
+                                  %>
+                                  <div class="refund-breakdown">
+                                    <small class="text-muted">Will be refunded to wallet:</small>
+                                    <div class="fw-bold text-warning">₹<%= actualPaidAmount.toFixed(2) %></div>
+                                    <small class="text-muted">
+                                      (Exact amount you paid for this item)
+                                    </small>
+                                  </div>
+                                  <div class="mt-1">
+                                    <small class="text-info">
+                                      <i class="bi bi-info-circle me-1"></i>
+                                      Refund will be processed once your return is approved
+                                    </small>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           <% } %>
                         </div>
                       </div>
                     </div>
-                  <% } else if (item.status === 'Returned') { %>
-                    <div class="returned-item-info">
-                      <span class="badge bg-warning mb-2">Returned</span>
-                      <% if (item.returnReason) { %>
-                        <div class="text-muted small mb-2">Reason: <%= item.returnReason %></div>
-                      <% } %>
-                      <!-- **CORRECTED REFUND INFORMATION FOR RETURNED ITEMS** -->
-                      <%
-                        // **FIX: Check if refund was actually processed**
-                        let showRefund = true;
-                        if (order.paymentMethod === 'COD') {
-                          // For COD, only show refund if order was delivered (payment was collected)
-                          const wasDelivered = order.orderStatus === 'Delivered' || order.deliveredAt;
-                          showRefund = wasDelivered;
-                        }
 
-                        // ACCURATE REFUND CALCULATION - Using Money Calculator Logic
-                        let actualPaidAmount = 0;
-
-                        if (order.items.length === 1) {
-                          // Single item order - refund full order total (what customer paid)
-                          actualPaidAmount = order.total;
-                        } else {
-                          // Multi-item order - calculate proportional amount
-                          const itemFinalPrice = item.priceBreakdown?.finalPrice || (item.discountedPrice * item.quantity);
-                          const orderSubtotal = order.total - (order.tax || 0);
-                          const itemProportion = itemFinalPrice / orderSubtotal;
-                          actualPaidAmount = order.total * itemProportion;
-                        }
-                      %>
-
-                      <% if (showRefund) { %>
-                        <div class="refund-info-card">
-                          <div class="refund-status">
-                            <i class="bi bi-check-circle text-success me-1"></i>
-                            <span class="text-success fw-medium">Refund Processed</span>
-                          </div>
-                          <div class="refund-details mt-1">
-                            <div class="refund-breakdown">
-                              <small class="text-muted">Refunded to wallet:</small>
-                              <div class="fw-bold text-success">₹<%= actualPaidAmount.toFixed(2) %></div>
-                              <small class="text-muted">
-                                (Exact amount you paid for this item)
-                              </small>
+                    <!-- Cancel Item Modal -->
+                    <% if (item.canBeCancelled) { %>
+                      <div class="modal fade" id="cancelItemModal<%= item.product._id || item.product %>" tabindex="-1" aria-labelledby="cancelItemModalLabel<%= item.product._id || item.product %>" aria-hidden="true">
+                        <div class="modal-dialog">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="cancelItemModalLabel<%= item.product._id || item.product %>">Cancel Item</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                          </div>
-                        </div>
-                      <% } else { %>
-                        <div class="refund-info-card">
-                          <div class="refund-status">
-                            <i class="bi bi-info-circle text-info me-1"></i>
-                            <span class="text-info fw-medium">Order Cancelled</span>
-                          </div>
-                          <div class="refund-details mt-1">
-                            <div class="refund-breakdown">
-                              <small class="text-muted">No payment was collected for this COD order.</small>
-                              <div class="fw-bold text-info">No refund required</div>
-                              <small class="text-muted">
-                                (Order was cancelled before delivery)
-                              </small>
+                            <div class="modal-body">
+                              <p>Are you sure you want to cancel this item?</p>
+                              <p><strong><%= item.model || item.title || 'Unknown Product' %></strong></p>
+                              <p>Quantity: <%= item.quantity %></p>
+                              <p>Price: <%= item.formattedFinalPrice %></p>
+
+                              <!-- **CORRECTED REFUND INFORMATION IN MODAL** -->
+                              <div class="alert alert-info mt-3">
+                                <h6 class="alert-heading">
+                                  <i class="bi bi-info-circle me-2"></i>Refund Information
+                                </h6>
+                                <%
+                                  // ACCURATE REFUND CALCULATION - Using Money Calculator Logic
+                                  let actualPaidAmount = 0;
+
+                                  if (order.items.length === 1) {
+                                    // Single item order - refund full order total (what customer paid)
+                                    actualPaidAmount = order.total;
+                                  } else {
+                                    // Multi-item order - calculate proportional amount
+                                    const itemFinalPrice = item.priceBreakdown?.finalPrice || (item.discountedPrice * item.quantity);
+                                    const orderSubtotal = order.total - (order.tax || 0);
+                                    const itemProportion = itemFinalPrice / orderSubtotal;
+                                    actualPaidAmount = order.total * itemProportion;
+                                  }
+                                %>
+                                <% if (order.paymentMethod === 'COD' && order.orderStatus !== 'Delivered' && !order.deliveredAt) { %>
+                                  <p class="mb-2">This COD order will be cancelled. <strong>No refund is required</strong> as no payment has been collected yet.</p>
+                                  <small class="text-muted">
+                                    You will pay nothing for this cancelled item.
+                                  </small>
+                                <% } else { %>
+                                  <p class="mb-2">If you cancel this item, <strong>₹<%= actualPaidAmount.toFixed(2) %></strong> will be refunded to your wallet.</p>
+                                  <small class="text-muted">
+                                    This is the exact amount you paid for this item (including all discounts and taxes).
+                                  </small>
+                                <% } %>
+                              </div>
+
+                              <form id="cancelItemForm<%= item.product._id || item.product %>">
+                                <div class="mb-3">
+                                  <label for="cancelItemReason<%= item.product._id || item.product %>" class="form-label">Reason for Cancellation</label>
+                                  <select class="form-control" id="cancelItemReason<%= item.product._id || item.product %>" required>
+                                    <option value="">Select a reason</option>
+                                    <option value="Changed my mind">Changed my mind</option>
+                                    <option value="Found a better price elsewhere">Found a better price elsewhere</option>
+                                    <option value="Ordered by mistake">Ordered by mistake</option>
+                                    <option value="Shipping time is too long">Shipping time is too long</option>
+                                    <option value="Other">Other</option>
+                                  </select>
+                                </div>
+                                <div class="mb-3" id="otherReasonDiv<%= item.product._id || item.product %>" style="display: none;">
+                                  <label for="otherReason<%= item.product._id || item.product %>" class="form-label">Please specify</label>
+                                  <textarea class="form-control" id="otherReason<%= item.product._id || item.product %>" rows="3"></textarea>
+                                </div>
+                              </form>
                             </div>
-                          </div>
-                        </div>
-                      <% } %>
-                    </div>
-                  <% } else if (item.status === 'Return Requested') { %>
-                    <div class="return-requested-info">
-                      <span class="badge bg-info mb-2">Return Requested</span>
-                      <div class="text-muted small mb-2">Awaiting admin approval</div>
-
-                      <!-- **CORRECTED EXPECTED REFUND INFORMATION** -->
-                      <div class="expected-refund-card">
-                        <div class="expected-refund-status">
-                          <i class="bi bi-clock text-warning me-1"></i>
-                          <span class="text-warning fw-medium">Expected Refund</span>
-                        </div>
-                        <div class="expected-refund-details mt-1">
-                          <%
-                            // ACCURATE REFUND CALCULATION - Using Money Calculator Logic
-                            let actualPaidAmount = 0;
-
-                            if (order.items.length === 1) {
-                              // Single item order - refund full order total (what customer paid)
-                              actualPaidAmount = order.total;
-                            } else {
-                              // Multi-item order - calculate proportional amount
-                              const itemFinalPrice = item.priceBreakdown?.finalPrice || (item.discountedPrice * item.quantity);
-                              const orderSubtotal = order.total - (order.tax || 0);
-                              const itemProportion = itemFinalPrice / orderSubtotal;
-                              actualPaidAmount = order.total * itemProportion;
-                            }
-                          %>
-                          <div class="refund-breakdown">
-                            <small class="text-muted">Will be refunded to wallet:</small>
-                            <div class="fw-bold text-warning">₹<%= actualPaidAmount.toFixed(2) %></div>
-                            <small class="text-muted">
-                              (Exact amount you paid for this item)
-                            </small>
-                          </div>
-                          <div class="mt-1">
-                            <small class="text-info">
-                              <i class="bi bi-info-circle me-1"></i>
-                              Refund will be processed once your return is approved
-                            </small>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                              <button type="button" class="btn btn-danger" onclick="cancelItem('<%= order._id %>', '<%= item.product._id || item.product %>')">Cancel Item</button>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  <% } %>
+                    <% } %>
+
+                    <!-- Return Item Modal -->
+                    <% if (item.canBeReturned) { %>
+                      <div class="modal fade" id="returnItemModal<%= item.product._id || item.product %>" tabindex="-1" aria-labelledby="returnItemModalLabel<%= item.product._id || item.product %>" aria-hidden="true">
+                        <div class="modal-dialog">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="returnItemModalLabel<%= item.product._id || item.product %>">Return Item</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                              <p>Are you sure you want to return this item?</p>
+                              <p><strong><%= item.model || item.title || 'Unknown Product' %></strong></p>
+                              <p>Quantity: <%= item.quantity %></p>
+                              <p>Price: <%= item.formattedFinalPrice %></p>
+
+                              <!-- **CORRECTED REFUND INFORMATION IN RETURN MODAL** -->
+                              <div class="alert alert-warning mt-3">
+                                <h6 class="alert-heading">
+                                  <i class="bi bi-exclamation-triangle me-2"></i>Return & Refund Information
+                                </h6>
+                                <%
+                                  // ACCURATE REFUND CALCULATION - Using Money Calculator Logic
+                                  let actualPaidAmount = 0;
+
+                                  if (order.items.length === 1) {
+                                    // Single item order - refund full order total (what customer paid)
+                                    actualPaidAmount = order.total;
+                                  } else {
+                                    // Multi-item order - calculate proportional amount
+                                    const itemFinalPrice = item.priceBreakdown?.finalPrice || (item.discountedPrice * item.quantity);
+                                    const orderSubtotal = order.total - (order.tax || 0);
+                                    const itemProportion = itemFinalPrice / orderSubtotal;
+                                    actualPaidAmount = order.total * itemProportion;
+                                  }
+                                %>
+                                <p class="mb-2">If your return is approved, <strong>₹<%= actualPaidAmount.toFixed(2) %></strong> will be refunded to your wallet.</p>
+                                <small class="text-muted">
+                                  This is the exact amount you paid for this item (including all discounts and taxes).
+                                </small>
+                              </div>
+
+                              <form id="returnItemForm<%= item.product._id || item.product %>" enctype="multipart/form-data">
+                                <div class="mb-3">
+                                  <label for="returnItemReason<%= item.product._id || item.product %>" class="form-label">Reason for Return</label>
+                                  <select class="form-control" id="returnItemReason<%= item.product._id || item.product %>" required>
+                                    <option value="">Select a reason</option>
+                                    <option value="Item damaged">Item damaged</option>
+                                    <option value="Item defective">Item defective</option>
+                                    <option value="Wrong item received">Wrong item received</option>
+                                    <option value="Item does not match description">Item does not match description</option>
+                                    <option value="Other">Other</option>
+                                  </select>
+                                </div>
+                                <div class="mb-3" id="otherReturnReasonDiv<%= item.product._id || item.product %>" style="display: none;">
+                                  <label for="otherReturnReason<%= item.product._id || item.product %>" class="form-label">Please specify</label>
+                                  <textarea class="form-control" id="otherReturnReason<%= item.product._id || item.product %>" rows="3"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                  <label for="returnImage<%= item.product._id || item.product %>" class="form-label">Upload Image of Defect (optional)</label>
+                                  <input type="file" class="form-control" id="returnImage<%= item.product._id || item.product %>" name="returnImage" accept="image/*">
+                                  <img id="returnImagePreview<%= item.product._id || item.product %>" src="#" alt="Image Preview" style="display:none; max-width:100px; margin-top:10px;" />
+                                </div>
+                              </form>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                              <button type="button" class="btn btn-danger" onclick="returnItem('<%= order._id %>', '<%= item.product._id || item.product %>')">Return Item</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    <% } %>
+                  <% }) %>
                 </div>
               </div>
             </div>
+          </div>
 
-            <!-- Cancel Item Modal -->
-            <% if (item.canBeCancelled) { %>
-              <div class="modal fade" id="cancelItemModal<%= item.product._id || item.product %>" tabindex="-1" aria-labelledby="cancelItemModalLabel<%= item.product._id || item.product %>" aria-hidden="true">
-                <div class="modal-dialog">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title" id="cancelItemModalLabel<%= item.product._id || item.product %>">Cancel Item</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <!-- Shipping Info and Order Summary Row -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-7">
+              <div class="order-card h-100">
+                <div class="card-body p-3">
+                  <div class="d-flex flex-column flex-md-row gap-4 summary-section">
+                    <!-- Shipping Information -->
+                    <div class="info-container">
+                      <h5 class="fw-bold mb-3">Shipping Address</h5>
+                      <p class="fw-medium mb-1"><%= order.shippingAddress.fullName || 'N/A' %></p>
+                      <p class="mb-1"><%= order.shippingAddress.street || '' %></p>
+                      <% if (order.shippingAddress.landmark) { %>
+                        <p class="mb-1"><%= order.shippingAddress.landmark %></p>
+                      <% } %>
+                      <p class="mb-1"><%= order.shippingAddress.district || '' %>, <%= order.shippingAddress.state || '' %> <%= order.shippingAddress.pincode || '' %></p>
+                      <p class="mb-0"><span class="text-muted">Phone:</span> <%= order.shippingAddress.phone || 'N/A' %></p>
                     </div>
-                    <div class="modal-body">
-                      <p>Are you sure you want to cancel this item?</p>
-                      <p><strong><%= item.model || item.title || 'Unknown Product' %></strong></p>
-                      <p>Quantity: <%= item.quantity %></p>
-                      <p>Price: <%= item.formattedFinalPrice %></p>
 
-                      <!-- **CORRECTED REFUND INFORMATION IN MODAL** -->
-                      <div class="alert alert-info mt-3">
-                        <h6 class="alert-heading">
-                          <i class="bi bi-info-circle me-2"></i>Refund Information
-                        </h6>
-                        <%
-                          // ACCURATE REFUND CALCULATION - Using Money Calculator Logic
-                          let actualPaidAmount = 0;
+                    <!-- Billing Information -->
+                    <div class="info-container">
+                      <h5 class="fw-bold mb-3">Payment Method</h5>
+                      <div class="d-flex align-items-center mb-3">
+                        <div class="me-2">
+                          <i class="bi bi-cash-stack"></i>
+                        </div>
+                        <div>
+                          <p class="mb-0 fw-medium"><%= order.paymentMethod || 'Cash on Delivery' %></p>
+                        </div>
+                      </div>
 
-                          if (order.items.length === 1) {
-                            // Single item order - refund full order total (what customer paid)
-                            actualPaidAmount = order.total;
+                      <h5 class="fw-bold mb-3">Billing Address</h5>
+                      <p class="fw-medium mb-1"><%= order.shippingAddress.fullName || 'N/A' %></p>
+                      <p class="mb-1"><%= order.shippingAddress.street || '' %></p>
+                      <% if (order.shippingAddress.landmark) { %>
+                        <p class="mb-1"><%= order.shippingAddress.landmark %></p>
+                      <% } %>
+                      <p class="mb-1"><%= order.shippingAddress.district || '' %>, <%= order.shippingAddress.state || '' %> <%= order.shippingAddress.pincode || '' %></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-5">
+              <div class="order-card h-100">
+                <div class="card-body p-3">
+                  <h5 class="fw-bold mb-3">Order Summary</h5>
+                  <dl class="row price-summary">
+                    <dt class="col-7">Items (<%= order.items.length %>):</dt>
+                    <dd class="col-5"><%= order.formattedSubtotal %></dd>
+                    <% if (order.discount && order.discount > 0) { %>
+                    <dt class="col-7">Offer Discount:</dt>
+                    <dd class="col-5 text-success">-<%= order.formattedDiscount %></dd>
+                    <% } %>
+                    <% if (order.couponDiscount && order.couponDiscount > 0) { %>
+                    <dt class="col-7">
+                      <div class="d-flex align-items-center">
+                        <span>Coupon Discount<%= order.couponCode ? ` (${order.couponCode})` : '' %>:</span>
+                        <i class="bi bi-info-circle ms-2" data-bs-toggle="tooltip" data-bs-html="true" 
+                          title="<%= order.couponCode %> coupon is distributed proportionally across items based on their price."></i>
+                      </div>
+                    </dt>
+                    <dd class="col-5 text-success">-<%= order.formattedCouponDiscount %></dd>
+                    <% } %>
+                    <dt class="col-7">Tax:</dt>
+                    <dd class="col-5"><%= order.formattedTax %></dd>
+                    <dt class="col-7 total-row">Order Total:</dt>
+                    <dd class="col-5 total-row"><%= order.formattedTotal %></dd>
+                  </dl>
+                  <hr class="my-3">
+                  <div class="mb-3">
+                    <p class="info-title">Payment Method</p>
+                    <p class="info-value"><%= order.paymentMethod || 'Cash on Delivery' %></p>
+                  </div>
+                  <div class="mb-3">
+                    <p class="info-title">Payment Status</p>
+                    <p class="info-value">
+                      <%
+                        let paymentStatusDisplay = '';
+                        let paymentStatusClass = '';
+
+                        if (order.paymentMethod === 'COD') {
+                          if (order.orderStatus === 'Cancelled') {
+                            paymentStatusDisplay = 'No Payment Required';
+                            paymentStatusClass = 'text-muted';
+                          } else if (order.orderStatus === 'Delivered') {
+                            paymentStatusDisplay = 'Paid (Cash)';
+                            paymentStatusClass = 'text-success';
                           } else {
-                            // Multi-item order - calculate proportional amount
-                            const itemFinalPrice = item.priceBreakdown?.finalPrice || (item.discountedPrice * item.quantity);
-                            const orderSubtotal = order.total - (order.tax || 0);
-                            const itemProportion = itemFinalPrice / orderSubtotal;
-                            actualPaidAmount = order.total * itemProportion;
+                            paymentStatusDisplay = 'Pay on Delivery';
+                            paymentStatusClass = 'text-warning';
                           }
-                        %>
-                        <% if (order.paymentMethod === 'COD' && order.orderStatus !== 'Delivered' && !order.deliveredAt) { %>
-                          <p class="mb-2">This COD order will be cancelled. <strong>No refund is required</strong> as no payment has been collected yet.</p>
-                          <small class="text-muted">
-                            You will pay nothing for this cancelled item.
-                          </small>
+                        } else {
+                          switch (order.paymentStatus) {
+                            case 'Paid':
+                              paymentStatusDisplay = 'Paid';
+                              paymentStatusClass = 'text-success';
+                              break;
+                            case 'Pending':
+                              paymentStatusDisplay = 'Payment Pending';
+                              paymentStatusClass = 'text-warning';
+                              break;
+                            case 'Failed':
+                              paymentStatusDisplay = 'Payment Failed';
+                              paymentStatusClass = 'text-danger';
+                              break;
+                            case 'Refunded':
+                              paymentStatusDisplay = 'Refunded';
+                              paymentStatusClass = 'text-info';
+                              break;
+                            case 'Partially Refunded':
+                              paymentStatusDisplay = 'Partially Refunded';
+                              paymentStatusClass = 'text-info';
+                              break;
+                            case 'Refund Processing':
+                              paymentStatusDisplay = 'Refund Processing';
+                              paymentStatusClass = 'text-warning';
+                              break;
+                            case 'Pending Payment':
+                              paymentStatusDisplay = 'Payment Required';
+                              paymentStatusClass = 'text-danger';
+                              break;
+                            default:
+                              paymentStatusDisplay = order.paymentStatus || 'Unknown';
+                              paymentStatusClass = 'text-muted';
+                          }
+                        }
+                      %>
+                      <span class="<%= paymentStatusClass %>"><%= paymentStatusDisplay %></span>
+                    </p>
+                  </div>
+                  <div>
+                    <a href="/orders/<%= order._id %>/invoice" class="btn btn-outline-primary btn-sm mb-2 w-100">View Invoice</a>
+                    <a href="/orders/<%= order._id %>/invoice/download" class="btn btn-outline-dark btn-sm mb-2 w-100" onclick="downloadInvoice(event, '<%= order._id %>', '<%= order.orderNumber %>')">Download Invoice</a>
+                    <%
+                      const orderNotTooFarProgressed = ['Placed', 'Processing', 'Partially Cancelled', 'Partially Returned', 'Partially Return Requested'].includes(order.orderStatus);
+                      const hasActiveItems = order.items.some(item => item.status === 'Active');
+                      const canCancelOrder = orderNotTooFarProgressed && hasActiveItems;
+                      const canReturnOrder = order.orderStatus === 'Delivered' && hasActiveItems;
+                      const canRetryPayment = order.orderStatus === 'Pending Payment' && order.paymentStatus === 'Pending Payment';
+
+                      // **CALCULATE REMAINING ORDER AMOUNT (excluding cancelled items)**
+                      let remainingOrderAmount = 0;
+                      if (hasActiveItems) {
+                        // Calculate amount for active items only
+                        const activeItems = order.items.filter(item => item.status === 'Active');
+
+                        if (activeItems.length === order.items.length) {
+                          // No items cancelled yet - use full order total
+                          remainingOrderAmount = order.total;
+                        } else {
+                          // Some items cancelled - calculate proportional amount for remaining items
+                          let activeItemsSubtotal = 0;
+                          activeItems.forEach(item => {
+                            const itemFinalPrice = item.priceBreakdown?.finalPrice || (item.discountedPrice * item.quantity);
+                            activeItemsSubtotal += itemFinalPrice;
+                          });
+
+                          // Calculate total items subtotal for proportion
+                          let totalItemsSubtotal = 0;
+                          order.items.forEach(item => {
+                            const itemFinalPrice = item.priceBreakdown?.finalPrice || (item.discountedPrice * item.quantity);
+                            totalItemsSubtotal += itemFinalPrice;
+                          });
+
+                          // Calculate proportional amount including tax
+                          if (totalItemsSubtotal > 0) {
+                            const proportion = activeItemsSubtotal / totalItemsSubtotal;
+                            remainingOrderAmount = order.total * proportion;
+                          } else {
+                            remainingOrderAmount = 0;
+                          }
+                        }
+                      }
+                    %>
+                    <% if (canRetryPayment) { %>
+                      <%
+                        const retryAttempts = order.paymentRetryAttempts || 0;
+                        const maxRetryAttempts = 5;
+                        const canStillRetry = retryAttempts < maxRetryAttempts;
+                      %>
+
+                      <div class="alert alert-warning mb-3">
+                        <h6 class="alert-heading">
+                          <i class="ri-error-warning-line me-2"></i>Payment Required
+                        </h6>
+                        <% if (canStillRetry) { %>
+                          <p class="mb-2">Your payment could not be processed. Please retry payment to complete your order.</p>
+                          <% if (retryAttempts > 0) { %>
+                            <small class="text-muted">Payment attempts: <%= retryAttempts %>/<%= maxRetryAttempts %></small>
+                          <% } %>
                         <% } else { %>
-                          <p class="mb-2">If you cancel this item, <strong>₹<%= actualPaidAmount.toFixed(2) %></strong> will be refunded to your wallet.</p>
+                          <p class="mb-2">Maximum payment retry attempts reached (<%= maxRetryAttempts %>/<%= maxRetryAttempts %>). Please contact support for assistance.</p>
                           <small class="text-muted">
-                            This is the exact amount you paid for this item (including all discounts and taxes).
+                            <i class="ri-phone-line me-1"></i>Support: +91-XXXXXXXXXX |
+                            <i class="ri-mail-line me-1"></i>support@phoenix.com
                           </small>
                         <% } %>
                       </div>
 
-                      <form id="cancelItemForm<%= item.product._id || item.product %>">
-                        <div class="mb-3">
-                          <label for="cancelItemReason<%= item.product._id || item.product %>" class="form-label">Reason for Cancellation</label>
-                          <select class="form-control" id="cancelItemReason<%= item.product._id || item.product %>" required>
-                            <option value="">Select a reason</option>
-                            <option value="Changed my mind">Changed my mind</option>
-                            <option value="Found a better price elsewhere">Found a better price elsewhere</option>
-                            <option value="Ordered by mistake">Ordered by mistake</option>
-                            <option value="Shipping time is too long">Shipping time is too long</option>
-                            <option value="Other">Other</option>
-                          </select>
-                        </div>
-                        <div class="mb-3" id="otherReasonDiv<%= item.product._id || item.product %>" style="display: none;">
-                          <label for="otherReason<%= item.product._id || item.product %>" class="form-label">Please specify</label>
-                          <textarea class="form-control" id="otherReason<%= item.product._id || item.product %>" rows="3"></textarea>
-                        </div>
-                      </form>
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                      <button type="button" class="btn btn-danger" onclick="cancelItem('<%= order._id %>', '<%= item.product._id || item.product %>')">Cancel Item</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            <% } %>
+                      <% if (canStillRetry) { %>
+                        <button
+                          class="btn btn-danger btn-sm w-100 mb-2"
+                          onclick="retryPayment('<%= order._id %>')"
+                          id="retryPaymentBtn"
+                        >
+                          <i class="ri-refresh-line me-2"></i>Retry Payment (<%= maxRetryAttempts - retryAttempts %> attempts left)
+                        </button>
+                      <% } else { %>
+                        <button
+                          class="btn btn-secondary btn-sm w-100 mb-2"
+                          disabled
+                          title="Maximum retry attempts reached"
+                        >
+                          <i class="ri-forbid-line me-2"></i>Retry Limit Reached
+                        </button>
+                      <% } %>
 
-            <!-- Return Item Modal -->
-            <% if (item.canBeReturned) { %>
-              <div class="modal fade" id="returnItemModal<%= item.product._id || item.product %>" tabindex="-1" aria-labelledby="returnItemModalLabel<%= item.product._id || item.product %>" aria-hidden="true">
-                <div class="modal-dialog">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title" id="returnItemModalLabel<%= item.product._id || item.product %>">Return Item</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                      <p>Are you sure you want to return this item?</p>
-                      <p><strong><%= item.model || item.title || 'Unknown Product' %></strong></p>
-                      <p>Quantity: <%= item.quantity %></p>
-                      <p>Price: <%= item.formattedFinalPrice %></p>
-
-                      <!-- **CORRECTED REFUND INFORMATION IN RETURN MODAL** -->
-                      <div class="alert alert-warning mt-3">
-                        <h6 class="alert-heading">
-                          <i class="bi bi-exclamation-triangle me-2"></i>Return & Refund Information
-                        </h6>
-                        <%
-                          // ACCURATE REFUND CALCULATION - Using Money Calculator Logic
-                          let actualPaidAmount = 0;
-
-                          if (order.items.length === 1) {
-                            // Single item order - refund full order total (what customer paid)
-                            actualPaidAmount = order.total;
-                          } else {
-                            // Multi-item order - calculate proportional amount
-                            const itemFinalPrice = item.priceBreakdown?.finalPrice || (item.discountedPrice * item.quantity);
-                            const orderSubtotal = order.total - (order.tax || 0);
-                            const itemProportion = itemFinalPrice / orderSubtotal;
-                            actualPaidAmount = order.total * itemProportion;
-                          }
-                        %>
-                        <p class="mb-2">If your return is approved, <strong>₹<%= actualPaidAmount.toFixed(2) %></strong> will be refunded to your wallet.</p>
-                        <small class="text-muted">
-                          This is the exact amount you paid for this item (including all discounts and taxes).
-                        </small>
-                      </div>
-
-                      <form id="returnItemForm<%= item.product._id || item.product %>" enctype="multipart/form-data">
-                        <div class="mb-3">
-                          <label for="returnItemReason<%= item.product._id || item.product %>" class="form-label">Reason for Return</label>
-                          <select class="form-control" id="returnItemReason<%= item.product._id || item.product %>" required>
-                            <option value="">Select a reason</option>
-                            <option value="Item damaged">Item damaged</option>
-                            <option value="Item defective">Item defective</option>
-                            <option value="Wrong item received">Wrong item received</option>
-                            <option value="Item does not match description">Item does not match description</option>
-                            <option value="Other">Other</option>
-                          </select>
-                        </div>
-                        <div class="mb-3" id="otherReturnReasonDiv<%= item.product._id || item.product %>" style="display: none;">
-                          <label for="otherReturnReason<%= item.product._id || item.product %>" class="form-label">Please specify</label>
-                          <textarea class="form-control" id="otherReturnReason<%= item.product._id || item.product %>" rows="3"></textarea>
-                        </div>
-                        <div class="mb-3">
-                          <label for="returnImage<%= item.product._id || item.product %>" class="form-label">Upload Image of Defect (optional)</label>
-                          <input type="file" class="form-control" id="returnImage<%= item.product._id || item.product %>" name="returnImage" accept="image/*">
-                          <img id="returnImagePreview<%= item.product._id || item.product %>" src="#" alt="Image Preview" style="display:none; max-width:100px; margin-top:10px;" />
-                        </div>
-                      </form>
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                      <button type="button" class="btn btn-danger" onclick="returnItem('<%= order._id %>', '<%= item.product._id || item.product %>')">Return Item</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            <% } %>
-          <% }) %>
-        </div>
-      </div>
-
-      <!-- Order Summary and Shipping Info -->
-      <div class="row g-4">
-        <!-- Shipping and Billing -->
-        <div class="col-md-7">
-          <div class="order-card h-100">
-            <div class="card-body p-4">
-              <div class="d-flex flex-column flex-md-row gap-4 summary-section">
-                <!-- Shipping Information -->
-                <div class="info-container">
-                  <h5 class="fw-bold mb-3">Shipping Address</h5>
-                  <p class="fw-medium mb-1"><%= order.shippingAddress.fullName || 'N/A' %></p>
-                  <p class="mb-1"><%= order.shippingAddress.street || '' %></p>
-                  <% if (order.shippingAddress.landmark) { %>
-                    <p class="mb-1"><%= order.shippingAddress.landmark %></p>
-                  <% } %>
-                  <p class="mb-1"><%= order.shippingAddress.district || '' %>, <%= order.shippingAddress.state || '' %> <%= order.shippingAddress.pincode || '' %></p>
-                  <p class="mb-0"><span class="text-muted">Phone:</span> <%= order.shippingAddress.phone || 'N/A' %></p>
-                </div>
-
-                <!-- Billing Information -->
-                <div class="info-container">
-                  <h5 class="fw-bold mb-3">Payment Method</h5>
-                  <div class="d-flex align-items-center mb-3">
-                    <div class="me-2">
-                      <i class="bi bi-cash-stack"></i>
-                    </div>
-                    <div>
-                      <p class="mb-0 fw-medium"><%= order.paymentMethod || 'Cash on Delivery' %></p>
-                    </div>
-                  </div>
-
-                  <h5 class="fw-bold mb-3">Billing Address</h5>
-                  <p class="fw-medium mb-1"><%= order.shippingAddress.fullName || 'N/A' %></p>
-                  <p class="mb-1"><%= order.shippingAddress.street || '' %></p>
-                  <% if (order.shippingAddress.landmark) { %>
-                    <p class="mb-1"><%= order.shippingAddress.landmark %></p>
-                  <% } %>
-                  <p class="mb-1"><%= order.shippingAddress.district || '' %>, <%= order.shippingAddress.state || '' %> <%= order.shippingAddress.pincode || '' %></p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-       <!-- Order Summary -->
-      <div class="col-md-5">
-        <div class="order-card h-100">
-          <div class="card-body p-4">
-            <h5 class="fw-bold mb-3">Order Summary</h5>
-
-            <dl class="row price-summary">
-              <dt class="col-7">Items (<%= order.items.length %>):</dt>
-              <dd class="col-5"><%= order.formattedSubtotal %></dd>
-
-              <% if (order.discount && order.discount > 0) { %>
-              <dt class="col-7">Offer Discount:</dt>
-              <dd class="col-5 text-success">-<%= order.formattedDiscount %></dd>
-              <% } %>
-
-              <% if (order.couponDiscount && order.couponDiscount > 0) { %>
-              <dt class="col-7">
-                <div class="d-flex align-items-center">
-                  <span>Coupon Discount<%= order.couponCode ? ` (${order.couponCode})` : '' %>:</span>
-                  <i class="bi bi-info-circle ms-2" data-bs-toggle="tooltip" data-bs-html="true" 
-                    title="<%= order.couponCode %> coupon is distributed proportionally across items based on their price."></i>
-                </div>
-              </dt>
-              <dd class="col-5 text-success">-<%= order.formattedCouponDiscount %></dd>
-              <% } %>
-
-              <dt class="col-7">Tax:</dt>
-              <dd class="col-5"><%= order.formattedTax %></dd>
-
-              <dt class="col-7 total-row">Order Total:</dt>
-              <dd class="col-5 total-row"><%= order.formattedTotal %></dd>
-            </dl>
-
-            <hr class="my-3">
-
-            <div class="mb-3">
-              <p class="info-title">Payment Method</p>
-              <p class="info-value"><%= order.paymentMethod || 'Cash on Delivery' %></p>
-            </div>
-
-            <div class="mb-3">
-              <p class="info-title">Payment Status</p>
-              <p class="info-value">
-                <%
-                  let paymentStatusDisplay = '';
-                  let paymentStatusClass = '';
-
-                  if (order.paymentMethod === 'COD') {
-                    if (order.orderStatus === 'Cancelled') {
-                      paymentStatusDisplay = 'No Payment Required';
-                      paymentStatusClass = 'text-muted';
-                    } else if (order.orderStatus === 'Delivered') {
-                      paymentStatusDisplay = 'Paid (Cash)';
-                      paymentStatusClass = 'text-success';
-                    } else {
-                      paymentStatusDisplay = 'Pay on Delivery';
-                      paymentStatusClass = 'text-warning';
-                    }
-                  } else {
-                    switch (order.paymentStatus) {
-                      case 'Paid':
-                        paymentStatusDisplay = 'Paid';
-                        paymentStatusClass = 'text-success';
-                        break;
-                      case 'Pending':
-                        paymentStatusDisplay = 'Payment Pending';
-                        paymentStatusClass = 'text-warning';
-                        break;
-                      case 'Failed':
-                        paymentStatusDisplay = 'Payment Failed';
-                        paymentStatusClass = 'text-danger';
-                        break;
-                      case 'Refunded':
-                        paymentStatusDisplay = 'Refunded';
-                        paymentStatusClass = 'text-info';
-                        break;
-                      case 'Partially Refunded':
-                        paymentStatusDisplay = 'Partially Refunded';
-                        paymentStatusClass = 'text-info';
-                        break;
-                      case 'Refund Processing':
-                        paymentStatusDisplay = 'Refund Processing';
-                        paymentStatusClass = 'text-warning';
-                        break;
-                      case 'Pending Payment':
-                        paymentStatusDisplay = 'Payment Required';
-                        paymentStatusClass = 'text-danger';
-                        break;
-                      default:
-                        paymentStatusDisplay = order.paymentStatus || 'Unknown';
-                        paymentStatusClass = 'text-muted';
-                    }
-                  }
-                %>
-                <span class="<%= paymentStatusClass %>"><%= paymentStatusDisplay %></span>
-              </p>
-            </div>
-
-            <div>
-              <a href="/orders/<%= order._id %>/invoice" class="btn btn-outline-primary btn-sm mb-2 w-100">View Invoice</a>
-              <a href="/orders/<%= order._id %>/invoice/download" class="btn btn-outline-dark btn-sm mb-2 w-100" onclick="downloadInvoice(event, '<%= order._id %>', '<%= order.orderNumber %>')">Download Invoice</a>
-              <%
-                const orderNotTooFarProgressed = ['Placed', 'Processing', 'Partially Cancelled', 'Partially Returned', 'Partially Return Requested'].includes(order.orderStatus);
-                const hasActiveItems = order.items.some(item => item.status === 'Active');
-                const canCancelOrder = orderNotTooFarProgressed && hasActiveItems;
-                const canReturnOrder = order.orderStatus === 'Delivered' && hasActiveItems;
-                const canRetryPayment = order.orderStatus === 'Pending Payment' && order.paymentStatus === 'Pending Payment';
-
-                // **CALCULATE REMAINING ORDER AMOUNT (excluding cancelled items)**
-                let remainingOrderAmount = 0;
-                if (hasActiveItems) {
-                  // Calculate amount for active items only
-                  const activeItems = order.items.filter(item => item.status === 'Active');
-
-                  if (activeItems.length === order.items.length) {
-                    // No items cancelled yet - use full order total
-                    remainingOrderAmount = order.total;
-                  } else {
-                    // Some items cancelled - calculate proportional amount for remaining items
-                    let activeItemsSubtotal = 0;
-                    activeItems.forEach(item => {
-                      const itemFinalPrice = item.priceBreakdown?.finalPrice || (item.discountedPrice * item.quantity);
-                      activeItemsSubtotal += itemFinalPrice;
-                    });
-
-                    // Calculate total items subtotal for proportion
-                    let totalItemsSubtotal = 0;
-                    order.items.forEach(item => {
-                      const itemFinalPrice = item.priceBreakdown?.finalPrice || (item.discountedPrice * item.quantity);
-                      totalItemsSubtotal += itemFinalPrice;
-                    });
-
-                    // Calculate proportional amount including tax
-                    if (totalItemsSubtotal > 0) {
-                      const proportion = activeItemsSubtotal / totalItemsSubtotal;
-                      remainingOrderAmount = order.total * proportion;
-                    } else {
-                      remainingOrderAmount = 0;
-                    }
-                  }
-                }
-              %>
-              <% if (canRetryPayment) { %>
-                <%
-                  const retryAttempts = order.paymentRetryAttempts || 0;
-                  const maxRetryAttempts = 5;
-                  const canStillRetry = retryAttempts < maxRetryAttempts;
-                %>
-
-                <div class="alert alert-warning mb-3">
-                  <h6 class="alert-heading">
-                    <i class="ri-error-warning-line me-2"></i>Payment Required
-                  </h6>
-                  <% if (canStillRetry) { %>
-                    <p class="mb-2">Your payment could not be processed. Please retry payment to complete your order.</p>
-                    <% if (retryAttempts > 0) { %>
-                      <small class="text-muted">Payment attempts: <%= retryAttempts %>/<%= maxRetryAttempts %></small>
+                      <button
+                        class="btn btn-outline-secondary btn-sm w-100"
+                        data-bs-toggle="modal"
+                        data-bs-target="#cancelOrderModal"
+                      >
+                        <i class="ri-close-line me-2"></i>Cancel Order
+                      </button>
+                    <% } else if (canCancelOrder) { %>
+                      <button
+                        class="btn btn-outline-danger btn-sm w-100"
+                        data-bs-toggle="modal"
+                        data-bs-target="#cancelOrderModal"
+                      >
+                        Cancel Order
+                      </button>
+                    <% } else if (canReturnOrder) { %>
+                      <button
+                        class="btn btn-outline-danger btn-sm w-100"
+                        data-bs-toggle="modal"
+                        data-bs-target="#returnOrderModal"
+                      >
+                        Return Order
+                      </button>
+                    <% } else { %>
+                      <a href="#" class="btn btn-outline-danger btn-sm w-100">Need Help?</a>
                     <% } %>
-                  <% } else { %>
-                    <p class="mb-2">Maximum payment retry attempts reached (<%= maxRetryAttempts %>/<%= maxRetryAttempts %>). Please contact support for assistance.</p>
-                    <small class="text-muted">
-                      <i class="ri-phone-line me-1"></i>Support: +91-XXXXXXXXXX |
-                      <i class="ri-mail-line me-1"></i>support@phoenix.com
-                    </small>
-                  <% } %>
+                  </div>
                 </div>
-
-                <% if (canStillRetry) { %>
-                  <button
-                    class="btn btn-danger btn-sm w-100 mb-2"
-                    onclick="retryPayment('<%= order._id %>')"
-                    id="retryPaymentBtn"
-                  >
-                    <i class="ri-refresh-line me-2"></i>Retry Payment (<%= maxRetryAttempts - retryAttempts %> attempts left)
-                  </button>
-                <% } else { %>
-                  <button
-                    class="btn btn-secondary btn-sm w-100 mb-2"
-                    disabled
-                    title="Maximum retry attempts reached"
-                  >
-                    <i class="ri-forbid-line me-2"></i>Retry Limit Reached
-                  </button>
-                <% } %>
-
-                <button
-                  class="btn btn-outline-secondary btn-sm w-100"
-                  data-bs-toggle="modal"
-                  data-bs-target="#cancelOrderModal"
-                >
-                  <i class="ri-close-line me-2"></i>Cancel Order
-                </button>
-              <% } else if (canCancelOrder) { %>
-                <button
-                  class="btn btn-outline-danger btn-sm w-100"
-                  data-bs-toggle="modal"
-                  data-bs-target="#cancelOrderModal"
-                >
-                  Cancel Order
-                </button>
-              <% } else if (canReturnOrder) { %>
-                <button
-                  class="btn btn-outline-danger btn-sm w-100"
-                  data-bs-toggle="modal"
-                  data-bs-target="#returnOrderModal"
-                >
-                  Return Order
-                </button>
-              <% } else { %>
-                <a href="#" class="btn btn-outline-danger btn-sm w-100">Need Help?</a>
-              <% } %>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+        </div> <!-- .phoenix-main-content -->
+      </div> <!-- .col-lg-10 -->
+    </div> <!-- .row.g-4 -->
+  </div> <!-- .container-fluid -->
+</div> <!-- .phoenix-container -->
 
 <!-- Toast container for notifications -->
 <div class="toast-container"></div>
