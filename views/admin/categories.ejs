@@ -223,7 +223,7 @@
                   <div class="file-preview">
                     <img
                       id="newImagePreview"
-                      src="/api/placeholder/100/100"
+                      src="/assets/placeholder.jpg"
                       alt="Preview"
                     />
                   </div>
@@ -319,7 +319,7 @@
                   <div class="file-preview">
                     <img
                       id="editImagePreview"
-                      src="/api/placeholder/100/100"
+                      src="/assets/placeholder.jpg"
                       alt="Preview"
                     />
                   </div>
@@ -381,7 +381,7 @@
             };
             reader.readAsDataURL(file);
           } else {
-            preview.src = "/api/placeholder/100/100";
+            preview.src = "/assets/placeholder.jpg";
           }
         });
 
@@ -456,7 +456,7 @@
         });
 
         // Reset image preview and status text
-        document.getElementById('newImagePreview').src = '/api/placeholder/100/100';
+        document.getElementById('newImagePreview').src = '/assets/placeholder.jpg';
         document.getElementById('statusText').textContent = 'Listed';
       });
 
