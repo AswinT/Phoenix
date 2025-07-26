@@ -55,6 +55,8 @@ class ValidationErrorHandler {
                      field.closest('.col-md-4') ||
                      field.parentElement;
 
+    if (!formGroup) return;
+
     // Remove any existing error message for this field
     const existingError = formGroup.querySelector(`.${this.errorMessageClass}`);
     if (existingError) {
@@ -71,15 +73,11 @@ class ValidationErrorHandler {
     errorElement.style.color = '#dc3545';
     errorElement.style.fontWeight = '500';
 
-    // Insert error message after the field or its immediate container
-    const insertAfter = field.closest('.custom-file-container') ||
-                       field.closest('.file-upload-wrapper') ||
-                       field;
-
-    if (insertAfter.nextSibling) {
-      formGroup.insertBefore(errorElement, insertAfter.nextSibling);
-    } else {
+    // Safely insert error message
+    try {
       formGroup.appendChild(errorElement);
+    } catch (error) {
+      console.warn('Could not append error message:', error);
     }
 
     // Special handling for file inputs
@@ -105,6 +103,8 @@ class ValidationErrorHandler {
                      field.closest('.col-md-6') ||
                      field.closest('.col-md-4') ||
                      field.parentElement;
+
+    if (!formGroup) return;
 
     // Remove error message
     const errorElement = formGroup.querySelector(`.${this.errorMessageClass}`);
@@ -190,11 +190,22 @@ class ValidationErrorHandler {
     try {
       const response = await fetch(url, {
         method: options.method || 'POST',
-        body: formData,
+        body: options.fetchOptions?.body || formData,
         ...options.fetchOptions
       });
 
-      const data = await response.json();
+      // Check if response is HTML (likely an error page)
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('text/html')) {
+        throw new Error('Server returned HTML instead of JSON. This may indicate a server error or authentication issue.');
+      }
+
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        throw new Error('Invalid JSON response from server');
+      }
 
       if (response.ok && data.success) {
         // Success handling
@@ -213,6 +224,23 @@ class ValidationErrorHandler {
           }
         }
       } else {
+        // Handle authentication errors
+        if (response.status === 401 || data.redirect) {
+          if (typeof Swal !== 'undefined') {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Authentication Required',
+              text: data.message || 'Please log in to continue',
+              confirmButtonText: 'Go to Login'
+            }).then(() => {
+              window.location.href = data.redirect || '/admin/auth/login';
+            });
+          } else {
+            window.location.href = data.redirect || '/admin/auth/login';
+          }
+          return;
+        }
+
         // Error handling
         if (data.errors) {
           this.displayFieldErrors(data.errors, `#${form.id}`);
@@ -226,10 +254,22 @@ class ValidationErrorHandler {
       }
     } catch (error) {
       console.error('Form submission error:', error);
-      this.displayGeneralErrors(['An unexpected error occurred. Please try again.']);
+      
+      let errorMessage = 'An unexpected error occurred. Please try again.';
+      if (error.name === 'TypeError' && (error.message.includes('fetch') || error.message.includes('Failed to fetch'))) {
+        errorMessage = 'Network error: Please check your internet connection and try again.';
+      } else if (error.message.includes('HTML instead of JSON')) {
+        errorMessage = 'Server error: Please refresh the page and try again. If the problem persists, you may need to log in again.';
+      } else if (error.message.includes('Invalid JSON')) {
+        errorMessage = 'Server communication error: Please try again.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      this.displayGeneralErrors([errorMessage]);
       
       if (options.onError) {
-        options.onError({ message: 'Network error' });
+        options.onError({ message: errorMessage });
       }
     } finally {
       // Restore submit button
@@ -253,9 +293,12 @@ class ValidationErrorHandler {
         this.clearFieldError(input);
       });
 
-      // Basic client-side validation on blur
+      // Basic client-side validation on blur (only for required fields)
       input.addEventListener('blur', () => {
-        this.validateField(input);
+        // Only validate if the field has a value or is required
+        if (input.value.trim() || input.hasAttribute('required')) {
+          this.validateField(input);
+        }
       });
     });
   }

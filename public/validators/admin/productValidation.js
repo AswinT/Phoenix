@@ -1,147 +1,58 @@
 /**
- * Frontend Product Validation Script
- * Integrates with the existing validation system to provide SweetAlert2 success messages
- * for admin product edit functionality
+ * Product Validation Script
  */
 
-// Wait for DOM and dependencies to load
-document.addEventListener('DOMContentLoaded', function() {
-  // Wait for ValidationErrorHandler to be available
-  function waitForDependencies() {
-    if (typeof window.ValidationErrorHandler === 'undefined' || typeof Swal === 'undefined') {
-      setTimeout(waitForDependencies, 100);
-      return;
-    }
+// Wait for everything to load, then attach validation
+setTimeout(function() {
+  const form = document.getElementById('addProductForm') || document.getElementById('editProductForm');
+  const submitButton = document.getElementById('addProductButton') || document.querySelector('[type="submit"]');
+  
+  if (form && submitButton) {
+    // Remove any existing event listeners by cloning the button
+    const newSubmitButton = submitButton.cloneNode(true);
+    submitButton.parentNode.replaceChild(newSubmitButton, submitButton);
     
-    initializeProductValidation();
-  }
-  
-  waitForDependencies();
-});
-
-function initializeProductValidation() {
-  const errorHandler = window.ValidationErrorHandler;
-  
-  // Find the product form (both add and edit)
-  const addProductForm = document.getElementById('addProductForm');
-  const editProductForm = document.getElementById('editProductForm');
-  
-  if (addProductForm) {
-    setupProductFormValidation(addProductForm, false, errorHandler);
-  }
-  
-  if (editProductForm) {
-    setupProductFormValidation(editProductForm, true, errorHandler);
-  }
-}
-
-function setupProductFormValidation(form, isEditForm, errorHandler) {
-  if (!form) {
-    console.error('Product form not found');
-    return;
-  }
-  
-  // Add real-time validation
-  errorHandler.addRealTimeValidation(form);
-  
-  // Override form submission
-  form.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    // Perform client-side validation if available
-    if (typeof validateProductForm === 'function') {
-      const validationResult = validateProductForm(form);
+    // Add our click event listener
+    newSubmitButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
       
-      if (!validationResult.isValid) {
-        displayClientSideErrors(form, validationResult.errors);
-        return;
+      // Validate form
+      if (validateForm()) {
+        // If validation passes, submit the form
+        submitForm();
       }
-    }
-    
-    // Clear any existing client-side errors
-    errorHandler.clearAllErrors(form);
-    
-    // Determine the URL and method
-    const url = isEditForm
-      ? `/admin/products/${form.getAttribute('data-product-id')}`
-      : '/admin/products';
-    
-    // Handle form submission with proper success message
-    await errorHandler.handleFormSubmission(form, url, {
-      method: 'POST', // Always POST with method override
-      fetchOptions: {
-        body: (() => {
-          const formData = new FormData(form);
-          if (isEditForm) {
-            formData.append('_method', 'PUT');
-          }
-          return formData;
-        })()
-      },
-      onSuccess: (data) => {
-        // Show SweetAlert2 SUCCESS toast notification
-        Swal.fire({
-          toast: true,
-          position: 'top-end',
-          icon: 'success',
-          title: 'Success!',
-          text: data.message || `Product ${isEditForm ? 'updated' : 'added'} successfully`,
-          showConfirmButton: false,
-          timer: 3000,
-          timerProgressBar: true,
-          background: '#fff',
-          color: '#333',
-          iconColor: '#28a745'
-        }).then(() => {
-          // Reset form for add operations
-          if (!isEditForm) {
-            form.reset();
-            errorHandler.clearAllErrors(form);
-          }
-          
-          // Handle redirect if provided
-          if (data.redirect) {
-            window.location.href = data.redirect;
-          }
-        });
-      },
-      onError: (error) => {
-        // Show ERROR toast notification
-        Swal.fire({
-          toast: true,
-          position: 'top-end',
-          icon: 'error',
-          title: 'Error!',
-          text: error.message || 'An error occurred while processing the request',
-          showConfirmButton: false,
-          timer: 4000,
-          timerProgressBar: true,
-          background: '#fff',
-          color: '#333',
-          iconColor: '#dc3545'
-        });
-      }
+      
+      return false;
     });
-  });
-}
+    
+    // Add input event listeners to clear errors when user types
+    const inputs = form.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+      input.addEventListener('input', function() {
+        if (this.value.trim()) {
+          clearFieldError(this);
+        }
+      });
+      
+      input.addEventListener('change', function() {
+        if (this.type === 'file' && this.files && this.files.length > 0) {
+          clearFieldError(this);
+        } else if (this.value.trim()) {
+          clearFieldError(this);
+        }
+      });
+    });
+  }
+}, 1000);
 
-// Helper function for client-side validation errors (if needed)
-function displayClientSideErrors(form, errors) {
-  // Show validation errors using SweetAlert2
-  Swal.fire({
-    icon: 'warning',
-    title: 'Validation Error',
-    html: errors.map(error => `• ${error}`).join('<br>'),
-    confirmButtonText: 'Fix Issues',
-    confirmButtonColor: '#6f42c1'
-  });
-}
-
-// Basic product form validation function (can be enhanced)
-function validateProductForm(form) {
-  const errors = [];
+function validateForm() {
+  const form = document.getElementById('addProductForm') || document.getElementById('editProductForm');
   
-  // Check required fields
+  // Clear any existing errors first
+  clearAllErrors();
+  
+  // Required fields to validate
   const requiredFields = [
     { name: 'model', label: 'Model' },
     { name: 'brand', label: 'Brand' },
@@ -154,28 +65,193 @@ function validateProductForm(form) {
     { name: 'manufacturer', label: 'Manufacturer' }
   ];
   
-  requiredFields.forEach(field => {
-    const input = form.querySelector(`[name="${field.name}"]`);
-    if (!input || !input.value.trim()) {
-      errors.push(`${field.label} is required`);
+  // Add main image validation for add form
+  if (form.id === 'addProductForm') {
+    requiredFields.push({ name: 'mainImage', label: 'Main Image' });
+  }
+  
+  let isValid = true;
+  
+  requiredFields.forEach(fieldInfo => {
+    const field = form.querySelector(`[name="${fieldInfo.name}"]`);
+    if (field) {
+      let isEmpty = false;
+      
+      if (field.type === 'file') {
+        isEmpty = !field.files || field.files.length === 0;
+      } else {
+        isEmpty = !field.value.trim();
+      }
+      
+      if (isEmpty) {
+        showFieldError(field, `${fieldInfo.label} is required`);
+        isValid = false;
+      }
     }
   });
   
-  // Validate price comparison
-  const regularPrice = parseFloat(form.querySelector('[name="regularPrice"]')?.value);
-  const salePrice = parseFloat(form.querySelector('[name="salePrice"]')?.value);
+  return isValid;
+}
+
+function showFieldError(field, message) {
+  // Add error styling to field
+  field.style.borderColor = '#dc3545';
+  field.classList.add('is-invalid');
   
-  if (!isNaN(regularPrice) && !isNaN(salePrice)) {
-    if (salePrice > regularPrice) {
-      errors.push('Sale price cannot be greater than regular price');
-    }
-    if (salePrice < regularPrice * 0.1) {
-      errors.push('Sale price cannot be less than 10% of regular price');
-    }
+  // Find the best container for the error message
+  let container = field.closest('.mb-3');
+  if (!container) {
+    container = field.closest('.file-upload-wrapper');
+  }
+  if (!container) {
+    container = field.closest('.col-md-6');
+  }
+  if (!container) {
+    container = field.parentElement;
   }
   
-  return {
-    isValid: errors.length === 0,
-    errors: errors
-  };
+  if (container) {
+    // Create simple error message element
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'validation-error-message';
+    errorDiv.style.cssText = `
+      display: block !important;
+      color: #dc3545 !important;
+      font-size: 0.875rem !important;
+      margin-top: 0.25rem !important;
+      font-weight: 500 !important;
+    `;
+    errorDiv.textContent = message;
+    
+    // Append error message
+    container.appendChild(errorDiv);
+  }
+}
+
+function clearFieldError(field) {
+  // Remove error styling from field
+  field.style.borderColor = '';
+  field.classList.remove('is-invalid');
+  
+  // Find container and remove error message
+  let container = field.closest('.mb-3');
+  if (!container) {
+    container = field.closest('.file-upload-wrapper');
+  }
+  if (!container) {
+    container = field.closest('.col-md-6');
+  }
+  if (!container) {
+    container = field.parentElement;
+  }
+  
+  if (container) {
+    const errorMessage = container.querySelector('.validation-error-message');
+    if (errorMessage) {
+      errorMessage.remove();
+    }
+  }
+}
+
+function clearAllErrors() {
+  // Remove all error messages
+  const errorMessages = document.querySelectorAll('.validation-error-message');
+  errorMessages.forEach(msg => msg.remove());
+  
+  // Remove error styling from all fields
+  const allFields = document.querySelectorAll('input, select, textarea');
+  allFields.forEach(field => {
+    field.style.borderColor = '';
+    field.classList.remove('is-invalid');
+  });
+}
+
+async function submitForm() {
+  const form = document.getElementById('addProductForm') || document.getElementById('editProductForm');
+  const submitButton = form.querySelector('[type="submit"]');
+  
+  // Show loading state
+  if (submitButton) {
+    submitButton.disabled = true;
+    const originalText = submitButton.innerHTML;
+    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
+    submitButton.dataset.originalText = originalText;
+  }
+  
+  try {
+    const formData = new FormData(form);
+    const isEdit = form.id === 'editProductForm';
+    const productId = form.getAttribute('data-product-id');
+    const url = isEdit ? `/admin/products/${productId}` : '/admin/products';
+    
+    if (isEdit) {
+      formData.append('_method', 'PUT');
+    }
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      body: formData
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok && data.success) {
+      // Success
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Success!',
+          text: data.message || `Product ${isEdit ? 'updated' : 'added'} successfully`,
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        }).then(() => {
+          if (!isEdit) {
+            form.reset();
+            clearAllErrors();
+          } else {
+            window.location.href = '/admin/products';
+          }
+          
+          if (data.redirect) {
+            window.location.href = data.redirect;
+          }
+        });
+      }
+    } else {
+      // Handle errors
+      if (data.errors && typeof data.errors === 'object') {
+        Object.keys(data.errors).forEach(fieldName => {
+          const field = form.querySelector(`[name="${fieldName}"]`);
+          if (field) {
+            showFieldError(field, data.errors[fieldName]);
+          }
+        });
+      } else if (data.message) {
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: data.message
+          });
+        }
+      }
+    }
+  } catch (error) {
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while processing the request'
+      });
+    }
+  } finally {
+    // Restore submit button
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.innerHTML = submitButton.dataset.originalText || 'Submit';
+    }
+  }
 }

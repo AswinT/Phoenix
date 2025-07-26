@@ -3,6 +3,7 @@ const Category = require('../../models/categorySchema');
 const cloudinary = require('../../config/cloudinary');
 const fs = require('fs');
 const { HttpStatus } = require('../../helpers/statusCode');
+
 const getProducts = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -53,6 +54,7 @@ const getProducts = async (req, res) => {
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Internal Server Error' });
   }
 };
+
 const addProduct = async (req, res) => {
   try {
     const {
@@ -67,12 +69,26 @@ const addProduct = async (req, res) => {
       manufacturer,
       isListed,
     } = req.body;
+    
+    // Check for duplicate product model
+    const existingProduct = await Product.findOne({ 
+      model: { $regex: new RegExp(`^${model.trim()}$`, 'i') },
+      isDeleted: false 
+    });
+    if (existingProduct) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'Validation failed',
+        errors: { model: 'A product with this model name already exists' }
+      });
+    }
+    
     const categoryExists = await Category.findById(category);
     if (!categoryExists) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message: 'Invalid category',
-        errors: ['Invalid category selected']
+        errors: { category: 'Invalid category selected' }
       });
     }
     let mainImageUrl = '';
@@ -93,7 +109,7 @@ const addProduct = async (req, res) => {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message: 'Main image is required',
-        errors: ['Main image is required']
+        errors: { mainImage: 'Main image is required' }
       });
     }
     const subImages = [];
@@ -145,23 +161,24 @@ const addProduct = async (req, res) => {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: 'File upload failed: File not found on server',
-        errors: ['File upload failed: File not found on server']
+        errors: { general: 'File upload failed: File not found on server' }
       });
     } else if (error.name === 'TimeoutError') {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: 'Upload timed out. Please try again with a smaller file or check your network.',
-        errors: ['Upload timed out. Please try again with a smaller file or check your network.']
+        errors: { general: 'Upload timed out. Please try again with a smaller file or check your network.' }
       });
     } else {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: 'Server Error',
-        errors: ['An unexpected error occurred while adding the product']
+        errors: { general: 'An unexpected error occurred while adding the product' }
       });
     }
   }
 };
+
 const toggleProductStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -179,6 +196,7 @@ const toggleProductStatus = async (req, res) => {
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server Error' });
   }
 };
+
 const getEditProduct = async (req, res) => {
   try {
     const productId = req.params.id;
@@ -193,9 +211,20 @@ const getEditProduct = async (req, res) => {
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server Error' });
   }
 };
+
 const updateProduct = async (req, res) => {
   try {
     const productId = req.params.id;
+    
+    // Check if req.body exists and has data
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'No form data received',
+        errors: { general: 'Form data is missing or not properly parsed by multer' }
+      });
+    }
+    
     const {
       model,
       brand,
@@ -208,14 +237,48 @@ const updateProduct = async (req, res) => {
       manufacturer,
       isListed,
     } = req.body;
+    
+    // Validate required fields
+    if (!model || !brand || !description || !category || !regularPrice || !salePrice || !stock || !connectivity || !manufacturer) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'Missing required fields',
+        errors: { general: 'All fields are required' }
+      });
+    }
+    
     const product = await Product.findById(productId);
     if (!product || product.isDeleted) {
-      return res.status(HttpStatus.NOT_FOUND).json({ error: 'Product not found' });
+      return res.status(HttpStatus.NOT_FOUND).json({
+        success: false,
+        message: 'Product not found',
+        errors: { general: 'Product not found' }
+      });
     }
+    
+    // Check for duplicate product model (excluding current product)
+    const existingProduct = await Product.findOne({ 
+      model: { $regex: new RegExp(`^${model.trim()}$`, 'i') },
+      isDeleted: false,
+      _id: { $ne: productId }
+    });
+    if (existingProduct) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'Validation failed',
+        errors: { model: 'A product with this model name already exists' }
+      });
+    }
+    
     const categoryExists = await Category.findById(category);
     if (!categoryExists) {
-      return res.status(HttpStatus.BAD_REQUEST).json({ error: 'Invalid category' });
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'Invalid category',
+        errors: { category: 'Invalid category selected' }
+      });
     }
+    
     let mainImageUrl = product.mainImage;
     if (req.files && req.files.mainImage && req.files.mainImage.length > 0) {
       const file = req.files.mainImage[0];
@@ -233,6 +296,7 @@ const updateProduct = async (req, res) => {
         await cloudinary.uploader.destroy(`products/${publicId}`);
       }
     }
+    
     const subImages = product.subImages ? [...product.subImages] : [];
     for (let i = 1; i <= 3; i++) {
       const fieldName = `subImage${i}`;
@@ -264,32 +328,50 @@ const updateProduct = async (req, res) => {
         fs.unlinkSync(file.path);
       }
     }
-    product.model = model;
-    product.brand = brand;
+    
+    product.model = model.trim();
+    product.brand = brand.trim();
     product.description = description;
     product.category = category;
     product.regularPrice = parseFloat(regularPrice);
     product.salePrice = parseFloat(salePrice);
     product.stock = parseInt(stock);
     product.connectivity = connectivity;
-    product.manufacturer = manufacturer;
+    product.manufacturer = manufacturer.trim();
     product.mainImage = mainImageUrl;
     product.subImages = subImages;
     product.isListed = isListed === 'on';
+    
     await product.save();
+    
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Product updated successfully'
+      message: 'Product updated successfully!'
     });
   } catch (error) {
     console.error('Error updating product:', error);
     if (error.message.includes('ENOENT')) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'File upload failed: File not found on server' });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'File upload failed: File not found on server',
+        errors: { general: 'File upload failed: File not found on server' }
+      });
+    } else if (error.name === 'TimeoutError') {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Upload timed out. Please try again with a smaller file or check your network.',
+        errors: { general: 'Upload timed out. Please try again with a smaller file or check your network.' }
+      });
     } else {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server Error' });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Server Error',
+        errors: { general: 'An unexpected error occurred while updating the product: ' + error.message }
+      });
     }
   }
 };
+
 const softDeleteProduct = async (req, res) => {
   try {
     const productId = req.params.id;
@@ -307,4 +389,5 @@ const softDeleteProduct = async (req, res) => {
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server Error' });
   }
 };
+
 module.exports = { getProducts, addProduct, toggleProductStatus, getEditProduct, updateProduct, softDeleteProduct };

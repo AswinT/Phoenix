@@ -326,7 +326,7 @@
         <p class="text-muted mb-0">Add a new book to the store</p>
       </div>
       <div class="card p-4">
-        <form id="addProductForm" action="/admin/products" method="POST" enctype="multipart/form-data">
+        <form id="addProductForm" action="/admin/products" method="POST" enctype="multipart/form-data" data-validation="true">
           <div class="row">
             <div class="col-md-4">
               <div class="mb-3">
@@ -508,6 +508,7 @@
                     placeholder="Enter stock quantity"
                     required
                   />
+                  <div class="invalid-feedback"></div>
                 </div>
 
               </div>
@@ -525,6 +526,7 @@
                     <option value="Wired" selected>Wired</option>
                     <option value="Wireless">Wireless</option>
                   </select>
+                  <div class="invalid-feedback"></div>
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="manufacturer" class="form-label">Manufacturer</label>
@@ -536,6 +538,7 @@
                     placeholder="Enter manufacturer"
                     required
                   />
+                  <div class="invalid-feedback"></div>
                 </div>
               </div>
 
@@ -609,7 +612,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <!-- Load validation dependencies -->
     <script src="/js/validationErrorHandler.js"></script>
-    <script src="/validators/admin/frontendValidationAdapter.js"></script>
+    <script src="/validators/admin/productValidation.js"></script>
     <script>
       let cropper;
       let currentFileInput;
@@ -743,13 +746,6 @@
         }
       }
       document.addEventListener("DOMContentLoaded", fetchCategories);
-
-      // Initialize validation system
-      if (typeof initializeValidation === 'function') {
-        initializeValidation();
-      } else {
-        console.error('Validation system not loaded properly');
-      }
     </script>
   </body>
 </html>

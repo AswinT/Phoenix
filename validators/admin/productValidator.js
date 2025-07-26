@@ -1,4 +1,5 @@
 const { createValidationMiddleware } = require('../../helpers/validationHelper');
+
 const validatePriceComparison = (req, res, next) => {
   const regularPrice = parseFloat(req.body.regularPrice);
   const salePrice = parseFloat(req.body.salePrice);
@@ -20,6 +21,7 @@ const validatePriceComparison = (req, res, next) => {
   }
   next();
 };
+
 const validateProductData = createValidationMiddleware({
   model: {
     type: 'text',
@@ -94,6 +96,7 @@ const validateProductData = createValidationMiddleware({
     fieldName: 'Category'
   }
 });
+
 module.exports = {
   validateProductData,
   validatePriceComparison
