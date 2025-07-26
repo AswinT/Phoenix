@@ -30,6 +30,7 @@
     <link rel="stylesheet" href="/styles/user/productDetails.css" />
     <link rel="stylesheet" href="/styles/user/shop-page.css" />
     <link rel="stylesheet" href="/styles/user/contacts.css" />
+    <link rel="stylesheet" href="/styles/user/navbar-fix.css" />
 
     <style>
       /* Root variables for consistent color scheme */
@@ -78,6 +79,12 @@
         backdrop-filter: blur(10px);
         font-family: var(--font-body);
         padding: 0.75rem 0;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        z-index: 1030 !important;
       }
 
       /* Fixed container layout for proper alignment */
@@ -633,12 +640,28 @@
         ) !important;
         backdrop-filter: blur(20px);
       }
+      /* Fixed navbar body compensation */
+      body {
+        padding-top: 80px !important;
+      }
+
+      @media (max-width: 991.98px) {
+        body {
+          padding-top: 70px !important;
+        }
+      }
+
+      @media (max-width: 575.98px) {
+        body {
+          padding-top: 65px !important;
+        }
+      }
     </style>
   </head>
 
   <body class="paper-texture">
     <nav
-      class="navbar navbar-expand-lg navbar-elegant-theme shadow-sm sticky-top"
+      class="navbar navbar-expand-lg navbar-elegant-theme shadow-sm fixed-top"
     >
       <div class="container">
         <!-- Brand Section - Far Left -->
