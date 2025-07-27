@@ -85,7 +85,7 @@
   </div>
 </section>
 
-<!-- New Arrivals (4 Cards Fixed) -->
+<!-- New Arrivals Carousel -->
 <section class="products-section">
   <div class="container">
     <div class="section-header">
@@ -93,130 +93,119 @@
         <h2 class="section-title">New Arrivals</h2>
         <div class="title-underline"></div>
       </div>
+      <div class="carousel-top-controls">
+        <div class="carousel-indicators" id="carouselIndicators"></div>
+      </div>
     </div>
-    <div class="modern-products-grid home-layout">
-      <% if (newArrivals && newArrivals.length > 0) { %> <% newArrivals.slice(0,
-      4).forEach((product, index) => { %>
-      <%
-        const now = new Date();
-        const createdAt = new Date(product.createdAt);
-        const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24);
-        const isNew = diffDays <= 30;
-        const stockStatus = product.stock > 10 ? 'in-stock' : product.stock > 0 ? 'low-stock' : 'out-of-stock';
-        const stockText = product.stock > 10 ? 'In Stock' : product.stock > 0 ? `Only ${product.stock} left` : 'Out of Stock';
-      %>
-      <div
-        class="modern-product-card"
-        data-aos="fade-up"
-        data-aos-delay="<%= index * 100 %>"
-      >
-        <!-- Product Image Section -->
-        <div class="modern-product-image-section">
-          <!-- Product Badges -->
-          <div class="modern-product-badges">
-            <% if (isNew) { %>
-            <span class="modern-product-badge modern-badge-new">New</span>
-            <% } %>
-            <% if (product.activeOffer && product.discountPercentage > 0) { %>
-            <span class="modern-product-badge modern-badge-offer">
-              <%= Math.round(product.discountPercentage) %>% OFF
-            </span>
-            <% } %>
-          </div>
-
-          <!-- Wishlist Button -->
-          <button class="modern-wishlist-btn btn-wishlist" data-product-id="<%= product._id %>">
-            <i class="ri-heart-line"></i>
-          </button>
-
-          <!-- Small Cart Icon -->
-          <button class="modern-cart-icon add-to-cart" data-product-id="<%= product._id %>">
-            <i class="ri-shopping-cart-line"></i>
-          </button>
-
-          <!-- Product Image -->
-          <a href="/products/<%= product._id %>">
-            <img
-              src="<%= product.mainImage || '/api/placeholder/600/800' %>"
-              alt="<%= product.model %>"
-              class="modern-product-image"
-            />
-          </a>
-
-          <!-- Quick View Overlay -->
-          <div class="modern-quick-view-overlay">
-            <button class="modern-quick-view-btn" onclick="window.location.href='/products/<%= product._id %>'">
-              Quick View
-            </button>
-          </div>
+    
+    <div class="carousel-container">
+      <!-- Left Side Navigation Button -->
+      <button class="carousel-side-btn carousel-prev" id="prevBtn">
+        <i class="ri-arrow-left-line"></i>
+      </button>
+      
+      <!-- Right Side Navigation Button -->
+      <button class="carousel-side-btn carousel-next" id="nextBtn">
+        <i class="ri-arrow-right-line"></i>
+      </button>
+      
+      <!-- Loading State -->
+      <div class="carousel-loading" id="carouselLoading" style="display: none;">
+        <div class="loading-spinner">
+          <div class="spinner-ring"></div>
+          <div class="spinner-ring"></div>
+          <div class="spinner-ring"></div>
         </div>
-
-        <!-- Product Info Section -->
-        <div class="modern-product-info">
-          <!-- Brand -->
-          <div class="modern-product-brand"><%= product.brand %></div>
-
-          <!-- Title -->
-          <h3 class="modern-product-title">
-            <a href="/products/<%= product._id %>"><%= product.model %></a>
-          </h3>
-
-          <!-- Rating (placeholder for future implementation) -->
-          <div class="modern-product-rating">
-            <div class="modern-rating-stars">
-              <i class="ri-star-fill modern-rating-star"></i>
-              <i class="ri-star-fill modern-rating-star"></i>
-              <i class="ri-star-fill modern-rating-star"></i>
-              <i class="ri-star-fill modern-rating-star"></i>
-              <i class="ri-star-line modern-rating-star empty"></i>
-            </div>
-            <span class="modern-rating-count">(4.2)</span>
-          </div>
-
-          <!-- Price -->
-          <div class="modern-product-price">
-            <% if (product.activeOffer && product.discountPercentage > 0) { %>
-            <div class="modern-price-group">
-              <span class="modern-current-price">₹<%= product.finalPrice.toFixed(2) %></span>
-              <span class="modern-original-price">₹<%= product.regularPrice.toFixed(2) %></span>
-              <span class="modern-discount-badge">Save ₹<%= (product.regularPrice - product.finalPrice).toFixed(0) %></span>
-            </div>
-            <% if (product.activeOffer && product.activeOffer.title) { %>
-            <p class="modern-offer-text"><%= product.activeOffer.title %></p>
-            <% } %>
-            <% } else { %>
-            <div class="modern-price-group">
-              <span class="modern-current-price">₹<%= product.regularPrice.toFixed(2) %></span>
-            </div>
-            <% } %>
-          </div>
-
-          <!-- Stock Status -->
-          <div class="modern-stock-status">
-            <span class="modern-stock-indicator modern-stock-<%= stockStatus %>">
-              <%= stockText %>
-            </span>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="modern-product-actions">
-            <button 
-              class="modern-add-to-cart-btn add-to-cart" 
-              data-product-id="<%= product._id %>"
-              <%= product.stock === 0 ? 'disabled' : '' %>
-            >
-              <i class="ri-shopping-cart-line"></i>
-              <span><%= product.stock === 0 ? 'Out of Stock' : 'Add to Cart' %></span>
-            </button>
-          </div>
-        </div>
+        <p class="loading-text">Loading products...</p>
       </div>
-      <% }) %> <% } else { %>
-      <div class="empty-state">
-        <i class="ri-headphone-line"></i>
-        <p>No new arrivals available at the moment.</p>
+      
+      <div class="carousel-wrapper" id="carouselWrapper">
+        <!-- Create multiple slides from newArrivals -->
+        <% if (newArrivals && newArrivals.length > 0) { %>
+          <% 
+            const slidesCount = Math.ceil(newArrivals.length / 3);
+            for (let slideIndex = 0; slideIndex < slidesCount; slideIndex++) {
+              const startIndex = slideIndex * 3;
+              const slideProducts = newArrivals.slice(startIndex, startIndex + 3);
+          %>
+          <div class="carousel-slide <%= slideIndex === 0 ? 'active' : '' %>" data-slide="<%= slideIndex %>">
+            <div class="standard-products-grid">
+              <% slideProducts.forEach((product, index) => { %>
+                <%
+                  const now = new Date();
+                  const createdAt = new Date(product.createdAt);
+                  const diffDays = (now - createdAt) / (1000 * 60 * 60 * 24);
+                  const isNew = diffDays <= 30;
+                  const stockStatus = product.stock > 10 ? 'in-stock' : product.stock > 0 ? 'low-stock' : 'out-of-stock';
+                  const stockText = product.stock > 10 ? 'In Stock' : product.stock > 0 ? `Only ${product.stock} left` : 'Out of Stock';
+                %>
+                <div class="standard-product-card card-animate" data-aos="fade-up" data-aos-delay="<%= index * 100 %>">
+                  <div class="card-image-container">
+                    <% if (isNew) { %>
+                    <span class="card-badge new-badge">New</span>
+                    <% } %>
+                    <% if (product.activeOffer && product.discountPercentage > 0) { %>
+                    <span class="card-badge discount-badge"><%= Math.round(product.discountPercentage) %>% OFF</span>
+                    <% } %>
+                    
+                    <button class="wishlist-btn btn-wishlist" data-product-id="<%= product._id %>">
+                      <i class="ri-heart-line"></i>
+                    </button>
+                    
+                    <a href="/products/<%= product._id %>" class="card-image-link">
+                      <img src="<%= product.mainImage || '/api/placeholder/600/800' %>" alt="<%= product.model %>" class="card-image">
+                    </a>
+                  </div>
+                  
+                  <div class="card-content">
+                    <div class="card-brand"><%= product.brand %></div>
+                    <h3 class="card-title">
+                      <a href="/products/<%= product._id %>"><%= product.model %></a>
+                    </h3>
+                    
+                    <div class="card-rating">
+                      <div class="rating-stars">
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-line"></i>
+                      </div>
+                      <span class="rating-text">(4.2)</span>
+                    </div>
+                    
+                    <div class="card-price">
+                      <% if (product.activeOffer && product.discountPercentage > 0) { %>
+                      <span class="current-price">₹<%= product.finalPrice.toFixed(2) %></span>
+                      <span class="original-price">₹<%= product.regularPrice.toFixed(2) %></span>
+                      <% } else { %>
+                      <span class="current-price">₹<%= product.regularPrice.toFixed(2) %></span>
+                      <% } %>
+                    </div>
+                    
+                    <div class="card-stock">
+                      <span class="stock-status stock-<%= stockStatus %>"><%= stockText %></span>
+                    </div>
+                    
+                    <button class="card-add-to-cart add-to-cart" data-product-id="<%= product._id %>" <%= product.stock === 0 ? 'disabled' : '' %>>
+                      <i class="ri-shopping-cart-line"></i>
+                      <%= product.stock === 0 ? 'Out of Stock' : 'Add to Cart' %>
+                    </button>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+          <% } %>
+        <% } else { %>
+          <div class="carousel-slide active">
+            <div class="empty-state">
+              <i class="ri-headphone-line"></i>
+              <p>No new arrivals available at the moment.</p>
+            </div>
+          </div>
+        <% } %>
       </div>
-      <% } %>
     </div>
   </div>
 </section>
@@ -356,6 +345,9 @@
     document.querySelectorAll(".add-to-cart").forEach((button) => {
       button.addEventListener("click", async function () {
         const productId = this.dataset.productId;
+        const originalText = this.innerHTML;
+        this.innerHTML = '<i class="ri-loader-4-line animate-spin"></i> Adding...';
+        this.disabled = true;
 
         try {
           const response = await fetch("/api/cart/add", {
@@ -393,30 +385,14 @@
               timer: 1500,
             });
           } else {
-            if (
-              result.message === "Please log in to add items to your cart" ||
-              result.requiresAuth
-            ) {
-              Swal.fire({
-                toast: true,
-                position: "top-end",
-                icon: "error",
-                title: result.message,
-                showConfirmButton: false,
-                timer: 2000,
-              }).then(() => {
-                window.location.href = "/login";
-              });
-            } else {
-              Swal.fire({
-                toast: true,
-                position: "top-end",
-                icon: "error",
-                title: result.message,
-                showConfirmButton: false,
-                timer: 1500,
-              });
-            }
+            Swal.fire({
+              toast: true,
+              position: "top-end",
+              icon: "error",
+              title: result.message,
+              showConfirmButton: false,
+              timer: 1500,
+            });
           }
         } catch (error) {
           Swal.fire({
@@ -427,6 +403,9 @@
             showConfirmButton: false,
             timer: 1500,
           });
+        } finally {
+          this.innerHTML = originalText;
+          this.disabled = false;
         }
       });
     });
@@ -435,6 +414,9 @@
     document.querySelectorAll(".btn-wishlist").forEach((button) => {
       button.addEventListener("click", async function () {
         const productId = this.dataset.productId;
+        const icon = this.querySelector("i");
+        const originalClass = icon.className;
+        icon.className = "ri-loader-4-line animate-spin";
 
         try {
           const response = await fetch("/api/wishlist/toggle", {
@@ -457,7 +439,6 @@
               window.location.href = "/login";
             });
           } else if (result.success) {
-            const icon = this.querySelector("i");
             if (result.isWishlisted) {
               icon.className = "ri-heart-fill";
               this.classList.add("wishlisted");
@@ -480,32 +461,18 @@
               timer: 1500,
             });
           } else {
-            if (
-              result.message === "Please log in to manage your wishlist" ||
-              result.requiresAuth
-            ) {
-              Swal.fire({
-                toast: true,
-                position: "top-end",
-                icon: "error",
-                title: result.message,
-                showConfirmButton: false,
-                timer: 2000,
-              }).then(() => {
-                window.location.href = "/login";
-              });
-            } else {
-              Swal.fire({
-                toast: true,
-                position: "top-end",
-                icon: "error",
-                title: result.message,
-                showConfirmButton: false,
-                timer: 1500,
-              });
-            }
+            icon.className = originalClass;
+            Swal.fire({
+              toast: true,
+              position: "top-end",
+              icon: "error",
+              title: result.message,
+              showConfirmButton: false,
+              timer: 1500,
+            });
           }
         } catch (error) {
+          icon.className = originalClass;
           Swal.fire({
             toast: true,
             position: "top-end",
@@ -517,5 +484,156 @@
         }
       });
     });
+
+    // Simple Working Carousel Functionality
+    const carouselWrapper = document.getElementById('carouselWrapper');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const carouselIndicators = document.getElementById('carouselIndicators');
+    
+    let currentSlide = 0;
+    let autoSlideInterval;
+    const autoSlideDelay = 5000; // 5 seconds
+
+    // Create indicators for existing slides
+    function createIndicators() {
+      const slides = carouselWrapper.querySelectorAll('.carousel-slide');
+      carouselIndicators.innerHTML = '';
+      slides.forEach((_, index) => {
+        const indicator = document.createElement('div');
+        indicator.className = `carousel-indicator ${index === 0 ? 'active' : ''}`;
+        indicator.addEventListener('click', () => goToSlide(index));
+        carouselIndicators.appendChild(indicator);
+      });
+    }
+
+    // Update indicators
+    function updateIndicators() {
+      const indicators = carouselIndicators.querySelectorAll('.carousel-indicator');
+      indicators.forEach((indicator, index) => {
+        indicator.classList.toggle('active', index === currentSlide);
+      });
+    }
+
+    // Go to specific slide
+    function goToSlide(slideIndex) {
+      const slides = carouselWrapper.querySelectorAll('.carousel-slide');
+      if (slideIndex >= slides.length || slideIndex < 0) return;
+
+      // Hide current slide
+      slides[currentSlide].classList.remove('active');
+      
+      // Update current slide index
+      currentSlide = slideIndex;
+      
+      // Show new slide
+      slides[currentSlide].classList.add('active');
+      
+      // Update indicators
+      updateIndicators();
+      
+      // Reset auto-slide timer
+      resetAutoSlide();
+    }
+
+    // Next slide
+    function nextSlide() {
+      const slides = carouselWrapper.querySelectorAll('.carousel-slide');
+      if (slides.length === 0) return;
+      const nextIndex = (currentSlide + 1) % slides.length;
+      goToSlide(nextIndex);
+    }
+
+    // Previous slide
+    function prevSlide() {
+      const slides = carouselWrapper.querySelectorAll('.carousel-slide');
+      if (slides.length === 0) return;
+      const prevIndex = (currentSlide - 1 + slides.length) % slides.length;
+      goToSlide(prevIndex);
+    }
+
+    // Auto slide functionality
+    function startAutoSlide() {
+      const slides = carouselWrapper.querySelectorAll('.carousel-slide');
+      if (slides.length > 1) {
+        autoSlideInterval = setInterval(nextSlide, autoSlideDelay);
+      }
+    }
+
+    function stopAutoSlide() {
+      if (autoSlideInterval) {
+        clearInterval(autoSlideInterval);
+      }
+    }
+
+    function resetAutoSlide() {
+      stopAutoSlide();
+      startAutoSlide();
+    }
+
+    // Initialize carousel
+    function initializeCarousel() {
+      const slides = carouselWrapper.querySelectorAll('.carousel-slide');
+      
+      if (slides.length > 0) {
+        createIndicators();
+        
+        // Event listeners for navigation buttons
+        if (nextBtn) {
+          nextBtn.addEventListener('click', nextSlide);
+        }
+        
+        if (prevBtn) {
+          prevBtn.addEventListener('click', prevSlide);
+        }
+
+        // Pause auto-slide on hover
+        if (carouselWrapper) {
+          carouselWrapper.addEventListener('mouseenter', stopAutoSlide);
+          carouselWrapper.addEventListener('mouseleave', startAutoSlide);
+        }
+
+        // Touch/swipe support for mobile
+        let startX = 0;
+        let endX = 0;
+
+        carouselWrapper.addEventListener('touchstart', (e) => {
+          startX = e.touches[0].clientX;
+        });
+
+        carouselWrapper.addEventListener('touchend', (e) => {
+          endX = e.changedTouches[0].clientX;
+          handleSwipe();
+        });
+
+        function handleSwipe() {
+          const swipeThreshold = 50;
+          const diff = startX - endX;
+
+          if (Math.abs(diff) > swipeThreshold) {
+            if (diff > 0) {
+              nextSlide(); // Swipe left - next slide
+            } else {
+              prevSlide(); // Swipe right - previous slide
+            }
+          }
+        }
+
+        // Start auto-slide
+        startAutoSlide();
+        
+        // Hide navigation if only one slide
+        if (slides.length <= 1) {
+          if (prevBtn) prevBtn.style.display = 'none';
+          if (nextBtn) nextBtn.style.display = 'none';
+          carouselIndicators.style.display = 'none';
+        }
+      }
+    }
+
+    // Initialize carousel when page loads
+    if (carouselWrapper) {
+      initializeCarousel();
+    }
   });
 </script>

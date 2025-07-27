@@ -2,6 +2,7 @@
 
 <!-- Cart Styles -->
 <link rel="stylesheet" href="/styles/user/cart.css" />
+<link rel="stylesheet" href="/styles/user/cart-fix.css" />
 
 <!-- Cart Page -->
 <section class="cart-page-section">
@@ -26,11 +27,11 @@
       </div>
     </div>
 
-    <div class="row g-4">
-      <!-- Cart Items Column -->
-      <div class="col-lg-8">
-        <!-- Empty Cart State -->
-        <div class="empty-cart-container <%= cartItems.length === 0 ? '' : 'd-none' %>">
+    <!-- Empty Cart State (Full Width) -->
+    <% if (cartItems.length === 0) { %>
+    <div class="row">
+      <div class="col-12">
+        <div class="empty-cart-container">
           <div class="empty-cart-card">
             <div class="empty-cart-icon">
               <i class="ri-shopping-cart-line"></i>
@@ -43,9 +44,16 @@
             </a>
           </div>
         </div>
+      </div>
+    </div>
+    <% } else { %>
 
+    <!-- Cart with Items -->
+    <div class="row g-4">
+      <!-- Cart Items Column -->
+      <div class="col-lg-8">
         <!-- Cart Items List -->
-        <div class="cart-items-container <%= cartItems.length === 0 ? 'd-none' : '' %>">
+        <div class="cart-items-container">
           <div class="cart-items-header">
             <h2 class="items-count">Items (<%= cartItems.reduce((sum, item) => sum + item.quantity, 0) %>)</h2>
             <button class="btn-clear-cart" id="clearCartBtn">
@@ -129,7 +137,7 @@
                           <span class="original-price">₹<%= item.product.regularPrice.toFixed(2) %></span>
                           <span class="discounted-price">₹<%= (item.quantity * item.product.finalPrice).toFixed(2) %></span>
                         <% } else { %>
-                          <span class="current-price">₹<%= (item.quantity * item.product.finalPrice).toFixed(2) %></span>
+                          <span class="current-price">��<%= (item.quantity * item.product.finalPrice).toFixed(2) %></span>
                         <% } %>
                       </div>
                       <button class="btn-remove-item remove-item">
@@ -155,7 +163,7 @@
 
       <!-- Order Summary Column -->
       <div class="col-lg-4">
-        <div class="order-summary-container <%= cartItems.length === 0 ? 'd-none' : '' %>" id="orderSummary">
+        <div class="order-summary-container" id="orderSummary">
           <div class="order-summary-card floating-card">
             <div class="summary-header">
               <h2 class="summary-title">Order Summary</h2>
@@ -232,6 +240,7 @@
         </div>
       </div>
     </div>
+    <% } %>
   </div>
 </section>
 
@@ -360,12 +369,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const apiResult = await response.json();
 
         if (apiResult.success) {
-          emptyCart.classList.remove('d-none');
-          cartItemsContainer.classList.add('d-none');
-          orderSummary.classList.add('d-none');
-          updateCartCount(apiResult.cartCount);
-
-          showNotification('success', 'Cart cleared successfully!');
+          window.location.reload();
         } else {
           showNotification('error', apiResult.message || 'Failed to clear cart');
         }
@@ -534,21 +538,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (result.success) {
         item.style.opacity = '0';
         setTimeout(() => {
-          item.remove();
-          
-          if (typeof result.totalAmount === 'number') {
-            updateOrderSummaryDOM(result.totalAmount, result.cartCount);
-          }
-          
-          updateCartCount(result.cartCount);
-
-          if (document.querySelectorAll('.cart-item').length === 0) {
-            emptyCart.classList.remove('d-none');
-            cartItemsContainer.classList.add('d-none');
-            orderSummary.classList.add('d-none');
-          }
-
-          showNotification('success', result.message || 'Item removed from cart');
+          window.location.reload();
         }, 300);
       } else {
         item.style.opacity = '1';
