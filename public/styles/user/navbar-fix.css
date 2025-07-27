@@ -1,0 +1,165 @@
+/* Navbar Fix CSS - Resolves common navbar layout and styling issues */
+
+/* Fix for navbar z-index issues */
+.navbar {
+  z-index: 1030 !important;
+}
+
+/* Fix for navbar dropdown positioning */
+.navbar .dropdown-menu {
+  z-index: 1040 !important;
+}
+
+/* Fix for navbar brand alignment */
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Fix for navbar toggler on mobile */
+.navbar-toggler {
+  border: none;
+  padding: 0.25rem 0.5rem;
+}
+
+.navbar-toggler:focus {
+  box-shadow: none;
+}
+
+/* Fix for navbar collapse animation */
+.navbar-collapse {
+  transition: height 0.3s ease;
+}
+
+/* Fix for navbar item spacing */
+.navbar-nav .nav-item {
+  margin: 0 0.25rem;
+}
+
+.navbar-nav .nav-link {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  transition: all 0.3s ease;
+}
+
+/* Fix for navbar search form */
+.navbar .search-form {
+  max-width: 300px;
+  width: 100%;
+}
+
+/* Fix for navbar user menu */
+.navbar .user-menu {
+  position: relative;
+}
+
+.navbar .user-menu .dropdown-menu {
+  right: 0;
+  left: auto;
+  min-width: 200px;
+}
+
+/* Fix for navbar cart icon */
+.navbar .cart-icon {
+  position: relative;
+}
+
+.navbar .cart-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: var(--danger-color, #dc3545);
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Fix for navbar responsive behavior */
+@media (max-width: 991.98px) {
+  .navbar-nav {
+    padding: 1rem 0;
+  }
+  
+  .navbar-nav .nav-item {
+    margin: 0.25rem 0;
+  }
+  
+  .navbar .search-form {
+    margin: 1rem 0;
+  }
+}
+
+/* Fix for navbar sticky behavior */
+.navbar.sticky-top {
+  transition: all 0.3s ease;
+}
+
+.navbar.scrolled {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Fix for navbar logo sizing */
+.navbar-brand img {
+  max-height: 40px;
+  width: auto;
+}
+
+/* Fix for navbar text color contrast */
+.navbar-light .navbar-nav .nav-link {
+  color: var(--text-dark, #333) !important;
+}
+
+.navbar-light .navbar-nav .nav-link:hover,
+.navbar-light .navbar-nav .nav-link:focus {
+  color: var(--primary-color, #007bff) !important;
+}
+
+/* Fix for navbar button styling */
+.navbar .btn {
+  margin: 0 0.25rem;
+}
+
+/* Fix for navbar overflow on small screens */
+.navbar-collapse {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Fix for navbar backdrop on mobile */
+@media (max-width: 991.98px) {
+  .navbar-collapse.show {
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 0.5rem;
+    margin-top: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Fix for navbar accessibility */
+.navbar-toggler:focus {
+  outline: 2px solid var(--primary-color, #007bff);
+  outline-offset: 2px;
+}
+
+.navbar .nav-link:focus {
+  outline: 2px solid var(--primary-color, #007bff);
+  outline-offset: 2px;
+}
+
+/* Fix for navbar performance */
+.navbar * {
+  will-change: auto;
+}
+
+.navbar.animating * {
+  will-change: transform, opacity;
+}

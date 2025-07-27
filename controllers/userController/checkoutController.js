@@ -49,20 +49,73 @@ const getCheckout = async (req, res) => {
       return res.redirect('/cart');
     }
     const addresses = await Address.find({ userId }).sort({ isDefault: -1, updatedAt: -1 });
-    const cartItems = cart.items.filter((item) =>
-      item.product &&
-      item.product.isListed &&
-      !item.product.isDeleted &&
-      item.product.stock >= item.quantity
-    );
-    if (cartItems.length === 0) {
-      req.session.errorMessage = 'No valid items in cart. Some items may be unavailable or out of stock.';
-      return res.redirect('/cart');
+
+    // Enhanced stock validation with detailed conflict detection
+    const validItems = [];
+    const stockConflicts = [];
+    const unavailableItems = [];
+
+    for (const item of cart.items) {
+      if (!item.product || !item.product.isListed || item.product.isDeleted) {
+        unavailableItems.push({
+          productId: item.product?._id,
+          model: item.product?.model || 'Unknown Product',
+          reason: 'Product no longer available'
+        });
+        continue;
+      }
+
+      if (item.product.stock < item.quantity) {
+        stockConflicts.push({
+          productId: item.product._id,
+          model: item.product.model,
+          requestedQuantity: item.quantity,
+          availableStock: item.product.stock,
+          priceAtAddition: item.priceAtAddition
+        });
+        continue;
+      }
+
+      validItems.push(item);
     }
-    if (cartItems.length !== cart.items.length) {
-      cart.items = cartItems;
+
+    // Handle unavailable items by removing them
+    if (unavailableItems.length > 0) {
+      cart.items = validItems.concat(stockConflicts.map(conflict =>
+        cart.items.find(item => item.product._id.toString() === conflict.productId.toString())
+      ));
       await cart.save();
       req.session.errorMessage = 'Some items were removed from your cart as they are no longer available.';
+      return res.redirect('/cart');
+    }
+
+    // If there are stock conflicts, handle them specially
+    if (stockConflicts.length > 0) {
+      // Store stock conflicts in session for the checkout page to display
+      req.session.stockConflicts = stockConflicts;
+
+      // Create a combined list of valid items and conflicted items for display
+      const allCartItems = validItems.concat(stockConflicts.map(conflict =>
+        cart.items.find(item => item.product._id.toString() === conflict.productId.toString())
+      ));
+
+      // Set error message for stock conflicts
+      const conflictMessages = stockConflicts.map(conflict =>
+        `${conflict.model}: requested ${conflict.requestedQuantity}, only ${conflict.availableStock} available`
+      );
+      req.session.errorMessage = `Some items in your cart exceed available stock: ${conflictMessages.join('; ')}. Please adjust quantities before proceeding.`;
+    } else {
+      // Clear any previous stock conflicts
+      delete req.session.stockConflicts;
+    }
+
+    const cartItems = stockConflicts.length > 0 ?
+      validItems.concat(stockConflicts.map(conflict =>
+        cart.items.find(item => item.product._id.toString() === conflict.productId.toString())
+      )) : validItems;
+
+    if (cartItems.length === 0) {
+      req.session.errorMessage = 'No valid items in cart. Some items may be unavailable or out of stock.';
       return res.redirect('/cart');
     }
     let subtotal = 0;
@@ -193,11 +246,14 @@ const getCheckout = async (req, res) => {
       isCodEligible,
       walletBalance,
       isWalletEligible,
+      stockConflicts: req.session.stockConflicts || [],
+      hasStockConflicts: (req.session.stockConflicts || []).length > 0,
       errorMessage: req.session.errorMessage,
       successMessage: req.session.successMessage
     });
     delete req.session.errorMessage;
     delete req.session.successMessage;
+    // Keep stockConflicts in session for potential API calls, but clear after successful resolution
   } catch (error) {
     console.error('Error in rendering checkout page:', error);
     req.session.errorMessage = 'Something went wrong. Please try again.';
@@ -1095,6 +1151,170 @@ const placeOrder = async (req, res) => {
     });
   }
 };
+const adjustCartQuantities = async (req, res) => {
+  try {
+    console.log('adjustCartQuantities called with body:', req.body); // Debug log
+
+    const userId = req.session.user_id;
+    if (!userId) {
+      console.log('No user ID in session'); // Debug log
+      return res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: 'Please log in' });
+    }
+
+    const { adjustments } = req.body; // Array of {productId, newQuantity}
+    console.log('Adjustments received:', adjustments); // Debug log
+
+    if (!adjustments || !Array.isArray(adjustments)) {
+      console.log('Invalid adjustments data:', adjustments); // Debug log
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'Invalid adjustment data'
+      });
+    }
+
+    if (adjustments.length === 0) {
+      console.log('Empty adjustments array'); // Debug log
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'No adjustments provided'
+      });
+    }
+
+    const cart = await Cart.findOne({ user: userId }).populate('items.product');
+    console.log('Cart found:', cart ? `${cart.items.length} items` : 'null'); // Debug log
+
+    if (!cart || !cart.items.length) {
+      console.log('Cart is empty or not found'); // Debug log
+      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: 'Cart is empty' });
+    }
+
+    const MAX_QUANTITY_PER_PRODUCT = 5;
+    const adjustmentResults = [];
+    let cartModified = false;
+
+    console.log('Processing adjustments...'); // Debug log
+
+    for (const adjustment of adjustments) {
+      const { productId, newQuantity } = adjustment;
+
+      if (!productId || typeof newQuantity !== 'number' || newQuantity < 0) {
+        adjustmentResults.push({
+          productId,
+          success: false,
+          message: 'Invalid adjustment parameters'
+        });
+        continue;
+      }
+
+      const itemIndex = cart.items.findIndex(item =>
+        item.product && item.product._id.toString() === productId.toString()
+      );
+
+      if (itemIndex === -1) {
+        adjustmentResults.push({
+          productId,
+          success: false,
+          message: 'Item not found in cart'
+        });
+        continue;
+      }
+
+      const item = cart.items[itemIndex];
+      const product = item.product;
+
+      // If newQuantity is 0, remove the item
+      if (newQuantity === 0) {
+        cart.items.splice(itemIndex, 1);
+        cartModified = true;
+        adjustmentResults.push({
+          productId,
+          success: true,
+          message: 'Item removed from cart',
+          action: 'removed'
+        });
+        continue;
+      }
+
+      // Validate against maximum quantity limit
+      if (newQuantity > MAX_QUANTITY_PER_PRODUCT) {
+        adjustmentResults.push({
+          productId,
+          success: false,
+          message: `Maximum ${MAX_QUANTITY_PER_PRODUCT} items allowed per product`
+        });
+        continue;
+      }
+
+      // Validate against available stock
+      if (newQuantity > product.stock) {
+        adjustmentResults.push({
+          productId,
+          success: false,
+          message: `Only ${product.stock} items in stock`
+        });
+        continue;
+      }
+
+      // Update the quantity
+      cart.items[itemIndex].quantity = newQuantity;
+      cartModified = true;
+      adjustmentResults.push({
+        productId,
+        success: true,
+        message: 'Quantity updated successfully',
+        action: 'updated',
+        newQuantity
+      });
+    }
+
+    if (cartModified) {
+      // Recalculate cart total
+      cart.totalAmount = cart.items.reduce(
+        (sum, item) => sum + item.quantity * item.priceAtAddition,
+        0
+      );
+      await cart.save();
+
+      // Clear stock conflicts from session if all conflicts are resolved
+      if (req.session.stockConflicts) {
+        const remainingConflicts = req.session.stockConflicts.filter(conflict => {
+          const adjustment = adjustments.find(adj => adj.productId.toString() === conflict.productId.toString());
+          return !adjustment || adjustment.newQuantity > conflict.availableStock;
+        });
+
+        if (remainingConflicts.length === 0) {
+          delete req.session.stockConflicts;
+        } else {
+          req.session.stockConflicts = remainingConflicts;
+        }
+      }
+    }
+
+    console.log('Sending response:', {
+      success: true,
+      message: 'Cart adjustments processed',
+      results: adjustmentResults,
+      cartCount: cart.items.length,
+      totalAmount: cart.totalAmount
+    }); // Debug log
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Cart adjustments processed',
+      results: adjustmentResults,
+      cartCount: cart.items.length,
+      totalAmount: cart.totalAmount
+    });
+
+  } catch (error) {
+    console.error('Error adjusting cart quantities:', error);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+};
+
 const getCurrentCartTotal = async (req, res) => {
   try {
     const userId = req.session.user_id;
@@ -1433,6 +1653,7 @@ module.exports = {
   handlePaymentFailure,
   handlePaymentCallback,
   getCurrentCartTotal,
+  adjustCartQuantities,
   retryPayment,
   verifyRetryPayment
 };

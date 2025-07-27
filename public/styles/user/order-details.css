@@ -1495,3 +1495,322 @@ h1, h2, h3, h4, h5, h6 {
     justify-content: center;
   }
 }
+
+/* Modal Conflict Prevention Styles */
+/* Ensure proper z-index layering for modals */
+.modal {
+  z-index: 1050 !important;
+}
+
+.modal-backdrop {
+  z-index: 1040 !important;
+}
+
+.custom-modal {
+  z-index: 1055 !important;
+}
+
+.custom-modal-overlay {
+  z-index: 1045 !important;
+}
+
+/* Prevent multiple modal backdrops */
+body.modal-open .modal-backdrop:not(:last-child) {
+  display: none !important;
+}
+
+/* Ensure only one modal is visible at a time */
+.modal.show ~ .modal.show {
+  display: none !important;
+}
+
+.custom-modal[style*="display: flex"] ~ .custom-modal[style*="display: flex"] {
+  display: none !important;
+}
+
+/* Enhanced Modal Animation System - Conflict Prevention */
+
+/* Disable Bootstrap's default fade animations to prevent conflicts */
+.modal.fade {
+  transition: none !important;
+}
+
+.modal.fade .modal-dialog {
+  transition: none !important;
+  transform: none !important;
+}
+
+/* Custom smooth modal animations with proper timing */
+.modal {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  will-change: opacity;
+}
+
+.modal.show {
+  opacity: 1;
+}
+
+.modal-dialog {
+  transform: scale(0.95) translateY(-10px);
+  transition: transform 0.2s ease-out;
+  will-change: transform;
+}
+
+.modal.show .modal-dialog {
+  transform: scale(1) translateY(0);
+}
+
+/* Backdrop animations with proper timing */
+.modal-backdrop {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  will-change: opacity;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-backdrop.show {
+  opacity: 1;
+}
+
+/* Prevent animation conflicts during rapid modal switching */
+.modal.switching {
+  transition: none !important;
+  opacity: 0 !important;
+}
+
+.modal.switching .modal-dialog {
+  transition: none !important;
+  transform: scale(0.95) translateY(-10px) !important;
+}
+
+/* Force hardware acceleration for smooth animations */
+.modal,
+.modal-dialog,
+.modal-backdrop {
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Prevent flickering during animations */
+.modal-content {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Animation states for debugging */
+.modal[data-animation-state="opening"] {
+  opacity: 0;
+}
+
+.modal[data-animation-state="open"] {
+  opacity: 1;
+}
+
+.modal[data-animation-state="closing"] {
+  opacity: 0;
+}
+
+/* Prevent transform conflicts with other elements */
+.modal-dialog {
+  position: relative;
+  z-index: 1;
+}
+
+/* Prevent body scroll when modal is open */
+body.modal-open {
+  overflow: hidden !important;
+  padding-right: 0 !important;
+}
+
+/* Custom modal overlay styling */
+.custom-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+
+.custom-modal .modal-content {
+  cursor: default;
+}
+
+/* Prevent modal content from being clickable when hidden */
+.modal:not(.show) .modal-content,
+.custom-modal:not([style*="display: flex"]) .modal-content {
+  pointer-events: none;
+}
+
+.modal.show .modal-content,
+.custom-modal[style*="display: flex"] .modal-content {
+  pointer-events: auto;
+}
+
+/* Debug styles for modal conflicts (remove in production) */
+.modal-debug {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  z-index: 9999;
+  display: none;
+}
+
+/* Show debug info when multiple modals are detected */
+body:has(.modal.show ~ .modal.show) .modal-debug,
+body:has(.custom-modal[style*="display: flex"] ~ .custom-modal[style*="display: flex"]) .modal-debug {
+  display: block;
+}
+
+/* Ensure return button is always clickable */
+.action-btn.return-btn {
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 1;
+}
+
+/* Prevent double-click issues */
+.action-btn.return-btn:disabled {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* Loading state for buttons */
+.action-btn.loading {
+  position: relative;
+  color: transparent !important;
+}
+
+.action-btn.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Animation Conflict Prevention */
+
+/* Disable all transitions during modal switching to prevent conflicts */
+.modal.switching,
+.modal.switching *,
+.modal.switching .modal-dialog,
+.modal.switching .modal-content {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* Prevent transform conflicts with page elements */
+.modal-open .container,
+.modal-open .floating-card,
+.modal-open .order-item {
+  transform: none !important;
+}
+
+/* Fix for backdrop flickering */
+.modal-backdrop.fade {
+  transition: opacity 0.2s ease-in-out !important;
+}
+
+.modal-backdrop.fade.show {
+  opacity: 0.5 !important;
+}
+
+/* Prevent opacity conflicts */
+.modal:not(.show) {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.modal.show {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* Smooth modal content animations */
+@keyframes modalSlideIn {
+  from {
+    transform: scale(0.95) translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes modalSlideOut {
+  from {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.95) translateY(-10px);
+    opacity: 0;
+  }
+}
+
+/* Apply animations only when not switching */
+.modal:not(.switching).show .modal-dialog {
+  animation: modalSlideIn 0.2s ease-out;
+}
+
+.modal:not(.switching)[data-animation-state="closing"] .modal-dialog {
+  animation: modalSlideOut 0.2s ease-in;
+}
+
+/* Prevent animation on initial page load */
+.modal-dialog {
+  animation: none;
+}
+
+/* Force GPU acceleration for smooth animations */
+.modal,
+.modal-dialog,
+.modal-content,
+.modal-backdrop {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+/* Reset will-change after animations complete */
+.modal[data-animation-state="open"],
+.modal[data-animation-state="open"] .modal-dialog,
+.modal[data-animation-state="open"] .modal-content {
+  will-change: auto;
+}
+
+/* Prevent text selection during animations */
+.modal.switching {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Fix for iOS Safari animation glitches */
+@supports (-webkit-touch-callout: none) {
+  .modal-dialog {
+    -webkit-transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+  }
+}

@@ -227,5 +227,8 @@ router.get('/admin/getOrders', (req, res) => {
 router.get('/admin/return-management', (req, res) => {
   res.redirect('/admin/returns');
 });
+router.get('/admin/return-management/:id', (req, res) => {
+  res.redirect(`/admin/returns/${req.params.id}`);
+});
 
 module.exports = router;

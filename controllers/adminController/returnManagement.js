@@ -116,10 +116,29 @@ const getReturnRequests = async (req, res) => {
 const getReturnRequestDetails = async (req, res) => {
   try {
     const orderId = req.params.id;
+    console.log('Return request details - Order ID:', orderId);
+
+    // Validate ObjectId format
+    if (!orderId || !orderId.match(/^[0-9a-fA-F]{24}$/)) {
+      console.log('Invalid ObjectId format:', orderId);
+      return res.status(HttpStatus.BAD_REQUEST).render('admin/page-404', {
+        title: 'Invalid Order ID Format'
+      });
+    }
+
     const order = await Order.findById(orderId)
       .populate('user', 'fullName email phone')
       .lean();
+
+    console.log('Order found:', order ? 'Yes' : 'No');
+    if (order) {
+      console.log('Order status:', order.orderStatus);
+      console.log('Order isDeleted:', order.isDeleted);
+      console.log('Return requested items:', order.items.filter(item => item.status === 'Return Requested').length);
+    }
+
     if (!order || order.isDeleted) {
+      console.log('Order not found or deleted');
       return res.status(HttpStatus.NOT_FOUND).render('admin/page-404', {
         title: 'Return Request Not Found'
       });
@@ -127,7 +146,7 @@ const getReturnRequestDetails = async (req, res) => {
     const returnRequestedItems = order.items.filter(item => item.status === 'Return Requested');
     if (returnRequestedItems.length === 0) {
       req.session.errorMessage = 'No pending return requests found for this order.';
-      return res.redirect('/admin/return-management');
+      return res.redirect('/admin/returns');
     }
     let recalculatedSubtotal = 0;
     order.items.forEach(item => {
@@ -160,7 +179,7 @@ const getReturnRequestDetails = async (req, res) => {
     });
   } catch (error) {
     console.error('Error in getReturnRequestDetails:', error);
-    res.redirect('/admin/return-management');
+    res.redirect('/admin/returns');
   }
 };
 const processReturnRequest = async (req, res) => {

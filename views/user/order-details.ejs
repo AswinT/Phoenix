@@ -277,7 +277,9 @@
                           <% if (item.canBeReturned) { %>
                             <button
                               class="action-btn return-btn"
-                              onclick="openReturnItemModal('<%= order._id %>', '<%= item.product._id || item.product %>')"
+                              data-order-id="<%= order._id %>"
+                              data-product-id="<%= item.product._id || item.product %>"
+                              type="button"
                             >
                               <i class="ri-arrow-go-back-line"></i>
                               Return Item
@@ -992,27 +994,290 @@ function showNotification(message, type = 'info') {
   });
 }
 
-// Track modal state to prevent conflicts
+// Enhanced button state management with animation awareness
+let buttonStates = new Map();
+let modalAnimationInProgress = false;
+
+function setButtonLoading(button, loading = true) {
+  // Add null check for button parameter
+  if (!button || !button.classList) {
+    console.error('setButtonLoading: Invalid button element', button);
+    return;
+  }
+
+  if (loading) {
+    button.disabled = true;
+    button.classList.add('loading');
+    buttonStates.set(button, button.textContent || 'Button');
+    button.textContent = 'Processing...';
+    modalAnimationInProgress = true;
+  } else {
+    button.disabled = false;
+    button.classList.remove('loading');
+    const originalText = buttonStates.get(button);
+    if (originalText) {
+      button.textContent = originalText;
+      buttonStates.delete(button);
+    } else {
+      // Fallback text if original text is not found
+      button.textContent = button.dataset.originalText || 'Return Item';
+    }
+    modalAnimationInProgress = false;
+  }
+}
+
+// Debounce function to prevent rapid modal operations
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const context = this; // Preserve the 'this' context
+    const later = () => {
+      clearTimeout(timeout);
+      // Additional safety check before function execution
+      if (typeof func === 'function') {
+        try {
+          func.apply(context, args); // Apply with preserved context
+        } catch (error) {
+          console.error('Error in debounced function execution:', error);
+        }
+      } else {
+        console.error('Debounced function is not a function:', func);
+      }
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+// Check if any modal animation is in progress
+function isModalAnimating() {
+  return modalAnimationInProgress ||
+         document.querySelector('.modal.switching') !== null ||
+         document.querySelector('.modal[data-animation-state="opening"]') !== null ||
+         document.querySelector('.modal[data-animation-state="closing"]') !== null;
+}
+
+// Enhanced modal state tracking to prevent conflicts
 document.addEventListener('DOMContentLoaded', function() {
-  // Listen for modal events to track current modal
-  document.addEventListener('show.bs.modal', function(event) {
-    currentModal = event.target;
+  console.log('Initializing unified modal management system');
+
+  // Initialize return button event handlers with animation-aware conflict prevention
+  document.querySelectorAll('.action-btn.return-btn').forEach(button => {
+    // Create debounced click handler for each button
+    const debouncedClickHandler = debounce(async function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      // Prevent clicks during animations or if button is disabled
+      if (!this || this.disabled || (this.classList && this.classList.contains('loading')) || isModalAnimating()) {
+        console.log('Button click ignored - animation in progress or button disabled');
+        return false;
+      }
+
+      // Get data attributes with safety checks
+      const orderId = this.dataset ? this.dataset.orderId : null;
+      const productId = this.dataset ? this.dataset.productId : null;
+
+      if (!orderId || !productId) {
+        console.error('Missing order ID or product ID', { orderId, productId, element: this });
+        showNotification('Error: Missing required data. Please refresh the page.', 'error');
+        return false;
+      }
+
+      console.log('Processing return button click for product:', productId);
+
+      // Set loading state with safety check
+      if (this && this.classList) {
+        setButtonLoading(this, true);
+      }
+
+      try {
+        // Open the return modal with proper async handling
+        await openReturnItemModal(orderId, productId);
+        console.log('Modal opened successfully, resetting button state');
+        if (this && this.classList) {
+          setButtonLoading(this, false);
+        }
+      } catch (error) {
+        console.error('Error opening return modal:', error);
+        if (this && this.classList) {
+          setButtonLoading(this, false);
+        }
+        showNotification('Error opening return dialog. Please refresh the page.', 'error');
+      }
+
+      return false;
+    }, 300); // 300ms debounce to prevent rapid clicks
+
+    button.addEventListener('click', debouncedClickHandler);
   });
-  
+
+  // Listen for Bootstrap modal events
+  document.addEventListener('show.bs.modal', function(event) {
+    console.log('Bootstrap modal showing:', event.target.id);
+    // Close any existing modal before showing new one
+    if (currentModal && currentModal !== event.target) {
+      closeCurrentModal();
+    }
+    currentModal = event.target;
+    currentModalInstance = bootstrap.Modal.getInstance(event.target);
+  });
+
+  document.addEventListener('shown.bs.modal', function(event) {
+    console.log('Bootstrap modal shown:', event.target.id);
+  });
+
+  document.addEventListener('hide.bs.modal', function(event) {
+    console.log('Bootstrap modal hiding:', event.target.id);
+  });
+
   document.addEventListener('hidden.bs.modal', function(event) {
+    console.log('Bootstrap modal hidden:', event.target.id);
     if (currentModal === event.target) {
       currentModal = null;
+      currentModalInstance = null;
+    }
+
+    // Ensure body overflow is reset
+    document.body.style.overflow = 'auto';
+
+    // Clean up any remaining backdrops
+    setTimeout(() => {
+      const backdrops = document.querySelectorAll('.modal-backdrop');
+      backdrops.forEach(backdrop => {
+        if (!document.querySelector('.modal.show')) {
+          backdrop.remove();
+        }
+      });
+    }, 100);
+  });
+
+  // Handle escape key for all modals
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape' && currentModal) {
+      closeCurrentModal();
     }
   });
+
+  // Handle clicks on modal overlays
+  document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('custom-modal-overlay')) {
+      const modal = event.target.closest('.custom-modal');
+      if (modal) {
+        closeCustomModal(modal.id);
+      }
+    }
+  });
+
+  // Enhanced debug and monitoring system
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    // Monitor for modal conflicts and animation issues
+    setInterval(() => {
+      const visibleBootstrapModals = document.querySelectorAll('.modal.show').length;
+      const visibleCustomModals = document.querySelectorAll('.custom-modal[style*="display: flex"]').length;
+      const switchingModals = document.querySelectorAll('.modal.switching').length;
+      const animatingModals = document.querySelectorAll('.modal[data-animation-state="opening"], .modal[data-animation-state="closing"]').length;
+      const totalVisible = visibleBootstrapModals + visibleCustomModals;
+
+      // Check for modal conflicts
+      if (totalVisible > 1) {
+        console.warn(`Modal conflict detected! ${visibleBootstrapModals} Bootstrap modals and ${visibleCustomModals} custom modals are visible.`);
+
+        // Auto-fix: close all but the last opened modal
+        if (currentModal) {
+          document.querySelectorAll('.modal.show, .custom-modal[style*="display: flex"]').forEach(modal => {
+            if (modal !== currentModal) {
+              console.log('Auto-fixing modal conflict by closing:', modal.id);
+              if (modal.classList.contains('modal')) {
+                const instance = bootstrap.Modal.getInstance(modal);
+                if (instance) instance.hide();
+              } else {
+                modal.style.display = 'none';
+              }
+            }
+          });
+        }
+      }
+
+      // Check for stuck animations
+      if (switchingModals > 0 || animatingModals > 0) {
+        console.log(`Animation monitoring: ${switchingModals} switching, ${animatingModals} animating`);
+
+        // Clean up stuck animations after 5 seconds
+        document.querySelectorAll('.modal.switching, .modal[data-animation-state="opening"], .modal[data-animation-state="closing"]').forEach(modal => {
+          const animationStart = modal.dataset.animationStart;
+          if (!animationStart) {
+            modal.dataset.animationStart = Date.now();
+          } else if (Date.now() - parseInt(animationStart) > 5000) {
+            console.warn('Cleaning up stuck animation for modal:', modal.id);
+            modal.classList.remove('switching');
+            modal.removeAttribute('data-animation-state');
+            modal.removeAttribute('data-animation-start');
+            modalAnimationInProgress = false;
+          }
+        });
+      }
+
+      // Monitor backdrop issues
+      const backdrops = document.querySelectorAll('.modal-backdrop').length;
+      const visibleModals = document.querySelectorAll('.modal.show').length;
+      if (backdrops > visibleModals) {
+        console.warn(`Backdrop cleanup needed: ${backdrops} backdrops for ${visibleModals} modals`);
+        // Clean up extra backdrops
+        const backdropElements = document.querySelectorAll('.modal-backdrop');
+        for (let i = visibleModals; i < backdropElements.length; i++) {
+          backdropElements[i].remove();
+        }
+      }
+
+    }, 1000);
+
+    // Log animation events for debugging
+    document.addEventListener('animationstart', (e) => {
+      if (e.target.closest('.modal')) {
+        console.log('Animation started:', e.animationName, 'on', e.target.closest('.modal').id);
+      }
+    });
+
+    document.addEventListener('animationend', (e) => {
+      if (e.target.closest('.modal')) {
+        console.log('Animation ended:', e.animationName, 'on', e.target.closest('.modal').id);
+      }
+    });
+
+    document.addEventListener('transitionend', (e) => {
+      if (e.target.closest('.modal')) {
+        console.log('Transition ended:', e.propertyName, 'on', e.target.closest('.modal').id);
+      }
+    });
+  }
 });
 
-// Custom Modal Functions
+// Custom Modal Functions - Updated for unified system
 function openCustomCancelModal(productId) {
-  const modal = document.getElementById(`customCancelModal${productId}`);
-  if (modal) {
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-  }
+  console.log('Opening custom cancel modal for product:', productId);
+
+  // Close any existing modal first
+  closeCurrentModal();
+
+  setTimeout(() => {
+    const modal = document.getElementById(`customCancelModal${productId}`);
+    if (modal) {
+      try {
+        currentModal = modal;
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        currentModalInstance = { hide: () => closeCustomModal(`customCancelModal${productId}`) };
+        console.log('Custom cancel modal opened successfully');
+      } catch (error) {
+        console.error('Error opening custom cancel modal:', error);
+        showNotification('Error opening cancel dialog. Please refresh the page.', 'error');
+      }
+    } else {
+      console.error('Custom cancel modal element not found:', `customCancelModal${productId}`);
+      showNotification('Cancel dialog not found. Please refresh the page.', 'error');
+    }
+  }, 100);
 }
 
 function closeCustomModal(modalId) {
@@ -1020,6 +1285,12 @@ function closeCustomModal(modalId) {
   if (modal) {
     modal.style.display = 'none';
     document.body.style.overflow = 'auto';
+
+    // Clear current modal tracking if this is the current modal
+    if (currentModal === modal) {
+      currentModal = null;
+      currentModalInstance = null;
+    }
   }
 }
 
@@ -1172,45 +1443,177 @@ async function cancelOrder(orderId) {
   }
 }
 
-// Modal management to prevent conflicts
+// Unified Modal Management System
 let currentModal = null;
+let currentModalInstance = null;
 
-// Open cancel item modal
-function openCancelItemModal(orderId, productId) {
-  // Close any existing modal first
-  if (currentModal) {
-    const existingModal = bootstrap.Modal.getInstance(currentModal);
-    if (existingModal) {
-      existingModal.hide();
+// Enhanced modal closing with animation synchronization
+function closeCurrentModal() {
+  return new Promise((resolve) => {
+    if (currentModal && currentModalInstance) {
+      try {
+        console.log('Closing current modal:', currentModal.id);
+
+        // Set animation state for debugging
+        currentModal.setAttribute('data-animation-state', 'closing');
+
+        // Add switching class to prevent animation conflicts
+        currentModal.classList.add('switching');
+
+        // For Bootstrap modals
+        if (currentModalInstance.hide) {
+          // Listen for the modal to be fully hidden
+          const handleHidden = () => {
+            currentModal.removeEventListener('hidden.bs.modal', handleHidden);
+            currentModal.classList.remove('switching');
+            currentModal.removeAttribute('data-animation-state');
+            currentModal = null;
+            currentModalInstance = null;
+            resolve();
+          };
+
+          currentModal.addEventListener('hidden.bs.modal', handleHidden);
+          currentModalInstance.hide();
+        }
+        // For custom modals
+        else if (currentModal.style) {
+          // Animate out
+          currentModal.style.opacity = '0';
+
+          setTimeout(() => {
+            currentModal.style.display = 'none';
+            currentModal.classList.remove('switching');
+            currentModal.removeAttribute('data-animation-state');
+            document.body.style.overflow = 'auto';
+
+            // Remove any modal backdrops
+            const backdrops = document.querySelectorAll('.modal-backdrop, .custom-modal-overlay');
+            backdrops.forEach(backdrop => backdrop.remove());
+
+            currentModal = null;
+            currentModalInstance = null;
+            resolve();
+          }, 200); // Match CSS animation duration
+        }
+      } catch (error) {
+        console.warn('Error closing modal:', error);
+        // Fallback cleanup with animation reset
+        if (currentModal) {
+          currentModal.style.display = 'none';
+          currentModal.style.opacity = '';
+          currentModal.classList.remove('show', 'switching');
+          currentModal.removeAttribute('data-animation-state');
+        }
+        document.body.style.overflow = 'auto';
+        document.body.classList.remove('modal-open');
+
+        const backdrops = document.querySelectorAll('.modal-backdrop, .custom-modal-overlay');
+        backdrops.forEach(backdrop => backdrop.remove());
+
+        currentModal = null;
+        currentModalInstance = null;
+        resolve();
+      }
+    } else {
+      resolve();
     }
-  }
-  
-  // Open the specific modal
-  const modalElement = document.getElementById(`cancelItemModal${productId}`);
-  if (modalElement) {
-    currentModal = modalElement;
-    const modal = new bootstrap.Modal(modalElement);
-    modal.show();
-  }
+  });
 }
 
-// Open return item modal
-function openReturnItemModal(orderId, productId) {
-  // Close any existing modal first
-  if (currentModal) {
-    const existingModal = bootstrap.Modal.getInstance(currentModal);
-    if (existingModal) {
-      existingModal.hide();
-    }
-  }
-  
-  // Open the specific modal
-  const modalElement = document.getElementById(`returnItemModal${productId}`);
-  if (modalElement) {
-    currentModal = modalElement;
-    const modal = new bootstrap.Modal(modalElement);
-    modal.show();
-  }
+// Enhanced modal opening with animation synchronization
+async function openReturnItemModal(orderId, productId) {
+  console.log('Opening return modal for product:', productId);
+
+  // Close any existing modal first and wait for completion
+  await closeCurrentModal();
+
+  // Additional small delay to ensure DOM is ready
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const modalElement = document.getElementById(`returnItemModal${productId}`);
+      if (modalElement) {
+        try {
+          currentModal = modalElement;
+
+          // Set initial animation state
+          modalElement.setAttribute('data-animation-state', 'opening');
+
+          // Check if it's a Bootstrap modal
+          if (modalElement.classList.contains('modal')) {
+            // Ensure any existing instance is destroyed
+            const existingInstance = bootstrap.Modal.getInstance(modalElement);
+            if (existingInstance) {
+              existingInstance.dispose();
+            }
+
+            // Remove fade class temporarily to prevent conflicts
+            const hadFadeClass = modalElement.classList.contains('fade');
+            if (hadFadeClass) {
+              modalElement.classList.remove('fade');
+            }
+
+            // Create new instance without backdrop animation conflicts
+            currentModalInstance = new bootstrap.Modal(modalElement, {
+              backdrop: 'static',
+              keyboard: false,
+              focus: true
+            });
+
+            // Listen for modal shown event
+            const handleShown = () => {
+              modalElement.removeEventListener('shown.bs.modal', handleShown);
+              modalElement.setAttribute('data-animation-state', 'open');
+              console.log('Return modal opened successfully');
+              resolve();
+            };
+
+            modalElement.addEventListener('shown.bs.modal', handleShown);
+
+            // Show the modal
+            currentModalInstance.show();
+
+            // Restore fade class after showing (if it had one)
+            if (hadFadeClass) {
+              setTimeout(() => {
+                modalElement.classList.add('fade');
+              }, 50);
+            }
+
+          } else {
+            // Handle as custom modal with smooth animation
+            modalElement.style.display = 'flex';
+            modalElement.style.opacity = '0';
+
+            // Force reflow
+            modalElement.offsetHeight;
+
+            // Animate in
+            modalElement.style.transition = 'opacity 0.2s ease-in-out';
+            modalElement.style.opacity = '1';
+
+            document.body.style.overflow = 'hidden';
+            currentModalInstance = { hide: () => closeCustomModal(`returnItemModal${productId}`) };
+
+            setTimeout(() => {
+              modalElement.setAttribute('data-animation-state', 'open');
+              console.log('Custom return modal opened successfully');
+              resolve();
+            }, 200);
+          }
+
+        } catch (error) {
+          console.error('Error opening return modal:', error);
+          modalElement.removeAttribute('data-animation-state');
+          showNotification('Error opening return dialog. Please refresh the page.', 'error');
+          reject(error);
+        }
+      } else {
+        console.error('Return modal element not found:', `returnItemModal${productId}`);
+        showNotification('Return dialog not found. Please refresh the page.', 'error');
+        reject(new Error('Modal element not found'));
+      }
+    }, 150); // Slightly longer delay to ensure smooth transition
+  });
 }
 
 // Handle cancel item button click with debouncing
@@ -1398,9 +1801,9 @@ async function returnItem(orderId, productId) {
     const data = await response.json();
     
     if (data.success) {
-      const modal = bootstrap.Modal.getInstance(document.getElementById(`returnItemModal${productId}`));
-      if (modal) modal.hide();
-      
+      // Use unified modal closing system
+      closeCurrentModal();
+
       showNotification(data.message, 'success');
       setTimeout(() => window.location.reload(), 1500);
     } else {
