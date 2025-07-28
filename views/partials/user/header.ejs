@@ -687,18 +687,28 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <!-- Center Navigation Links -->
           <div class="navbar-nav-center">
-            <ul class="navbar-nav">
-              <li class="nav-item">
-                <a class="nav-link fw-medium" href="/">Home</a>
+            <ul class="navbar-nav" id="mainNavbar" role="menubar" aria-label="Main navigation">
+              <li class="nav-item" role="none">
+                <a class="nav-link fw-medium" href="/" role="menuitem" aria-current="page">Home</a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link fw-medium" href="/shopPage">Shop</a>
+              <li class="nav-item" role="none">
+                <a class="nav-link fw-medium" href="/shopPage" role="menuitem">Shop</a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link fw-medium" href="/about">About</a>
+              <li class="nav-item" role="none">
+                <a class="nav-link fw-medium" href="/about" role="menuitem">About</a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link fw-medium" href="/contact">Contact</a>
+              <li class="nav-item" role="none">
+                <a class="nav-link fw-medium" href="/contact" role="menuitem">Contact</a>
+              </li>
+              <!-- More dropdown for overflow items (hidden by default) -->
+              <li class="nav-item dropdown d-none" id="moreDropdown" role="none">
+                <a class="nav-link dropdown-toggle fw-medium" href="#" role="menuitem" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+                  More
+                  <span class="sr-only">menu</span>
+                </a>
+                <ul class="dropdown-menu" id="moreDropdownMenu" role="menu" aria-label="Additional navigation items">
+                  <!-- Overflow items will be moved here dynamically -->
+                </ul>
               </li>
             </ul>
           </div>
@@ -822,6 +832,221 @@
             navbar.classList.remove("navbar-scrolled");
           }
         });
+
+        // Responsive navigation handler
+        function handleResponsiveNavigation() {
+          const mainNavbar = document.getElementById("mainNavbar");
+          const moreDropdown = document.getElementById("moreDropdown");
+          const moreDropdownMenu = document.getElementById("moreDropdownMenu");
+
+          if (!mainNavbar || !moreDropdown || !moreDropdownMenu) return;
+
+          // Only apply responsive behavior on desktop/tablet (not mobile collapsed view)
+          if (window.innerWidth >= 992) {
+            const navItems = Array.from(mainNavbar.children).filter(item =>
+              !item.id || item.id !== 'moreDropdown'
+            );
+            const containerWidth = mainNavbar.parentElement.offsetWidth;
+            let totalWidth = 0;
+            let visibleItems = [];
+            let hiddenItems = [];
+
+            // Calculate which items fit
+            navItems.forEach((item, index) => {
+              const itemWidth = item.offsetWidth + 16; // Add margin
+              if (totalWidth + itemWidth + 100 < containerWidth) { // Reserve space for "More"
+                totalWidth += itemWidth;
+                visibleItems.push(item);
+              } else {
+                hiddenItems.push(item);
+              }
+            });
+
+            // Show/hide More dropdown based on hidden items
+            if (hiddenItems.length > 0) {
+              moreDropdown.classList.remove("d-none");
+
+              // Move hidden items to dropdown
+              moreDropdownMenu.innerHTML = '';
+              hiddenItems.forEach(item => {
+                const link = item.querySelector('a');
+                if (link) {
+                  const dropdownItem = document.createElement('li');
+                  const dropdownLink = document.createElement('a');
+                  dropdownLink.className = 'dropdown-item';
+                  dropdownLink.href = link.href;
+                  dropdownLink.textContent = link.textContent;
+                  dropdownItem.appendChild(dropdownLink);
+                  moreDropdownMenu.appendChild(dropdownItem);
+                }
+              });
+            } else {
+              moreDropdown.classList.add("d-none");
+            }
+          } else {
+            // On mobile, hide the More dropdown as all items are shown in collapsed menu
+            moreDropdown.classList.add("d-none");
+          }
+        }
+
+        // Initialize responsive navigation
+        handleResponsiveNavigation();
+
+        // Handle window resize
+        let resizeTimeout;
+        window.addEventListener("resize", function() {
+          clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(handleResponsiveNavigation, 250);
+        });
+
+        // Enhanced keyboard navigation
+        function enhanceKeyboardNavigation() {
+          const navLinks = document.querySelectorAll('.navbar .nav-link, .navbar .dropdown-item');
+          const dropdownToggles = document.querySelectorAll('.navbar .dropdown-toggle');
+
+          // Handle keyboard navigation for nav links
+          navLinks.forEach((link, index) => {
+            link.addEventListener('keydown', function(e) {
+              switch(e.key) {
+                case 'ArrowRight':
+                case 'ArrowDown':
+                  e.preventDefault();
+                  const nextLink = navLinks[index + 1];
+                  if (nextLink) {
+                    nextLink.focus();
+                  } else {
+                    navLinks[0].focus(); // Wrap to first
+                  }
+                  break;
+                case 'ArrowLeft':
+                case 'ArrowUp':
+                  e.preventDefault();
+                  const prevLink = navLinks[index - 1];
+                  if (prevLink) {
+                    prevLink.focus();
+                  } else {
+                    navLinks[navLinks.length - 1].focus(); // Wrap to last
+                  }
+                  break;
+                case 'Home':
+                  e.preventDefault();
+                  navLinks[0].focus();
+                  break;
+                case 'End':
+                  e.preventDefault();
+                  navLinks[navLinks.length - 1].focus();
+                  break;
+              }
+            });
+          });
+
+          // Handle dropdown keyboard navigation
+          dropdownToggles.forEach(toggle => {
+            toggle.addEventListener('keydown', function(e) {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                const dropdown = toggle.closest('.dropdown');
+                const menu = dropdown.querySelector('.dropdown-menu');
+                const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+
+                if (!isExpanded) {
+                  // Open dropdown and focus first item
+                  toggle.click();
+                  setTimeout(() => {
+                    const firstItem = menu.querySelector('.dropdown-item');
+                    if (firstItem) firstItem.focus();
+                  }, 100);
+                } else {
+                  // Close dropdown
+                  toggle.click();
+                }
+              } else if (e.key === 'Escape') {
+                // Close dropdown and return focus to toggle
+                const dropdown = toggle.closest('.dropdown');
+                const menu = dropdown.querySelector('.dropdown-menu');
+                if (menu.classList.contains('show')) {
+                  toggle.click();
+                  toggle.focus();
+                }
+              }
+            });
+          });
+        }
+
+        // Initialize keyboard navigation
+        enhanceKeyboardNavigation();
+
+        // Enhanced dropdown interactions
+        function enhanceDropdownInteractions() {
+          const dropdownItems = document.querySelectorAll('.navbar .dropdown-item');
+
+          // Add ripple effect on click
+          dropdownItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+              // Create ripple element
+              const ripple = document.createElement('span');
+              const rect = this.getBoundingClientRect();
+              const size = Math.max(rect.width, rect.height);
+              const x = e.clientX - rect.left - size / 2;
+              const y = e.clientY - rect.top - size / 2;
+
+              ripple.style.width = ripple.style.height = size + 'px';
+              ripple.style.left = x + 'px';
+              ripple.style.top = y + 'px';
+              ripple.classList.add('ripple');
+
+              // Remove existing ripples
+              const existingRipples = this.querySelectorAll('.ripple');
+              existingRipples.forEach(r => r.remove());
+
+              // Add new ripple
+              this.appendChild(ripple);
+              this.classList.add('ripple');
+
+              // Remove ripple after animation
+              setTimeout(() => {
+                ripple.remove();
+                this.classList.remove('ripple');
+              }, 600);
+            });
+
+            // Enhanced hover effects
+            item.addEventListener('mouseenter', function() {
+              this.style.setProperty('--hover-scale', '1.02');
+            });
+
+            item.addEventListener('mouseleave', function() {
+              this.style.setProperty('--hover-scale', '1');
+            });
+          });
+
+          // Smooth dropdown animations
+          const dropdownMenus = document.querySelectorAll('.navbar .dropdown-menu');
+          dropdownMenus.forEach(menu => {
+            const dropdown = menu.closest('.dropdown');
+            const toggle = dropdown.querySelector('.dropdown-toggle');
+
+            // Enhanced show/hide animations
+            const observer = new MutationObserver((mutations) => {
+              mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                  if (menu.classList.contains('show')) {
+                    // Stagger item animations
+                    const items = menu.querySelectorAll('.dropdown-item');
+                    items.forEach((item, index) => {
+                      item.style.animationDelay = `${0.1 + (index * 0.05)}s`;
+                    });
+                  }
+                }
+              });
+            });
+
+            observer.observe(menu, { attributes: true });
+          });
+        }
+
+        // Initialize enhanced dropdown interactions
+        enhanceDropdownInteractions();
 
         function debounce(func, wait) {
           return function (...args) {

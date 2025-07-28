@@ -46,7 +46,10 @@ module.exports = [
       'prefer-const': 'error',
       
       // Basic best practices
-      'no-console': 'warn',
+      'no-console': ['warn', {
+        allow: ['error', 'warn'] // Allow console.error and console.warn for production logging
+        // Note: OTP console.log statements are preserved for development purposes
+      }],
       'eqeqeq': ['error', 'always'],
       'no-trailing-spaces': 'error',
     },

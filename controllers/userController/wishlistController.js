@@ -91,7 +91,7 @@ const getWishlist = async (req, res) => {
       isAuthenticated: true,
     });
   } catch (error) {
-    console.log('Error in rendering wishlist:', error);
+    console.error('Error in rendering wishlist:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Server Error');
   }
 };
@@ -336,7 +336,7 @@ const clearWishlist = async (req, res) => {
     await Wishlist.findOneAndDelete({ user: userId });
     res.json({ success: true, message: 'Wishlist cleared', wishlistCount: 0 });
   } catch (error) {
-    console.log('Error clearing wishlist:', error);
+    console.error('Error clearing wishlist:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Server error' });
   }
 };

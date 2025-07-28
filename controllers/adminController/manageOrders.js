@@ -661,7 +661,7 @@ const downloadInvoice = async (req, res) => {
     try {
       doc.image(path.join(__dirname, '../../public/assets/phoenix-logo.png'), leftMargin, 50, { width: 50 });
     } catch {
-      console.log('Logo image not found, continuing without logo');
+      // Logo image not found, continue without logo
     }
     doc.font('Helvetica-Bold')
       .fontSize(28)

@@ -54,7 +54,7 @@ const getSignup = async (req, res) => {
   try {
     res.render('signup');
   } catch (error) {
-    console.log(`Error:,${error.message}`);
+    console.error(`Error:,${error.message}`);
   }
 };
 const postSignup = async (req, res) => {
@@ -221,7 +221,7 @@ const resendOtp = async (req, res) => {
       });
     }
     const otp = otpGenerator();
-    console.log('Resending OTP:', otp);
+    console.log('Resending OTP:', otp); // Essential for development/testing
     await OTP.deleteMany({ email, purpose: 'signup' });
     const otpDoc = new OTP({
       email,

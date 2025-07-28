@@ -1169,93 +1169,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Enhanced debug and monitoring system
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    // Monitor for modal conflicts and animation issues
-    setInterval(() => {
-      const visibleBootstrapModals = document.querySelectorAll('.modal.show').length;
-      const visibleCustomModals = document.querySelectorAll('.custom-modal[style*="display: flex"]').length;
-      const switchingModals = document.querySelectorAll('.modal.switching').length;
-      const animatingModals = document.querySelectorAll('.modal[data-animation-state="opening"], .modal[data-animation-state="closing"]').length;
-      const totalVisible = visibleBootstrapModals + visibleCustomModals;
 
-      // Check for modal conflicts
-      if (totalVisible > 1) {
-        console.warn(`Modal conflict detected! ${visibleBootstrapModals} Bootstrap modals and ${visibleCustomModals} custom modals are visible.`);
 
-        // Auto-fix: close all but the last opened modal
-        if (currentModal) {
-          document.querySelectorAll('.modal.show, .custom-modal[style*="display: flex"]').forEach(modal => {
-            if (modal !== currentModal) {
-              console.log('Auto-fixing modal conflict by closing:', modal.id);
-              if (modal.classList.contains('modal')) {
-                const instance = bootstrap.Modal.getInstance(modal);
-                if (instance) instance.hide();
-              } else {
-                modal.style.display = 'none';
-              }
-            }
-          });
-        }
-      }
 
-      // Check for stuck animations
-      if (switchingModals > 0 || animatingModals > 0) {
-        console.log(`Animation monitoring: ${switchingModals} switching, ${animatingModals} animating`);
-
-        // Clean up stuck animations after 5 seconds
-        document.querySelectorAll('.modal.switching, .modal[data-animation-state="opening"], .modal[data-animation-state="closing"]').forEach(modal => {
-          const animationStart = modal.dataset.animationStart;
-          if (!animationStart) {
-            modal.dataset.animationStart = Date.now();
-          } else if (Date.now() - parseInt(animationStart) > 5000) {
-            console.warn('Cleaning up stuck animation for modal:', modal.id);
-            modal.classList.remove('switching');
-            modal.removeAttribute('data-animation-state');
-            modal.removeAttribute('data-animation-start');
-            modalAnimationInProgress = false;
-          }
-        });
-      }
-
-      // Monitor backdrop issues
-      const backdrops = document.querySelectorAll('.modal-backdrop').length;
-      const visibleModals = document.querySelectorAll('.modal.show').length;
-      if (backdrops > visibleModals) {
-        console.warn(`Backdrop cleanup needed: ${backdrops} backdrops for ${visibleModals} modals`);
-        // Clean up extra backdrops
-        const backdropElements = document.querySelectorAll('.modal-backdrop');
-        for (let i = visibleModals; i < backdropElements.length; i++) {
-          backdropElements[i].remove();
-        }
-      }
-
-    }, 1000);
-
-    // Log animation events for debugging
-    document.addEventListener('animationstart', (e) => {
-      if (e.target.closest('.modal')) {
-        console.log('Animation started:', e.animationName, 'on', e.target.closest('.modal').id);
-      }
-    });
-
-    document.addEventListener('animationend', (e) => {
-      if (e.target.closest('.modal')) {
-        console.log('Animation ended:', e.animationName, 'on', e.target.closest('.modal').id);
-      }
-    });
-
-    document.addEventListener('transitionend', (e) => {
-      if (e.target.closest('.modal')) {
-        console.log('Transition ended:', e.propertyName, 'on', e.target.closest('.modal').id);
-      }
-    });
-  }
 });
 
 // Custom Modal Functions - Updated for unified system
 function openCustomCancelModal(productId) {
-  console.log('Opening custom cancel modal for product:', productId);
 
   // Close any existing modal first
   closeCurrentModal();

@@ -17,18 +17,18 @@
       <div class="col-lg-6">
         <!-- Product Gallery -->
         <div class="product-gallery">
-          <!-- Main Image with Hover Zoom -->
+          <!-- Main Image with Enhanced Zoom -->
           <div class="main-image-container">
-            <div class="image-wrapper" id="imageWrapper">
-              <img 
-                src="<%= product.mainImage || '/api/placeholder/600/600' %>" 
-                alt="<%= product.model %>" 
-                id="mainProductImage"
-                class="main-image"
-              >
-              <div class="zoom-lens" id="zoomLens"></div>
+            <div class="image-wrapper">
+              <div class="zoom-container" id="zoomContainer">
+                <img
+                  src="<%= product.mainImage || '/api/placeholder/600/600' %>"
+                  alt="<%= product.model %>"
+                  id="mainImage"
+                  class="main-image"
+                >
+              </div>
             </div>
-            <div class="zoom-result" id="zoomResult"></div>
           </div>
           
           <!-- Thumbnail Gallery -->
@@ -181,23 +181,33 @@
             <div class="quantity-section">
               <label class="quantity-label">Quantity:</label>
               <div class="quantity-selector">
-                <button type="button" class="quantity-btn" onclick="decreaseQuantity()">
+                <button type="button" class="quantity-btn quantity-decrease" id="decreaseBtn" onclick="decreaseQuantity()">
                   <i class="ri-subtract-line"></i>
                 </button>
-                <input type="number" id="quantity" value="1" min="1" max="<%= product.stock %>" readonly>
-                <button type="button" class="quantity-btn" onclick="increaseQuantity()">
+                <input type="number" id="quantity" value="1" min="1" max="<%= Math.min(5, product.stock) %>" readonly>
+                <button type="button" class="quantity-btn quantity-increase" id="increaseBtn" onclick="increaseQuantity()">
                   <i class="ri-add-line"></i>
                 </button>
+              </div>
+              <div class="quantity-info">
+                <span class="quantity-limit-text" id="quantityLimitText">
+                  Max: <%= Math.min(5, product.stock) %> items
+                </span>
+                <span class="quantity-feedback" id="quantityFeedback" style="display: none;"></span>
               </div>
             </div>
             
             <!-- Action Buttons -->
             <div class="action-buttons">
-              <button class="btn-add-to-cart" data-product-id="<%= product._id %>" <%= product.stock === 0 ? 'disabled' : '' %>>
+              <button class="btn-add-to-cart"
+                      data-product-id="<%= product._id %>"
+                      data-product-stock="<%= product.stock %>"
+                      data-max-quantity="<%= Math.min(5, product.stock) %>"
+                      <%= product.stock === 0 ? 'disabled' : '' %>>
                 <i class="ri-shopping-cart-line"></i>
                 <span><%= product.stock === 0 ? 'Out of Stock' : 'Add to Cart' %></span>
               </button>
-              
+
               <button class="btn-wishlist <%= isWishlisted ? 'wishlisted' : '' %>" data-product-id="<%= product._id %>">
                 <i class="<%= isWishlisted ? 'ri-heart-fill' : 'ri-heart-line' %>"></i>
               </button>
@@ -305,130 +315,355 @@
 <script>
 // Image change functionality
 function changeMainImage(imageSrc, thumbnailElement) {
-  document.getElementById('mainProductImage').src = imageSrc;
-  
+  const mainImage = document.getElementById('mainImage');
+  if (mainImage) {
+    mainImage.src = imageSrc;
+  }
+
   // Update active thumbnail
   document.querySelectorAll('.thumbnail').forEach(thumb => {
     thumb.classList.remove('active');
   });
   thumbnailElement.classList.add('active');
-  
-  // Reinitialize zoom for new image
-  initImageZoom();
+
+  // The zoom functionality will automatically update with the new image
+  // No need to reinitialize as the productZoomer.js handles this
 }
 
-// Quantity controls
-function increaseQuantity() {
+// Enhanced Quantity Controls with AJAX and Dynamic Limits
+let quantityUpdateTimeout = null;
+
+// Initialize quantity controls on page load
+function initializeQuantityControls() {
   const quantityInput = document.getElementById('quantity');
-  const currentValue = parseInt(quantityInput.value);
-  const maxValue = parseInt(quantityInput.max);
-  
-  if (currentValue < maxValue) {
-    quantityInput.value = currentValue + 1;
-  }
-}
+  const increaseBtn = document.getElementById('increaseBtn');
+  const decreaseBtn = document.getElementById('decreaseBtn');
+  const addToCartBtn = document.querySelector('.btn-add-to-cart');
 
-function decreaseQuantity() {
-  const quantityInput = document.getElementById('quantity');
-  const currentValue = parseInt(quantityInput.value);
-  
-  if (currentValue > 1) {
-    quantityInput.value = currentValue - 1;
-  }
-}
+  if (!quantityInput || !addToCartBtn) return;
 
-// Image Zoom functionality (Amazon/Flipkart style)
-function initImageZoom() {
-  const img = document.getElementById('mainProductImage');
-  const zoomLens = document.getElementById('zoomLens');
-  const zoomResult = document.getElementById('zoomResult');
-  const imageWrapper = document.getElementById('imageWrapper');
-  
-  if (!img || !zoomLens || !zoomResult || !imageWrapper) return;
-  
-  // Set zoom result background
-  zoomResult.style.backgroundImage = `url('${img.src}')`;
-  
-  // Calculate zoom ratio
-  const cx = zoomResult.offsetWidth / zoomLens.offsetWidth;
-  const cy = zoomResult.offsetHeight / zoomLens.offsetHeight;
-  
-  // Set background size for zoom result
-  zoomResult.style.backgroundSize = `${img.width * cx}px ${img.height * cy}px`;
-  
-  // Mouse move event
-  function moveLens(e) {
-    e.preventDefault();
-    
-    // Get cursor position
-    const pos = getCursorPos(e);
-    
-    // Calculate lens position
-    let x = pos.x - (zoomLens.offsetWidth / 2);
-    let y = pos.y - (zoomLens.offsetHeight / 2);
-    
-    // Prevent lens from going outside image
-    if (x > img.width - zoomLens.offsetWidth) { x = img.width - zoomLens.offsetWidth; }
-    if (x < 0) { x = 0; }
-    if (y > img.height - zoomLens.offsetHeight) { y = img.height - zoomLens.offsetHeight; }
-    if (y < 0) { y = 0; }
-    
-    // Set lens position
-    zoomLens.style.left = x + 'px';
-    zoomLens.style.top = y + 'px';
-    
-    // Display zoomed area
-    zoomResult.style.backgroundPosition = `-${x * cx}px -${y * cy}px`;
-  }
-  
-  function getCursorPos(e) {
-    const a = img.getBoundingClientRect();
-    const x = e.pageX - a.left - window.pageXOffset;
-    const y = e.pageY - a.top - window.pageYOffset;
-    return { x: x, y: y };
-  }
-  
-  function showZoom() {
-    zoomLens.style.display = 'block';
-    zoomResult.style.display = 'block';
-  }
-  
-  function hideZoom() {
-    zoomLens.style.display = 'none';
-    zoomResult.style.display = 'none';
-  }
-  
-  // Event listeners
-  imageWrapper.addEventListener('mouseenter', showZoom);
-  imageWrapper.addEventListener('mouseleave', hideZoom);
-  imageWrapper.addEventListener('mousemove', moveLens);
-  
-  // Touch events for mobile
-  imageWrapper.addEventListener('touchstart', showZoom);
-  imageWrapper.addEventListener('touchend', hideZoom);
-  imageWrapper.addEventListener('touchmove', function(e) {
-    e.preventDefault();
-    const touch = e.touches[0];
-    const mouseEvent = new MouseEvent('mousemove', {
-      clientX: touch.clientX,
-      clientY: touch.clientY
-    });
-    moveLens(mouseEvent);
+  const productStock = parseInt(addToCartBtn.dataset.productStock) || 0;
+  const maxQuantity = Math.min(5, productStock);
+
+  // Set initial max value
+  quantityInput.max = maxQuantity;
+
+  // Update button states
+  updateQuantityButtonStates();
+
+  // Add event listeners for real-time validation
+  quantityInput.addEventListener('input', function() {
+    validateQuantityInput();
   });
 }
 
+// Quantity increase function with AJAX validation
+async function increaseQuantity() {
+  const quantityInput = document.getElementById('quantity');
+  const currentValue = parseInt(quantityInput.value);
+  const maxValue = parseInt(quantityInput.max);
+
+  if (currentValue >= maxValue) {
+    showQuantityFeedback('Maximum quantity reached', 'warning');
+    return;
+  }
+
+  const newQuantity = currentValue + 1;
+  await updateQuantityWithValidation(newQuantity);
+}
+
+// Quantity decrease function
+async function decreaseQuantity() {
+  const quantityInput = document.getElementById('quantity');
+  const currentValue = parseInt(quantityInput.value);
+
+  if (currentValue <= 1) {
+    showQuantityFeedback('Minimum quantity is 1', 'warning');
+    return;
+  }
+
+  const newQuantity = currentValue - 1;
+  await updateQuantityWithValidation(newQuantity);
+}
+
+// Update quantity with real-time validation
+async function updateQuantityWithValidation(newQuantity) {
+  const quantityInput = document.getElementById('quantity');
+  const addToCartBtn = document.querySelector('.btn-add-to-cart');
+  const productId = addToCartBtn.dataset.productId;
+
+  // Clear any existing timeout
+  if (quantityUpdateTimeout) {
+    clearTimeout(quantityUpdateTimeout);
+  }
+
+  // Show loading state
+  showQuantityFeedback('Updating...', 'info');
+
+  try {
+    // Validate quantity with server
+    const response = await fetch('/api/products/validate-quantity', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        productId: productId,
+        quantity: newQuantity
+      })
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      // Update quantity input
+      quantityInput.value = newQuantity;
+
+      // Update max value if stock changed
+      if (result.data.currentStock !== undefined) {
+        const newMaxQuantity = Math.min(5, result.data.currentStock);
+        quantityInput.max = newMaxQuantity;
+        updateQuantityLimitText(newMaxQuantity);
+      }
+
+      // Update button states
+      updateQuantityButtonStates();
+
+      // Show success feedback briefly
+      showQuantityFeedback('Quantity updated', 'success');
+
+      // Hide feedback after delay
+      setTimeout(() => {
+        hideQuantityFeedback();
+      }, 1500);
+
+    } else {
+      // Revert to previous value and show error
+      showQuantityFeedback(result.message || 'Invalid quantity', 'error');
+      setTimeout(() => {
+        hideQuantityFeedback();
+      }, 3000);
+    }
+
+  } catch (error) {
+    console.error('Error validating quantity:', error);
+
+    // Handle different types of errors
+    let errorMessage = 'Error updating quantity';
+    if (error.name === 'TypeError' || error.message.includes('fetch')) {
+      errorMessage = 'Network error. Please check your connection.';
+    } else if (error.message.includes('timeout')) {
+      errorMessage = 'Request timed out. Please try again.';
+    }
+
+    showQuantityFeedback(errorMessage, 'error');
+    setTimeout(() => {
+      hideQuantityFeedback();
+    }, 3000);
+  }
+}
+
+// Helper functions for quantity controls
+function updateQuantityButtonStates() {
+  const quantityInput = document.getElementById('quantity');
+  const increaseBtn = document.getElementById('increaseBtn');
+  const decreaseBtn = document.getElementById('decreaseBtn');
+
+  if (!quantityInput || !increaseBtn || !decreaseBtn) return;
+
+  const currentValue = parseInt(quantityInput.value);
+  const maxValue = parseInt(quantityInput.max);
+  const minValue = parseInt(quantityInput.min) || 1;
+
+  // Update decrease button state
+  if (currentValue <= minValue) {
+    decreaseBtn.disabled = true;
+    decreaseBtn.classList.add('disabled');
+  } else {
+    decreaseBtn.disabled = false;
+    decreaseBtn.classList.remove('disabled');
+  }
+
+  // Update increase button state
+  if (currentValue >= maxValue) {
+    increaseBtn.disabled = true;
+    increaseBtn.classList.add('disabled');
+  } else {
+    increaseBtn.disabled = false;
+    increaseBtn.classList.remove('disabled');
+  }
+}
+
+function updateQuantityLimitText(maxQuantity) {
+  const limitText = document.getElementById('quantityLimitText');
+  if (limitText) {
+    limitText.textContent = `Max: ${maxQuantity} items`;
+  }
+}
+
+function showQuantityFeedback(message, type = 'info') {
+  const feedbackElement = document.getElementById('quantityFeedback');
+  if (!feedbackElement) return;
+
+  feedbackElement.textContent = message;
+  feedbackElement.className = `quantity-feedback ${type}`;
+  feedbackElement.style.display = 'inline-block';
+}
+
+function hideQuantityFeedback() {
+  const feedbackElement = document.getElementById('quantityFeedback');
+  if (feedbackElement) {
+    feedbackElement.style.display = 'none';
+  }
+}
+
+function validateQuantityInput() {
+  const quantityInput = document.getElementById('quantity');
+  const currentValue = parseInt(quantityInput.value);
+  const maxValue = parseInt(quantityInput.max);
+  const minValue = parseInt(quantityInput.min) || 1;
+
+  if (currentValue > maxValue) {
+    quantityInput.value = maxValue;
+    showQuantityFeedback('Maximum quantity exceeded', 'warning');
+  } else if (currentValue < minValue) {
+    quantityInput.value = minValue;
+    showQuantityFeedback('Minimum quantity is 1', 'warning');
+  }
+
+  updateQuantityButtonStates();
+}
+
+// Handle stock changes and real-time updates
+function handleStockChange(newStock) {
+  const quantityInput = document.getElementById('quantity');
+  const addToCartBtn = document.querySelector('.btn-add-to-cart');
+
+  if (!quantityInput || !addToCartBtn) return;
+
+  const currentQuantity = parseInt(quantityInput.value);
+  const newMaxQuantity = Math.min(5, newStock);
+
+  // Update data attributes
+  addToCartBtn.dataset.productStock = newStock;
+  addToCartBtn.dataset.maxQuantity = newMaxQuantity;
+
+  // Update input max value
+  quantityInput.max = newMaxQuantity;
+
+  // Update limit text
+  updateQuantityLimitText(newMaxQuantity);
+
+  // Handle out of stock
+  if (newStock === 0) {
+    quantityInput.value = 0;
+    quantityInput.disabled = true;
+    addToCartBtn.disabled = true;
+    addToCartBtn.innerHTML = '<i class="ri-shopping-cart-line"></i><span>Out of Stock</span>';
+    showQuantityFeedback('Product is now out of stock', 'error');
+    return;
+  }
+
+  // Handle quantity adjustment if current quantity exceeds new stock
+  if (currentQuantity > newMaxQuantity) {
+    quantityInput.value = newMaxQuantity;
+    showQuantityFeedback(`Quantity adjusted to ${newMaxQuantity} due to stock change`, 'warning');
+  }
+
+  // Re-enable controls if they were disabled
+  quantityInput.disabled = false;
+  addToCartBtn.disabled = false;
+  addToCartBtn.innerHTML = '<i class="ri-shopping-cart-line"></i><span>Add to Cart</span>';
+
+  updateQuantityButtonStates();
+}
+
+// Periodic stock check (optional - can be enabled for high-demand products)
+let stockCheckInterval = null;
+
+function startStockMonitoring() {
+  const addToCartBtn = document.querySelector('.btn-add-to-cart');
+  if (!addToCartBtn) return;
+
+  const productId = addToCartBtn.dataset.productId;
+
+  // Check stock every 30 seconds
+  stockCheckInterval = setInterval(async () => {
+    try {
+      const response = await fetch(`/api/products/validate-quantity`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId: productId,
+          quantity: 1 // Just checking stock availability
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success && result.data.currentStock !== undefined) {
+        const currentStock = parseInt(addToCartBtn.dataset.productStock);
+        const newStock = result.data.currentStock;
+
+        if (currentStock !== newStock) {
+          handleStockChange(newStock);
+        }
+      }
+    } catch (error) {
+      console.warn('Stock check failed:', error);
+      // Don't show error to user for background checks
+    }
+  }, 30000); // 30 seconds
+}
+
+function stopStockMonitoring() {
+  if (stockCheckInterval) {
+    clearInterval(stockCheckInterval);
+    stockCheckInterval = null;
+  }
+}
+
+// Enhanced zoom functionality is now handled by productZoomer.js
+
 document.addEventListener('DOMContentLoaded', function() {
-  // Initialize image zoom
-  initImageZoom();
-  
+  // Initialize quantity controls
+  initializeQuantityControls();
+
+  // Start stock monitoring for real-time updates (optional)
+  // Uncomment the next line to enable real-time stock monitoring
+  // startStockMonitoring();
+
+  // Enhanced zoom functionality is handled by productZoomer.js
+
   const cartCountElement = document.querySelector('.cart-count');
   const wishlistCountElement = document.querySelector('.wishlist-count');
 
-  // Add to cart functionality
+  // Enhanced add to cart functionality with quantity validation
   document.querySelectorAll('.add-to-cart, .btn-add-to-cart').forEach(button => {
     button.addEventListener('click', async function() {
       const productId = this.dataset.productId;
-      const quantity = document.getElementById('quantity') ? parseInt(document.getElementById('quantity').value) : 1;
+      const quantityInput = document.getElementById('quantity');
+      const quantity = quantityInput ? parseInt(quantityInput.value) : 1;
+      const maxQuantity = parseInt(this.dataset.maxQuantity) || 5;
+      const productStock = parseInt(this.dataset.productStock) || 0;
+
+      // Final validation before adding to cart
+      if (quantity > maxQuantity) {
+        showQuantityFeedback(`Cannot add ${quantity} items. Maximum allowed is ${maxQuantity}`, 'error');
+        return;
+      }
+
+      if (quantity > productStock) {
+        showQuantityFeedback(`Cannot add ${quantity} items. Only ${productStock} in stock`, 'error');
+        return;
+      }
+
+      if (productStock === 0) {
+        showQuantityFeedback('Product is out of stock', 'error');
+        return;
+      }
 
       try {
         const response = await fetch('/api/cart/add', {
@@ -580,5 +815,20 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   });
+
+  // Cleanup when page is unloaded
+  window.addEventListener('beforeunload', function() {
+    stopStockMonitoring();
+
+    // Clear any pending timeouts
+    if (quantityUpdateTimeout) {
+      clearTimeout(quantityUpdateTimeout);
+    }
+  });
 });
 </script>
+
+<!-- Enhanced Product Zoom Functionality -->
+<script src="/js/productZoomer.js"></script>
+
+<%- include("../partials/user/footer") %>

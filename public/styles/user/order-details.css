@@ -1669,18 +1669,7 @@ body:has(.custom-modal[style*="display: flex"] ~ .custom-modal[style*="display: 
   display: block;
 }
 
-/* Ensure return button is always clickable */
-.action-btn.return-btn {
-  pointer-events: auto !important;
-  position: relative;
-  z-index: 1;
-}
 
-/* Prevent double-click issues */
-.action-btn.return-btn:disabled {
-  pointer-events: none;
-  opacity: 0.6;
-}
 
 /* Loading state for buttons */
 .action-btn.loading {

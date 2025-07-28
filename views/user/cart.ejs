@@ -74,10 +74,6 @@
                           <%= Math.round(item.product.discountPercentage) %>% OFF
                         </span>
                       <% } %>
-                      <!-- Cart Icon Indicator -->
-                      <div class="cart-icon-indicator">
-                        <i class="ri-shopping-cart-fill"></i>
-                      </div>
                     </div>
                   </div>
 
@@ -140,15 +136,6 @@
                         <% } %>
                       </div>
                       <div class="item-actions">
-                        <button class="action-btn return-btn"
-                                data-product-id="<%= item.product._id %>"
-                                data-product-name="<%= item.product.model %>"
-                                data-product-image="<%= item.product.mainImage || '/api/placeholder/80/80' %>"
-                                data-quantity="<%= item.quantity %>"
-                                type="button">
-                          <i class="ri-arrow-go-back-line"></i>
-                          Return Item
-                        </button>
                         <button class="btn-remove-item remove-item">
                           <i class="ri-delete-bin-line"></i>
                           Remove
@@ -315,69 +302,7 @@
 </section>
 <% } %>
 
-<!-- Return Item Modal -->
-<div class="modal fade" id="returnItemModal" tabindex="-1" aria-labelledby="returnItemModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content modern-modal">
-      <div class="modal-header">
-        <h5 class="modal-title" id="returnItemModalLabel">
-          <i class="ri-arrow-go-back-line"></i>
-          Return Item
-        </h5>
-        <button type="button" class="btn-close-modal" data-bs-dismiss="modal" aria-label="Close">
-          <i class="ri-close-line"></i>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="return-item-info">
-          <div class="item-preview">
-            <img id="returnItemImage" src="" alt="Product Image" class="return-item-img">
-            <div class="item-details">
-              <h6 id="returnItemName">Product Name</h6>
-              <p id="returnItemQuantity">Quantity: 1</p>
-            </div>
-          </div>
 
-          <div class="return-form">
-            <div class="form-group">
-              <label for="returnReason" class="form-label">Reason for Return *</label>
-              <select id="returnReason" class="form-control" required>
-                <option value="">Select a reason</option>
-                <option value="Defective Product">Defective Product</option>
-                <option value="Wrong Item Received">Wrong Item Received</option>
-                <option value="Not as Described">Not as Described</option>
-                <option value="Changed Mind">Changed Mind</option>
-                <option value="Better Price Available">Better Price Available</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-
-            <div class="form-group" id="otherReasonGroup" style="display: none;">
-              <label for="otherReturnReason" class="form-label">Please specify *</label>
-              <textarea id="otherReturnReason" class="form-control" rows="3" placeholder="Please provide details..."></textarea>
-            </div>
-
-            <div class="form-group">
-              <label for="returnImage" class="form-label">Upload Image (Optional)</label>
-              <div class="file-upload">
-                <input type="file" id="returnImage" accept="image/*" class="file-input">
-                <div class="file-upload-text">
-                  <i class="ri-upload-cloud-line"></i>
-                  <span>Click to upload image or drag and drop</span>
-                  <small>PNG, JPG up to 5MB</small>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger" id="confirmReturnBtn">Submit Return Request</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <%- include("../partials/user/footer") %>
 
@@ -413,9 +338,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Fixed order summary on scroll
   window.addEventListener('scroll', handleOrderSummaryPosition);
-
-  // Return item functionality
-  setupReturnItemHandlers();
 
   // Main Functions
   async function clearCart() {
@@ -723,198 +645,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Return Item Functionality
-  function setupReturnItemHandlers() {
-    // Return button click handlers
-    document.querySelectorAll('.action-btn.return-btn').forEach(button => {
-      button.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
 
-        // Prevent double-clicks with proper null checks
-        if (!this || this.disabled || (this.classList && this.classList.contains('loading'))) {
-          return false;
-        }
 
-        // Get product data from button attributes
-        const productId = this.dataset.productId;
-        const productName = this.dataset.productName;
-        const productImage = this.dataset.productImage;
-        const quantity = this.dataset.quantity;
 
-        if (!productId) {
-          showNotification('error', 'Product information not found');
-          return false;
-        }
 
-        // Open return modal
-        openReturnModal(productId, productName, productImage, quantity);
 
-        return false;
-      });
-    });
-
-    // Return reason dropdown change handler
-    const returnReasonSelect = document.getElementById('returnReason');
-    const otherReasonGroup = document.getElementById('otherReasonGroup');
-
-    if (returnReasonSelect) {
-      returnReasonSelect.addEventListener('change', function() {
-        if (this.value === 'Other') {
-          otherReasonGroup.style.display = 'block';
-          document.getElementById('otherReturnReason').required = true;
-        } else {
-          otherReasonGroup.style.display = 'none';
-          document.getElementById('otherReturnReason').required = false;
-        }
-      });
-    }
-
-    // Confirm return button handler
-    const confirmReturnBtn = document.getElementById('confirmReturnBtn');
-    if (confirmReturnBtn) {
-      confirmReturnBtn.addEventListener('click', handleReturnSubmission);
-    }
-  }
-
-  function openReturnModal(productId, productName, productImage, quantity) {
-    try {
-      // Check if modal elements exist
-      const modalElement = document.getElementById('returnItemModal');
-      const imageElement = document.getElementById('returnItemImage');
-      const nameElement = document.getElementById('returnItemName');
-      const quantityElement = document.getElementById('returnItemQuantity');
-      const confirmBtn = document.getElementById('confirmReturnBtn');
-
-      if (!modalElement || !imageElement || !nameElement || !quantityElement || !confirmBtn) {
-        console.error('Return modal elements not found');
-        showNotification('error', 'Return modal not available. Please refresh the page.');
-        return;
-      }
-
-      // Populate modal with product information
-      imageElement.src = productImage || '/api/placeholder/80/80';
-      nameElement.textContent = productName || 'Unknown Product';
-      quantityElement.textContent = `Quantity: ${quantity || 1}`;
-
-      // Store product ID for submission
-      confirmBtn.dataset.productId = productId;
-
-      // Reset form with null checks
-      const reasonSelect = document.getElementById('returnReason');
-      const otherReasonTextarea = document.getElementById('otherReturnReason');
-      const imageInput = document.getElementById('returnImage');
-      const otherGroup = document.getElementById('otherReasonGroup');
-
-      if (reasonSelect) reasonSelect.value = '';
-      if (otherReasonTextarea) otherReasonTextarea.value = '';
-      if (imageInput) imageInput.value = '';
-      if (otherGroup) otherGroup.style.display = 'none';
-
-      // Show modal with error handling
-      if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-        const modal = new bootstrap.Modal(modalElement);
-        modal.show();
-      } else {
-        console.error('Bootstrap Modal not available');
-        showNotification('error', 'Modal functionality not available. Please refresh the page.');
-      }
-    } catch (error) {
-      console.error('Error opening return modal:', error);
-      showNotification('error', 'Failed to open return dialog. Please refresh the page.');
-    }
-  }
-
-  async function handleReturnSubmission() {
-    try {
-      // Check if this context is valid
-      if (!this || !this.dataset) {
-        console.error('Invalid context for return submission');
-        showNotification('error', 'Return submission failed. Please try again.');
-        return;
-      }
-
-      const productId = this.dataset.productId;
-
-      // Get form elements with null checks
-      const reasonElement = document.getElementById('returnReason');
-      const otherReasonElement = document.getElementById('otherReturnReason');
-      const imageElement = document.getElementById('returnImage');
-
-      if (!reasonElement || !otherReasonElement || !imageElement) {
-        console.error('Return form elements not found');
-        showNotification('error', 'Return form not available. Please refresh the page.');
-        return;
-      }
-
-      const returnReason = reasonElement.value;
-      const otherReason = otherReasonElement.value;
-      const returnImageFile = imageElement.files ? imageElement.files[0] : null;
-
-      // Validation
-      if (!returnReason) {
-        showNotification('warning', 'Please select a reason for return');
-        return;
-      }
-
-      if (returnReason === 'Other' && !otherReason.trim()) {
-        showNotification('warning', 'Please specify the reason for return');
-        return;
-      }
-
-      // Prepare form data
-      const formData = new FormData();
-      formData.append('productId', productId);
-      formData.append('reason', returnReason === 'Other' ? otherReason : returnReason);
-
-      if (returnImageFile) {
-        formData.append('returnImage', returnImageFile);
-      }
-
-      // Disable button and show loading
-      this.disabled = true;
-      this.innerHTML = '<i class="ri-loader-4-line"></i> Processing...';
-
-      // Note: This endpoint would need to be created for cart item returns
-      // For now, we'll show a success message as a placeholder
-      showNotification('info', 'Return request functionality is not yet implemented for cart items. This would typically be available for ordered items.');
-
-      // Close modal
-      const modalElement = document.getElementById('returnItemModal');
-      if (modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-        const modal = bootstrap.Modal.getInstance(modalElement);
-        if (modal) {
-          modal.hide();
-        }
-      }
-
-      // In a real implementation, you would make an API call like:
-      /*
-      const response = await fetch('/cart/return-item', {
-        method: 'POST',
-        body: formData
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        showNotification('success', data.message);
-        // Optionally remove item from cart or update UI
-      } else {
-        showNotification('error', data.message);
-      }
-      */
-
-    } catch (error) {
-      console.error('Error processing return:', error);
-      showNotification('error', 'An error occurred while processing your return request');
-    } finally {
-      // Reset button with null check
-      if (this) {
-        this.disabled = false;
-        this.innerHTML = 'Submit Return Request';
-      }
-    }
-  }
 });
 </script>

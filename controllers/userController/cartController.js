@@ -85,7 +85,7 @@ const getCart = async (req, res) => {
       isAuthenticated: true,
     });
   } catch (error) {
-    console.log('Error in rendering cart:', error);
+    console.error('Error in rendering cart:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Server Error');
   }
 };

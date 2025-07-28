@@ -6,10 +6,12 @@ const cartController = require('../../controllers/userController/cartController'
 const wishlistController = require('../../controllers/userController/wishlistController');
 const checkoutController = require('../../controllers/userController/checkoutController');
 const orderController = require('../../controllers/userController/orderController');
+const productController = require('../../controllers/userController/productController');
 
 // Import validators
 const cartValidator = require('../../validators/user/cartValidator');
 const wishlistValidator = require('../../validators/user/wishlistValidator');
+const productValidator = require('../../validators/user/productValidator');
 
 // Import middleware
 const { isAuthenticated } = require('../../middlewares/authMiddleware');
@@ -72,5 +74,11 @@ router.post('/orders/:id/cancel', isAuthenticated, orderController.cancelOrder);
 router.post('/orders/:id/return', isAuthenticated, orderController.returnOrder);
 router.post('/orders/:orderId/retry-payment', isAuthenticated, checkoutController.retryPayment);
 router.post('/orders/verify-retry-payment', isAuthenticated, checkoutController.verifyRetryPayment);
+
+// Product API Routes
+router.post('/products/validate-quantity',
+  productValidator.validateQuantityCheck,
+  productController.validateQuantity
+);
 
 module.exports = router;

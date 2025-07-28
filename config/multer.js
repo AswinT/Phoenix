@@ -26,14 +26,12 @@ const upload = multer({
     files: 4 // Maximum 4 files
   },
   fileFilter: (req, file, cb) => {
-    console.log('📁 File filter check:', file.originalname, file.mimetype);
     const filetypes = /jpeg|jpg|png/;
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = filetypes.test(file.mimetype);
     if (extname && mimetype) {
       return cb(null, true);
     } else {
-      console.error('❌ File type rejected:', file.originalname, file.mimetype);
       cb(new Error('Images only (jpeg, jpg, png)!'));
     }
   },
@@ -41,7 +39,6 @@ const upload = multer({
 
 // Add error handling middleware for multer
 upload.errorHandler = (error, req, res, next) => {
-  console.error('📁 Multer error:', error);
   
   if (error instanceof multer.MulterError) {
     if (error.code === 'LIMIT_FILE_SIZE') {

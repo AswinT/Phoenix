@@ -11,7 +11,7 @@ const adminMiddleware = {
           return next();
         }
       }
-      
+
       // Check if this is an AJAX request
       if (req.xhr || req.headers.accept?.indexOf('json') > -1 || req.headers['content-type']?.includes('multipart/form-data')) {
         return res.status(HttpStatus.UNAUTHORIZED).json({
@@ -21,11 +21,11 @@ const adminMiddleware = {
           redirect: '/admin/auth/login'
         });
       }
-      
+
       return res.redirect('/admin/auth/login');
     } catch (err) {
       console.error('Admin auth error:', err);
-      
+
       // Check if this is an AJAX request
       if (req.xhr || req.headers.accept?.indexOf('json') > -1 || req.headers['content-type']?.includes('multipart/form-data')) {
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
@@ -35,7 +35,7 @@ const adminMiddleware = {
           redirect: '/admin/auth/login'
         });
       }
-      
+
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).redirect('/admin/auth/login');
     }
   },

@@ -1257,13 +1257,6 @@ function setupStockAdjustmentFunctionality() {
           showNotification('error', 'Failed to fix stock issues');
         }
       });
-
-      console.log('Event listener added to Fix All button'); // Debug log
-    } else {
-      console.log('Fix All button not found in DOM');
-      // Try to find it by class name as backup
-      const fixAllBtnByClass = document.querySelector('.fix-all-btn');
-      console.log('Fix All button by class:', fixAllBtnByClass); // Debug log
     }
   }, 100); // Small delay to ensure DOM is ready
 
@@ -1436,72 +1429,13 @@ function showNotification(type, message) {
   });
 }
 
-// Test function to verify API works
-function testFixAllAPI() {
-  console.log('Testing Fix All API directly...');
 
-  const stockConflicts = <%- JSON.stringify(stockConflicts || []) %>;
-  console.log('Stock conflicts for test:', stockConflicts);
-
-  if (!stockConflicts || stockConflicts.length === 0) {
-    alert('No stock conflicts to test with');
-    return;
-  }
-
-  const adjustments = stockConflicts.map(conflict => ({
-    productId: conflict.productId,
-    newQuantity: conflict.availableStock
-  }));
-
-  console.log('Test adjustments:', adjustments);
-
-  fetch('/api/checkout/adjust-quantities', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest'
-    },
-    credentials: 'same-origin',
-    body: JSON.stringify({ adjustments })
-  })
-  .then(response => {
-    console.log('Test API response status:', response.status);
-    return response.json();
-  })
-  .then(data => {
-    console.log('Test API response data:', data);
-    alert('API Test Result: ' + (data.success ? 'SUCCESS' : 'FAILED - ' + data.message));
-    if (data.success) {
-      setTimeout(() => window.location.reload(), 1000);
-    }
-  })
-  .catch(error => {
-    console.error('Test API error:', error);
-    alert('API Test Error: ' + error.message);
-  });
-}
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
   updateAddressSummary();
   updatePaymentSummary();
 
-  // Debug: Check if Fix All button exists
-  setTimeout(() => {
-    const fixAllBtn = document.getElementById('fixAllStockIssues');
-    console.log('DOM loaded - Fix All button check:', fixAllBtn);
-    if (fixAllBtn) {
-      console.log('Fix All button HTML:', fixAllBtn.outerHTML);
-    }
 
-    // Check if we have stock conflicts
-    const hasStockConflicts = <%= hasStockConflicts ? 'true' : 'false' %>;
-    console.log('Has stock conflicts:', hasStockConflicts);
-
-    if (hasStockConflicts) {
-      const stockConflicts = <%- JSON.stringify(stockConflicts || []) %>;
-      console.log('Stock conflicts data:', stockConflicts);
-    }
-  }, 500);
 });
 </script>

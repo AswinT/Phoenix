@@ -160,7 +160,7 @@ const shopPage = async (req, res) => {
       queryString: baseQueryString ? `&${baseQueryString}` : ''
     });
   } catch (error) {
-    console.log(`Error in rendering Shop Page: ${error}`);
+    console.error(`Error in rendering Shop Page: ${error}`);
     res.status(500).send('Server Error');
   }
 };

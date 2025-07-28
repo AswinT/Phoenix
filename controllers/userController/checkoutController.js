@@ -94,10 +94,7 @@ const getCheckout = async (req, res) => {
       // Store stock conflicts in session for the checkout page to display
       req.session.stockConflicts = stockConflicts;
 
-      // Create a combined list of valid items and conflicted items for display
-      const allCartItems = validItems.concat(stockConflicts.map(conflict =>
-        cart.items.find(item => item.product._id.toString() === conflict.productId.toString())
-      ));
+
 
       // Set error message for stock conflicts
       const conflictMessages = stockConflicts.map(conflict =>
@@ -554,24 +551,7 @@ const createRazorpayOrder = async (req, res) => {
     const amountAfterAllDiscounts = subtotalAfterOffers - couponDiscount;
     const checkoutTax = Math.round(amountAfterAllDiscounts * 0.08 * 100) / 100;
     let checkoutTotal = Math.round((amountAfterAllDiscounts + checkoutTax) * 100) / 100;
-    console.log('Detailed Payment Calculations:', {
-      originalSubtotal: checkoutSubtotal,
-      offerDiscount: checkoutOfferDiscount,
-      amountAfterOffers: subtotalAfterOffers,
-      couponDiscount,
-      amountAfterAllDiscounts,
-      tax: checkoutTax,
-      finalTotal: checkoutTotal,
-      orderItems: orderItems.map(item => ({
-        title: item.model || item.title || 'Unknown Product',
-        originalPrice: item.price,
-        discountedPrice: item.discountedPrice,
-        quantity: item.quantity,
-        offerDiscount: item.offerDiscount,
-        couponDiscount: item.couponDiscount || 0,
-        finalPrice: item.finalPrice
-      }))
-    });
+
     const itemFinalPriceSum = orderItems.reduce((sum, item) => sum + (item.priceBreakdown?.finalPrice || 0), 0);
     const expectedTotal = itemFinalPriceSum + checkoutTax;
     if (Math.abs(expectedTotal - checkoutTotal) > 0.01) {
@@ -1551,12 +1531,7 @@ const verifyRetryPayment = async (req, res) => {
 const handlePaymentCallback = async (req, res) => {
   try {
     const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.query;
-    console.log('Payment callback received:', {
-      payment_id: razorpay_payment_id,
-      order_id: razorpay_order_id,
-      signature: razorpay_signature,
-      query: req.query
-    });
+
     if (razorpay_payment_id && razorpay_signature) {
       const expectedSignature = crypto
         .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)

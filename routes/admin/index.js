@@ -41,7 +41,7 @@ const upload = require('../../config/multer');
 const handleMulterError = (err, req, res, next) => {
   if (err) {
     console.error('Multer error:', err);
-    
+
     if (err instanceof multer.MulterError) {
       if (err.code === 'LIMIT_FILE_SIZE') {
         return res.status(400).json({
@@ -65,7 +65,7 @@ const handleMulterError = (err, req, res, next) => {
         });
       }
     }
-    
+
     if (err.message === 'Images only (jpeg, jpg, png)!') {
       return res.status(400).json({
         success: false,
@@ -73,14 +73,14 @@ const handleMulterError = (err, req, res, next) => {
         errors: ['Only JPEG, JPG, and PNG images are allowed']
       });
     }
-    
+
     return res.status(500).json({
       success: false,
       message: 'File upload error',
       errors: [err.message || 'Unknown file upload error']
     });
   }
-  
+
   next();
 };
 
@@ -143,20 +143,20 @@ router.get('/products/check-duplicate', async (req, res) => {
   try {
     const { model, excludeId } = req.query;
     const Product = require('../../models/productSchema');
-    
+
     if (!model) {
       return res.json({ exists: false });
     }
-    
-    const query = { 
+
+    const query = {
       model: { $regex: new RegExp(`^${model.trim()}$`, 'i') },
-      isDeleted: false 
+      isDeleted: false
     };
-    
+
     if (excludeId) {
       query._id = { $ne: excludeId };
     }
-    
+
     const existingProduct = await Product.findOne(query);
     res.json({ exists: !!existingProduct });
   } catch (error) {

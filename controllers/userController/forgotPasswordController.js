@@ -24,7 +24,7 @@ const getForgotPassword = async (req, res) => {
 const postForgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-    
+
     // Validate email input
     if (!email || !email.trim()) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -32,9 +32,9 @@ const postForgotPassword = async (req, res) => {
         message: 'Email is required',
       });
     }
-    
+
     const trimmedEmail = email.trim().toLowerCase();
-    
+
     const user = await User.findOne({ email: trimmedEmail });
     if (!user) {
       return res.status(HttpStatus.NOT_FOUND).json({
@@ -42,30 +42,30 @@ const postForgotPassword = async (req, res) => {
         message: 'Email not exists',
       });
     }
-    
+
     const otpGenerator = () =>
       Math.floor(100000 + Math.random() * 900000).toString();
     const otp = otpGenerator();
-    
+    console.log('Generated OTP for forgot password:', otp); // Essential for development/testing
+
     // Delete any existing OTPs for this email and purpose
     await OTP.deleteMany({ email: trimmedEmail, purpose: 'password-reset' });
-    
+
     const otpDoc = new OTP({
       email: trimmedEmail,
       otp,
       purpose: 'password-reset',
       createdAt: new Date(),
     });
-    
-    console.log('Generated OTP for forgot password:', otp);
+
     await otpDoc.save();
-    
+
     const subjectContent = 'Reset Your Phoenix Password';
     await sendOtpEmail(trimmedEmail, user.fullName, otp, subjectContent, 'forgot-password');
-    
+
     req.session.user_email = trimmedEmail;
     const otpMessage = createOtpMessage(trimmedEmail, 'forgot-password');
-    
+
     return res.status(HttpStatus.OK).json({
       message: otpMessage.message,
       success: true,
@@ -83,14 +83,14 @@ const postForgotPassword = async (req, res) => {
 const resendOtp = async (req, res) => {
   try {
     const email = req.session.user_email;
-    
+
     if (!email) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message: 'Session expired. Please start the password reset process again.',
       });
     }
-    
+
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(HttpStatus.NOT_FOUND).json({
@@ -98,29 +98,29 @@ const resendOtp = async (req, res) => {
         message: 'Email not exists',
       });
     }
-    
+
     const otpGenerator = () =>
       Math.floor(100000 + Math.random() * 900000).toString();
     const otp = otpGenerator();
-    
+
     console.log('New OTP generated:', otp);
-    
+
     await OTP.deleteMany({ email, purpose: 'password-reset' });
-    
+
     const otpDoc = new OTP({
       email,
       otp,
       purpose: 'password-reset',
       createdAt: new Date(),
     });
-    
+
     await otpDoc.save();
-    
+
     const subjectContent = 'New Password Reset Code - Phoenix';
     await sendOtpEmail(email, user.fullName, otp, subjectContent, 'forgot-password');
-    
+
     const otpMessage = createOtpMessage(email, 'resend');
-    
+
     return res.status(HttpStatus.OK).json({
       message: otpMessage.message,
       success: true,
@@ -138,11 +138,11 @@ const resendOtp = async (req, res) => {
 const getOtpForgotPassword = async (req, res) => {
   try {
     const email = req.session.user_email;
-    
+
     if (!email) {
       return res.redirect('/password/forgot');
     }
-    
+
     const otpMessage = createOtpMessage(email, 'forgot-password');
     res.render('otpForgotPassword', {
       maskedEmail: otpMessage.maskedEmail,
@@ -160,7 +160,7 @@ const getOtpForgotPassword = async (req, res) => {
 const verifyOtp = async (req, res) => {
   try {
     const { otp } = req.body;
-    
+
     const otpValidation = validateBasicOtp(otp);
     if (!otpValidation.isValid) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -168,7 +168,7 @@ const verifyOtp = async (req, res) => {
         message: otpValidation.message,
       });
     }
-    
+
     const sessionValidation = validateOtpSession(req, 'password-reset');
     if (!sessionValidation.isValid) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -177,9 +177,9 @@ const verifyOtp = async (req, res) => {
         sessionExpired: sessionValidation.sessionExpired,
       });
     }
-    
+
     console.log('Verifying OTP:', otp);
-    
+
     const email = req.session.user_email;
     const user = await User.findOne({ email });
     if (!user) {
@@ -188,7 +188,7 @@ const verifyOtp = async (req, res) => {
         message: 'User not found',
       });
     }
-    
+
     const otpDoc = await OTP.findOne({ email, purpose: 'password-reset' });
     if (!otpDoc) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -196,16 +196,16 @@ const verifyOtp = async (req, res) => {
         message: 'OTP has expired! Please request a new one',
       });
     }
-    
+
     if (String(otp) !== String(otpDoc.otp)) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message: 'Invalid OTP',
       });
     }
-    
+
     await OTP.deleteOne({ _id: otpDoc._id });
-    
+
     return res.status(HttpStatus.OK).json({
       success: true,
       message: 'OTP verification successful. You can now reset your password',
@@ -231,14 +231,14 @@ const getResetPassword = async (req, res) => {
 const patchResetPassword = async (req, res) => {
   try {
     const { newPassword, confirmPassword } = req.body;
-    
+
     if (newPassword !== confirmPassword) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message: 'Passwords don\'t match',
       });
     }
-    
+
     const email = req.session.user_email;
     const user = await User.findOne({ email });
     if (!user) {
@@ -247,13 +247,13 @@ const patchResetPassword = async (req, res) => {
         message: 'User not found',
       });
     }
-    
+
     const hashedPassword = await hashPasswordHelper.hashPassword(newPassword);
     user.password = hashedPassword;
     await user.save();
-    
+
     req.session.destroy();
-    
+
     return res.status(HttpStatus.OK).json({
       success: true,
       message: 'Password updated successfully. Please login again.',

@@ -69,11 +69,11 @@ const addProduct = async (req, res) => {
       manufacturer,
       isListed,
     } = req.body;
-    
+
     // Check for duplicate product model
-    const existingProduct = await Product.findOne({ 
+    const existingProduct = await Product.findOne({
       model: { $regex: new RegExp(`^${model.trim()}$`, 'i') },
-      isDeleted: false 
+      isDeleted: false
     });
     if (existingProduct) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -82,7 +82,7 @@ const addProduct = async (req, res) => {
         errors: { model: 'A product with this model name already exists' }
       });
     }
-    
+
     const categoryExists = await Category.findById(category);
     if (!categoryExists) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -215,7 +215,7 @@ const getEditProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const productId = req.params.id;
-    
+
     // Check if req.body exists and has data
     if (!req.body || Object.keys(req.body).length === 0) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -224,7 +224,7 @@ const updateProduct = async (req, res) => {
         errors: { general: 'Form data is missing or not properly parsed by multer' }
       });
     }
-    
+
     const {
       model,
       brand,
@@ -237,7 +237,7 @@ const updateProduct = async (req, res) => {
       manufacturer,
       isListed,
     } = req.body;
-    
+
     // Validate required fields
     if (!model || !brand || !description || !category || !regularPrice || !salePrice || !stock || !connectivity || !manufacturer) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -246,7 +246,7 @@ const updateProduct = async (req, res) => {
         errors: { general: 'All fields are required' }
       });
     }
-    
+
     const product = await Product.findById(productId);
     if (!product || product.isDeleted) {
       return res.status(HttpStatus.NOT_FOUND).json({
@@ -255,9 +255,9 @@ const updateProduct = async (req, res) => {
         errors: { general: 'Product not found' }
       });
     }
-    
+
     // Check for duplicate product model (excluding current product)
-    const existingProduct = await Product.findOne({ 
+    const existingProduct = await Product.findOne({
       model: { $regex: new RegExp(`^${model.trim()}$`, 'i') },
       isDeleted: false,
       _id: { $ne: productId }
@@ -269,7 +269,7 @@ const updateProduct = async (req, res) => {
         errors: { model: 'A product with this model name already exists' }
       });
     }
-    
+
     const categoryExists = await Category.findById(category);
     if (!categoryExists) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -278,7 +278,7 @@ const updateProduct = async (req, res) => {
         errors: { category: 'Invalid category selected' }
       });
     }
-    
+
     let mainImageUrl = product.mainImage;
     if (req.files && req.files.mainImage && req.files.mainImage.length > 0) {
       const file = req.files.mainImage[0];
@@ -296,7 +296,7 @@ const updateProduct = async (req, res) => {
         await cloudinary.uploader.destroy(`products/${publicId}`);
       }
     }
-    
+
     const subImages = product.subImages ? [...product.subImages] : [];
     for (let i = 1; i <= 3; i++) {
       const fieldName = `subImage${i}`;
@@ -328,7 +328,7 @@ const updateProduct = async (req, res) => {
         fs.unlinkSync(file.path);
       }
     }
-    
+
     product.model = model.trim();
     product.brand = brand.trim();
     product.description = description;
@@ -341,9 +341,9 @@ const updateProduct = async (req, res) => {
     product.mainImage = mainImageUrl;
     product.subImages = subImages;
     product.isListed = isListed === 'on';
-    
+
     await product.save();
-    
+
     res.status(HttpStatus.OK).json({
       success: true,
       message: 'Product updated successfully!'
