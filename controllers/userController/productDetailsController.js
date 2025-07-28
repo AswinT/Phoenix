@@ -12,19 +12,8 @@ const productDetails = async (req, res) => {
       return res.status(HttpStatus.NOT_FOUND).render('pageNotFound');
     }
     const pricingOptions = [];
-    if (product.salePrice < product.regularPrice) {
-      const saleDiscountAmount = product.regularPrice - product.salePrice;
-      const saleDiscountPercentage = (saleDiscountAmount / product.regularPrice) * 100;
-      pricingOptions.push({
-        type: 'sale',
-        title: 'Sale Price',
-        description: 'Special discounted price',
-        finalPrice: product.salePrice,
-        discountAmount: saleDiscountAmount,
-        discountPercentage: saleDiscountPercentage,
-        offer: null
-      });
-    }
+
+    // Get the best active offer (including automatic Special Offers)
     const activeOffer = await getActiveOfferForProduct(
       product._id,
       product.category._id,
@@ -36,7 +25,7 @@ const productDetails = async (req, res) => {
         product.regularPrice
       );
       pricingOptions.push({
-        type: 'offer',
+        type: activeOffer.isSpecialOffer ? 'special' : 'offer',
         title: activeOffer.title,
         description: activeOffer.description,
         finalPrice: offerFinalPrice,

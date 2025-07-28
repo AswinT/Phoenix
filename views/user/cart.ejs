@@ -176,8 +176,21 @@
                 <span class="summary-value">₹<%= (parseFloat(totalAmount) + parseFloat(totalDiscount)).toFixed(2) %></span>
               </div>
               
-              <!-- Discount -->
-              <% if (totalDiscount > 0) { %>
+              <!-- Offer Breakdown -->
+              <% if (offerBreakdown && offerBreakdown.length > 0) { %>
+                <% offerBreakdown.forEach(offer => { %>
+                  <div class="summary-row discount-row">
+                    <span class="summary-label">
+                      <i class="ri-price-tag-3-line"></i>
+                      <%= offer.title %>
+                      <% if (offer.isSpecialOffer) { %>
+                        <span class="special-offer-badge">Auto</span>
+                      <% } %>
+                    </span>
+                    <span class="summary-value discount-value">-₹<%= offer.discount.toFixed(2) %></span>
+                  </div>
+                <% }) %>
+              <% } else if (totalDiscount > 0) { %>
                 <div class="summary-row discount-row">
                   <span class="summary-label">
                     <i class="ri-price-tag-3-line"></i>

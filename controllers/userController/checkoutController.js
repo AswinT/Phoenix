@@ -341,7 +341,7 @@ const applyCoupon = async (req, res) => {
     }
     const cartItems = cart.items.filter((item) => item.product && item.product.isListed && !item.product.isDeleted);
     for (const item of cartItems) {
-      const offer = await getActiveOfferForProduct(item.product._id, item.product.category);
+      const offer = await getActiveOfferForProduct(item.product._id, item.product.category, item.priceAtAddition);
       if (offer) {
         const { finalPrice } = calculateDiscount(offer, item.priceAtAddition);
         item.discountedPrice = finalPrice;

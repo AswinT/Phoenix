@@ -25,6 +25,9 @@ const getCart = async (req, res) => {
     let totalDiscount = 0;
     let cartCount = 0;
     let wishlistCount = 0;
+    let specialOfferDiscount = 0;
+    let regularOfferDiscount = 0;
+    let offerBreakdown = [];
     if (cart && cart.items.length > 0) {
       cartItems = cart.items.filter(
         (item) => item.product &&
@@ -48,7 +51,30 @@ const getCart = async (req, res) => {
           item.product.regularPrice || item.product.salePrice;
         item.product.salePrice = finalPrice;
         totalAmount += item.quantity * finalPrice;
-        totalDiscount += item.quantity * discountAmount;
+
+        const itemTotalDiscount = item.quantity * discountAmount;
+        totalDiscount += itemTotalDiscount;
+
+        // Track offer types for breakdown
+        if (offer && itemTotalDiscount > 0) {
+          if (offer.isSpecialOffer) {
+            specialOfferDiscount += itemTotalDiscount;
+          } else {
+            regularOfferDiscount += itemTotalDiscount;
+          }
+
+          // Add to offer breakdown
+          const existingOffer = offerBreakdown.find(o => o.title === offer.title);
+          if (existingOffer) {
+            existingOffer.discount += itemTotalDiscount;
+          } else {
+            offerBreakdown.push({
+              title: offer.title,
+              discount: itemTotalDiscount,
+              isSpecialOffer: offer.isSpecialOffer || false
+            });
+          }
+        }
       }
       cartCount = cartItems.length;
     }
@@ -78,6 +104,9 @@ const getCart = async (req, res) => {
       cartItems,
       totalAmount: totalAmount.toFixed(2),
       totalDiscount: totalDiscount.toFixed(2),
+      specialOfferDiscount: specialOfferDiscount.toFixed(2),
+      regularOfferDiscount: regularOfferDiscount.toFixed(2),
+      offerBreakdown,
       relatedProducts,
       cartCount,
       wishlistCount,

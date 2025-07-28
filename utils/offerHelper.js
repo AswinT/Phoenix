@@ -1,16 +1,44 @@
 const Offer = require("../models/offerSchema")
 const Product = require("../models/productSchema")
 
-// Find best active offer for a product
+// Create a virtual Special Offer object when salePrice < regularPrice
+const createSpecialOffer = (regularPrice, salePrice) => {
+  if (!regularPrice || !salePrice || salePrice >= regularPrice) {
+    return null;
+  }
+
+  const discountAmount = regularPrice - salePrice;
+  const discountPercentage = (discountAmount / regularPrice) * 100;
+
+  return {
+    _id: 'special-offer',
+    title: 'Special Offer',
+    description: 'Automatic discount based on sale price',
+    discountType: 'fixed',
+    discountValue: discountAmount,
+    isActive: true,
+    isSpecialOffer: true, // Flag to identify this as an auto-generated special offer
+    appliesTo: 'specific_products',
+    startDate: new Date(),
+    endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year from now
+  };
+};
+
+// Find best active offer for a product (including automatic Special Offers)
 const getActiveOfferForProduct = async (productId, productCategoryId, productPrice) => {
   try {
     const now = new Date()
     let categoryToQuery = productCategoryId
+    let productDoc = null
+
     if (!categoryToQuery && productId) {
-      const productDoc = await Product.findById(productId).select("category").lean()
+      productDoc = await Product.findById(productId).select("category regularPrice salePrice").lean()
       if (productDoc && productDoc.category) {
         categoryToQuery = productDoc.category.toString()
       }
+    } else if (productId && !productDoc) {
+      // Get product details for Special Offer detection
+      productDoc = await Product.findById(productId).select("regularPrice salePrice").lean()
     }
     // Build query for different offer types
     const offerQueryConditions = []
@@ -34,22 +62,49 @@ const getActiveOfferForProduct = async (productId, productCategoryId, productPri
       startDate: { $lte: now },
       endDate: { $gte: now },
     }).lean()
-    if (!potentialOffers || potentialOffers.length === 0) {
+
+    // Check for automatic Special Offer (salePrice < regularPrice)
+    let specialOffer = null
+    if (productDoc && productDoc.regularPrice && productDoc.salePrice) {
+      specialOffer = createSpecialOffer(productDoc.regularPrice, productDoc.salePrice)
+    }
+
+    // Combine manual offers with special offer
+    const allOffers = [...(potentialOffers || [])]
+    if (specialOffer) {
+      allOffers.push(specialOffer)
+    }
+
+    if (!allOffers || allOffers.length === 0) {
       return null
     }
+
     // Find offer with highest discount
     let bestOffer = null
     let bestDiscountAmount = 0
-    for (const offer of potentialOffers) {
-      const discountInfo = calculateDiscount(offer, productPrice)
+    const basePrice = productPrice || (productDoc ? productDoc.regularPrice : 0)
+
+    for (const offer of allOffers) {
+      const discountInfo = calculateDiscount(offer, basePrice)
       if (discountInfo.discountAmount > bestDiscountAmount) {
         bestOffer = offer
         bestDiscountAmount = discountInfo.discountAmount
       } else if (discountInfo.discountAmount === bestDiscountAmount && bestOffer) {
-        const currentPriority = getOfferPriority(bestOffer)
-        const newPriority = getOfferPriority(offer)
-        if (newPriority < currentPriority) {
+        // For equal discounts, prioritize Special Offers over manual offers
+        if (offer.isSpecialOffer && !bestOffer.isSpecialOffer) {
           bestOffer = offer
+        } else if (!offer.isSpecialOffer && bestOffer.isSpecialOffer) {
+          // Keep the special offer
+          continue
+        } else {
+          // Both are same type, use priority system for manual offers
+          if (!offer.isSpecialOffer && !bestOffer.isSpecialOffer) {
+            const currentPriority = getOfferPriority(bestOffer)
+            const newPriority = getOfferPriority(offer)
+            if (newPriority < currentPriority) {
+              bestOffer = offer
+            }
+          }
         }
       }
     }
@@ -434,5 +489,6 @@ module.exports = {
   getItemPriceDetails,
   calculateFinalItemPrice,
   getUnifiedPriceBreakdown,
-  reapplyCouponBenefitsAfterCancellation
+  reapplyCouponBenefitsAfterCancellation,
+  createSpecialOffer
 }
