@@ -109,6 +109,21 @@
       </div>
     </div>
     <script>
+      // Check for error parameters in URL
+      document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+
+        if (error === 'admin_blocked') {
+          Swal.fire({
+            icon: 'error',
+            title: 'Account Blocked',
+            text: 'Your admin account has been blocked. Please contact support.',
+            confirmButtonText: 'OK'
+          });
+        }
+      });
+
       // Password toggle functionality
       document.querySelectorAll('.toggle-password').forEach(button => {
         button.addEventListener('click', function() {

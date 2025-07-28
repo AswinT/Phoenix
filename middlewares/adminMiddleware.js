@@ -7,6 +7,28 @@ const adminMiddleware = {
       if (req.session?.admin_id) {
         const admin = await User.findOne({ _id: req.session.admin_id, isAdmin: true });
         if (admin) {
+          // Check if admin is blocked
+          if (admin.isBlocked) {
+            // Admin is blocked - destroy session and redirect
+            req.session.destroy((err) => {
+              if (err) {
+                console.error('Error destroying admin session:', err);
+              }
+            });
+
+            // Check if this is an AJAX request
+            if (req.xhr || req.headers.accept?.indexOf('json') > -1 || req.headers['content-type']?.includes('multipart/form-data')) {
+              return res.status(HttpStatus.FORBIDDEN).json({
+                success: false,
+                message: 'Admin account has been blocked',
+                errors: ['Your admin account has been blocked. Please contact support.'],
+                redirect: '/admin/auth/login'
+              });
+            }
+
+            return res.redirect('/admin/auth/login?error=admin_blocked');
+          }
+
           res.locals.admin = admin;
           return next();
         }
@@ -45,6 +67,16 @@ const adminMiddleware = {
       if (req.session?.admin_id) {
         const admin = await User.findOne({ _id: req.session.admin_id, isAdmin: true });
         if (admin) {
+          // Check if admin is blocked
+          if (admin.isBlocked) {
+            // Admin is blocked - destroy session and continue to login
+            req.session.destroy((err) => {
+              if (err) {
+                console.error('Error destroying admin session:', err);
+              }
+            });
+            return next();
+          }
           return res.redirect('/admin/dashboard');
         }
       }

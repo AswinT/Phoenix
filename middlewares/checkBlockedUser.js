@@ -6,20 +6,28 @@ const checkBlockedUser = async (req, res, next) => {
     // Verify user exists and is not blocked
     if (req.session && req.session.user_id) {
       const user = await User.findById(req.session.user_id).lean();
-      // User not found - destroy session
+      // User not found - remove only user_id from session (preserve admin_id if exists)
       if (!user) {
-        req.session.destroy((err) => {
+        delete req.session.user_id;
+        delete req.session.user_email;
+        // Save session to persist changes
+        req.session.save((err) => {
           if (err) {
-            console.error('Error destroying session:', err);
+            console.error('Error saving session after removing user_id:', err);
           }
         });
         return res.redirect('/login?error=account_not_found');
       }
-      // User is blocked - destroy session
+      // User is blocked - remove only user_id from session (preserve admin_id if exists)
       if (user.isBlocked) {
-        req.session.destroy((err) => {
+        delete req.session.user_id;
+        delete req.session.user_email;
+        // Set flag for frontend to show blocked alert
+        req.session.showBlockedAlert = true;
+        // Save session to persist changes
+        req.session.save((err) => {
           if (err) {
-            console.error('Error destroying session:', err);
+            console.error('Error saving session after removing user_id:', err);
           }
         });
         return res.redirect('/login?error=blocked');
@@ -29,9 +37,12 @@ const checkBlockedUser = async (req, res, next) => {
   } catch (error) {
     console.error('Error checking blocked user:', error);
     if (req.session && req.session.user_id) {
-      req.session.destroy((err) => {
+      delete req.session.user_id;
+      delete req.session.user_email;
+      // Save session to persist changes
+      req.session.save((err) => {
         if (err) {
-          console.error('Error destroying session:', err);
+          console.error('Error saving session after removing user_id:', err);
         }
       });
       return res.redirect('/login?error=auth_error');

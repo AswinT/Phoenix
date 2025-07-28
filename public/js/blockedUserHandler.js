@@ -1,11 +1,32 @@
 /**
  * Global Blocked User Handler
  * Automatically handles blocked user responses from AJAX requests
- * and redirects them to login page with appropriate error message
+ * Shows SweetAlert popup and redirects them to login page
  */
 
 (function() {
   'use strict';
+
+  // Function to show blocked user alert
+  function showBlockedUserAlert() {
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        icon: 'error',
+        title: 'Account Blocked',
+        text: 'Your account has been blocked by the administrator. Please contact support for assistance.',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#1B3C53',
+        allowOutsideClick: false,
+        allowEscapeKey: false
+      }).then(() => {
+        window.location.href = '/login?error=blocked';
+      });
+    } else {
+      // Fallback if SweetAlert is not available
+      alert('Your account has been blocked by the administrator. Please contact support for assistance.');
+      window.location.href = '/login?error=blocked';
+    }
+  }
 
   // Store original fetch function
   const originalFetch = window.fetch;
@@ -14,21 +35,21 @@
   window.fetch = async function(...args) {
     try {
       const response = await originalFetch.apply(this, args);
-      
+
       // Check if response indicates user is blocked
       if (response.status === 403) {
         const contentType = response.headers.get('content-type');
-        
+
         if (contentType && contentType.includes('application/json')) {
           // Clone response to read it without consuming the original
           const clonedResponse = response.clone();
-          
+
           try {
             const data = await clonedResponse.json();
-            
+
             if (data.blocked || (data.message && data.message.includes('blocked'))) {
-              // User is blocked, redirect to login with error
-              window.location.href = '/login?error=blocked';
+              // User is blocked, show alert and redirect
+              showBlockedUserAlert();
               return response; // Return original response
             }
           } catch (e) {
@@ -36,7 +57,7 @@
           }
         }
       }
-      
+
       return response;
     } catch (error) {
       throw error;
@@ -70,8 +91,8 @@
               const responseData = JSON.parse(xhr.responseText);
               
               if (responseData.blocked || (responseData.message && responseData.message.includes('blocked'))) {
-                // User is blocked, redirect to login with error
-                window.location.href = '/login?error=blocked';
+                // User is blocked, show alert and redirect
+                showBlockedUserAlert();
                 return;
               }
             }
@@ -101,8 +122,8 @@
             const responseData = JSON.parse(xhr.responseText);
             
             if (responseData.blocked || (responseData.message && responseData.message.includes('blocked'))) {
-              // User is blocked, redirect to login with error
-              window.location.href = '/login?error=blocked';
+              // User is blocked, show alert and redirect
+              showBlockedUserAlert();
             }
           }
         } catch (e) {
@@ -123,14 +144,51 @@
           const data = error.response.data;
           
           if (data && (data.blocked || (data.message && data.message.includes('blocked')))) {
-            // User is blocked, redirect to login with error
-            window.location.href = '/login?error=blocked';
+            // User is blocked, show alert and redirect
+            showBlockedUserAlert();
           }
         }
         
         return Promise.reject(error);
       }
     );
+  }
+
+  // Handle page redirects with blocked user alerts
+  document.addEventListener('DOMContentLoaded', function() {
+    // Skip handling on login pages as they have their own blocked user handling
+    if (window.location.pathname === '/login' ||
+        window.location.pathname === '/auth/login' ||
+        window.location.pathname.includes('/login')) {
+      return;
+    }
+
+    // For non-login pages, check if user was just blocked and redirected
+    const wasBlocked = sessionStorage.getItem('userWasBlocked');
+    if (wasBlocked === 'true') {
+      sessionStorage.removeItem('userWasBlocked');
+      showBlockedUserAlert();
+    }
+  });
+
+  // Intercept regular page navigation for blocked users
+  const originalPushState = history.pushState;
+  const originalReplaceState = history.replaceState;
+
+  history.pushState = function(...args) {
+    checkForBlockedRedirect(args[2]);
+    return originalPushState.apply(this, args);
+  };
+
+  history.replaceState = function(...args) {
+    checkForBlockedRedirect(args[2]);
+    return originalReplaceState.apply(this, args);
+  };
+
+  function checkForBlockedRedirect(url) {
+    if (url && url.includes('/login?error=blocked')) {
+      sessionStorage.setItem('userWasBlocked', 'true');
+    }
   }
 
   console.log('Blocked User Handler initialized');

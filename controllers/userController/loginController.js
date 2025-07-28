@@ -11,7 +11,14 @@ const getLogin = async (req, res) => {
     );
     res.header('Pragma', 'no-cache');
     res.header('Expires', '0');
-    res.render('login');
+
+    // Check if user was blocked and should see alert
+    const showBlockedAlert = req.session.showBlockedAlert || false;
+    if (req.session.showBlockedAlert) {
+      delete req.session.showBlockedAlert; // Clear the flag after reading
+    }
+
+    res.render('login', { showBlockedAlert });
   } catch {
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,

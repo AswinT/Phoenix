@@ -245,6 +245,20 @@
         });
       }
 
+      // Check for server-side blocked alert flag
+      <% if (locals.showBlockedAlert) { %>
+      // Show blocked alert immediately when page loads
+      Swal.fire({
+        icon: "error",
+        title: "Account Blocked",
+        text: "Your account has been blocked by the administrator. Please contact support for assistance.",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#1B3C53",
+        allowOutsideClick: false,
+        allowEscapeKey: false
+      });
+      <% } %>
+
       // Validation styling functions
       function setInvalid(element) {
         element.classList.add("is-invalid");
