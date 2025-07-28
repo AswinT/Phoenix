@@ -793,6 +793,22 @@
         border-radius: 0.375rem;
         color: #842029;
       }
+
+      /* Breadcrumb Styles */
+      .breadcrumbs {
+        margin-bottom: 20px;
+      }
+      .breadcrumbs a {
+        color: #6c757d;
+        text-decoration: none;
+      }
+      .breadcrumbs a:hover {
+        color: #6f42c1;
+      }
+      .breadcrumbs .active {
+        color: #212529;
+        font-weight: 500;
+      }
     </style>
   </head>
   <body>
@@ -800,9 +816,24 @@
       <%- include('../partials/admin/sidebar') %>
 
       <div class="main-content">
+        <!-- Breadcrumb Navigation -->
+        <nav aria-label="breadcrumb" class="breadcrumbs mb-3">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+              <a href="/admin/dashboard">Dashboard</a>
+            </li>
+            <li class="breadcrumb-item">
+              <a href="/admin/orders">Orders</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+              Order #<%= order.orderNumber %>
+            </li>
+          </ol>
+        </nav>
+
         <div class="header">
           <div>
-            <a href="/admin/getOrders" class="back-button">
+            <a href="/admin/orders" class="back-button">
               <i class="ri-arrow-left-line"></i> Back to Orders
             </a>
             <h1

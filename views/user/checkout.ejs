@@ -96,15 +96,7 @@
                 <button class="fix-all-btn" id="fixAllStockIssues" type="button">Fix All</button>
               </div>
             </div>
-            <!-- Debug info -->
-            <div style="background: #f0f0f0; padding: 10px; margin: 10px 0; font-size: 12px; border-radius: 4px;">
-              <strong>Debug Info:</strong><br>
-              Stock Conflicts: <%= stockConflicts.length %><br>
-              <% stockConflicts.forEach((conflict, index) => { %>
-                <%= index + 1 %>. <%= conflict.model %>: <%= conflict.requestedQuantity %> → <%= conflict.availableStock %><br>
-              <% }) %>
-              <button onclick="testFixAllAPI()" style="margin-top: 5px; padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">Test API Directly</button>
-            </div>
+
             <% } %>
 
             <div class="cart-items-review">
@@ -786,6 +778,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="/js/validationErrorHandler.js"></script>
 
 <script>
 // Checkout functionality will go here
@@ -940,26 +933,84 @@ function setupCouponFunctionality() {
 
 function setupOrderPlacement() {
   document.getElementById('placeOrderBtn').addEventListener('click', function() {
-    // Validate all selections
-    const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
-    const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
-    
-    if (!selectedAddress) {
-      showNotification('error', 'Please select a delivery address');
-      goToStep(2);
+    // Comprehensive validation before order placement
+    const validationResult = validateCheckoutForm();
+
+    if (!validationResult.isValid) {
+      // Show specific error and navigate to appropriate step
+      showNotification('error', validationResult.message);
+      if (validationResult.step) {
+        goToStep(validationResult.step);
+      }
       return;
     }
-    
-    if (!selectedPayment) {
-      showNotification('error', 'Please select a payment method');
-      goToStep(3);
+
+    // Additional validation for cart items
+    if (!validateCartItems()) {
+      showNotification('error', 'Your cart appears to be empty or invalid');
       return;
     }
-    
+
     // Place order based on payment method
-    const paymentMethod = selectedPayment.value;
+    const paymentMethod = validationResult.paymentMethod;
     placeOrder(paymentMethod);
   });
+}
+
+// Comprehensive checkout form validation
+function validateCheckoutForm() {
+  const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+  const selectedPayment = document.querySelector('input[name="paymentMethod"]:checked');
+
+  // Address validation
+  if (!selectedAddress) {
+    return {
+      isValid: false,
+      message: 'Please select a delivery address',
+      step: 2
+    };
+  }
+
+  // Validate address data integrity
+  const addressCard = selectedAddress.closest('.address-card');
+  if (!addressCard) {
+    return {
+      isValid: false,
+      message: 'Selected address data is invalid',
+      step: 2
+    };
+  }
+
+  // Payment method validation
+  if (!selectedPayment) {
+    return {
+      isValid: false,
+      message: 'Please select a payment method',
+      step: 3
+    };
+  }
+
+  // Validate payment method value
+  const paymentMethod = selectedPayment.value;
+  const validPaymentMethods = ['cod', 'razorpay', 'wallet'];
+  if (!validPaymentMethods.includes(paymentMethod)) {
+    return {
+      isValid: false,
+      message: 'Invalid payment method selected',
+      step: 3
+    };
+  }
+
+  return {
+    isValid: true,
+    paymentMethod: paymentMethod
+  };
+}
+
+// Validate cart items
+function validateCartItems() {
+  const cartItems = document.querySelectorAll('.cart-item');
+  return cartItems.length > 0;
 }
 
 // Helper functions

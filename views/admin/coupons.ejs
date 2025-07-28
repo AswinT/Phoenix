@@ -1,5 +1,17 @@
 <%- include('../partials/admin/sidebar') %>
 <div class="main-content">
+  <!-- Breadcrumb Navigation -->
+  <nav aria-label="breadcrumb" class="breadcrumbs mb-3">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="/admin/dashboard">Dashboard</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Coupons
+      </li>
+    </ol>
+  </nav>
+
   <div class="page-header d-flex justify-content-between align-items-center">
     <div>
       <h1 class="page-title">Manage Coupons</h1>
@@ -446,6 +458,22 @@
 </div>
 
 <style>
+  /* Breadcrumb Styles */
+  .breadcrumbs {
+    margin-bottom: 20px;
+  }
+  .breadcrumbs a {
+    color: #6c757d;
+    text-decoration: none;
+  }
+  .breadcrumbs a:hover {
+    color: #6f42c1;
+  }
+  .breadcrumbs .active {
+    color: #212529;
+    font-weight: 500;
+  }
+
   /* Additional CSS for the Coupon page */
   .content-card {
     background-color: #fff;

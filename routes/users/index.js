@@ -11,9 +11,12 @@ const referralController = require('../../controllers/userController/referralCon
 // Import middleware
 const { isAuthenticated } = require('../../middlewares/authMiddleware');
 
+// Import validators
+const { profileUpdateValidator } = require('../../validators/user/profileValidator');
+
 // User Profile Routes
 router.get('/profile', isAuthenticated, profileController.getProfile);
-router.patch('/profile', isAuthenticated, profileController.updateProfile);
+router.patch('/profile', isAuthenticated, profileUpdateValidator, profileController.updateProfile);
 router.post('/profile/image', isAuthenticated, profileController.uploadProfileImage);
 router.post('/profile/email/request', isAuthenticated, profileController.requestEmailUpdate);
 router.post('/profile/email/verify', isAuthenticated, profileController.verifyEmailOtp);

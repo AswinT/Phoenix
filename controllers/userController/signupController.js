@@ -28,7 +28,7 @@ const getOtp = async (req, res) => {
       otpMessage: `We've sent a verification code to ${maskedEmail}. Please enter the code to continue.`
     });
   } catch (error) {
-    console.log('error during render', error);
+    console.error('Error during render:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Server error' });
   }
 };
@@ -204,7 +204,7 @@ const verifyOtp = async (req, res) => {
       message: 'Account created successfully',
     });
   } catch (error) {
-    console.log('Error in verifyOtp:', error);
+    console.error('Error in verifyOtp:', error);
     return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: 'Internal Server Error',

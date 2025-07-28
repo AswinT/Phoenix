@@ -6,7 +6,6 @@ const googleController = (req, res, next) => {
       return next(err);
     }
     if (!user) {
-      console.log('Google auth failed:', info?.message || 'No user found');
       if (info?.message?.includes('blocked')) {
         return res.redirect('/login?error=blocked');
       }
@@ -17,10 +16,8 @@ const googleController = (req, res, next) => {
         console.error('Login error:', err);
         return next(err);
       }
-      console.log('Google auth successful, user:', user.email);
       req.session.user_id = user._id;
       req.session.user_email = user.email;
-      console.log('Setting session user_id:', req.session.user_id);
       res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
       res.header('Pragma', 'no-cache');
       res.header('Expires', '0');
@@ -29,7 +26,6 @@ const googleController = (req, res, next) => {
           console.error('Session save error:', err);
           return next(err);
         }
-        console.log('Session saved, redirecting to home');
         return res.redirect('/');
       });
     });

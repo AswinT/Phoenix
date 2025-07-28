@@ -18,7 +18,7 @@ const loadHomePage = async (req, res) => {
       console.error('Failed to load categories:', categoryError);
       // Continue with empty categories array to prevent complete page failure
     }
-    const LIMIT = 4;
+    const LIMIT = 12;
     const topSellingProductsRaw = await Product.find({ isListed: true, isDeleted: false })
       .populate({
         path: 'category',

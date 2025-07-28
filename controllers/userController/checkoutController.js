@@ -316,7 +316,15 @@ const applyCoupon = async (req, res) => {
     if (!userId) {
       return res.status(401).json({ success: false, message: 'Please log in to apply a coupon' });
     }
-    const coupon = await Coupon.findOne({ code: couponCode.toUpperCase() });
+    // Validate and sanitize coupon code
+    if (!couponCode || typeof couponCode !== 'string') {
+      return res.status(400).json({ success: false, message: 'Please enter a valid coupon code' });
+    }
+    const sanitizedCouponCode = couponCode.trim().toUpperCase();
+    if (!sanitizedCouponCode) {
+      return res.status(400).json({ success: false, message: 'Please enter a valid coupon code' });
+    }
+    const coupon = await Coupon.findOne({ code: sanitizedCouponCode });
     if (!coupon) {
       return res.status(404).json({ success: false, message: 'Invalid coupon code' });
     }

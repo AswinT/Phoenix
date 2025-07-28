@@ -65,6 +65,7 @@
               action="/contact"
               method="POST"
               class="contact-form"
+              data-validation="true"
             >
               <div class="form-row">
                 <div class="form-group">
@@ -482,6 +483,7 @@
 <%- include("../partials/user/footer") %>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/js/validationErrorHandler.js"></script>
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
@@ -554,6 +556,11 @@
           showNotification("error", error);
         }
       });
+    }
+
+    // Initialize ValidationErrorHandler for contact form
+    if (window.ValidationErrorHandler) {
+      window.ValidationErrorHandler.addRealTimeValidation(contactForm);
     }
 
     contactForm.addEventListener("submit", async function (e) {

@@ -97,7 +97,7 @@ const getOrderDetails = async (req, res) => {
       })
       .lean();
     if (!order) {
-      return res.redirect('/admin/getOrders');
+      return res.redirect('/admin/orders');
     }
     order.formattedDate = new Date(order.createdAt).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -317,7 +317,7 @@ const getOrderDetails = async (req, res) => {
     });
   } catch (error) {
     console.error('Error in getOrderDetails:', error);
-    res.redirect('/admin/getOrders');
+    res.redirect('/admin/orders');
   }
 };
 const updateOrderStatus = async (req, res) => {

@@ -32,6 +32,7 @@ const {
   validateCreateCoupon,
   validateUpdateCoupon
 } = require('../../validators/admin/couponValidator');
+const { adminLoginValidator } = require('../../validators/admin/adminLoginValidator');
 
 // Import middleware
 const { isAdminAuthenticated, isAdminNotAuthenticated, preventCache } = require('../../middlewares/adminMiddleware');
@@ -86,7 +87,7 @@ const handleMulterError = (err, req, res, next) => {
 
 // Authentication Routes
 router.get('/auth/login', isAdminNotAuthenticated, preventCache, adminController.getAdminLogin);
-router.post('/auth/login', isAdminNotAuthenticated, adminController.postAdminLogin);
+router.post('/auth/login', isAdminNotAuthenticated, adminLoginValidator, adminController.postAdminLogin);
 router.get('/auth/logout', isAdminAuthenticated, adminController.logoutAdminDashboard);
 
 // Apply authentication middleware to all routes below

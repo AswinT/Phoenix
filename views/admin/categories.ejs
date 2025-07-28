@@ -26,6 +26,23 @@
     />
     <link rel="stylesheet" href="/styles/admin/category.css" />
     <link rel="stylesheet" href="/styles/user/cart.css" />
+    <style>
+      /* Breadcrumb Styles */
+      .breadcrumbs {
+        margin-bottom: 20px;
+      }
+      .breadcrumbs a {
+        color: #6c757d;
+        text-decoration: none;
+      }
+      .breadcrumbs a:hover {
+        color: #6f42c1;
+      }
+      .breadcrumbs .active {
+        color: #212529;
+        font-weight: 500;
+      }
+    </style>
   </head>
   <body>
     <!-- Include Sidebar Partial -->
@@ -33,6 +50,18 @@
 
     <!-- Main Content -->
     <div class="main-content">
+      <!-- Breadcrumb Navigation -->
+      <nav aria-label="breadcrumb" class="breadcrumbs mb-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a href="/admin/dashboard">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">
+            Categories
+          </li>
+        </ol>
+      </nav>
+
       <div
         class="page-header d-flex justify-content-between align-items-center"
       >
@@ -360,6 +389,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
+    <script src="/js/validationErrorHandler.js"></script>
     <script>
       // Toggle sidebar,on mobile
       document

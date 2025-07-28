@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const path = require("path");
-const env = require("dotenv").config();
+require("dotenv").config();
 const session = require("express-session");
 const connectDB = require("./config/db");
 // Import hierarchical routing system
@@ -64,4 +64,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
-module.exports.app;
+module.exports = app;
