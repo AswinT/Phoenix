@@ -1009,8 +1009,23 @@ function validateCheckoutForm() {
 
 // Validate cart items
 function validateCartItems() {
-  const cartItems = document.querySelectorAll('.cart-item');
-  return cartItems.length > 0;
+  const cartItems = document.querySelectorAll('.cart-review-item');
+
+  // Additional validation to ensure items have valid product data
+  if (cartItems.length === 0) {
+    return false;
+  }
+
+  // Check if any items have missing product data
+  let validItems = 0;
+  cartItems.forEach((item) => {
+    const productId = item.getAttribute('data-product-id');
+    if (productId && productId !== '') {
+      validItems++;
+    }
+  });
+
+  return validItems > 0;
 }
 
 // Helper functions
@@ -1240,21 +1255,30 @@ async function verifyRazorpayPayment(response) {
 }
 
 async function processDirectPayment(orderData) {
-  const response = await fetch('/api/checkout/place-order', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(orderData)
-  });
-  
-  const data = await response.json();
-  
-  if (data.success) {
-    showNotification('success', 'Order placed successfully!');
-    setTimeout(() => {
-      window.location.href = `/order-success/${data.orderId}`;
-    }, 2000);
-  } else {
-    showNotification('error', data.message);
+  try {
+    const response = await fetch('/api/checkout/place-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderData)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (data.success) {
+      showNotification('success', 'Order placed successfully!');
+      setTimeout(() => {
+        window.location.href = `/order-success/${data.orderId}`;
+      }, 2000);
+    } else {
+      showNotification('error', data.message || 'Failed to place order');
+    }
+  } catch (error) {
+    console.error('Error placing order:', error);
+    showNotification('error', 'Failed to place order. Please try again.');
   }
 }
 

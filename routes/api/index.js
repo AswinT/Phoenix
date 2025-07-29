@@ -65,6 +65,7 @@ router.get('/checkout/current-total', isAuthenticated, checkoutController.getCur
 router.post('/checkout/apply-coupon', isAuthenticated, checkoutController.applyCoupon);
 router.post('/checkout/remove-coupon', isAuthenticated, checkoutController.removeCoupon);
 router.post('/checkout/adjust-quantities', isAuthenticated, checkoutController.adjustCartQuantities);
+router.post('/checkout/place-order', isAuthenticated, checkoutController.placeOrder);
 router.post('/checkout/create-payment', isAuthenticated, checkoutController.createRazorpayOrder);
 router.post('/checkout/verify-payment', isAuthenticated, checkoutController.verifyRazorpayPayment);
 router.post('/checkout/payment-failure', isAuthenticated, checkoutController.handlePaymentFailure);

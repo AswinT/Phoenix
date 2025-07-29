@@ -561,166 +561,6 @@
 <%- include("../partials/user/footer") %>
 
 <script>
-  // Global variables for price validation
-  let minPriceInput, maxPriceInput, minPriceError, maxPriceError, priceRangeError;
-
-  // Validation configuration
-  const PRICE_CONFIG = {
-    MIN_VALUE: 0,
-    MAX_VALUE: 1000000,
-    MIN_RANGE_GAP: 10,
-    DECIMAL_PLACES: 2
-  };
-
-  // Individual input validation functions
-  function validateMinPrice(value, maxValue = null) {
-    const errors = [];
-    const numValue = parseFloat(value);
-
-    if (value === '' || value === null || value === undefined) {
-      return { isValid: true, value: PRICE_CONFIG.MIN_VALUE, errors: [] };
-    }
-
-    if (isNaN(numValue)) {
-      errors.push('Must be a valid number');
-      return { isValid: false, value: PRICE_CONFIG.MIN_VALUE, errors };
-    }
-
-    if (numValue < PRICE_CONFIG.MIN_VALUE) {
-      errors.push('Cannot be negative');
-      return { isValid: false, value: PRICE_CONFIG.MIN_VALUE, errors };
-    }
-
-    if (numValue > PRICE_CONFIG.MAX_VALUE) {
-      errors.push(`Cannot exceed ₹${PRICE_CONFIG.MAX_VALUE.toLocaleString()}`);
-      return { isValid: false, value: PRICE_CONFIG.MAX_VALUE, errors };
-    }
-
-    if (maxValue !== null && numValue > maxValue) {
-      errors.push('Cannot be greater than maximum price');
-      return { isValid: false, value: numValue, errors };
-    }
-
-    // Round to specified decimal places
-    const roundedValue = Math.round(numValue * Math.pow(10, PRICE_CONFIG.DECIMAL_PLACES)) / Math.pow(10, PRICE_CONFIG.DECIMAL_PLACES);
-
-    return { isValid: true, value: roundedValue, errors: [] };
-  }
-
-  function validateMaxPrice(value, minValue = null) {
-    const errors = [];
-    const numValue = parseFloat(value);
-
-    if (value === '' || value === null || value === undefined) {
-      return { isValid: true, value: 50000, errors: [] };
-    }
-
-    if (isNaN(numValue)) {
-      errors.push('Must be a valid number');
-      return { isValid: false, value: 50000, errors };
-    }
-
-    if (numValue < PRICE_CONFIG.MIN_VALUE) {
-      errors.push('Cannot be negative');
-      return { isValid: false, value: 50000, errors };
-    }
-
-    if (numValue > PRICE_CONFIG.MAX_VALUE) {
-      errors.push(`Cannot exceed ₹${PRICE_CONFIG.MAX_VALUE.toLocaleString()}`);
-      return { isValid: false, value: PRICE_CONFIG.MAX_VALUE, errors };
-    }
-
-    if (minValue !== null && numValue < minValue) {
-      errors.push('Cannot be less than minimum price');
-      return { isValid: false, value: numValue, errors };
-    }
-
-    // Round to specified decimal places
-    const roundedValue = Math.round(numValue * Math.pow(10, PRICE_CONFIG.DECIMAL_PLACES)) / Math.pow(10, PRICE_CONFIG.DECIMAL_PLACES);
-
-    return { isValid: true, value: roundedValue, errors: [] };
-  }
-
-  // Comprehensive price range validation
-  function validatePriceRange() {
-    const minValue = minPriceInput ? minPriceInput.value.trim() : document.getElementById('minPriceInput').value.trim();
-    const maxValue = maxPriceInput ? maxPriceInput.value.trim() : document.getElementById('maxPriceInput').value.trim();
-
-    const minValidation = validateMinPrice(minValue);
-    const maxValidation = validateMaxPrice(maxValue);
-
-    let finalMinPrice = minValidation.value;
-    let finalMaxPrice = maxValidation.value;
-    let allErrors = [];
-    let isValid = true;
-
-    // Collect individual input errors
-    if (!minValidation.isValid) {
-      isValid = false;
-      allErrors = allErrors.concat(minValidation.errors.map(err => `Min price: ${err}`));
-    }
-
-    if (!maxValidation.isValid) {
-      isValid = false;
-      allErrors = allErrors.concat(maxValidation.errors.map(err => `Max price: ${err}`));
-    }
-
-    // Cross-validation between min and max
-    if (minValidation.isValid && maxValidation.isValid) {
-      if (finalMinPrice > finalMaxPrice) {
-        isValid = false;
-        allErrors.push('Minimum price cannot be greater than maximum price');
-      }
-    }
-
-    return {
-      isValid,
-      minPrice: finalMinPrice,
-      maxPrice: finalMaxPrice,
-      errors: allErrors
-    };
-  }
-
-  // Enhanced toast notification system
-  function showPriceToast(type, title, message, duration = 4000) {
-    // Remove existing toasts
-    const existingToasts = document.querySelectorAll('.price-toast');
-    existingToasts.forEach(toast => toast.remove());
-
-    // Create toast element
-    const toast = document.createElement('div');
-    toast.className = `price-toast ${type}`;
-
-    const iconMap = {
-      error: 'ri-error-warning-line',
-      warning: 'ri-alert-line',
-      success: 'ri-check-line',
-      info: 'ri-information-line'
-    };
-
-    toast.innerHTML = `
-      <button class="price-toast-close" onclick="this.parentElement.remove()">×</button>
-      <div class="price-toast-header">
-        <i class="${iconMap[type] || iconMap.info}"></i>
-        ${title}
-      </div>
-      <div class="price-toast-body">${message}</div>
-    `;
-
-    document.body.appendChild(toast);
-
-    // Trigger show animation
-    setTimeout(() => toast.classList.add('show'), 100);
-
-    // Auto remove
-    setTimeout(() => {
-      if (toast.parentNode) {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 300);
-      }
-    }, duration);
-  }
-
   // Filter functions for server-side filtering and pagination
   function applyFilters() {
     const url = new URL(window.location.href);
@@ -768,17 +608,13 @@
         applyButton.disabled = false;
       }
 
-      // Get current input elements
-      const currentMinInput = minPriceInput || document.getElementById('minPriceInput');
-      const currentMaxInput = maxPriceInput || document.getElementById('maxPriceInput');
-
       // Focus on first invalid input for accessibility
-      if (currentMinInput && currentMinInput.classList.contains('error')) {
-        currentMinInput.focus();
-        currentMinInput.setAttribute('aria-invalid', 'true');
-      } else if (currentMaxInput && currentMaxInput.classList.contains('error')) {
-        currentMaxInput.focus();
-        currentMaxInput.setAttribute('aria-invalid', 'true');
+      if (minPriceInput.classList.contains('error')) {
+        minPriceInput.focus();
+        minPriceInput.setAttribute('aria-invalid', 'true');
+      } else if (maxPriceInput.classList.contains('error')) {
+        maxPriceInput.focus();
+        maxPriceInput.setAttribute('aria-invalid', 'true');
       }
 
       showPriceToast('error', 'Price Validation Error', priceValidation.errors.join(', '));
@@ -796,11 +632,8 @@
     }
 
     // Clear any previous validation states
-    const currentMinInput = minPriceInput || document.getElementById('minPriceInput');
-    const currentMaxInput = maxPriceInput || document.getElementById('maxPriceInput');
-    
-    if (currentMinInput) currentMinInput.removeAttribute('aria-invalid');
-    if (currentMaxInput) currentMaxInput.removeAttribute('aria-invalid');
+    minPriceInput.removeAttribute('aria-invalid');
+    maxPriceInput.removeAttribute('aria-invalid');
 
     const minPrice = priceValidation.minPrice;
     const maxPrice = priceValidation.maxPrice;
@@ -840,36 +673,19 @@
     document.getElementById('minPriceInput').value = 0;
     document.getElementById('maxPriceInput').value = 50000;
 
-    // Get current input elements
-    const currentMinInput = minPriceInput || document.getElementById('minPriceInput');
-    const currentMaxInput = maxPriceInput || document.getElementById('maxPriceInput');
-    const currentMinError = minPriceError || document.getElementById('minPriceError');
-    const currentMaxError = maxPriceError || document.getElementById('maxPriceError');
-    const currentRangeError = priceRangeError || document.getElementById('priceRangeError');
-
     // Clear validation states
-    if (currentMinInput) {
-      currentMinInput.classList.remove('error', 'success');
-      currentMinInput.removeAttribute('aria-invalid');
-    }
-    if (currentMaxInput) {
-      currentMaxInput.classList.remove('error', 'success');
-      currentMaxInput.removeAttribute('aria-invalid');
-    }
+    minPriceInput.classList.remove('error', 'success');
+    maxPriceInput.classList.remove('error', 'success');
+    minPriceInput.removeAttribute('aria-invalid');
+    maxPriceInput.removeAttribute('aria-invalid');
 
     // Clear error messages
-    if (currentMinError) {
-      currentMinError.classList.remove('show');
-      currentMinError.innerHTML = '';
-    }
-    if (currentMaxError) {
-      currentMaxError.classList.remove('show');
-      currentMaxError.innerHTML = '';
-    }
-    if (currentRangeError) {
-      currentRangeError.classList.remove('show');
-      currentRangeError.innerHTML = '';
-    }
+    minPriceError.classList.remove('show');
+    maxPriceError.classList.remove('show');
+    priceRangeError.classList.remove('show');
+    minPriceError.innerHTML = '';
+    maxPriceError.innerHTML = '';
+    priceRangeError.innerHTML = '';
 
     // Show success feedback
     showPriceToast('info', 'Filters Reset', 'All filters have been cleared', 2000);
@@ -944,12 +760,12 @@
       document.getElementById('sortSelect').value = sortValue;
     }
 
-    // Comprehensive price validation system - assign to global variables
-    minPriceInput = document.getElementById('minPriceInput');
-    maxPriceInput = document.getElementById('maxPriceInput');
-    minPriceError = document.getElementById('minPriceError');
-    maxPriceError = document.getElementById('maxPriceError');
-    priceRangeError = document.getElementById('priceRangeError');
+    // Comprehensive price validation system
+    const minPriceInput = document.getElementById('minPriceInput');
+    const maxPriceInput = document.getElementById('maxPriceInput');
+    const minPriceError = document.getElementById('minPriceError');
+    const maxPriceError = document.getElementById('maxPriceError');
+    const priceRangeError = document.getElementById('priceRangeError');
 
     // Validation configuration
     const PRICE_CONFIG = {
