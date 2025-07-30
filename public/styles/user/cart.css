@@ -503,22 +503,186 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  gap: 1rem;
+  min-width: 180px;
+}
+
+.unit-price-section,
+.line-total-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
   gap: 0.25rem;
 }
 
-.original-price {
+.unit-price-section {
+  background: rgba(27, 60, 83, 0.03);
+  padding: 0.5rem;
+  border-radius: 6px;
+  border-left: 3px solid var(--secondary-color-1);
+}
+
+.line-total-section {
+  background: rgba(27, 60, 83, 0.05);
+  padding: 0.5rem;
+  border-radius: 6px;
+  border-left: 3px solid var(--primary-color);
+}
+
+.price-label {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.unit-prices,
+.line-total {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.125rem;
+}
+
+.original-price,
+.line-original-total {
   font-family: 'Montserrat', sans-serif;
   color: var(--text-light);
   text-decoration: line-through;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 500;
 }
 
 .discounted-price,
 .current-price {
   font-family: 'Montserrat', sans-serif;
   font-weight: 700;
-  font-size: 1.2rem;
+  font-size: 1rem;
   color: var(--primary-color);
+}
+
+.line-discounted-total,
+.line-current-total {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--primary-color);
+}
+
+.line-total-section {
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(27, 60, 83, 0.1);
+}
+
+.savings-amount {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--success-color);
+  background: rgba(16, 185, 129, 0.1);
+  padding: 0.125rem 0.5rem;
+  border-radius: 12px;
+  margin-top: 0.25rem;
+}
+
+/* Order Summary Enhancements */
+.items-count-row {
+  background: rgba(27, 60, 83, 0.05);
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.items-count-row .summary-label {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.subtotal-after-discount {
+  font-weight: 600;
+  color: var(--primary-color);
+  background: rgba(16, 185, 129, 0.05);
+  padding: 0.5rem;
+  border-radius: 6px;
+}
+
+.tax-included {
+  color: var(--success-color);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.total-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.total-savings {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--success-color);
+}
+
+/* Enhanced visual hierarchy */
+.cart-item {
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.cart-item:hover {
+  border-color: rgba(27, 60, 83, 0.1);
+  transform: translateY(-2px);
+}
+
+.cart-item.updating {
+  opacity: 0.7;
+  pointer-events: none;
+  position: relative;
+}
+
+.cart-item.updating::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--primary-color);
+  border-top: 3px solid transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Price highlight animations */
+.line-discounted-total,
+.line-current-total,
+.total-value {
+  transition: all 0.3s ease;
+}
+
+.line-discounted-total.updated,
+.line-current-total.updated,
+.total-value.updated {
+  background: rgba(16, 185, 129, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  animation: priceUpdate 1s ease;
+}
+
+@keyframes priceUpdate {
+  0% { background: rgba(16, 185, 129, 0.3); }
+  100% { background: rgba(16, 185, 129, 0.1); }
 }
 
 .btn-remove-item {
@@ -996,7 +1160,7 @@ h1, h2, h3, h4, h5, h6 {
     grid-template-columns: 120px 1fr;
     gap: 1.5rem;
   }
-  
+
   .quantity-price-section {
     grid-column: 1 / -1;
     flex-direction: row;
@@ -1006,45 +1170,45 @@ h1, h2, h3, h4, h5, h6 {
     padding-top: 1rem;
     border-top: 1px solid var(--secondary-color-2);
   }
-  
+
   .quantity-section {
     align-items: flex-start;
   }
-  
+
   .price-actions-section {
     align-items: flex-end;
   }
-  
+
   .order-summary-container {
     position: static;
     margin-top: 2rem;
   }
-  
+
   .related-products-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   /* Empty cart responsive */
   .empty-cart-container {
     min-height: 50vh;
     padding: 1.5rem 0;
   }
-  
+
   .empty-cart-card {
     padding: 3rem 2rem;
     max-width: 500px;
   }
-  
+
   .empty-cart-icon {
     width: 100px;
     height: 100px;
     font-size: 3rem;
   }
-  
+
   .empty-cart-title {
     font-size: 1.8rem;
   }
-  
+
   .empty-cart-text {
     font-size: 1.1rem;
   }
@@ -1054,93 +1218,93 @@ h1, h2, h3, h4, h5, h6 {
   .cart-page-section {
     padding: 1rem 0 3rem;
   }
-  
+
   .cart-header-content {
     padding: 1.5rem;
   }
-  
+
   .cart-title {
     font-size: 2rem;
   }
-  
+
   .cart-item {
     padding: 1.5rem;
   }
-  
+
   .cart-item-content {
     grid-template-columns: 100px 1fr;
     gap: 1rem;
   }
-  
+
   .product-image-wrapper {
     width: 100px;
     height: 120px;
   }
-  
+
   .cart-items-header {
     padding: 1rem;
     flex-direction: column;
     gap: 1rem;
     text-align: center;
   }
-  
+
   .quantity-price-section {
     flex-direction: column;
     gap: 1rem;
     align-items: stretch;
   }
-  
+
   .quantity-section {
     align-items: center;
   }
-  
+
   .price-actions-section {
     align-items: center;
   }
-  
+
   .related-products-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
-  
+
   .order-summary-card {
     padding: 1.5rem;
   }
-  
+
   .security-info {
     flex-direction: column;
     gap: 0.75rem;
     text-align: center;
   }
-  
+
   /* Empty cart mobile */
   .empty-cart-container {
     min-height: 40vh;
     padding: 1rem 0;
   }
-  
+
   .empty-cart-card {
     padding: 2.5rem 1.5rem;
     max-width: 400px;
   }
-  
+
   .empty-cart-icon {
     width: 80px;
     height: 80px;
     font-size: 2.5rem;
     margin-bottom: 1.5rem;
   }
-  
+
   .empty-cart-title {
     font-size: 1.6rem;
     margin-bottom: 1rem;
   }
-  
+
   .empty-cart-text {
     font-size: 1rem;
     margin-bottom: 2rem;
   }
-  
+
   .btn-continue-shopping {
     padding: 1rem 2rem;
     font-size: 1rem;
@@ -1153,44 +1317,108 @@ h1, h2, h3, h4, h5, h6 {
     height: 60px;
     font-size: 1.5rem;
   }
-  
+
   .cart-title {
     font-size: 1.8rem;
   }
-  
+
   .cart-subtitle {
     font-size: 1rem;
   }
-  
+
   .btn-continue-shopping,
   .btn-checkout {
     padding: 1rem 1.5rem;
     font-size: 1rem;
   }
-  
+
   .payment-icons {
     gap: 0.5rem;
   }
-  
+
   .payment-icon {
     width: 30px;
     height: 30px;
     font-size: 1rem;
   }
-  
+
   /* Empty cart small mobile */
   .empty-cart-card {
     padding: 2rem 1rem;
     margin: 0 1rem;
   }
-  
+
   .empty-cart-title {
     font-size: 1.4rem;
   }
-  
+
   .btn-continue-shopping {
     padding: 0.875rem 1.5rem;
     font-size: 0.9rem;
+  }
+
+  /* Mobile pricing display */
+  .price-display {
+    min-width: auto;
+    width: 100%;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .unit-price-section,
+  .line-total-section {
+    align-items: center;
+    text-align: center;
+  }
+
+  .unit-prices,
+  .line-total {
+    align-items: center;
+  }
+
+  .price-label {
+    font-size: 0.7rem;
+  }
+
+  .discounted-price,
+  .current-price {
+    font-size: 0.9rem;
+  }
+
+  .line-discounted-total,
+  .line-current-total {
+    font-size: 1rem;
+  }
+
+  /* Mobile cart item layout */
+  .cart-item-content {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .product-details-section {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .product-info {
+    text-align: center;
+  }
+
+  .quantity-price-section {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .quantity-section {
+    align-items: center;
+  }
+
+  .price-actions-section {
+    align-items: center;
+    text-align: center;
+    width: 100%;
   }
 }
 
@@ -1198,6 +1426,27 @@ h1, h2, h3, h4, h5, h6 {
 
 
 
+/* Tablet responsive styles */
+@media (max-width: 768px) and (min-width: 481px) {
+  .price-display {
+    min-width: 160px;
+    gap: 0.875rem;
+  }
+
+  .price-label {
+    font-size: 0.75rem;
+  }
+
+  .discounted-price,
+  .current-price {
+    font-size: 1rem;
+  }
+
+  .line-discounted-total,
+  .line-current-total {
+    font-size: 1.05rem;
+  }
+}
 .form-label {
   display: block;
   margin-bottom: 0.5rem;

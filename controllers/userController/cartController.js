@@ -6,6 +6,7 @@ const {
   calculateDiscount,
 } = require('../../utils/offerHelper');
 const { HttpStatus } = require('../../helpers/statusCode');
+const { calculateTotalWithGST, getCurrentGSTRate, getGSTPercentageString } = require('../../config/taxConfig');
 const getCart = async (req, res) => {
   try {
     if (!req.session.user_id) {
@@ -36,20 +37,30 @@ const getCart = async (req, res) => {
                   item.product.category.isListed
       );
       for (const item of cartItems) {
+        // Use priceAtAddition for consistency with checkout
+        const basePrice = item.priceAtAddition || item.product.regularPrice;
         const offer = await getActiveOfferForProduct(
           item.product._id,
           item.product.category,
-          item.product.regularPrice
+          basePrice
         );
         const { discountPercentage, discountAmount, finalPrice } =
-          calculateDiscount(offer, item.product.regularPrice);
+          calculateDiscount(offer, basePrice);
+
+        // Store original price information
+        item.originalPrice = basePrice;
+        item.discountedPrice = finalPrice;
+        item.offerDiscount = discountAmount * item.quantity;
+
+        // Update product display information
         item.product.activeOffer = offer;
         item.product.discountPercentage = discountPercentage;
         item.product.discountAmount = discountAmount;
         item.product.finalPrice = finalPrice;
-        item.product.regularPrice =
-          item.product.regularPrice || item.product.salePrice;
+        item.product.regularPrice = basePrice;
         item.product.salePrice = finalPrice;
+
+        // Calculate total amount using final price * quantity
         totalAmount += item.quantity * finalPrice;
 
         const itemTotalDiscount = item.quantity * discountAmount;
@@ -100,6 +111,11 @@ const getCart = async (req, res) => {
       product.regularPrice = product.regularPrice || product.salePrice;
       product.salePrice = finalPrice;
     }
+    // Calculate GST and final totals
+    const taxCalculation = calculateTotalWithGST(totalAmount);
+
+
+
     res.render('cart', {
       cartItems,
       totalAmount: totalAmount.toFixed(2),
@@ -112,6 +128,12 @@ const getCart = async (req, res) => {
       wishlistCount,
       user: userId ? { id: userId } : null,
       isAuthenticated: true,
+      // GST calculation data
+      subtotalBeforeGST: taxCalculation.subtotal,
+      gstAmount: taxCalculation.gst,
+      gstPercentage: taxCalculation.gstPercentage,
+      finalTotal: taxCalculation.total,
+      gstRate: getCurrentGSTRate()
     });
   } catch (error) {
     console.error('Error in rendering cart:', error);

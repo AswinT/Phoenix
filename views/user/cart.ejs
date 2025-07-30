@@ -128,12 +128,32 @@
                     <!-- Price & Actions -->
                     <div class="price-actions-section">
                       <div class="price-display">
-                        <% if (item.product.discountPercentage > 0) { %>
-                          <span class="original-price">₹<%= item.product.regularPrice.toFixed(2) %></span>
-                          <span class="discounted-price">₹<%= (item.quantity * item.product.finalPrice).toFixed(2) %></span>
-                        <% } else { %>
-                          <span class="current-price">₹<%= (item.quantity * item.product.finalPrice).toFixed(2) %></span>
-                        <% } %>
+                        <!-- Unit Price Display -->
+                        <div class="unit-price-section">
+                          <span class="price-label">Price per item:</span>
+                          <div class="unit-prices">
+                            <% if (item.product.discountPercentage > 0) { %>
+                              <span class="original-price">₹<%= item.product.regularPrice.toFixed(2) %></span>
+                              <span class="discounted-price">₹<%= item.product.finalPrice.toFixed(2) %></span>
+                              <span class="savings-amount">Save ₹<%= (item.product.regularPrice - item.product.finalPrice).toFixed(2) %> per item</span>
+                            <% } else { %>
+                              <span class="current-price">₹<%= item.product.finalPrice.toFixed(2) %></span>
+                            <% } %>
+                          </div>
+                        </div>
+
+                        <!-- Line Total Display -->
+                        <div class="line-total-section">
+                          <span class="price-label">Line total (× <%= item.quantity %>):</span>
+                          <div class="line-total">
+                            <% if (item.product.discountPercentage > 0) { %>
+                              <span class="line-original-total">₹<%= (item.quantity * item.product.regularPrice).toFixed(2) %></span>
+                              <span class="line-discounted-total" data-item-total="<%= (item.quantity * item.product.finalPrice).toFixed(2) %>">₹<%= (item.quantity * item.product.finalPrice).toFixed(2) %></span>
+                            <% } else { %>
+                              <span class="line-current-total" data-item-total="<%= (item.quantity * item.product.finalPrice).toFixed(2) %>">₹<%= (item.quantity * item.product.finalPrice).toFixed(2) %></span>
+                            <% } %>
+                          </div>
+                        </div>
                       </div>
                       <div class="item-actions">
                         <button class="btn-remove-item remove-item">
@@ -170,9 +190,18 @@
             </div>
             
             <div class="summary-content">
-              <!-- Subtotal -->
+              <!-- Item Count -->
+              <div class="summary-row items-count-row">
+                <span class="summary-label">
+                  <i class="ri-shopping-bag-line"></i>
+                  Items in Cart
+                </span>
+                <span class="summary-value"><%= cartItems.reduce((sum, item) => sum + item.quantity, 0) %> items</span>
+              </div>
+
+              <!-- Original Subtotal -->
               <div class="summary-row">
-                <span class="summary-label">Subtotal (<%= cartItems.reduce((sum, item) => sum + item.quantity, 0) %> items)</span>
+                <span class="summary-label">Original Subtotal</span>
                 <span class="summary-value">₹<%= (parseFloat(totalAmount) + parseFloat(totalDiscount)).toFixed(2) %></span>
               </div>
               
@@ -194,12 +223,29 @@
                 <div class="summary-row discount-row">
                   <span class="summary-label">
                     <i class="ri-price-tag-3-line"></i>
-                    Discount
+                    Total Savings
                   </span>
                   <span class="summary-value discount-value">-₹<%= totalDiscount %></span>
                 </div>
               <% } %>
+
+              <!-- Subtotal after discounts -->
+              <% if (parseFloat(totalDiscount) > 0) { %>
+                <div class="summary-row subtotal-after-discount">
+                  <span class="summary-label">Subtotal after Discounts</span>
+                  <span class="summary-value">₹<%= totalAmount %></span>
+                </div>
+              <% } %>
               
+              <!-- Tax Information -->
+              <div class="summary-row">
+                <span class="summary-label">
+                  <i class="ri-file-text-line"></i>
+                  Tax (GST <%= gstPercentage %>)
+                </span>
+                <span class="summary-value">₹<%= gstAmount.toFixed(2) %></span>
+              </div>
+
               <!-- Shipping -->
               <div class="summary-row">
                 <span class="summary-label">
@@ -208,13 +254,18 @@
                 </span>
                 <span class="summary-value free-shipping">FREE</span>
               </div>
-              
+
               <div class="summary-divider"></div>
-              
+
               <!-- Total -->
               <div class="summary-total">
-                <span class="total-label">Total</span>
-                <span class="total-value">₹<%= totalAmount %></span>
+                <div class="total-breakdown">
+                  <span class="total-label">Total Amount (incl. GST)</span>
+                  <% if (parseFloat(totalDiscount) > 0) { %>
+                    <span class="total-savings">You save ₹<%= totalDiscount %></span>
+                  <% } %>
+                </div>
+                <span class="total-value">₹<%= finalTotal.toFixed(2) %></span>
               </div>
               
               <!-- Checkout Button -->
@@ -322,6 +373,9 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+  // Constants
+  const GST_RATE = <%= gstRate %>;
+
   // DOM Elements
   const clearCartBtn = document.querySelector('#clearCartBtn');
   const emptyCart = document.querySelector('.empty-cart-container');
@@ -492,16 +546,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
       if (result.success) {
         quantityInput.dataset.previousValue = quantity;
-        
-        const priceElement = item.querySelector('.discounted-price') || item.querySelector('.current-price');
-        if (priceElement) {
-          priceElement.textContent = `₹${result.itemTotal.toFixed(2)}`;
-        }
-        
+
+        // Update line totals
+        updateItemPricing(item, quantity, result);
+
+        // Update order summary
         if (typeof result.totalAmount === 'number') {
-          updateOrderSummaryDOM(result.totalAmount, result.cartCount);
+          updateOrderSummaryPricing(result.totalAmount, result.cartCount);
         }
-        
+
         if (result.cartCount !== undefined) {
           updateCartCount(result.cartCount);
         } else {
@@ -509,20 +562,18 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         showNotification('success', result.message || 'Cart updated successfully');
-        
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
       } else {
         quantityInput.value = previousValue;
         showNotification('error', result.message || 'Failed to update cart');
       }
     } catch (error) {
-      console.error('Cart update error:', error);
+      console.error('Error updating cart:', error);
       const quantityInput = item.querySelector('.quantity-input');
-      quantityInput.value = quantityInput.dataset.previousValue;
-      showNotification('error', 'Error communicating with server');
+      const previousValue = quantityInput.dataset.previousValue;
+      quantityInput.value = previousValue;
+      showNotification('error', 'Failed to update cart. Please try again.');
     } finally {
+      // Remove loading state
       item.classList.remove('updating');
     }
   }
@@ -614,10 +665,125 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  function updateOrderSummaryDOM(totalAmount, cartCount) {
-    setTimeout(() => {
-      window.location.reload();
-    }, 1000);
+  function updateItemPricing(item, quantity, result) {
+    // Update line totals
+    const lineTotalElement = item.querySelector('.line-discounted-total') || item.querySelector('.line-current-total');
+    if (lineTotalElement) {
+      lineTotalElement.textContent = `₹${result.itemTotal.toFixed(2)}`;
+      lineTotalElement.setAttribute('data-item-total', result.itemTotal.toFixed(2));
+
+      // Add visual feedback
+      lineTotalElement.classList.add('updated');
+      setTimeout(() => {
+        lineTotalElement.classList.remove('updated');
+      }, 1000);
+    }
+
+    // Update line total label to show current quantity
+    const lineTotalLabel = item.querySelector('.line-total-section .price-label');
+    if (lineTotalLabel) {
+      lineTotalLabel.textContent = `Line total (× ${quantity}):`;
+    }
+
+    // Update line original total if it exists (for discounted items)
+    const lineOriginalTotal = item.querySelector('.line-original-total');
+    if (lineOriginalTotal) {
+      const originalPriceElement = item.querySelector('.original-price');
+      if (originalPriceElement) {
+        const originalPrice = parseFloat(originalPriceElement.textContent.replace('₹', ''));
+        lineOriginalTotal.textContent = `₹${(quantity * originalPrice).toFixed(2)}`;
+      }
+    }
+
+    // Update quantity display
+    const quantityInput = item.querySelector('.quantity-input');
+    if (quantityInput) {
+      quantityInput.value = quantity;
+    }
+  }
+
+  function updateOrderSummaryPricing(totalAmount, cartCount) {
+    // Calculate totals from all items
+    const allItems = document.querySelectorAll('.cart-item');
+    let originalSubtotal = 0;
+    let currentSubtotal = 0;
+    let totalItems = 0;
+
+    allItems.forEach(item => {
+      const quantityInput = item.querySelector('.quantity-input');
+      const quantity = quantityInput ? parseInt(quantityInput.value) : 0;
+      totalItems += quantity;
+
+      // Get original and current prices
+      const originalPriceElement = item.querySelector('.original-price');
+      const currentPriceElement = item.querySelector('.discounted-price') || item.querySelector('.current-price');
+      const lineTotalElement = item.querySelector('.line-discounted-total') || item.querySelector('.line-current-total');
+
+      if (originalPriceElement && currentPriceElement) {
+        const originalPrice = parseFloat(originalPriceElement.textContent.replace('₹', ''));
+        originalSubtotal += originalPrice * quantity;
+      }
+
+      if (lineTotalElement) {
+        const lineTotal = parseFloat(lineTotalElement.getAttribute('data-item-total') || lineTotalElement.textContent.replace('₹', ''));
+        currentSubtotal += lineTotal;
+      }
+    });
+
+    const totalSavings = originalSubtotal - currentSubtotal;
+
+    // Update summary elements
+    const itemsCountElement = document.querySelector('.items-count-row .summary-value');
+    if (itemsCountElement) {
+      itemsCountElement.textContent = `${totalItems} items`;
+    }
+
+    const originalSubtotalElement = document.querySelector('.summary-row:not(.discount-row):not(.items-count-row) .summary-value');
+    if (originalSubtotalElement && totalSavings > 0) {
+      originalSubtotalElement.textContent = `₹${originalSubtotal.toFixed(2)}`;
+    }
+
+    const discountElement = document.querySelector('.discount-row .discount-value');
+    if (discountElement && totalSavings > 0) {
+      discountElement.textContent = `-₹${totalSavings.toFixed(2)}`;
+    }
+
+    const subtotalAfterDiscountElement = document.querySelector('.subtotal-after-discount .summary-value');
+    if (subtotalAfterDiscountElement && totalSavings > 0) {
+      subtotalAfterDiscountElement.textContent = `₹${currentSubtotal.toFixed(2)}`;
+    }
+
+    // Calculate GST and final total
+    const gstAmount = Math.round(currentSubtotal * GST_RATE * 100) / 100;
+    const finalTotal = currentSubtotal + gstAmount;
+
+    // Update GST display
+    const gstElements = document.querySelectorAll('.summary-row .summary-label');
+    for (const label of gstElements) {
+      if (label.textContent.includes('Tax')) {
+        const gstElement = label.parentElement.querySelector('.summary-value');
+        if (gstElement) {
+          gstElement.textContent = `₹${gstAmount.toFixed(2)}`;
+        }
+        break;
+      }
+    }
+
+    const totalValueElement = document.querySelector('.total-value');
+    if (totalValueElement) {
+      totalValueElement.textContent = `₹${finalTotal.toFixed(2)}`;
+
+      // Add visual feedback
+      totalValueElement.classList.add('updated');
+      setTimeout(() => {
+        totalValueElement.classList.remove('updated');
+      }, 1000);
+    }
+
+    const totalSavingsElement = document.querySelector('.total-savings');
+    if (totalSavingsElement && totalSavings > 0) {
+      totalSavingsElement.textContent = `You save ₹${totalSavings.toFixed(2)}`;
+    }
   }
 
   function handleOrderSummaryPosition() {

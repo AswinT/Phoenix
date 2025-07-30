@@ -16,6 +16,7 @@ const {
   calculateFinalItemPrice
 } = require('../../utils/offerHelper');
 const { HttpStatus } = require('../../helpers/statusCode');
+const { calculateGST, getCurrentGSTRate, getGSTPercentageString } = require('../../config/taxConfig');
 const getInitialPaymentStatus = (paymentMethod) => {
   switch (paymentMethod) {
   case 'Wallet':
@@ -207,7 +208,7 @@ const getCheckout = async (req, res) => {
         };
       });
     }
-    tax = (subtotal - couponDiscount) * 0.08;
+    tax = calculateGST(subtotal - couponDiscount);
     totalAmount = subtotal - couponDiscount + tax;
     cartCount = cartItems.length;
     if (addresses.length === 0) {
@@ -237,6 +238,9 @@ const getCheckout = async (req, res) => {
       isAuthenticated: true,
       currentStep: req.query.step ? parseInt(req.query.step) : 1,
       selectedAddressId: req.query.address || '',
+      // GST information for consistency with cart
+      gstRate: getCurrentGSTRate(),
+      gstPercentage: getGSTPercentageString(),
       paymentMethod: req.query.paymentMethod || '',
       shippingCost: 0,
       razorpayKeyId: process.env.RAZORPAY_KEY_ID,
@@ -375,7 +379,7 @@ const applyCoupon = async (req, res) => {
       const details = getItemPriceDetails(item, itemCouponInfo);
       itemDetails[item.product._id.toString()] = details;
     });
-    const tax = (subtotal - discount) * 0.08;
+    const tax = calculateGST(subtotal - discount);
     const total = subtotal - discount + tax;
     res.status(HttpStatus.OK).json({
       success: true,
@@ -557,7 +561,7 @@ const createRazorpayOrder = async (req, res) => {
       }
     }
     const amountAfterAllDiscounts = subtotalAfterOffers - couponDiscount;
-    const checkoutTax = Math.round(amountAfterAllDiscounts * 0.08 * 100) / 100;
+    const checkoutTax = calculateGST(amountAfterAllDiscounts);
     let checkoutTotal = Math.round((amountAfterAllDiscounts + checkoutTax) * 100) / 100;
 
     const itemFinalPriceSum = orderItems.reduce((sum, item) => sum + (item.priceBreakdown?.finalPrice || 0), 0);
@@ -964,7 +968,7 @@ const placeOrder = async (req, res) => {
       await coupon.save();
       delete req.session.appliedCoupon;
     }
-    const tax = (subtotal - offerDiscount - couponDiscount) * 0.08;
+    const tax = calculateGST(subtotal - offerDiscount - couponDiscount);
     total = subtotal - offerDiscount - couponDiscount + tax;
     if (paymentMethod === 'COD' && total > 1000) {
       throw new Error('Cash on Delivery is not available for orders above ₹1,000. Please choose an online payment method.');
@@ -1342,7 +1346,7 @@ const getCurrentCartTotal = async (req, res) => {
         }
       }
     }
-    const tax = (subtotal - offerDiscount - couponDiscount) * 0.08;
+    const tax = calculateGST(subtotal - offerDiscount - couponDiscount);
     const total = subtotal - offerDiscount - couponDiscount + tax;
     const wallet = await Wallet.findOne({ userId });
     const walletBalance = wallet ? wallet.balance : 0;
