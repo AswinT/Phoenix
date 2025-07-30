@@ -1,50 +1,54 @@
 /**
- * Product Validation Script
+ * Product Validation Script - Enhanced with Real-time Validation
  */
 
-// Wait for everything to load, then attach validation
-setTimeout(function() {
+// Initialize validation when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
   const form = document.getElementById('addProductForm') || document.getElementById('editProductForm');
   const submitButton = document.getElementById('addProductButton') || document.querySelector('[type="submit"]');
-  
+
   if (form && submitButton) {
-    // Remove any existing event listeners by cloning the button
-    const newSubmitButton = submitButton.cloneNode(true);
-    submitButton.parentNode.replaceChild(newSubmitButton, submitButton);
-    
-    // Add our click event listener
-    newSubmitButton.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      
-      // Validate form
+    // Set up form submission handling
+    setupFormSubmission(form, submitButton);
+
+    // The real-time validation is now handled by productRealTimeValidation.js
+    // This script focuses on form submission and server communication
+  }
+});
+
+function setupFormSubmission(form, submitButton) {
+  // Remove any existing event listeners by cloning the button
+  const newSubmitButton = submitButton.cloneNode(true);
+  submitButton.parentNode.replaceChild(newSubmitButton, submitButton);
+
+  // Add form submission handler
+  newSubmitButton.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Use the real-time validator for final validation
+    if (window.ProductRealTimeValidator) {
+      const validationResult = window.ProductRealTimeValidator.validateForm(form);
+      if (validationResult.isValid) {
+        submitForm();
+      } else {
+        // Scroll to first error
+        const firstError = form.querySelector('.is-invalid');
+        if (firstError) {
+          firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          firstError.focus();
+        }
+      }
+    } else {
+      // Fallback to legacy validation
       if (validateForm()) {
-        // If validation passes, submit the form
         submitForm();
       }
-      
-      return false;
-    });
-    
-    // Add input event listeners to clear errors when user types
-    const inputs = form.querySelectorAll('input, select, textarea');
-    inputs.forEach(input => {
-      input.addEventListener('input', function() {
-        if (this.value.trim()) {
-          clearFieldError(this);
-        }
-      });
-      
-      input.addEventListener('change', function() {
-        if (this.type === 'file' && this.files && this.files.length > 0) {
-          clearFieldError(this);
-        } else if (this.value.trim()) {
-          clearFieldError(this);
-        }
-      });
-    });
-  }
-}, 1000);
+    }
+
+    return false;
+  });
+}
 
 function validateForm() {
   const form = document.getElementById('addProductForm') || document.getElementById('editProductForm');

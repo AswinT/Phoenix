@@ -283,37 +283,75 @@ class ValidationErrorHandler {
   /**
    * Add real-time validation to form fields
    * @param {HTMLFormElement} form - The form element
+   * @param {Object} customValidators - Custom validation rules for specific forms
    */
-  addRealTimeValidation(form) {
+  addRealTimeValidation(form, customValidators = {}) {
     const inputs = form.querySelectorAll('input, select, textarea');
-    
+
     inputs.forEach(input => {
       // Clear errors on focus
       input.addEventListener('focus', () => {
         this.clearFieldError(input);
       });
 
-      // Basic client-side validation on blur (only for required fields)
+      // Real-time validation on input for immediate feedback
+      input.addEventListener('input', () => {
+        // Debounce validation for better performance
+        clearTimeout(input.validationTimeout);
+        input.validationTimeout = setTimeout(() => {
+          if (input.value.trim() || input.hasAttribute('required')) {
+            this.validateField(input, customValidators);
+          }
+        }, 300);
+      });
+
+      // Validation on blur for comprehensive check
       input.addEventListener('blur', () => {
-        // Only validate if the field has a value or is required
+        clearTimeout(input.validationTimeout);
         if (input.value.trim() || input.hasAttribute('required')) {
-          this.validateField(input);
+          this.validateField(input, customValidators);
         }
       });
+
+      // Special handling for file inputs
+      if (input.type === 'file') {
+        input.addEventListener('change', () => {
+          this.validateField(input, customValidators);
+        });
+      }
     });
   }
 
   /**
-   * Basic client-side field validation
+   * Enhanced field validation with custom rules
    * @param {HTMLElement} field - The input field
+   * @param {Object} customValidators - Custom validation rules
    */
-  validateField(field) {
+  validateField(field, customValidators = {}) {
     const value = field.value.trim();
-    
+    const fieldName = field.name || field.id;
+
+    // Check for custom validator first
+    if (customValidators[fieldName]) {
+      const customResult = customValidators[fieldName](field, value);
+      if (customResult !== true) {
+        this.showFieldError(field, customResult);
+        return false;
+      }
+    }
+
     // Required field validation
-    if (field.hasAttribute('required') && !value) {
+    if (field.hasAttribute('required') && !value && field.type !== 'file') {
       this.showFieldError(field, `${this.getFieldLabel(field)} is required`);
       return false;
+    }
+
+    // File input validation
+    if (field.type === 'file' && field.hasAttribute('required')) {
+      if (!field.files || field.files.length === 0) {
+        this.showFieldError(field, `${this.getFieldLabel(field)} is required`);
+        return false;
+      }
     }
 
     // Email validation
@@ -330,6 +368,26 @@ class ValidationErrorHandler {
       const phoneRegex = /^\d{10}$/;
       if (!phoneRegex.test(value.replace(/\D/g, ''))) {
         this.showFieldError(field, 'Please enter a valid phone number');
+        return false;
+      }
+    }
+
+    // Number validation
+    if (field.type === 'number' && value) {
+      const numValue = parseFloat(value);
+      if (isNaN(numValue)) {
+        this.showFieldError(field, 'Please enter a valid number');
+        return false;
+      }
+
+      // Check min/max attributes
+      if (field.hasAttribute('min') && numValue < parseFloat(field.getAttribute('min'))) {
+        this.showFieldError(field, `Value must be at least ${field.getAttribute('min')}`);
+        return false;
+      }
+
+      if (field.hasAttribute('max') && numValue > parseFloat(field.getAttribute('max'))) {
+        this.showFieldError(field, `Value must not exceed ${field.getAttribute('max')}`);
         return false;
       }
     }
