@@ -124,11 +124,35 @@ const toggleWishlist = async (req, res) => {
     if (itemIndex > -1) {
       wishlist.items.splice(itemIndex, 1);
       await wishlist.save();
-      return res.json({ success: true, message: 'Removed from wishlist', isWishlisted: false, wishlistCount: wishlist.items.length });
+
+      // Calculate correct wishlist count after removal (filter valid items)
+      const updatedWishlist = await Wishlist.findOne({ user: userId }).populate('items.product');
+      const validItems = updatedWishlist.items.filter(
+        (item) => item.product && item.product.isListed && !item.product.isDeleted
+      );
+
+      return res.json({
+        success: true,
+        message: 'Removed from wishlist',
+        isWishlisted: false,
+        wishlistCount: validItems.length
+      });
     } else {
       wishlist.items.push({ product: productId });
       await wishlist.save();
-      return res.json({ success: true, message: 'Added to wishlist', isWishlisted: true, wishlistCount: wishlist.items.length });
+
+      // Calculate correct wishlist count after addition (filter valid items)
+      const updatedWishlist = await Wishlist.findOne({ user: userId }).populate('items.product');
+      const validItems = updatedWishlist.items.filter(
+        (item) => item.product && item.product.isListed && !item.product.isDeleted
+      );
+
+      return res.json({
+        success: true,
+        message: 'Added to wishlist',
+        isWishlisted: true,
+        wishlistCount: validItems.length
+      });
     }
   } catch (error) {
     console.log('Error toggling wishlist:', error);
@@ -193,7 +217,14 @@ const addAllToCart = async (req, res) => {
       await wishlist.save();
     }
     const cartCount = cart.items.length;
-    const wishlistCount = wishlist.items.length;
+
+    // Calculate correct wishlist count after moving items (filter valid items)
+    const updatedWishlist = await Wishlist.findOne({ user: userId }).populate('items.product');
+    const validWishlistItems = updatedWishlist.items.filter(
+      (item) => item.product && item.product.isListed && !item.product.isDeleted
+    );
+    const wishlistCount = validWishlistItems.length;
+
     let successMessage = `${successfullyAdded.length} item${successfullyAdded.length !== 1 ? 's' : ''} moved to cart`;
     if (messages.length > 0) {
       successMessage += ` (${messages.length} item${messages.length !== 1 ? 's' : ''} skipped)`;
@@ -310,8 +341,17 @@ const addToCartFromWishlist = async (req, res) => {
     await cart.save();
     wishlist.items.splice(wishlistItemIndex, 1);
     await wishlist.save();
+
+    // Calculate correct counts after moving item to cart
     const cartCount = cart.items.length;
-    const wishlistCount = wishlist.items.length;
+
+    // Get updated wishlist with populated products to filter correctly
+    const updatedWishlist = await Wishlist.findOne({ user: userId }).populate('items.product');
+    const validWishlistItems = updatedWishlist.items.filter(
+      (item) => item.product && item.product.isListed && !item.product.isDeleted
+    );
+    const wishlistCount = validWishlistItems.length;
+
     res.json({
       success: true,
       message: 'Item moved to cart successfully',

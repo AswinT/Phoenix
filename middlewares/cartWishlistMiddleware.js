@@ -6,13 +6,21 @@ const cartWishlistMiddleware = async (req, res, next) => {
     res.locals.wishlistCount = 0;
     if (req.session && req.session.user_id) {
       const userId = req.session.user_id;
+
+      // Calculate cart count
       const cart = await Cart.findOne({ user: userId });
       if (cart && cart.items) {
         res.locals.cartCount = cart.items.length;
       }
-      const wishlist = await Wishlist.findOne({ user: userId });
+
+      // Calculate wishlist count with proper filtering (same as wishlist controller)
+      const wishlist = await Wishlist.findOne({ user: userId }).populate('items.product');
       if (wishlist && wishlist.items) {
-        res.locals.wishlistCount = wishlist.items.length;
+        // Filter out items with deleted or unlisted products (same logic as wishlist controller)
+        const validWishlistItems = wishlist.items.filter(
+          (item) => item.product && item.product.isListed && !item.product.isDeleted
+        );
+        res.locals.wishlistCount = validWishlistItems.length;
       }
     }
     next();

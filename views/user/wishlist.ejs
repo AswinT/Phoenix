@@ -28,7 +28,7 @@
             <% if (wishlistItems.length > 0) { %>
             <div class="d-flex gap-2">
               <button class="btn phoenix-btn-primary" id="addAllToCartBtn">
-                <i class="ri-shopping-cart-line me-2"></i>Add All to Cart
+                <i class="ri-arrow-right-line me-2"></i>Move All to Cart
               </button>
               <button class="btn phoenix-btn-secondary" id="clearWishlistBtn">
                 <i class="ri-delete-bin-line me-2"></i>Clear Wishlist
@@ -100,7 +100,9 @@
                           <span class="fw-bold">₹<%= item.product.salePrice.toFixed(2) %></span>
                         <% } %>
                         <div class="item-actions d-flex gap-2">
-                          <button class="btn phoenix-btn-primary btn-sm add-to-cart px-3" <%= item.product.stock === 0 ? 'disabled' : '' %>>Add to Cart</button>
+                          <button class="btn phoenix-btn-primary btn-sm add-to-cart px-3" <%= item.product.stock === 0 ? 'disabled' : '' %>>
+                            <i class="ri-arrow-right-line me-1"></i>Move to Cart
+                          </button>
                           <button class="btn phoenix-btn-secondary btn-sm remove-item">Remove</button>
                         </div>
                       </div>
@@ -258,6 +260,16 @@
     opacity: 0;
     transform: translateX(100%);
     transition: all 0.3s ease;
+  }
+
+  /* ═══ LOADING SPINNER ANIMATION ═══ */
+  .ri-loader-4-line {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
   }
 
   /* ═══ BUTTON STYLING ═══ */
@@ -750,13 +762,13 @@
       const addToCartBtn = item.querySelector('.add-to-cart');
       const removeBtn = item.querySelector('.remove-item');
   
-      // Add to cart from wishlist
+      // Move to cart from wishlist
       if (addToCartBtn) {
         addToCartBtn.addEventListener('click', async function () {
           // Add loading state
-          const originalText = addToCartBtn.textContent;
+          const originalText = addToCartBtn.innerHTML;
           addToCartBtn.disabled = true;
-          addToCartBtn.textContent = 'Adding...';
+          addToCartBtn.innerHTML = '<i class="ri-loader-4-line me-1"></i>Moving...';
 
           try {
             const response = await fetch('/api/wishlist/add-to-cart', {
@@ -814,7 +826,7 @@
             } else {
               // Reset button state on error
               addToCartBtn.disabled = false;
-              addToCartBtn.textContent = originalText;
+              addToCartBtn.innerHTML = originalText;
 
               Swal.fire({
                 toast: true,
@@ -828,14 +840,14 @@
           } catch (error) {
             // Reset button state on error
             addToCartBtn.disabled = false;
-            addToCartBtn.textContent = originalText;
+            addToCartBtn.innerHTML = originalText;
 
-            console.error('Error adding to cart:', error);
+            console.error('Error moving to cart:', error);
             Swal.fire({
               toast: true,
               position: 'top-end',
               icon: 'error',
-              title: 'Error adding to cart',
+              title: 'Error moving to cart',
               showConfirmButton: false,
               timer: 1500
             });
