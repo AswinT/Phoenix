@@ -490,28 +490,70 @@ const viewInvoice = async (req, res) => {
       month: 'long',
       day: 'numeric'
     });
-    let recalculatedSubtotal = 0;
+
+    // Calculate pricing using the same logic as checkout - use priceBreakdown data
+    let originalSubtotal = 0;
+    let totalOfferDiscount = 0;
+    let totalCouponDiscount = 0;
+    let finalItemsTotal = 0;
+
     order.items.forEach(item => {
       if (item.priceBreakdown) {
-        recalculatedSubtotal += item.priceBreakdown.subtotal || (item.price * item.quantity);
+        // Use the stored price breakdown data (same as checkout)
+        const originalPrice = item.priceBreakdown.originalPrice || item.price;
+        const quantity = item.quantity || 1;
+        const itemOriginalTotal = originalPrice * quantity;
+        const offerDiscount = item.priceBreakdown.offerDiscount || 0;
+        const couponDiscount = item.priceBreakdown.couponDiscount || 0;
+        const finalPrice = item.priceBreakdown.finalPrice || (itemOriginalTotal - (offerDiscount * quantity) - couponDiscount);
+
+        originalSubtotal += itemOriginalTotal;
+        totalOfferDiscount += (offerDiscount * quantity);
+        totalCouponDiscount += couponDiscount;
+        finalItemsTotal += finalPrice;
+
+        // Format item prices for display
+        item.formattedOriginalPrice = `₹${originalPrice.toFixed(2)}`;
+        item.formattedPrice = `₹${originalPrice.toFixed(2)}`; // Show original price in item list
+        item.formattedDiscountedPrice = item.priceBreakdown.priceAfterOffer ?
+          `₹${(item.priceBreakdown.priceAfterOffer / quantity).toFixed(2)}` :
+          `₹${(originalPrice - offerDiscount).toFixed(2)}`;
+        item.formattedOfferDiscount = `₹${offerDiscount.toFixed(2)}`;
+        item.formattedCouponDiscount = `₹${couponDiscount.toFixed(2)}`;
+        item.formattedFinalPrice = `₹${(finalPrice / quantity).toFixed(2)}`;
+        item.itemSubtotal = itemOriginalTotal;
+        item.itemFinalTotal = finalPrice;
       } else {
-        recalculatedSubtotal += item.price * item.quantity;
+        // Fallback for orders without priceBreakdown
+        const itemTotal = item.price * item.quantity;
+        originalSubtotal += itemTotal;
+        finalItemsTotal += itemTotal;
+        item.formattedPrice = `₹${item.price.toFixed(2)}`;
+        item.itemSubtotal = itemTotal;
+        item.itemFinalTotal = itemTotal;
       }
     });
-    const useStoredSubtotal = order.subtotal && Math.abs(order.subtotal - recalculatedSubtotal) < 0.01;
-    const displaySubtotal = useStoredSubtotal ? order.subtotal : recalculatedSubtotal;
-    const correctTotal = displaySubtotal - (order.discount || 0) - (order.couponDiscount || 0) + (order.tax || 0);
-    const useStoredTotal = order.total && Math.abs(order.total - correctTotal) < 0.01;
-    const displayTotal = useStoredTotal ? order.total : correctTotal;
+
+    // Use the calculated values or stored order values (prefer stored if they match)
+    const displaySubtotal = originalSubtotal;
+    const displayOfferDiscount = totalOfferDiscount || order.discount || 0;
+    const displayCouponDiscount = totalCouponDiscount || order.couponDiscount || 0;
+    const displayTax = order.tax || 0;
+    const displayTotal = finalItemsTotal + displayTax;
+
+    // Format order-level pricing
     order.formattedSubtotal = `₹${displaySubtotal.toFixed(2)}`;
+    order.formattedDiscount = `₹${displayOfferDiscount.toFixed(2)}`;
+    order.formattedCouponDiscount = `₹${displayCouponDiscount.toFixed(2)}`;
+    order.formattedTax = `₹${displayTax.toFixed(2)}`;
     order.formattedTotal = `₹${displayTotal.toFixed(2)}`;
-    order.formattedTax = `₹${(order.tax || 0).toFixed(2)}`;
-    order.formattedDiscount = `₹${(order.discount || 0).toFixed(2)}`;
-    order.formattedCouponDiscount = `₹${(order.couponDiscount || 0).toFixed(2)}`;
+
+    // Update order totals to match calculations
+    order.subtotal = displaySubtotal;
+    order.discount = displayOfferDiscount;
+    order.couponDiscount = displayCouponDiscount;
     order.total = displayTotal;
-    order.items.forEach(item => {
-      item.formattedPrice = `₹${item.price.toFixed(2)}`;
-    });
+
     res.render('invoice', {
       order,
       user,
@@ -543,55 +585,72 @@ const downloadInvoice = async (req, res) => {
     if (!user) {
       return res.status(HttpStatus.UNAUTHORIZED).send('User not found');
     }
-    let totalBeforeDiscount = 0;
-    let totalDiscount = 0;
-    let totalAfterDiscount = 0;
     order.formattedDate = new Date(order.createdAt).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     });
-    for (const item of order.items) {
-      const offer = await getActiveOfferForProduct(
-        item.product.toString(),
-        null,
-        item.price
-      );
-      const { discountPercentage, discountAmount, finalPrice } = calculateDiscount(offer, item.price);
-      const itemOriginalTotal = item.price * item.quantity;
-      const itemDiscountTotal = discountAmount * item.quantity;
-      const itemFinalTotal = finalPrice * item.quantity;
-      totalBeforeDiscount += itemOriginalTotal;
-      totalDiscount += itemDiscountTotal;
-      totalAfterDiscount += itemFinalTotal;
-      item.discountedPrice = finalPrice;
-      item.offerDiscount = discountAmount;
-      item.offerTitle = offer ? offer.title : null;
-      item.discountPercentage = discountPercentage;
-      item.finalTotal = itemFinalTotal;
-    }
-    order.subtotal = totalBeforeDiscount;
-    order.discount = totalDiscount;
-    order.total = totalAfterDiscount + (order.tax || 0) - (order.couponDiscount || 0);
-    let recalculatedSubtotal = 0;
+
+    // Use the same pricing logic as viewInvoice and checkout
+    let originalSubtotal = 0;
+    let totalOfferDiscount = 0;
+    let totalCouponDiscount = 0;
+    let finalItemsTotal = 0;
+
     order.items.forEach(item => {
       if (item.priceBreakdown) {
-        recalculatedSubtotal += item.priceBreakdown.subtotal || (item.price * item.quantity);
+        // Use the stored price breakdown data (same as checkout)
+        const originalPrice = item.priceBreakdown.originalPrice || item.price;
+        const quantity = item.quantity || 1;
+        const itemOriginalTotal = originalPrice * quantity;
+        const offerDiscount = item.priceBreakdown.offerDiscount || 0;
+        const couponDiscount = item.priceBreakdown.couponDiscount || 0;
+        const finalPrice = item.priceBreakdown.finalPrice || (itemOriginalTotal - (offerDiscount * quantity) - couponDiscount);
+
+        originalSubtotal += itemOriginalTotal;
+        totalOfferDiscount += (offerDiscount * quantity);
+        totalCouponDiscount += couponDiscount;
+        finalItemsTotal += finalPrice;
+
+        // Set item properties for PDF generation
+        item.discountedPrice = item.priceBreakdown.priceAfterOffer ?
+          (item.priceBreakdown.priceAfterOffer / quantity) :
+          (originalPrice - offerDiscount);
+        item.offerDiscount = offerDiscount;
+        item.offerTitle = item.priceBreakdown.offerTitle || null;
+        item.finalTotal = finalPrice;
+        item.discountPercentage = offerDiscount > 0 ? ((offerDiscount / originalPrice) * 100) : 0;
       } else {
-        recalculatedSubtotal += item.price * item.quantity;
+        // Fallback for orders without priceBreakdown
+        const itemTotal = item.price * item.quantity;
+        originalSubtotal += itemTotal;
+        finalItemsTotal += itemTotal;
+        item.discountedPrice = item.price;
+        item.offerDiscount = 0;
+        item.finalTotal = itemTotal;
+        item.discountPercentage = 0;
       }
     });
-    const useStoredSubtotal = order.subtotal && Math.abs(order.subtotal - recalculatedSubtotal) < 0.01;
-    const displaySubtotal = useStoredSubtotal ? order.subtotal : recalculatedSubtotal;
-    const correctTotal = displaySubtotal - (order.discount || 0) - (order.couponDiscount || 0) + (order.tax || 0);
-    const useStoredTotal = order.total && Math.abs(order.total - correctTotal) < 0.01;
-    const displayTotal = useStoredTotal ? order.total : correctTotal;
+
+    // Use the calculated values for consistent pricing
+    const displaySubtotal = originalSubtotal;
+    const displayOfferDiscount = totalOfferDiscount || order.discount || 0;
+    const displayCouponDiscount = totalCouponDiscount || order.couponDiscount || 0;
+    const displayTax = order.tax || 0;
+    const displayTotal = finalItemsTotal + displayTax;
+
+    // Update order values
+    order.subtotal = displaySubtotal;
+    order.discount = displayOfferDiscount;
+    order.couponDiscount = displayCouponDiscount;
+    order.total = displayTotal;
+
+    // Format for display
     order.formattedSubtotal = `₹${displaySubtotal.toFixed(2)}`;
     order.formattedTotal = `₹${displayTotal.toFixed(2)}`;
-    order.formattedTax = `₹${(order.tax || 0).toFixed(2)}`;
-    order.formattedDiscount = `₹${order.discount.toFixed(2)}`;
-    order.formattedCouponDiscount = `₹${(order.couponDiscount || 0).toFixed(2)}`;
-    order.total = displayTotal;
+    order.formattedTax = `₹${displayTax.toFixed(2)}`;
+    order.formattedDiscount = `₹${displayOfferDiscount.toFixed(2)}`;
+    order.formattedCouponDiscount = `₹${displayCouponDiscount.toFixed(2)}`;
     const doc = new PDFDocument({
       margin: 50,
       size: 'A4'

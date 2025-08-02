@@ -207,9 +207,10 @@
       <thead class="table-light">
         <tr>
           <th>Product</th>
-          <th>Price</th>
+          <th>Original Price</th>
+          <th>Discounted Price</th>
           <th>Qty</th>
-          <th>Subtotal</th>
+          <th>Final Total</th>
         </tr>
       </thead>
       <tbody>
@@ -224,39 +225,82 @@
                 <% if (item.connectivity) { %>
                   <small class="text-muted">Type: <%= item.connectivity %></small>
                 <% } %>
+                <% if (item.priceBreakdown && (item.priceBreakdown.offerDiscount > 0 || item.priceBreakdown.couponDiscount > 0)) { %>
+                  <div class="mt-1">
+                    <% if (item.priceBreakdown.offerDiscount > 0) { %>
+                      <small class="text-success">
+                        <i class="bi bi-tag-fill"></i>
+                        Offer: -₹<%= item.priceBreakdown.offerDiscount.toFixed(2) %>
+                      </small><br>
+                    <% } %>
+                    <% if (item.priceBreakdown.couponDiscount > 0) { %>
+                      <small class="text-primary">
+                        <i class="bi bi-ticket-perforated-fill"></i>
+                        Coupon: -₹<%= item.priceBreakdown.couponDiscount.toFixed(2) %>
+                      </small>
+                    <% } %>
+                  </div>
+                <% } %>
               </div>
             </td>
-            <td>₹<%= item.price.toFixed(2) %></td>
+            <td>
+              <% if (item.formattedOriginalPrice) { %>
+                <%= item.formattedOriginalPrice %>
+              <% } else { %>
+                ₹<%= item.price.toFixed(2) %>
+              <% } %>
+            </td>
+            <td>
+              <% if (item.priceBreakdown && (item.priceBreakdown.offerDiscount > 0 || item.priceBreakdown.couponDiscount > 0)) { %>
+                <% if (item.formattedFinalPrice) { %>
+                  <%= item.formattedFinalPrice %>
+                <% } else { %>
+                  ₹<%= ((item.price - (item.priceBreakdown.offerDiscount || 0)) - ((item.priceBreakdown.couponDiscount || 0) / item.quantity)).toFixed(2) %>
+                <% } %>
+              <% } else { %>
+                <% if (item.formattedOriginalPrice) { %>
+                  <%= item.formattedOriginalPrice %>
+                <% } else { %>
+                  ₹<%= item.price.toFixed(2) %>
+                <% } %>
+              <% } %>
+            </td>
             <td><%= item.quantity || 1 %></td>
-            <td>₹<%= (item.price * item.quantity).toFixed(2) %></td>
+            <td>
+              <% if (item.itemFinalTotal) { %>
+                ₹<%= item.itemFinalTotal.toFixed(2) %>
+              <% } else { %>
+                ₹<%= (item.price * item.quantity).toFixed(2) %>
+              <% } %>
+            </td>
           </tr>
         <% }) %>
         <tr>
-          <td colspan="3" class="text-end">Subtotal</td>
+          <td colspan="4" class="text-end">Subtotal (Original Prices)</td>
           <td><%= order.formattedSubtotal %></td>
         </tr>
         <% if (order.discount && order.discount > 0) { %>
           <tr>
-            <td colspan="3" class="text-end text-success">Offer Discount</td>
+            <td colspan="4" class="text-end text-success">Offer Discount</td>
             <td class="text-success">-<%= order.formattedDiscount %></td>
           </tr>
         <% } %>
         <% if (order.couponDiscount && order.couponDiscount > 0) { %>
           <tr>
-            <td colspan="3" class="text-end text-primary">Coupon Discount <%= order.couponCode ? `(${order.couponCode})` : '' %></td>
+            <td colspan="4" class="text-end text-primary">Coupon Discount <%= order.couponCode ? `(${order.couponCode})` : '' %></td>
             <td class="text-primary">-<%= order.formattedCouponDiscount %></td>
           </tr>
         <% } %>
         <tr>
-          <td colspan="3" class="text-end">Tax</td>
+          <td colspan="4" class="text-end">Tax (GST)</td>
           <td><%= order.formattedTax %></td>
         </tr>
         <tr>
-          <td colspan="3" class="text-end total">Total</td>
+          <td colspan="4" class="text-end total">Total</td>
           <td class="total"><%= order.formattedTotal %></td>
         </tr>
         <tr>
-          <td colspan="3" class="text-end">Payment Method</td>
+          <td colspan="4" class="text-end">Payment Method</td>
           <td><%= order.paymentMethod || 'Cash on Delivery' %></td>
         </tr>
       </tbody>
