@@ -40,7 +40,6 @@ class AuthHandler {
       }
     }).then((result) => {
       if (result.isConfirmed) {
-        // Store the current page to redirect back after login
         sessionStorage.setItem('redirectAfterLogin', window.location.pathname);
         window.location.href = redirectUrl;
       }
@@ -53,7 +52,6 @@ class AuthHandler {
    * @param {string} action - Action performed
    */
   static handleSuccess(result, action = "Operation completed") {
-    // Update cart count if provided
     if (result.cartCount !== undefined) {
       const cartCountElement = document.querySelector('.cart-count');
       if (cartCountElement) {
@@ -62,7 +60,6 @@ class AuthHandler {
       }
     }
 
-    // Update wishlist count if provided
     if (result.wishlistCount !== undefined) {
       const wishlistCountElement = document.querySelector('.wishlist-count');
       if (wishlistCountElement) {
@@ -71,7 +68,6 @@ class AuthHandler {
       }
     }
 
-    // Show success toast
     Swal.fire({
       toast: true,
       position: 'top-end',
@@ -129,17 +125,14 @@ class AuthHandler {
         this.handleSuccess(result, successAction);
         return { success: true, result };
       } else {
-        // Check if authentication is required
         if (this.handleAuthRequired(result, errorAction)) {
           return { success: false, authRequired: true };
         }
         
-        // Handle other errors
         this.handleError(result, `Failed to ${errorAction}`);
         return { success: false, result };
       }
     } catch (error) {
-      console.error(`Error in ${errorAction}:`, error);
       this.handleError({}, `Error ${errorAction}`);
       return { success: false, error };
     }
@@ -173,10 +166,8 @@ class AuthHandler {
   }
 }
 
-// Make AuthHandler globally available
 window.AuthHandler = AuthHandler;
 
-// Add custom CSS for auth dialog
 const authStyles = `
 <style>
 .auth-required-popup {
@@ -209,5 +200,4 @@ const authStyles = `
 </style>
 `;
 
-// Inject styles
 document.head.insertAdjacentHTML('beforeend', authStyles);

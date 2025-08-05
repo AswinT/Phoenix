@@ -7,7 +7,6 @@
 (function() {
   'use strict';
 
-  // Function to show blocked user alert
   function showBlockedUserAlert() {
     if (typeof Swal !== 'undefined') {
       Swal.fire({
@@ -22,38 +21,31 @@
         window.location.href = '/login?error=blocked';
       });
     } else {
-      // Fallback if SweetAlert is not available
       alert('Your account has been blocked by the administrator. Please contact support for assistance.');
       window.location.href = '/login?error=blocked';
     }
   }
 
-  // Store original fetch function
   const originalFetch = window.fetch;
 
-  // Override fetch to handle blocked user responses
   window.fetch = async function(...args) {
     try {
       const response = await originalFetch.apply(this, args);
 
-      // Check if response indicates user is blocked
       if (response.status === 403) {
         const contentType = response.headers.get('content-type');
 
         if (contentType && contentType.includes('application/json')) {
-          // Clone response to read it without consuming the original
           const clonedResponse = response.clone();
 
           try {
             const data = await clonedResponse.json();
 
             if (data.blocked || (data.message && data.message.includes('blocked'))) {
-              // User is blocked, show alert and redirect
               showBlockedUserAlert();
               return response; // Return original response
             }
           } catch (e) {
-            // If JSON parsing fails, continue with original response
           }
         }
       }
@@ -64,7 +56,6 @@
     }
   };
 
-  // Override XMLHttpRequest for older AJAX requests
   const originalXHROpen = XMLHttpRequest.prototype.open;
   const originalXHRSend = XMLHttpRequest.prototype.send;
 
@@ -77,12 +68,10 @@
   XMLHttpRequest.prototype.send = function(data) {
     const xhr = this;
     
-    // Store original onreadystatechange
     const originalOnReadyStateChange = xhr.onreadystatechange;
     
     xhr.onreadystatechange = function() {
       if (xhr.readyState === 4) {
-        // Check if response indicates user is blocked
         if (xhr.status === 403) {
           try {
             const contentType = xhr.getResponseHeader('content-type');
@@ -91,18 +80,15 @@
               const responseData = JSON.parse(xhr.responseText);
               
               if (responseData.blocked || (responseData.message && responseData.message.includes('blocked'))) {
-                // User is blocked, show alert and redirect
                 showBlockedUserAlert();
                 return;
               }
             }
           } catch (e) {
-            // If JSON parsing fails, continue with original handler
           }
         }
       }
       
-      // Call original handler
       if (originalOnReadyStateChange) {
         originalOnReadyStateChange.apply(this, arguments);
       }
@@ -111,7 +97,6 @@
     return originalXHRSend.apply(this, arguments);
   };
 
-  // Handle jQuery AJAX if jQuery is available
   if (typeof $ !== 'undefined' && $.ajaxSetup) {
     $(document).ajaxComplete(function(event, xhr, settings) {
       if (xhr.status === 403) {
@@ -122,18 +107,15 @@
             const responseData = JSON.parse(xhr.responseText);
             
             if (responseData.blocked || (responseData.message && responseData.message.includes('blocked'))) {
-              // User is blocked, show alert and redirect
               showBlockedUserAlert();
             }
           }
         } catch (e) {
-          // If JSON parsing fails, ignore
         }
       }
     });
   }
 
-  // Handle axios if available
   if (typeof axios !== 'undefined') {
     axios.interceptors.response.use(
       function (response) {
@@ -144,7 +126,6 @@
           const data = error.response.data;
           
           if (data && (data.blocked || (data.message && data.message.includes('blocked')))) {
-            // User is blocked, show alert and redirect
             showBlockedUserAlert();
           }
         }
@@ -154,16 +135,13 @@
     );
   }
 
-  // Handle page redirects with blocked user alerts
   document.addEventListener('DOMContentLoaded', function() {
-    // Skip handling on login pages as they have their own blocked user handling
     if (window.location.pathname === '/login' ||
         window.location.pathname === '/auth/login' ||
         window.location.pathname.includes('/login')) {
       return;
     }
 
-    // For non-login pages, check if user was just blocked and redirected
     const wasBlocked = sessionStorage.getItem('userWasBlocked');
     if (wasBlocked === 'true') {
       sessionStorage.removeItem('userWasBlocked');
@@ -171,7 +149,6 @@
     }
   });
 
-  // Intercept regular page navigation for blocked users
   const originalPushState = history.pushState;
   const originalReplaceState = history.replaceState;
 
@@ -191,9 +168,7 @@
     }
   }
 
-  console.log('Blocked User Handler initialized');
 
-  // Image preview for return item modals
   document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('input[type="file"][id^="returnImage"]').forEach(function(input) {
       input.addEventListener('change', function(event) {

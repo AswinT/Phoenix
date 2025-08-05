@@ -8,14 +8,14 @@ const validatePriceComparison = (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: 'Validation failed',
-        errors: ['Sale price cannot be greater than regular price']
+        errors: { salePrice: 'Sale price cannot be greater than regular price' }
       });
     }
     if (salePrice < regularPrice * 0.1) {
       return res.status(400).json({
         success: false,
         message: 'Validation failed',
-        errors: ['Sale price cannot be less than 10% of regular price']
+        errors: { salePrice: 'Sale price cannot be less than 10% of regular price' }
       });
     }
   }
@@ -70,18 +70,17 @@ const validateProductData = createValidationMiddleware({
   },
   regularPrice: {
     type: 'price',
-    fieldName: 'Regular Price'
+    fieldName: 'Regular Price',
+    required: true
   },
   salePrice: {
     type: 'price',
-    fieldName: 'Sale Price'
+    fieldName: 'Sale Price',
+    required: true
   },
   stock: {
     type: 'text',
     fieldName: 'Stock',
-    pattern: /^\d+$/,
-    min: 1,
-    max: 5,
     required: true,
     customValidator: (value) => {
       const num = parseInt(value);
@@ -93,7 +92,8 @@ const validateProductData = createValidationMiddleware({
   },
   category: {
     type: 'objectId',
-    fieldName: 'Category'
+    fieldName: 'Category',
+    required: true
   }
 });
 

@@ -117,7 +117,6 @@ const getReturnRequestDetails = async (req, res) => {
   try {
     const orderId = req.params.id;
 
-    // Validate ObjectId format
     if (!orderId || !orderId.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(HttpStatus.BAD_REQUEST).render('admin/page-404', {
         title: 'Invalid Order ID Format'
@@ -129,7 +128,6 @@ const getReturnRequestDetails = async (req, res) => {
       .lean();
 
     if (!order || order.isDeleted) {
-      console.log('Order not found or deleted');
       return res.status(HttpStatus.NOT_FOUND).render('admin/page-404', {
         title: 'Return Request Not Found'
       });

@@ -50,7 +50,6 @@ const getProducts = async (req, res) => {
     delete req.session.successMessage;
     delete req.session.errorMessage;
   } catch (error) {
-    console.error('Error fetching products:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Internal Server Error' });
   }
 };
@@ -70,7 +69,6 @@ const addProduct = async (req, res) => {
       isListed,
     } = req.body;
 
-    // Check for duplicate product model
     const existingProduct = await Product.findOne({
       model: { $regex: new RegExp(`^${model.trim()}$`, 'i') },
       isDeleted: false
@@ -156,7 +154,6 @@ const addProduct = async (req, res) => {
       message: 'Product added successfully!'
     });
   } catch (error) {
-    console.error('Error adding product:', error);
     if (error.message.includes('ENOENT')) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
@@ -192,7 +189,6 @@ const toggleProductStatus = async (req, res) => {
       message: `Product ${product.isListed ? 'listed' : 'unlisted'} successfully`,
     });
   } catch (error) {
-    console.error('Error toggling product status:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server Error' });
   }
 };
@@ -207,7 +203,6 @@ const getEditProduct = async (req, res) => {
     }
     res.render('editProduct', { product, categories });
   } catch (error) {
-    console.error('Error fetching product for edit:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Server Error' });
   }
 };
@@ -216,7 +211,6 @@ const updateProduct = async (req, res) => {
   try {
     const productId = req.params.id;
 
-    // Check if req.body exists and has data
     if (!req.body || Object.keys(req.body).length === 0) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
@@ -238,7 +232,6 @@ const updateProduct = async (req, res) => {
       isListed,
     } = req.body;
 
-    // Validate required fields
     if (!model || !brand || !description || !category || !regularPrice || !salePrice || !stock || !connectivity || !manufacturer) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
@@ -256,7 +249,6 @@ const updateProduct = async (req, res) => {
       });
     }
 
-    // Check for duplicate product model (excluding current product)
     const existingProduct = await Product.findOne({
       model: { $regex: new RegExp(`^${model.trim()}$`, 'i') },
       isDeleted: false,
@@ -298,10 +290,13 @@ const updateProduct = async (req, res) => {
     }
 
     const subImages = product.subImages ? [...product.subImages] : [];
+    
     for (let i = 1; i <= 3; i++) {
       const fieldName = `subImage${i}`;
+      
       if (req.files && req.files[fieldName] && req.files[fieldName].length > 0) {
         const file = req.files[fieldName][0];
+        
         if (!fs.existsSync(file.path)) {
           continue;
         }
@@ -317,7 +312,6 @@ const updateProduct = async (req, res) => {
           try {
             await cloudinary.uploader.destroy(`products/sub/${publicId}`);
           } catch {
-            // Failed to delete old image, continue
           }
         }
         if (index < subImages.length) {
@@ -349,7 +343,6 @@ const updateProduct = async (req, res) => {
       message: 'Product updated successfully!'
     });
   } catch (error) {
-    console.error('Error updating product:', error);
     if (error.message.includes('ENOENT')) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,

@@ -24,33 +24,27 @@ const shopPage = async (req, res) => {
         query.brand = brandFilter;
       }
     }
-    // Comprehensive price validation
     let minPrice = 0;
     let maxPrice = 50000;
     let priceValidationErrors = [];
 
-    // Validate minimum price
     if (req.query.minPrice !== undefined && req.query.minPrice !== '') {
       const minPriceInput = req.query.minPrice;
 
-      // Check if it's a valid number
       if (isNaN(minPriceInput) || minPriceInput === null) {
         priceValidationErrors.push('Minimum price must be a valid number');
         minPrice = 0;
       } else {
         const parsedMinPrice = parseFloat(minPriceInput);
 
-        // Check for negative values
         if (parsedMinPrice < 0) {
           priceValidationErrors.push('Minimum price cannot be negative');
           minPrice = 0;
         }
-        // Check for extremely large values
         else if (parsedMinPrice > 1000000) {
           priceValidationErrors.push('Minimum price cannot exceed ₹10,00,000');
           minPrice = 1000000;
         }
-        // Check for decimal precision (max 2 decimal places)
         else if (parsedMinPrice % 1 !== 0 && parsedMinPrice.toString().split('.')[1]?.length > 2) {
           minPrice = Math.round(parsedMinPrice * 100) / 100;
         } else {
@@ -59,28 +53,23 @@ const shopPage = async (req, res) => {
       }
     }
 
-    // Validate maximum price
     if (req.query.maxPrice !== undefined && req.query.maxPrice !== '') {
       const maxPriceInput = req.query.maxPrice;
 
-      // Check if it's a valid number
       if (isNaN(maxPriceInput) || maxPriceInput === null) {
         priceValidationErrors.push('Maximum price must be a valid number');
         maxPrice = 50000;
       } else {
         const parsedMaxPrice = parseFloat(maxPriceInput);
 
-        // Check for negative values
         if (parsedMaxPrice < 0) {
           priceValidationErrors.push('Maximum price cannot be negative');
           maxPrice = 50000;
         }
-        // Check for extremely large values
         else if (parsedMaxPrice > 1000000) {
           priceValidationErrors.push('Maximum price cannot exceed ₹10,00,000');
           maxPrice = 1000000;
         }
-        // Check for decimal precision (max 2 decimal places)
         else if (parsedMaxPrice % 1 !== 0 && parsedMaxPrice.toString().split('.')[1]?.length > 2) {
           maxPrice = Math.round(parsedMaxPrice * 100) / 100;
         } else {
@@ -89,18 +78,14 @@ const shopPage = async (req, res) => {
       }
     }
 
-    // Validate price range relationship
     if (minPrice > maxPrice) {
       priceValidationErrors.push('Minimum price cannot be greater than maximum price');
-      // Auto-correct by swapping values
       const temp = minPrice;
       minPrice = maxPrice;
       maxPrice = temp;
     }
 
-    // Ensure minimum range gap for better UX
     if (maxPrice - minPrice < 10 && minPrice > 0 && maxPrice < 50000) {
-      // Only adjust if both values are user-provided and the gap is too small
       if (req.query.minPrice && req.query.maxPrice) {
         maxPrice = minPrice + 10;
       }

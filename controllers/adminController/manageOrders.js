@@ -661,7 +661,6 @@ const downloadInvoice = async (req, res) => {
     try {
       doc.image(path.join(__dirname, '../../public/assets/phoenix-logo.png'), leftMargin, 50, { width: 50 });
     } catch {
-      // Logo image not found, continue without logo
     }
     doc.font('Helvetica-Bold')
       .fontSize(28)
@@ -975,20 +974,16 @@ const approveReturnRequest = async (req, res) => {
           { $inc: { stock: item.quantity } }
         );
         if (order.paymentStatus === 'Paid') {
-          console.log('Processing refund for approved return item:', itemId);
           const refundSuccess = await processReturnRefund(order.user, order, itemId);
           if (refundSuccess) {
             const allItemsRefunded = order.items.every(i =>
               i.status === 'Returned' || i.status === 'Cancelled'
             );
             order.paymentStatus = allItemsRefunded ? 'Refunded' : 'Partially Refunded';
-            console.log('Refund processed successfully, payment status updated to:', order.paymentStatus);
           } else {
             order.paymentStatus = 'Refund Processing';
-            console.log('Refund processing failed, status set to Refund Processing');
           }
         } else {
-          console.log('Order payment status is not Paid, skipping refund:', order.paymentStatus);
         }
       } else {
         item.status = 'Active';
@@ -1008,7 +1003,6 @@ const approveReturnRequest = async (req, res) => {
           order.orderStatus = 'Delivered';
         }
       } else if (hasReturnRequestedItems) {
-        // Order has return requested items, status remains unchanged
       } else {
         order.orderStatus = 'Delivered';
       }

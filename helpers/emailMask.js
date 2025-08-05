@@ -5,7 +5,6 @@
  * @returns {object} - Object containing maskedEmail, message, and fullMessage
  */
 const createOtpMessage = (email, purpose = 'forgot-password') => {
-  // Simple email masking function
   const maskEmail = (email) => {
     if (!email || !email.includes('@')) {
       return 'your***@example.com';

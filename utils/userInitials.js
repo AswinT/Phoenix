@@ -18,7 +18,6 @@ function generateInitials(fullName) {
     return names[0].charAt(0).toUpperCase();
   }
   
-  // Take first letter of first name and first letter of last name
   return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
 }
 

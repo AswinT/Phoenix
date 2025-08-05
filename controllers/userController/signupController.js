@@ -13,7 +13,6 @@ const getOtp = async (req, res) => {
       return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Session expired' });
     }
 
-    // Simple email masking function
     const maskEmail = (email) => {
       const [username, domain] = email.split('@');
       const maskedUsername = username.length > 2
@@ -73,7 +72,7 @@ const postSignup = async (req, res) => {
       });
     }
     const otp = otpGenerator();
-    console.log('Generated OTP:', otp); // Essential for development/testing
+    console.log("Generated OTP:", otp);
     const subjectContent = 'Verify your email for Phoenix';
     try {
       await sendOtpEmail(trimmedEmail, trimmedName, otp, subjectContent,'signup');
@@ -191,7 +190,6 @@ const verifyOtp = async (req, res) => {
             }]
           });
           await newUserWallet.save();
-          console.log(`Referral processed: ${referrer.fullName} got ₹100, ${newUser.fullName} got ₹50`);
         }
       } catch (referralError) {
         console.error('Error processing referral:', referralError);
@@ -221,7 +219,7 @@ const resendOtp = async (req, res) => {
       });
     }
     const otp = otpGenerator();
-    console.log('Resending OTP:', otp); // Essential for development/testing
+    console.log("Generated OTP:", otp);
     await OTP.deleteMany({ email, purpose: 'signup' });
     const otpDoc = new OTP({
       email,

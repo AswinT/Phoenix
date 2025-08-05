@@ -27,13 +27,10 @@ class ProductRealTimeValidator {
    * @param {HTMLFormElement} form - The product form element
    */
   setupProductValidation(form) {
-    // Add real-time validation with custom product rules
     this.errorHandler.addRealTimeValidation(form, this.validationRules);
     
-    // Add special cross-field validation
     this.setupCrossFieldValidation(form);
     
-    // Add character counters for text fields
     this.addCharacterCounters(form);
   }
 
@@ -88,7 +85,6 @@ class ProductRealTimeValidator {
         if (salePrice <= 0) return 'Sale Price must be greater than 0';
         if (salePrice > 1000000) return 'Sale Price must not exceed ₹1,000,000';
         
-        // Cross-field validation with regular price
         const regularPriceField = field.form.querySelector('[name="regularPrice"]');
         if (regularPriceField && regularPriceField.value) {
           const regularPrice = parseFloat(regularPriceField.value);
@@ -154,7 +150,6 @@ class ProductRealTimeValidator {
     const salePriceField = form.querySelector('[name="salePrice"]');
 
     if (regularPriceField && salePriceField) {
-      // Validate sale price when regular price changes
       regularPriceField.addEventListener('input', () => {
         this.debounceValidation('regularPrice', () => {
           if (salePriceField.value) {
@@ -163,7 +158,6 @@ class ProductRealTimeValidator {
         });
       });
 
-      // Validate sale price when it changes
       salePriceField.addEventListener('input', () => {
         this.debounceValidation('salePrice', () => {
           this.errorHandler.validateField(salePriceField, this.validationRules);
@@ -201,19 +195,16 @@ class ProductRealTimeValidator {
     const formGroup = field.closest('.mb-3') || field.parentElement;
     if (!formGroup) return;
 
-    // Create counter element
     const counter = document.createElement('small');
     counter.className = 'character-counter text-muted';
     counter.style.fontSize = '0.75rem';
     counter.style.marginTop = '0.25rem';
     counter.style.display = 'block';
 
-    // Update counter function
     const updateCounter = () => {
       const currentLength = field.value.length;
       counter.textContent = `${currentLength}/${maxLength} characters`;
       
-      // Change color based on usage
       if (currentLength > maxLength * 0.9) {
         counter.style.color = '#dc3545'; // Red when near limit
       } else if (currentLength > maxLength * 0.7) {
@@ -223,13 +214,10 @@ class ProductRealTimeValidator {
       }
     };
 
-    // Add counter to form group
     formGroup.appendChild(counter);
 
-    // Initialize counter
     updateCounter();
 
-    // Update counter on input
     field.addEventListener('input', updateCounter);
   }
 
@@ -257,7 +245,6 @@ class ProductRealTimeValidator {
     const errors = {};
     let isValid = true;
 
-    // Validate all fields with custom rules
     Object.keys(this.validationRules).forEach(fieldName => {
       const field = form.querySelector(`[name="${fieldName}"]`);
       if (field) {
@@ -278,9 +265,7 @@ class ProductRealTimeValidator {
   }
 }
 
-// Initialize the validator
 const productValidator = new ProductRealTimeValidator();
 productValidator.init();
 
-// Export for global access
 window.ProductRealTimeValidator = productValidator;

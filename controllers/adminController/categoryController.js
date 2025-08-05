@@ -113,7 +113,6 @@ const editCategory = async (req, res) => {
           isListed: newIsListed
         }
       );
-      console.log(`Category ${category.name} ${newIsListed ? 'listed' : 'unlisted'}. Updated ${updateResult.modifiedCount} products.`);
       res.json({
         message: `Category updated successfully. ${updateResult.modifiedCount} products were ${newIsListed ? 'listed' : 'unlisted'} automatically.`
       });
@@ -143,7 +142,6 @@ const toggleCategoryStatus = async (req, res) => {
         isListed: category.isListed
       }
     );
-    console.log(`Category ${category.name} ${category.isListed ? 'listed' : 'unlisted'}. Updated ${updateResult.modifiedCount} products.`);
     res.json({
       message: `Category ${category.isListed ? 'listed' : 'unlisted'} successfully. ${updateResult.modifiedCount} products were ${category.isListed ? 'listed' : 'unlisted'} automatically.`,
       productsUpdated: updateResult.modifiedCount

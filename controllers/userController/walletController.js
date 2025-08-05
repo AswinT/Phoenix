@@ -123,7 +123,6 @@ const processCancelRefund = async (userId, order, productId = null) => {
                 date: new Date()
               });
               await wallet.save();
-              console.log(`Remaining refund processed: ₹${remainingRefund}`);
               return true;
             } else {
               return true;
@@ -170,7 +169,6 @@ const processCancelRefund = async (userId, order, productId = null) => {
     };
     wallet.transactions.push(newTransaction);
     await wallet.save();
-    console.log(`Cancel refund processed: ₹${finalRefundAmount} for ${refundResult.reason}`);
     return true;
   } catch (error) {
     console.error('Error processing cancel refund:', error);
@@ -238,7 +236,6 @@ const processReturnRefund = async (userId, order, productId = null) => {
     };
     wallet.transactions.push(newTransaction);
     await wallet.save();
-    console.log(`Return refund processed: ₹${finalRefundAmount} for ${refundResult.reason}`);
     return true;
   } catch (error) {
     console.error('Error processing return refund:', error);

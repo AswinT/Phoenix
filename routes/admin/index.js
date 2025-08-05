@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 
-// Import controllers
 const adminController = require('../../controllers/adminController/adminLoginController');
 const dashboardController = require('../../controllers/adminController/dashboardController');
 const adminUserController = require('../../controllers/adminController/getUserController');
@@ -15,7 +14,6 @@ const couponController = require('../../controllers/adminController/couponContro
 const offerController = require('../../controllers/adminController/offerController');
 const salesController = require('../../controllers/adminController/salesController');
 
-// Import validators
 const {
   validateProductData,
   validatePriceComparison
@@ -34,11 +32,9 @@ const {
 } = require('../../validators/admin/couponValidator');
 const { adminLoginValidator } = require('../../validators/admin/adminLoginValidator');
 
-// Import middleware
 const { isAdminAuthenticated, isAdminNotAuthenticated, preventCache } = require('../../middlewares/adminMiddleware');
 const upload = require('../../config/multer');
 
-// Helper function to handle multer errors
 const handleMulterError = (err, req, res, next) => {
   if (err) {
     console.error('Multer error:', err);
@@ -48,21 +44,21 @@ const handleMulterError = (err, req, res, next) => {
         return res.status(400).json({
           success: false,
           message: 'File too large',
-          errors: ['File size must be less than 5MB']
+          errors: { mainImage: 'File size must be less than 5MB' }
         });
       }
       if (err.code === 'LIMIT_FILE_COUNT') {
         return res.status(400).json({
           success: false,
           message: 'Too many files',
-          errors: ['Maximum 4 files allowed']
+          errors: { general: 'Maximum 4 files allowed' }
         });
       }
       if (err.code === 'LIMIT_UNEXPECTED_FILE') {
         return res.status(400).json({
           success: false,
           message: 'Unexpected file field',
-          errors: ['Unexpected file field: ' + err.field]
+          errors: { general: 'Unexpected file field: ' + err.field }
         });
       }
     }
@@ -71,40 +67,35 @@ const handleMulterError = (err, req, res, next) => {
       return res.status(400).json({
         success: false,
         message: 'Invalid file type',
-        errors: ['Only JPEG, JPG, and PNG images are allowed']
+        errors: { mainImage: 'Only JPEG, JPG, and PNG images are allowed' }
       });
     }
 
     return res.status(500).json({
       success: false,
       message: 'File upload error',
-      errors: [err.message || 'Unknown file upload error']
+      errors: { general: err.message || 'Unknown file upload error' }
     });
   }
 
   next();
 };
 
-// Authentication Routes
 router.get('/auth/login', isAdminNotAuthenticated, preventCache, adminController.getAdminLogin);
 router.post('/auth/login', isAdminNotAuthenticated, adminLoginValidator, adminController.postAdminLogin);
 router.get('/auth/logout', isAdminAuthenticated, adminController.logoutAdminDashboard);
 
-// Apply authentication middleware to all routes below
 router.use(isAdminAuthenticated);
 router.use(preventCache);
 
-// Dashboard Routes
 router.get('/dashboard', dashboardController.getDashboard);
 router.get('/dashboard/analytics', dashboardController.getAnalyticsData);
 router.get('/dashboard/top-performance', dashboardController.getTopPerformance);
 
-// User Management Routes
 router.get('/users', adminUserController.getUsers);
 router.put('/users/:id/block', adminUserController.blockUser);
 router.put('/users/:id/unblock', adminUserController.unblockUser);
 
-// Category Management Routes
 router.get('/categories', categoryController.getCategory);
 router.post('/categories',
   (req, res, next) => {
@@ -124,7 +115,6 @@ router.put('/categories/:id',
 );
 router.put('/categories/:id/toggle', categoryController.toggleCategoryStatus);
 
-// Categories list for dropdowns
 router.get('/categories/list', async (req, res) => {
   try {
     const Category = require('../../models/categorySchema');
@@ -135,11 +125,9 @@ router.get('/categories/list', async (req, res) => {
   }
 });
 
-// Product Management Routes
 router.get('/products', productController.getProducts);
 router.get('/products/add', manageProductController.getAddProduct);
 
-// Duplicate check route for products
 router.get('/products/check-duplicate', async (req, res) => {
   try {
     const { model, excludeId } = req.query;
@@ -181,7 +169,6 @@ router.post('/products',
 );
 router.get('/products/:id/edit', productController.getEditProduct);
 
-// Product update routes (POST with method override and PUT)
 router.post('/products/:id',
   (req, res, next) => {
     upload.fields([
@@ -213,34 +200,29 @@ router.put('/products/:id',
 router.put('/products/:id/toggle', productController.toggleProductStatus);
 router.put('/products/:id/soft-delete', productController.softDeleteProduct);
 
-// Order Management Routes
 router.get('/orders', manageOrderController.getManageOrders);
 router.get('/orders/:id', manageOrderController.getOrderDetails);
 router.put('/orders/:id/status', manageOrderController.updateOrderStatus);
 router.get('/orders/:id/invoice', manageOrderController.downloadInvoice);
 router.put('/orders/:id/return-request', manageOrderController.approveReturnRequest);
 
-// Return Management Routes
 router.get('/returns', returnManagementController.getReturnRequests);
 router.get('/returns/:id', returnManagementController.getReturnRequestDetails);
 router.put('/returns/:id/process', returnManagementController.processReturnRequest);
 router.post('/returns/bulk-process', returnManagementController.bulkProcessReturns);
 
-// Coupon Management Routes
 router.get('/coupons', couponController.getCoupons);
 router.get('/coupons/:id', couponController.getCouponDetails);
 router.post('/coupons', validateCreateCoupon, couponController.createCoupon);
 router.put('/coupons/:id', validateUpdateCoupon, couponController.updateCoupon);
 router.put('/coupons/:id/toggle-status', couponController.toggleCouponStatus);
 
-// Offer Management Routes
 router.get('/offers', offerController.getOffers);
 router.post('/offers', validateCreateOffer, offerController.createOffer);
 router.get('/offers/:id', offerController.getOfferDetails);
 router.put('/offers/:id', validateUpdateOffer, offerController.updateOffer);
 router.put('/offers/:id/toggle-status', offerController.toggleOfferStatus);
 
-// Sales & Reports Routes
 router.get('/sales', salesController.getSales);
 router.get('/sales/export/excel', salesController.exportToExcel);
 router.get('/sales/export/pdf', salesController.exportToPDF);

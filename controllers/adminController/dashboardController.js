@@ -365,32 +365,27 @@ const formatCurrency = (amount) => {
   return '₹' + Math.round(amount).toLocaleString('en-IN');
 };
 
-// Calculate analytics data for charts
 const calculateAnalyticsData = async (period, year) => {
   try {
     let periods, startDate, endDate;
 
     switch (period) {
     case 'yearly':
-      // Last 5 years
       periods = Array.from({ length: 5 }, (_, i) => year - 4 + i);
       startDate = new Date(year - 4, 0, 1);
       endDate = new Date(year, 11, 31, 23, 59, 59);
       break;
     case 'monthly':
-      // 12 months of the year
       periods = Array.from({ length: 12 }, (_, i) => i + 1);
       startDate = new Date(year, 0, 1);
       endDate = new Date(year, 11, 31, 23, 59, 59);
       break;
     case 'weekly':
-      // 52 weeks of the year
       periods = Array.from({ length: 52 }, (_, i) => i + 1);
       startDate = new Date(year, 0, 1);
       endDate = new Date(year, 11, 31, 23, 59, 59);
       break;
     case 'daily': {
-      // Last 30 days from current date (ignore year parameter)
       const today = new Date();
       startDate = new Date(today.getTime() - 29 * 24 * 60 * 60 * 1000);
       startDate.setHours(0, 0, 0, 0);
@@ -427,12 +422,10 @@ const calculateAnalyticsData = async (period, year) => {
   }
 };
 
-// Calculate sales data by period
 const calculateSalesDataByPeriod = async (period, startDate, endDate) => {
   try {
     const pipeline = [];
 
-    // Match orders within the specified period
     pipeline.push({
       $match: {
         orderStatus: { $in: ['Delivered', 'Shipped', 'Processing'] },
@@ -444,7 +437,6 @@ const calculateSalesDataByPeriod = async (period, startDate, endDate) => {
       }
     });
 
-    // Group by period
     let groupId;
     switch (period) {
     case 'yearly':
@@ -457,7 +449,6 @@ const calculateSalesDataByPeriod = async (period, startDate, endDate) => {
       groupId = { $week: '$createdAt' };
       break;
     case 'daily':
-      // For daily, group by date string (YYYY-MM-DD)
       groupId = {
         $dateToString: {
           format: '%Y-%m-%d',
@@ -481,13 +472,11 @@ const calculateSalesDataByPeriod = async (period, startDate, endDate) => {
 
     const results = await Order.aggregate(pipeline);
 
-    // Fill in missing periods with 0
     const dataMap = new Map();
     results.forEach(result => {
       dataMap.set(result._id, result.totalSales);
     });
 
-    // Generate expected periods based on the date range
     const expectedPeriods = [];
     if (period === 'yearly') {
       const startYear = startDate.getFullYear();
@@ -504,7 +493,6 @@ const calculateSalesDataByPeriod = async (period, startDate, endDate) => {
         expectedPeriods.push(week);
       }
     } else if (period === 'daily') {
-      // Generate all dates in the range
       const currentDate = new Date(startDate);
       while (currentDate <= endDate) {
         expectedPeriods.push(currentDate.toISOString().split('T')[0]);
@@ -518,13 +506,10 @@ const calculateSalesDataByPeriod = async (period, startDate, endDate) => {
     throw error;
   }
 };
-// Calculate revenue data by period (similar to sales but focused on profit)
 const calculateRevenueDataByPeriod = async (period, startDate, endDate) => {
-  // For now, revenue = sales (can be enhanced to calculate actual profit)
   return await calculateSalesDataByPeriod(period, startDate, endDate);
 };
 
-// Calculate order count data by period
 const calculateOrderDataByPeriod = async (period, startDate, endDate) => {
   try {
     const pipeline = [];
@@ -551,7 +536,6 @@ const calculateOrderDataByPeriod = async (period, startDate, endDate) => {
       groupId = { $week: '$createdAt' };
       break;
     case 'daily':
-      // For daily, group by date string (YYYY-MM-DD)
       groupId = {
         $dateToString: {
           format: '%Y-%m-%d',
@@ -579,7 +563,6 @@ const calculateOrderDataByPeriod = async (period, startDate, endDate) => {
       dataMap.set(result._id, result.orderCount);
     });
 
-    // Generate expected periods based on the date range
     const expectedPeriods = [];
     if (period === 'yearly') {
       const startYear = startDate.getFullYear();
@@ -596,7 +579,6 @@ const calculateOrderDataByPeriod = async (period, startDate, endDate) => {
         expectedPeriods.push(week);
       }
     } else if (period === 'daily') {
-      // Generate all dates in the range
       const currentDate = new Date(startDate);
       while (currentDate <= endDate) {
         expectedPeriods.push(currentDate.toISOString().split('T')[0]);
@@ -611,7 +593,6 @@ const calculateOrderDataByPeriod = async (period, startDate, endDate) => {
   }
 };
 
-// Calculate top performance data with filter support
 const calculateTopPerformance = async (period = 'monthly', year = new Date().getFullYear()) => {
   let startDate, endDate;
 
@@ -674,7 +655,6 @@ const getAnalyticsData = async (req, res) => {
   }
 };
 
-// Get top performance data with filter support
 const getTopPerformance = async (req, res) => {
   try {
     const { period = 'monthly', year = new Date().getFullYear() } = req.query;
@@ -700,9 +680,7 @@ const getTopPerformance = async (req, res) => {
 
 
 
-// Ledger book generation functions removed
 
-// Helper function to calculate top products for a specific period
 const calculateTopProductsForPeriod = async (startDate, endDate) => {
   try {
     const pipeline = [
@@ -771,7 +749,6 @@ const calculateTopProductsForPeriod = async (startDate, endDate) => {
   }
 };
 
-// Helper function to calculate top categories for a specific period
 const calculateTopCategoriesForPeriod = async (startDate, endDate) => {
   try {
     const pipeline = [
@@ -849,7 +826,6 @@ const calculateTopCategoriesForPeriod = async (startDate, endDate) => {
   }
 };
 
-// Helper function to calculate top brands for a specific period
 const calculateTopBrandsForPeriod = async (startDate, endDate) => {
   try {
     const pipeline = [
@@ -925,11 +901,8 @@ const calculateTopBrandsForPeriod = async (startDate, endDate) => {
 
 
 
-// PDF content generation function removed
 
-// Excel content generation function removed
 
-// Ledger book data generation function removed
 
 module.exports = {
   getDashboard,

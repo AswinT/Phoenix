@@ -1,12 +1,8 @@
-// Enhanced Product Image Zoom Functionality - Modern Ecommerce Style
 document.addEventListener('DOMContentLoaded', function() {
-  // Initialize image magnifier functionality
   initImageMagnifier();
 
-  // Handle thumbnail clicks
   initThumbnailGallery();
 
-  // Initialize Bootstrap tabs
   initProductTabs();
 });
 
@@ -20,17 +16,14 @@ function initImageMagnifier() {
 
   if (!mainImage || !zoomContainer) return;
 
-  // Create magnifier glass element
   const magnifierGlass = document.createElement('div');
   magnifierGlass.classList.add('img-magnifier-glass');
   zoomContainer.appendChild(magnifierGlass);
 
-  // Create zoomed result container
   const zoomResult = document.createElement('div');
   zoomResult.classList.add('img-zoom-result');
   zoomContainer.appendChild(zoomResult);
 
-  // Add enhanced zoom controls with presets and reset button
   const zoomControls = document.createElement('div');
   zoomControls.classList.add('zoom-controls');
   zoomControls.innerHTML = `
@@ -48,19 +41,16 @@ function initImageMagnifier() {
   `;
   zoomContainer.appendChild(zoomControls);
 
-  // Add reset button to zoom result
   const resetButton = document.createElement('button');
   resetButton.classList.add('zoom-reset-btn');
   resetButton.innerHTML = '×';
   resetButton.title = 'Reset Zoom';
   zoomResult.appendChild(resetButton);
 
-  // Add loading indicator
   const loadingIndicator = document.createElement('div');
   loadingIndicator.classList.add('zoom-loading');
   zoomResult.appendChild(loadingIndicator);
 
-  // State management
   let isActive = false;
   let magnificationLevel = 3; // Optimized default magnification
   let animationFrameId = null;
@@ -68,10 +58,8 @@ function initImageMagnifier() {
   const maxZoom = 6;
   const presetZoomLevels = [2, 3, 4, 5];
 
-  // Performance optimization: debounce mouse events
   let mouseMoveTimeout = null;
   
-  // Enhanced zoom control buttons with smooth transitions
   const zoomBtns = zoomControls.querySelectorAll('.zoom-btn');
   zoomBtns.forEach(btn => {
     btn.addEventListener('click', function(e) {
@@ -82,7 +70,6 @@ function initImageMagnifier() {
       if (newLevel !== magnificationLevel) {
         setZoomLevel(newLevel);
 
-        // Add visual feedback
         this.style.transform = 'scale(0.9)';
         setTimeout(() => {
           this.style.transform = 'scale(1)';
@@ -91,7 +78,6 @@ function initImageMagnifier() {
     });
   });
 
-  // Zoom preset buttons
   const presetBtns = zoomControls.querySelectorAll('.zoom-preset-btn');
   presetBtns.forEach(btn => {
     btn.addEventListener('click', function(e) {
@@ -99,42 +85,35 @@ function initImageMagnifier() {
       const presetLevel = parseInt(this.getAttribute('data-zoom-preset'));
       setZoomLevel(presetLevel);
 
-      // Update active preset button
       presetBtns.forEach(b => b.classList.remove('active'));
       this.classList.add('active');
     });
   });
 
-  // Reset button functionality
   resetButton.addEventListener('click', function(e) {
     e.preventDefault();
     setZoomLevel(3); // Reset to default
 
-    // Reset active preset
     presetBtns.forEach(b => b.classList.remove('active'));
     presetBtns[1].classList.add('active'); // 3x is default
   });
 
-  // Helper function to set zoom level with smooth transitions
   function setZoomLevel(newLevel) {
     if (newLevel !== magnificationLevel && newLevel >= minZoom && newLevel <= maxZoom) {
       magnificationLevel = newLevel;
       document.getElementById('zoomLevel').textContent = magnificationLevel;
 
-      // Update preset button states
       presetBtns.forEach(btn => {
         const presetLevel = parseInt(btn.getAttribute('data-zoom-preset'));
         btn.classList.toggle('active', presetLevel === magnificationLevel);
       });
 
-      // If zoom is active, update the view smoothly
       if (isActive) {
         updateZoomView();
       }
     }
   }
 
-  // Smooth show magnifier with animation
   zoomContainer.addEventListener('mouseenter', function(e) {
     if (window.innerWidth <= 576) return; // Skip on very small screens
 
@@ -144,21 +123,17 @@ function initImageMagnifier() {
     zoomControls.style.display = 'flex';
     resetButton.style.display = 'flex';
 
-    // Add entrance animation
     zoomResult.classList.add('zoom-in');
     setTimeout(() => {
       zoomResult.classList.remove('zoom-in');
     }, 300);
 
-    // Initialize zoom view
     updateZoomView(e);
   });
 
-  // Smooth hide magnifier with animation
   zoomContainer.addEventListener('mouseleave', function() {
     isActive = false;
 
-    // Add exit animation
     zoomResult.classList.add('zoom-out');
 
     setTimeout(() => {
@@ -169,18 +144,15 @@ function initImageMagnifier() {
       zoomResult.classList.remove('zoom-out');
     }, 300);
 
-    // Cancel any pending animation frames
     if (animationFrameId) {
       cancelAnimationFrame(animationFrameId);
       animationFrameId = null;
     }
   });
   
-  // Optimized mousemove with requestAnimationFrame for smooth performance
   zoomContainer.addEventListener('mousemove', function(e) {
     if (!isActive) return;
 
-    // Debounce mouse events for better performance
     if (mouseMoveTimeout) {
       clearTimeout(mouseMoveTimeout);
     }
@@ -190,7 +162,6 @@ function initImageMagnifier() {
     }, 16); // ~60fps
   });
 
-  // Image preloading and caching
   const imageCache = new Map();
   let currentImageSrc = mainImage.src;
 
@@ -210,11 +181,9 @@ function initImageMagnifier() {
     });
   }
 
-  // Optimized zoom view update function with loading states
   function updateZoomView(e) {
     if (!isActive) return;
 
-    // Use requestAnimationFrame for smooth animations
     if (animationFrameId) {
       cancelAnimationFrame(animationFrameId);
     }
@@ -227,32 +196,26 @@ function initImageMagnifier() {
         cursorX = e.clientX - rect.left;
         cursorY = e.clientY - rect.top;
       } else {
-        // Use center if no event provided
         cursorX = rect.width / 2;
         cursorY = rect.height / 2;
       }
 
-      // Calculate magnifier glass position with smooth constraints
       const glassWidth = magnifierGlass.offsetWidth / 2;
       const glassHeight = magnifierGlass.offsetHeight / 2;
 
       let glassX = Math.max(0, Math.min(rect.width - magnifierGlass.offsetWidth, cursorX - glassWidth));
       let glassY = Math.max(0, Math.min(rect.height - magnifierGlass.offsetHeight, cursorY - glassHeight));
 
-      // Smooth positioning with CSS transforms for better performance
       magnifierGlass.style.transform = `translate(${glassX}px, ${glassY}px)`;
       magnifierGlass.style.left = '0px';
       magnifierGlass.style.top = '0px';
 
-      // Calculate relative position for background image
       const percentX = (cursorX / rect.width) * 100;
       const percentY = (cursorY / rect.height) * 100;
 
-      // Update backgrounds with optimized sizing and caching
       const bgSize = `${rect.width * magnificationLevel}px ${rect.height * magnificationLevel}px`;
       const bgPosition = `${percentX}% ${percentY}%`;
 
-      // Check if image has changed
       if (currentImageSrc !== mainImage.src) {
         currentImageSrc = mainImage.src;
         showLoadingState();
@@ -262,7 +225,6 @@ function initImageMagnifier() {
           updateBackgrounds(bgSize, bgPosition);
         }).catch(() => {
           hideLoadingState();
-          console.warn('Failed to preload zoom image');
           updateBackgrounds(bgSize, bgPosition);
         });
       } else {
@@ -272,12 +234,10 @@ function initImageMagnifier() {
   }
 
   function updateBackgrounds(bgSize, bgPosition) {
-    // Update magnifier glass background
     magnifierGlass.style.backgroundImage = `url('${currentImageSrc}')`;
     magnifierGlass.style.backgroundSize = bgSize;
     magnifierGlass.style.backgroundPosition = bgPosition;
 
-    // Update zoom result display
     zoomResult.style.backgroundImage = `url('${currentImageSrc}')`;
     zoomResult.style.backgroundSize = bgSize;
     zoomResult.style.backgroundPosition = bgPosition;
@@ -293,7 +253,6 @@ function initImageMagnifier() {
     zoomResult.style.opacity = '1';
   }
   
-  // Enhanced mouse wheel zoom with smooth scaling
   zoomContainer.addEventListener('wheel', function(e) {
     if (isActive) {
       e.preventDefault();
@@ -305,13 +264,11 @@ function initImageMagnifier() {
         magnificationLevel = newLevel;
         document.getElementById('zoomLevel').textContent = magnificationLevel.toFixed(1);
 
-        // Update zoom view smoothly
         updateZoomView(e);
       }
     }
   }, { passive: false });
   
-  // Enhanced touch device support with pinch-to-zoom
   let touchStartDistance = 0;
   let touchStartZoom = magnificationLevel;
   let touches = [];
@@ -322,7 +279,6 @@ function initImageMagnifier() {
     touches = Array.from(e.touches);
 
     if (touches.length === 1) {
-      // Single touch - show zoom
       isActive = true;
       magnifierGlass.style.display = 'block';
       zoomResult.style.display = 'block';
@@ -330,7 +286,6 @@ function initImageMagnifier() {
       resetButton.style.display = 'flex';
       updateTouchZoom(touches[0]);
     } else if (touches.length === 2) {
-      // Two finger pinch - prepare for zoom level change
       touchStartDistance = getTouchDistance(touches[0], touches[1]);
       touchStartZoom = magnificationLevel;
     }
@@ -343,7 +298,6 @@ function initImageMagnifier() {
     if (touches.length === 1 && isActive) {
       updateTouchZoom(touches[0]);
     } else if (touches.length === 2) {
-      // Handle pinch-to-zoom
       const currentDistance = getTouchDistance(touches[0], touches[1]);
       const scale = currentDistance / touchStartDistance;
       const newZoom = Math.max(minZoom, Math.min(maxZoom, touchStartZoom * scale));
@@ -358,7 +312,6 @@ function initImageMagnifier() {
     touches = Array.from(e.touches);
 
     if (touches.length === 0) {
-      // All fingers lifted
       touchTimeout = setTimeout(() => {
         isActive = false;
         magnifierGlass.style.display = 'none';
@@ -369,14 +322,12 @@ function initImageMagnifier() {
     }
   });
 
-  // Helper function to calculate distance between two touch points
   function getTouchDistance(touch1, touch2) {
     const dx = touch1.clientX - touch2.clientX;
     const dy = touch1.clientY - touch2.clientY;
     return Math.sqrt(dx * dx + dy * dy);
   }
 
-  // Keyboard navigation support
   let keyboardZoomActive = false;
 
   zoomContainer.addEventListener('keydown', function(e) {
@@ -435,12 +386,10 @@ function initImageMagnifier() {
     }
   });
 
-  // Make zoom container focusable for keyboard navigation
   zoomContainer.setAttribute('tabindex', '0');
   zoomContainer.setAttribute('role', 'button');
   zoomContainer.setAttribute('aria-label', 'Product image with zoom functionality. Press Enter to activate zoom, +/- to change zoom level, 1-5 for preset levels, Escape to exit.');
 
-  // Add focus styles
   zoomContainer.addEventListener('focus', function() {
     this.style.outline = '3px solid rgba(27, 60, 83, 0.5)';
     this.style.outlineOffset = '2px';
@@ -463,19 +412,16 @@ function initImageMagnifier() {
     const touchX = touch.clientX - rect.left;
     const touchY = touch.clientY - rect.top;
     
-    // Simulate a mousemove event
     const simulatedMouseEvent = new MouseEvent('mousemove', {
       clientX: touch.clientX,
       clientY: touch.clientY
     });
     
-    // Store the event for zoom level changes
     zoomContainer.lastMouseEvent = simulatedMouseEvent;
     
     zoomContainer.dispatchEvent(simulatedMouseEvent);
   }
   
-  // Add click to toggle full-screen zoom mode on mobile
   zoomContainer.addEventListener('click', function(e) {
     if (window.innerWidth < 768) {
       if (!isActive) {
@@ -494,7 +440,6 @@ function initImageMagnifier() {
           clientY: e.clientY
         });
         
-        // Store the event for zoom level changes
         zoomContainer.lastMouseEvent = simulatedMouseEvent;
         
         zoomContainer.dispatchEvent(simulatedMouseEvent);
@@ -508,7 +453,6 @@ function initImageMagnifier() {
     }
   });
 
-  // Add fullscreen mode functionality
   zoomResult.addEventListener('dblclick', function() {
     toggleFullscreenZoom();
   });
@@ -525,7 +469,6 @@ function initImageMagnifier() {
     zoomResult.classList.add('fullscreen-zoom');
     document.body.style.overflow = 'hidden';
 
-    // Add fullscreen styles
     zoomResult.style.position = 'fixed';
     zoomResult.style.top = '0';
     zoomResult.style.left = '0';
@@ -535,7 +478,6 @@ function initImageMagnifier() {
     zoomResult.style.margin = '0';
     zoomResult.style.borderRadius = '0';
 
-    // Add close button for fullscreen
     const closeBtn = document.createElement('button');
     closeBtn.className = 'fullscreen-close-btn';
     closeBtn.innerHTML = '×';
@@ -562,7 +504,6 @@ function initImageMagnifier() {
     zoomResult.classList.remove('fullscreen-zoom');
     document.body.style.overflow = '';
 
-    // Reset styles
     zoomResult.style.position = 'absolute';
     zoomResult.style.top = '0';
     zoomResult.style.left = '100%';
@@ -572,14 +513,12 @@ function initImageMagnifier() {
     zoomResult.style.margin = '0 0 0 30px';
     zoomResult.style.borderRadius = '12px';
 
-    // Remove close button
     const closeBtn = zoomResult.querySelector('.fullscreen-close-btn');
     if (closeBtn) {
       closeBtn.remove();
     }
   }
 
-  // Expose zoom instance globally for integration
   window.currentZoomInstance = {
     isActive,
     magnificationLevel,
@@ -600,7 +539,6 @@ function initImageMagnifier() {
 function initThumbnailGallery() {
   const thumbnails = document.querySelectorAll('.thumbnail');
 
-  // Preload all thumbnail images for smooth transitions
   thumbnails.forEach(thumbnail => {
     const imageSrc = thumbnail.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
     if (imageSrc) {
@@ -614,7 +552,6 @@ function initThumbnailGallery() {
       changeImageWithTransition(this, imageSrc);
     });
 
-    // Add hover preloading for better UX
     thumbnail.addEventListener('mouseenter', function() {
       const imageSrc = this.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
       if (imageSrc) {
@@ -644,13 +581,11 @@ function changeImageWithTransition(thumbnail, imageSrc) {
 
   if (!mainImage || !zoomContainer) return;
 
-  // Reset zoom elements with smooth transition
   const magnifierGlass = zoomContainer.querySelector('.img-magnifier-glass');
   const zoomResult = zoomContainer.querySelector('.img-zoom-result');
   const zoomControls = zoomContainer.querySelector('.zoom-controls');
   const resetButton = zoomContainer.querySelector('.zoom-reset-btn');
 
-  // Hide zoom elements
   if (magnifierGlass) magnifierGlass.style.display = 'none';
   if (zoomResult) {
     zoomResult.style.opacity = '0';
@@ -662,22 +597,18 @@ function changeImageWithTransition(thumbnail, imageSrc) {
   if (zoomControls) zoomControls.style.display = 'none';
   if (resetButton) resetButton.style.display = 'none';
 
-  // Add loading state to main image
   mainImage.style.opacity = '0.7';
 
-  // Change image with smooth transition
   const newImg = new Image();
   newImg.onload = () => {
     mainImage.src = imageSrc;
     mainImage.style.opacity = '1';
 
-    // Update active thumbnail
     document.querySelectorAll('.thumbnail').forEach(thumb => {
       thumb.classList.remove('active');
     });
     thumbnail.classList.add('active');
 
-    // Reset zoom state
     if (window.currentZoomInstance) {
       window.currentZoomInstance.isActive = false;
     }
@@ -685,7 +616,6 @@ function changeImageWithTransition(thumbnail, imageSrc) {
 
   newImg.onerror = () => {
     mainImage.style.opacity = '1';
-    console.warn('Failed to load image:', imageSrc);
   };
 
   newImg.src = imageSrc;
@@ -698,27 +628,22 @@ function initProductTabs() {
   const tabEls = document.querySelectorAll('button[data-bs-toggle="tab"]');
   
   if (tabEls.length > 0) {
-    // If Bootstrap 5 is already loaded properly
     if (typeof bootstrap !== 'undefined' && bootstrap.Tab) {
       tabEls.forEach(tabEl => {
         new bootstrap.Tab(tabEl);
       });
     } else {
-      // Fallback - manually add click handlers for tabs
       tabEls.forEach(tabEl => {
         tabEl.addEventListener('click', function(event) {
           event.preventDefault();
           
-          // Remove active class from all tabs and tab panes
           document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
           document.querySelectorAll('.tab-pane').forEach(el => {
             el.classList.remove('show', 'active');
           });
           
-          // Add active class to clicked tab
           this.classList.add('active');
           
-          // Get the target tab pane and make it active
           const target = document.querySelector(this.getAttribute('data-bs-target'));
           if (target) {
             target.classList.add('show', 'active');

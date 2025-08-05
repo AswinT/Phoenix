@@ -4,11 +4,9 @@ const isAuthenticated = async (req, res, next) => {
   if (req.session && req.session.user_id) {
     try {
       const user = await User.findById(req.session.user_id).lean();
-      // Account not found - clean up user session only (preserve admin_id if exists)
       if (!user) {
         delete req.session.user_id;
         delete req.session.user_email;
-        // Save session to persist changes
         req.session.save((err) => {
           if (err) {
             console.error('Error saving session after removing user_id:', err);
@@ -29,13 +27,10 @@ const isAuthenticated = async (req, res, next) => {
         }
         return res.redirect('/login?error=account_not_found');
       }
-      // Account blocked - clean up user session only (preserve admin_id if exists)
       if (user.isBlocked) {
         delete req.session.user_id;
         delete req.session.user_email;
-        // Set flag for frontend to show blocked alert (for regular page requests)
         req.session.showBlockedAlert = true;
-        // Save session to persist changes
         req.session.save((err) => {
           if (err) {
             console.error('Error saving session after removing user_id:', err);
@@ -62,7 +57,6 @@ const isAuthenticated = async (req, res, next) => {
       console.error('Error checking user status:', error);
       delete req.session.user_id;
       delete req.session.user_email;
-      // Save session to persist changes
       req.session.save((err) => {
         if (err) {
           console.error('Error saving session after removing user_id:', err);
@@ -99,14 +93,12 @@ const isAuthenticated = async (req, res, next) => {
   }
   return res.redirect('/login');
 };
-// Redirect logged in users away from auth pages
 const isNotAuthenticated = (req, res, next) => {
   if (req.session && req.session.user_id) {
     return res.redirect('/');
   }
   return next();
 };
-// Prevent browser back button cache
 const preventBackButtonCache = (req, res, next) => {
   res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
   res.header('Pragma', 'no-cache');

@@ -146,7 +146,7 @@ const validateText = (text, rules, fieldName = 'Field') => {
 };
 const createValidationMiddleware = (validationRules) => {
   return (req, res, next) => {
-    const errors = [];
+    const errors = {};
     const sanitizedData = {};
     for (const [field, rules] of Object.entries(validationRules)) {
       const value = req.body[field];
@@ -179,17 +179,20 @@ const createValidationMiddleware = (validationRules) => {
           case 'text':
             result = validateText(value, rules, rules.fieldName || field);
             break;
+          case 'select':
+            result = validateText(value, rules, rules.fieldName || field);
+            break;
           default:
             result = { isValid: true, sanitized: value };
         }
       }
       if (!result.isValid) {
-        errors.push(result.message);
+        errors[field] = result.message;
       } else if (result.sanitized !== undefined) {
         sanitizedData[field] = result.sanitized;
       }
     }
-    if (errors.length > 0) {
+    if (Object.keys(errors).length > 0) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message: 'Validation failed',

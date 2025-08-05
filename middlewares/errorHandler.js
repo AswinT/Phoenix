@@ -1,4 +1,3 @@
-// Handle all application errors
 const globalErrorHandler = (err, req, res, _next) => {
   console.error('Error occurred:', {
     message: err.message,
@@ -6,10 +5,8 @@ const globalErrorHandler = (err, req, res, _next) => {
     method: req.method,
     timestamp: new Date().toISOString()
   });
-  // Default error response
   let statusCode = 500;
   let message = 'Something went wrong. Please try again.';
-  // Handle specific error types
   if (err.name === 'ValidationError') {
     statusCode = 400;
     message = Object.values(err.errors).map(e => e.message).join(', ');
@@ -33,7 +30,6 @@ const globalErrorHandler = (err, req, res, _next) => {
     });
   }
 };
-// Handle 404 not found errors
 const notFoundHandler = (req, res, _next) => {
   console.warn('404 Not Found:', req.originalUrl);
   if (req.xhr || req.headers.accept?.indexOf('json') > -1) {

@@ -1,6 +1,4 @@
-// Coupon validation for admin panel
 
-// Wait for ValidationErrorHandler to be available
 function waitForDependencies() {
     if (typeof window.ValidationErrorHandler === 'undefined') {
         setTimeout(waitForDependencies, 100);
@@ -14,24 +12,20 @@ function initializeCouponValidation() {
     const editCouponForm = document.getElementById('editCouponForm');
     const errorHandler = window.ValidationErrorHandler;
 
-    // Add real-time validation to both forms
     if (addCouponForm) {
         errorHandler.addRealTimeValidation(addCouponForm);
         
-        // Add real-time validation for specific fields
         addRealTimeValidationListeners(addCouponForm, errorHandler);
     }
 
     if (editCouponForm) {
         errorHandler.addRealTimeValidation(editCouponForm);
         
-        // Add real-time validation for specific fields
         addRealTimeValidationListeners(editCouponForm, errorHandler);
     }
 }
 
 function addRealTimeValidationListeners(form, errorHandler) {
-    // Coupon Code - validate on input
     const codeField = form.querySelector('#couponCode, #editCouponCode');
     if (codeField) {
         codeField.addEventListener('input', function() {
@@ -50,7 +44,6 @@ function addRealTimeValidationListeners(form, errorHandler) {
         });
     }
 
-    // Discount Value - validate on input
     const discountValueField = form.querySelector('#discountValue, #editDiscountValue');
     const discountTypeField = form.querySelector('#discountType, #editDiscountType');
     
@@ -75,7 +68,6 @@ function addRealTimeValidationListeners(form, errorHandler) {
         });
     }
 
-    // Discount Type - validate discount value when type changes
     if (discountTypeField && discountValueField) {
         discountTypeField.addEventListener('change', function() {
             if (discountValueField.value) {
@@ -89,7 +81,6 @@ function addRealTimeValidationListeners(form, errorHandler) {
         });
     }
 
-    // Max Discount Value - validate on input
     const maxDiscountValueField = form.querySelector('#maxDiscountValue, #editMaxDiscountValue');
     if (maxDiscountValueField) {
         maxDiscountValueField.addEventListener('input', function() {
@@ -102,7 +93,6 @@ function addRealTimeValidationListeners(form, errorHandler) {
         });
     }
 
-    // Min Order Amount - validate on input
     const minOrderAmountField = form.querySelector('#minOrderAmount, #editMinOrderAmount');
     if (minOrderAmountField) {
         minOrderAmountField.addEventListener('input', function() {
@@ -115,7 +105,6 @@ function addRealTimeValidationListeners(form, errorHandler) {
         });
     }
 
-    // Start Date - validate on change
     const startDateField = form.querySelector('#startDate, #editStartDate');
     const expiryDateField = form.querySelector('#expiryDate, #editExpiryDate');
     
@@ -125,7 +114,6 @@ function addRealTimeValidationListeners(form, errorHandler) {
                 errorHandler.showFieldError(this, 'Start date is required');
             } else {
                 errorHandler.clearFieldError(this);
-                // Also validate expiry date if it exists
                 if (expiryDateField && expiryDateField.value) {
                     validateDateRange(startDateField, expiryDateField, errorHandler);
                 }
@@ -133,14 +121,12 @@ function addRealTimeValidationListeners(form, errorHandler) {
         });
     }
 
-    // Expiry Date - validate on change
     if (expiryDateField) {
         expiryDateField.addEventListener('change', function() {
             if (!this.value) {
                 errorHandler.showFieldError(this, 'Expiry date is required');
             } else {
                 errorHandler.clearFieldError(this);
-                // Validate date range
                 if (startDateField && startDateField.value) {
                     validateDateRange(startDateField, expiryDateField, errorHandler);
                 }
@@ -148,7 +134,6 @@ function addRealTimeValidationListeners(form, errorHandler) {
         });
     }
 
-    // Usage Limit Global - validate on input
     const usageLimitGlobalField = form.querySelector('#usageLimitGlobal, #editUsageLimitGlobal');
     if (usageLimitGlobalField) {
         usageLimitGlobalField.addEventListener('input', function() {
@@ -161,7 +146,6 @@ function addRealTimeValidationListeners(form, errorHandler) {
         });
     }
 
-    // Usage Limit Per User - validate on input
     const usageLimitPerUserField = form.querySelector('#usageLimitPerUser, #editUsageLimitPerUser');
     if (usageLimitPerUserField) {
         usageLimitPerUserField.addEventListener('input', function() {
@@ -194,15 +178,12 @@ function validateDateRange(startDateField, expiryDateField, errorHandler) {
     }
 }
 
-// Global validation function that can be called from the main page
 window.validateCouponForm = function(form) {
     const errorHandler = window.ValidationErrorHandler;
     let isValid = true;
 
-    // Clear all errors first
     errorHandler.clearAllErrors(form);
 
-    // Coupon Code
     const codeField = form.querySelector('#couponCode, #editCouponCode');
     if (codeField) {
         if (!codeField.value.trim()) {
@@ -214,14 +195,12 @@ window.validateCouponForm = function(form) {
         }
     }
 
-    // Discount Type
     const discountTypeField = form.querySelector('#discountType, #editDiscountType');
     if (discountTypeField && !discountTypeField.value) {
         errorHandler.showFieldError(discountTypeField, 'Discount type is required');
         isValid = false;
     }
 
-    // Discount Value
     const discountValueField = form.querySelector('#discountValue, #editDiscountValue');
     if (discountValueField) {
         if (!discountValueField.value || Number(discountValueField.value) <= 0) {
@@ -233,28 +212,24 @@ window.validateCouponForm = function(form) {
         }
     }
 
-    // Max Discount Value (for percentage)
     const maxDiscountValueField = form.querySelector('#maxDiscountValue, #editMaxDiscountValue');
     if (maxDiscountValueField && discountTypeField && discountTypeField.value === 'percentage' && maxDiscountValueField.value && Number(maxDiscountValueField.value) < 0) {
         errorHandler.showFieldError(maxDiscountValueField, 'Maximum discount must be 0 or more');
         isValid = false;
     }
 
-    // Min Order Amount
     const minOrderAmountField = form.querySelector('#minOrderAmount, #editMinOrderAmount');
     if (minOrderAmountField && minOrderAmountField.value && Number(minOrderAmountField.value) < 0) {
         errorHandler.showFieldError(minOrderAmountField, 'Minimum order amount cannot be negative');
         isValid = false;
     }
 
-    // Start Date
     const startDateField = form.querySelector('#startDate, #editStartDate');
     if (startDateField && !startDateField.value) {
         errorHandler.showFieldError(startDateField, 'Start date is required');
         isValid = false;
     }
 
-    // Expiry Date
     const expiryDateField = form.querySelector('#expiryDate, #editExpiryDate');
     if (expiryDateField) {
         if (!expiryDateField.value) {
@@ -266,14 +241,12 @@ window.validateCouponForm = function(form) {
         }
     }
 
-    // Usage Limit Global
     const usageLimitGlobalField = form.querySelector('#usageLimitGlobal, #editUsageLimitGlobal');
     if (usageLimitGlobalField && usageLimitGlobalField.value && Number(usageLimitGlobalField.value) < 0) {
         errorHandler.showFieldError(usageLimitGlobalField, 'Global usage limit cannot be negative');
         isValid = false;
     }
 
-    // Usage Limit Per User
     const usageLimitPerUserField = form.querySelector('#usageLimitPerUser, #editUsageLimitPerUser');
     if (usageLimitPerUserField) {
         if (!usageLimitPerUserField.value || Number(usageLimitPerUserField.value) < 1) {
@@ -285,5 +258,4 @@ window.validateCouponForm = function(form) {
     return isValid;
 };
 
-// Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', waitForDependencies);

@@ -2,7 +2,6 @@ const User = require('../../models/userSchema');
 const bcrypt = require('bcrypt');
 const { HttpStatus } = require('../../helpers/statusCode');
 
-// Show login page
 const getLogin = async (req, res) => {
   try {
     res.header(
@@ -12,7 +11,6 @@ const getLogin = async (req, res) => {
     res.header('Pragma', 'no-cache');
     res.header('Expires', '0');
 
-    // Check if user was blocked and should see alert
     const showBlockedAlert = req.session.showBlockedAlert || false;
     if (req.session.showBlockedAlert) {
       delete req.session.showBlockedAlert; // Clear the flag after reading
@@ -26,11 +24,9 @@ const getLogin = async (req, res) => {
     });
   }
 };
-// Handle user login
 const postLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
-    // Check if user exists
     const existingUser = await User.findOne({ email });
     if (!existingUser) {
       return res.status(HttpStatus.NOT_FOUND).json({
@@ -38,14 +34,12 @@ const postLogin = async (req, res) => {
         message: 'Email Not found',
       });
     }
-    // Check if account is blocked
     if (existingUser.isBlocked) {
       return res.status(HttpStatus.FORBIDDEN).json({
         success: false,
         message: 'Your account is blocked. Please contact support.',
       });
     }
-    // Verify password
     const verifiedPassword = await bcrypt.compare(
       password,
       existingUser.password
@@ -56,7 +50,6 @@ const postLogin = async (req, res) => {
         message: 'Invalid Email or Password',
       });
     }
-    // Create user session
     req.session.user_id = existingUser._id;
     req.session.user_email = existingUser.email;
     req.session.save((err) => {

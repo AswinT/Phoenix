@@ -248,20 +248,20 @@ const getCheckout = async (req, res) => {
     delete req.session.errorMessage;
     delete req.session.successMessage;
   } catch (error) {
+    console.error('Error in rendering checkout page:', error);
     req.session.errorMessage = 'Something went wrong. Please try again.';
     return res.redirect('/cart');
   }
 };
-
 async function getAvailableCouponsForUser(userId, orderAmount) {
   try {
+      userId,
+      orderAmount
+    });
     const allCoupons = await Coupon.find({
       isActive: true,
-      startDate: { $lte: new Date() },
-      expiryDate: { $gte: new Date() },
       minOrderAmount: { $lte: orderAmount }
-    });
-
+    }).lean();
     const availableCoupons = allCoupons
       .filter((coupon) => {
         if (coupon.usageLimitGlobal && coupon.usedCount >= coupon.usageLimitGlobal) {
@@ -290,9 +290,13 @@ async function getAvailableCouponsForUser(userId, orderAmount) {
           day: 'numeric'
         })
       }));
-    
+      code: c.code,
+      discount: c.discountDisplay,
+      minOrder: c.minOrderAmount
+    })));
     return availableCoupons;
   } catch (error) {
+    console.error('Error fetching available coupons:', error);
     return [];
   }
 }
@@ -377,6 +381,7 @@ const applyCoupon = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error('Error applying coupon:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Internal server error' });
   }
 };
@@ -388,6 +393,7 @@ const removeCoupon = async (req, res) => {
       message: 'Coupon removed successfully',
     });
   } catch (error) {
+    console.error('Error removing coupon:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Internal server error' });
   }
 };
@@ -547,6 +553,13 @@ const createRazorpayOrder = async (req, res) => {
     const itemFinalPriceSum = orderItems.reduce((sum, item) => sum + (item.priceBreakdown?.finalPrice || 0), 0);
     const expectedTotal = itemFinalPriceSum + checkoutTax;
     if (Math.abs(expectedTotal - checkoutTotal) > 0.01) {
+      console.error('Order total inconsistency detected:', {
+        itemFinalPriceSum: itemFinalPriceSum.toFixed(2),
+        calculatedTax: checkoutTax.toFixed(2),
+        expectedTotal: expectedTotal.toFixed(2),
+        actualTotal: checkoutTotal.toFixed(2),
+        difference: (checkoutTotal - expectedTotal).toFixed(2)
+      });
       checkoutTotal = expectedTotal;
     }
     const displayBreakdown = [
@@ -718,6 +731,10 @@ const verifyRazorpayPayment = async (req, res) => {
 const handlePaymentFailure = async (req, res) => {
   try {
     const { razorpay_order_id, error_code, error_description } = req.body;
+      razorpay_order_id,
+      error_code,
+      error_description
+    });
     const pendingOrder = req.session.pendingOrder;
     if (pendingOrder) {
       const userId = req.session.user_id;
@@ -1234,7 +1251,14 @@ const adjustCartQuantities = async (req, res) => {
       }
     }
 
-      res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Cart adjustments processed',
+      results: adjustmentResults,
+      cartCount: cart.items.length,
+      totalAmount: cart.totalAmount
+    }); // Debug log
+
+    res.status(HttpStatus.OK).json({
       success: true,
       message: 'Cart adjustments processed',
       results: adjustmentResults,
@@ -1313,6 +1337,10 @@ const getCurrentCartTotal = async (req, res) => {
 };
 const retryPayment = async (req, res) => {
   try {
+      userId: req.session.user_id,
+      orderId: req.params.orderId,
+      sessionData: req.session
+    });
     const userId = req.session.user_id;
     const { orderId } = req.params;
     if (!userId) {
@@ -1327,7 +1355,12 @@ const retryPayment = async (req, res) => {
       paymentStatus: 'Pending Payment',
       orderStatus: 'Pending Payment'
     });
-    
+      id: order._id,
+      orderNumber: order.orderNumber,
+      paymentStatus: order.paymentStatus,
+      orderStatus: order.orderStatus,
+      retryAttempts: order.paymentRetryAttempts
+    } : 'No order found');
     if (!order) {
       return res.status(HttpStatus.NOT_FOUND).json({
         success: false,

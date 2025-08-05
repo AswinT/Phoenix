@@ -1,11 +1,9 @@
 const { HttpStatus } = require('../../helpers/statusCode');
 
-// Validate quantity check request
 const validateQuantityCheck = (req, res, next) => {
   try {
     const { productId, quantity } = req.body;
 
-    // Validate productId
     if (!productId) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
@@ -13,7 +11,6 @@ const validateQuantityCheck = (req, res, next) => {
       });
     }
 
-    // Validate productId format (MongoDB ObjectId)
     const objectIdPattern = /^[0-9a-fA-F]{24}$/;
     if (!objectIdPattern.test(productId)) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -22,7 +19,6 @@ const validateQuantityCheck = (req, res, next) => {
       });
     }
 
-    // Validate quantity
     if (quantity === undefined || quantity === null) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
@@ -38,7 +34,6 @@ const validateQuantityCheck = (req, res, next) => {
       });
     }
 
-    // Set validated data
     req.validatedData = {
       productId: productId.trim(),
       quantity: quantityNum

@@ -125,7 +125,6 @@ const toggleWishlist = async (req, res) => {
       wishlist.items.splice(itemIndex, 1);
       await wishlist.save();
 
-      // Calculate correct wishlist count after removal (filter valid items)
       const updatedWishlist = await Wishlist.findOne({ user: userId }).populate('items.product');
       const validItems = updatedWishlist.items.filter(
         (item) => item.product && item.product.isListed && !item.product.isDeleted
@@ -141,7 +140,6 @@ const toggleWishlist = async (req, res) => {
       wishlist.items.push({ product: productId });
       await wishlist.save();
 
-      // Calculate correct wishlist count after addition (filter valid items)
       const updatedWishlist = await Wishlist.findOne({ user: userId }).populate('items.product');
       const validItems = updatedWishlist.items.filter(
         (item) => item.product && item.product.isListed && !item.product.isDeleted
@@ -155,7 +153,6 @@ const toggleWishlist = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log('Error toggling wishlist:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Server error' });
   }
 };
@@ -218,7 +215,6 @@ const addAllToCart = async (req, res) => {
     }
     const cartCount = cart.items.length;
 
-    // Calculate correct wishlist count after moving items (filter valid items)
     const updatedWishlist = await Wishlist.findOne({ user: userId }).populate('items.product');
     const validWishlistItems = updatedWishlist.items.filter(
       (item) => item.product && item.product.isListed && !item.product.isDeleted
@@ -239,7 +235,6 @@ const addAllToCart = async (req, res) => {
       itemsSkipped: messages.length
     });
   } catch (error) {
-    console.log('Error adding all to cart:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Server error' });
   }
 };
@@ -342,10 +337,8 @@ const addToCartFromWishlist = async (req, res) => {
     wishlist.items.splice(wishlistItemIndex, 1);
     await wishlist.save();
 
-    // Calculate correct counts after moving item to cart
     const cartCount = cart.items.length;
 
-    // Get updated wishlist with populated products to filter correctly
     const updatedWishlist = await Wishlist.findOne({ user: userId }).populate('items.product');
     const validWishlistItems = updatedWishlist.items.filter(
       (item) => item.product && item.product.isListed && !item.product.isDeleted
@@ -360,7 +353,6 @@ const addToCartFromWishlist = async (req, res) => {
       removedFromWishlist: true
     });
   } catch (error) {
-    console.log('Error adding to cart from wishlist:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: 'Server error'

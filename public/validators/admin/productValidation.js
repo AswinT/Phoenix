@@ -2,37 +2,29 @@
  * Product Validation Script - Enhanced with Real-time Validation
  */
 
-// Initialize validation when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-  const form = document.getElementById('addProductForm') || document.getElementById('editProductForm');
-  const submitButton = document.getElementById('addProductButton') || document.querySelector('[type="submit"]');
+  const form = document.getElementById('addProductForm');
+  const submitButton = document.getElementById('addProductButton');
 
-  if (form && submitButton) {
-    // Set up form submission handling
+  if (form && submitButton && form.id === 'addProductForm') {
     setupFormSubmission(form, submitButton);
 
-    // The real-time validation is now handled by productRealTimeValidation.js
-    // This script focuses on form submission and server communication
   }
 });
 
 function setupFormSubmission(form, submitButton) {
-  // Remove any existing event listeners by cloning the button
   const newSubmitButton = submitButton.cloneNode(true);
   submitButton.parentNode.replaceChild(newSubmitButton, submitButton);
 
-  // Add form submission handler
   newSubmitButton.addEventListener('click', function(e) {
     e.preventDefault();
     e.stopPropagation();
 
-    // Use the real-time validator for final validation
     if (window.ProductRealTimeValidator) {
       const validationResult = window.ProductRealTimeValidator.validateForm(form);
       if (validationResult.isValid) {
         submitForm();
       } else {
-        // Scroll to first error
         const firstError = form.querySelector('.is-invalid');
         if (firstError) {
           firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -40,7 +32,6 @@ function setupFormSubmission(form, submitButton) {
         }
       }
     } else {
-      // Fallback to legacy validation
       if (validateForm()) {
         submitForm();
       }
@@ -53,10 +44,8 @@ function setupFormSubmission(form, submitButton) {
 function validateForm() {
   const form = document.getElementById('addProductForm') || document.getElementById('editProductForm');
   
-  // Clear any existing errors first
   clearAllErrors();
   
-  // Required fields to validate
   const requiredFields = [
     { name: 'model', label: 'Model' },
     { name: 'brand', label: 'Brand' },
@@ -69,7 +58,6 @@ function validateForm() {
     { name: 'manufacturer', label: 'Manufacturer' }
   ];
   
-  // Add main image validation for add form
   if (form.id === 'addProductForm') {
     requiredFields.push({ name: 'mainImage', label: 'Main Image' });
   }
@@ -98,11 +86,9 @@ function validateForm() {
 }
 
 function showFieldError(field, message) {
-  // Add error styling to field
   field.style.borderColor = '#dc3545';
   field.classList.add('is-invalid');
   
-  // Find the best container for the error message
   let container = field.closest('.mb-3');
   if (!container) {
     container = field.closest('.file-upload-wrapper');
@@ -115,7 +101,6 @@ function showFieldError(field, message) {
   }
   
   if (container) {
-    // Create simple error message element
     const errorDiv = document.createElement('div');
     errorDiv.className = 'validation-error-message';
     errorDiv.style.cssText = `
@@ -127,17 +112,14 @@ function showFieldError(field, message) {
     `;
     errorDiv.textContent = message;
     
-    // Append error message
     container.appendChild(errorDiv);
   }
 }
 
 function clearFieldError(field) {
-  // Remove error styling from field
   field.style.borderColor = '';
   field.classList.remove('is-invalid');
   
-  // Find container and remove error message
   let container = field.closest('.mb-3');
   if (!container) {
     container = field.closest('.file-upload-wrapper');
@@ -158,11 +140,9 @@ function clearFieldError(field) {
 }
 
 function clearAllErrors() {
-  // Remove all error messages
   const errorMessages = document.querySelectorAll('.validation-error-message');
   errorMessages.forEach(msg => msg.remove());
   
-  // Remove error styling from all fields
   const allFields = document.querySelectorAll('input, select, textarea');
   allFields.forEach(field => {
     field.style.borderColor = '';
@@ -174,7 +154,6 @@ async function submitForm() {
   const form = document.getElementById('addProductForm') || document.getElementById('editProductForm');
   const submitButton = form.querySelector('[type="submit"]');
   
-  // Show loading state
   if (submitButton) {
     submitButton.disabled = true;
     const originalText = submitButton.innerHTML;
@@ -200,7 +179,6 @@ async function submitForm() {
     const data = await response.json();
     
     if (response.ok && data.success) {
-      // Success
       if (typeof Swal !== 'undefined') {
         Swal.fire({
           toast: true,
@@ -225,7 +203,6 @@ async function submitForm() {
         });
       }
     } else {
-      // Handle errors
       if (data.errors && typeof data.errors === 'object') {
         Object.keys(data.errors).forEach(fieldName => {
           const field = form.querySelector(`[name="${fieldName}"]`);
@@ -252,7 +229,6 @@ async function submitForm() {
       });
     }
   } finally {
-    // Restore submit button
     if (submitButton) {
       submitButton.disabled = false;
       submitButton.innerHTML = submitButton.dataset.originalText || 'Submit';

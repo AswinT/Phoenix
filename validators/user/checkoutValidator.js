@@ -1,4 +1,3 @@
-// Validate full name
 function validateFullName(fullName) {
   const trimmedName = fullName.trim();
   if (trimmedName.length < 3) return false;

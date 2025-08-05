@@ -1,7 +1,6 @@
 const Offer = require("../models/offerSchema")
 const Product = require("../models/productSchema")
 
-// Create a virtual Special Offer object when salePrice < regularPrice
 const createSpecialOffer = (regularPrice, salePrice) => {
   if (!regularPrice || !salePrice || salePrice >= regularPrice) {
     return null;
@@ -24,7 +23,6 @@ const createSpecialOffer = (regularPrice, salePrice) => {
   };
 };
 
-// Find best active offer for a product (including automatic Special Offers)
 const getActiveOfferForProduct = async (productId, productCategoryId, productPrice) => {
   try {
     const now = new Date()
@@ -37,10 +35,8 @@ const getActiveOfferForProduct = async (productId, productCategoryId, productPri
         categoryToQuery = productDoc.category.toString()
       }
     } else if (productId && !productDoc) {
-      // Get product details for Special Offer detection
       productDoc = await Product.findById(productId).select("regularPrice salePrice").lean()
     }
-    // Build query for different offer types
     const offerQueryConditions = []
     offerQueryConditions.push({ appliesTo: "all_products" })
     if (productId) {
@@ -63,13 +59,11 @@ const getActiveOfferForProduct = async (productId, productCategoryId, productPri
       endDate: { $gte: now },
     }).lean()
 
-    // Check for automatic Special Offer (salePrice < regularPrice)
     let specialOffer = null
     if (productDoc && productDoc.regularPrice && productDoc.salePrice) {
       specialOffer = createSpecialOffer(productDoc.regularPrice, productDoc.salePrice)
     }
 
-    // Combine manual offers with special offer
     const allOffers = [...(potentialOffers || [])]
     if (specialOffer) {
       allOffers.push(specialOffer)
@@ -79,7 +73,6 @@ const getActiveOfferForProduct = async (productId, productCategoryId, productPri
       return null
     }
 
-    // Find offer with highest discount
     let bestOffer = null
     let bestDiscountAmount = 0
     const basePrice = productPrice || (productDoc ? productDoc.regularPrice : 0)
@@ -90,14 +83,11 @@ const getActiveOfferForProduct = async (productId, productCategoryId, productPri
         bestOffer = offer
         bestDiscountAmount = discountInfo.discountAmount
       } else if (discountInfo.discountAmount === bestDiscountAmount && bestOffer) {
-        // For equal discounts, prioritize Special Offers over manual offers
         if (offer.isSpecialOffer && !bestOffer.isSpecialOffer) {
           bestOffer = offer
         } else if (!offer.isSpecialOffer && bestOffer.isSpecialOffer) {
-          // Keep the special offer
           continue
         } else {
-          // Both are same type, use priority system for manual offers
           if (!offer.isSpecialOffer && !bestOffer.isSpecialOffer) {
             const currentPriority = getOfferPriority(bestOffer)
             const newPriority = getOfferPriority(offer)
@@ -128,7 +118,6 @@ const getOfferPriority = (offer) => {
       return 5
   }
 }
-// Calculate discount amount and final price
 const calculateDiscount = (offer, price) => {
   if (!offer || typeof price !== "number" || price <= 0) {
     return { discountAmount: 0, discountPercentage: 0, finalPrice: price || 0 }
@@ -188,7 +177,6 @@ const getOfferStatus = (offer) => {
   if (startDate > now) return "Upcoming"
   return "Active"
 }
-// Apply coupon discount proportionally across items
 const calculateProportionalCouponDiscount = (coupon, items) => {
   if (!coupon || !items || items.length === 0) {
     return { totalDiscount: 0, itemDiscounts: {} }
@@ -253,23 +241,19 @@ const reapplyCouponBenefitsAfterCancellation = (order, coupon) => {
       return order;
     }
     if (!order.couponDiscount || order.couponDiscount <= 0) {
-      console.log('No coupon discount to reapply');
       return order;
     }
     const activeItems = order.items.filter(item => 
       item.status === 'Active' || !item.status
     );
     if (activeItems.length === 0) {
-      console.log('No active items remaining - nothing to reapply');
       return order;
     }
     if (activeItems.length === order.items.length) {
-      console.log('All items still active - no need to reapply');
       return order;
     }
     const reapplyFullBenefit = activeItems.length === 1 || activeItems.length <= Math.floor(order.items.length / 2);
     if (reapplyFullBenefit) {
-      console.log(`Reapplying coupon benefits to ${activeItems.length} remaining items`);
       const activeItemsTotal = activeItems.reduce((sum, item) => {
         if (!item || typeof item.discountedPrice !== 'number' || typeof item.quantity !== 'number') {
           return sum;
@@ -333,7 +317,6 @@ const reapplyCouponBenefitsAfterCancellation = (order, coupon) => {
       const tax = parseFloat((taxableAmount * 0.08).toFixed(2));
       order.tax = tax;
       order.total = parseFloat((taxableAmount + tax).toFixed(2));
-      console.log(`Coupon benefits reapplied: Original discount=${coupon.discountValue}, New total discount=${actualTotalDiscount}`);
     }
     return order;
   } catch (error) {

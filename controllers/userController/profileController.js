@@ -283,6 +283,7 @@ const requestEmailUpdate = async (req, res) => {
       });
     }
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log("Generated OTP:", otp);
     await OTP.deleteMany({
       email: email.toLowerCase(),
       purpose: 'email-update',
@@ -292,7 +293,6 @@ const requestEmailUpdate = async (req, res) => {
       otp,
       purpose: 'email-update',
     });
-    console.log(`Generated OTP: ${otp}`);
     try {
       await sendOtpEmail(
         email,
@@ -411,6 +411,7 @@ const resendEmailOtp = async (req, res) => {
       });
     }
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log("Generated OTP:", otp);
     await OTP.deleteMany({
       email: req.session.newEmail,
       purpose: 'email-update',

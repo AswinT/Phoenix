@@ -13,7 +13,6 @@ const productDetails = async (req, res) => {
     }
     const pricingOptions = [];
 
-    // Get the best active offer (including automatic Special Offers)
     const activeOffer = await getActiveOfferForProduct(
       product._id,
       product.category._id,

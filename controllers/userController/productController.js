@@ -1,12 +1,10 @@
 const Product = require('../../models/productSchema');
 const { HttpStatus } = require('../../helpers/statusCode');
 
-// Validate quantity for product details page
 const validateQuantity = async (req, res) => {
   try {
     const { productId, quantity } = req.validatedData;
 
-    // Find the product
     const product = await Product.findById(productId);
     if (!product || !product.isListed || product.isDeleted) {
       return res.status(HttpStatus.NOT_FOUND).json({
@@ -15,7 +13,6 @@ const validateQuantity = async (req, res) => {
       });
     }
 
-    // Check quantity limits
     const MAX_QUANTITY_PER_PRODUCT = 5;
     const maxAllowedQuantity = Math.min(MAX_QUANTITY_PER_PRODUCT, product.stock);
 
@@ -40,7 +37,6 @@ const validateQuantity = async (req, res) => {
       });
     }
 
-    // Quantity is valid
     return res.status(HttpStatus.OK).json({
       success: true,
       message: 'Quantity is valid',

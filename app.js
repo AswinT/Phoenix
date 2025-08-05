@@ -4,7 +4,6 @@ const path = require("path");
 require("dotenv").config();
 const session = require("express-session");
 const connectDB = require("./config/db");
-// Import hierarchical routing system
 const routes = require("./routes");
 const passport = require("./config/passport");
 const methodOverride = require('method-override');
@@ -56,7 +55,6 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/validators', express.static(path.join(__dirname, 'validators')));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(methodOverride('_method'));
-// Use hierarchical routing system
 app.use("/", routes);
 app.use(notFoundHandler);
 app.use(globalErrorHandler);

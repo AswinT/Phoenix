@@ -12,7 +12,6 @@ const userMiddleware = async (req, res, next) => {
       const user = await User.findById(req.session.user_id);
       res.locals.user = user;
     } catch (error) {
-      console.log('Error fetching user:', error);
     }
   }
   next();

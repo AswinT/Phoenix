@@ -1,22 +1,18 @@
 const express = require('express');
 const router = express.Router();
 
-// Import controllers
 const cartController = require('../../controllers/userController/cartController');
 const wishlistController = require('../../controllers/userController/wishlistController');
 const checkoutController = require('../../controllers/userController/checkoutController');
 const orderController = require('../../controllers/userController/orderController');
 const productController = require('../../controllers/userController/productController');
 
-// Import validators
 const cartValidator = require('../../validators/user/cartValidator');
 const wishlistValidator = require('../../validators/user/wishlistValidator');
 const productValidator = require('../../validators/user/productValidator');
 
-// Import middleware
 const { isAuthenticated } = require('../../middlewares/authMiddleware');
 
-// Cart API Routes
 router.post('/cart/add',
   isAuthenticated,
   cartValidator.validateAddToCart,
@@ -38,7 +34,6 @@ router.post('/cart/clear',
   cartController.clearCart
 );
 
-// Wishlist API Routes
 router.post('/wishlist/toggle',
   wishlistValidator.validateWishlistToggle,
   wishlistValidator.validateWishlistAuth,
@@ -60,7 +55,6 @@ router.post('/wishlist/clear',
   wishlistController.clearWishlist
 );
 
-// Checkout API Routes
 router.get('/checkout/current-total', isAuthenticated, checkoutController.getCurrentCartTotal);
 router.post('/checkout/apply-coupon', isAuthenticated, checkoutController.applyCoupon);
 router.post('/checkout/remove-coupon', isAuthenticated, checkoutController.removeCoupon);
@@ -70,13 +64,11 @@ router.post('/checkout/create-payment', isAuthenticated, checkoutController.crea
 router.post('/checkout/verify-payment', isAuthenticated, checkoutController.verifyRazorpayPayment);
 router.post('/checkout/payment-failure', isAuthenticated, checkoutController.handlePaymentFailure);
 
-// Order API Routes
 router.post('/orders/:id/cancel', isAuthenticated, orderController.cancelOrder);
 router.post('/orders/:id/return', isAuthenticated, orderController.returnOrder);
 router.post('/orders/:orderId/retry-payment', isAuthenticated, checkoutController.retryPayment);
 router.post('/orders/verify-retry-payment', isAuthenticated, checkoutController.verifyRetryPayment);
 
-// Product API Routes
 router.post('/products/validate-quantity',
   productValidator.validateQuantityCheck,
   productController.validateQuantity

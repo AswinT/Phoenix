@@ -25,7 +25,6 @@ const postForgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
-    // Validate email input
     if (!email || !email.trim()) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
@@ -46,9 +45,8 @@ const postForgotPassword = async (req, res) => {
     const otpGenerator = () =>
       Math.floor(100000 + Math.random() * 900000).toString();
     const otp = otpGenerator();
-    console.log('Generated OTP for forgot password:', otp); // Essential for development/testing
+    console.log("Generated OTP:", otp);
 
-    // Delete any existing OTPs for this email and purpose
     await OTP.deleteMany({ email: trimmedEmail, purpose: 'password-reset' });
 
     const otpDoc = new OTP({
@@ -102,8 +100,8 @@ const resendOtp = async (req, res) => {
     const otpGenerator = () =>
       Math.floor(100000 + Math.random() * 900000).toString();
     const otp = otpGenerator();
+    console.log("Generated OTP:", otp);
 
-    console.log('New OTP generated:', otp);
 
     await OTP.deleteMany({ email, purpose: 'password-reset' });
 
@@ -178,7 +176,6 @@ const verifyOtp = async (req, res) => {
       });
     }
 
-    console.log('Verifying OTP:', otp);
 
     const email = req.session.user_email;
     const user = await User.findOne({ email });

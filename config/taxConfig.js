@@ -4,7 +4,6 @@
  */
 
 const TAX_CONFIG = {
-  // GST rates in India
   GST: {
     STANDARD_RATE: 0.18,      // 18% - Standard GST rate for most products
     REDUCED_RATE: 0.05,       // 5% - Essential items
@@ -12,14 +11,12 @@ const TAX_CONFIG = {
     CURRENT_RATE: 0.08        // 8% - Current rate used in your system
   },
   
-  // Tax display preferences
   DISPLAY: {
     SHOW_IN_CART: true,       // Show tax calculation in cart
     SHOW_BREAKDOWN: true,     // Show detailed tax breakdown
     ROUND_TO_NEAREST_PAISA: true  // Round to nearest paisa (0.01)
   },
   
-  // Tax calculation methods
   CALCULATION: {
     INCLUSIVE: false,         // false = tax added on top, true = tax included in price
     PRECISION: 2              // Decimal places for tax calculation

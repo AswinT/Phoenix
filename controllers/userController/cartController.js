@@ -37,7 +37,6 @@ const getCart = async (req, res) => {
                   item.product.category.isListed
       );
       for (const item of cartItems) {
-        // Use priceAtAddition for consistency with checkout
         const basePrice = item.priceAtAddition || item.product.regularPrice;
         const offer = await getActiveOfferForProduct(
           item.product._id,
@@ -47,12 +46,10 @@ const getCart = async (req, res) => {
         const { discountPercentage, discountAmount, finalPrice } =
           calculateDiscount(offer, basePrice);
 
-        // Store original price information
         item.originalPrice = basePrice;
         item.discountedPrice = finalPrice;
         item.offerDiscount = discountAmount * item.quantity;
 
-        // Update product display information
         item.product.activeOffer = offer;
         item.product.discountPercentage = discountPercentage;
         item.product.discountAmount = discountAmount;
@@ -60,13 +57,11 @@ const getCart = async (req, res) => {
         item.product.regularPrice = basePrice;
         item.product.salePrice = finalPrice;
 
-        // Calculate total amount using final price * quantity
         totalAmount += item.quantity * finalPrice;
 
         const itemTotalDiscount = item.quantity * discountAmount;
         totalDiscount += itemTotalDiscount;
 
-        // Track offer types for breakdown
         if (offer && itemTotalDiscount > 0) {
           if (offer.isSpecialOffer) {
             specialOfferDiscount += itemTotalDiscount;
@@ -74,7 +69,6 @@ const getCart = async (req, res) => {
             regularOfferDiscount += itemTotalDiscount;
           }
 
-          // Add to offer breakdown
           const existingOffer = offerBreakdown.find(o => o.title === offer.title);
           if (existingOffer) {
             existingOffer.discount += itemTotalDiscount;
@@ -111,7 +105,6 @@ const getCart = async (req, res) => {
       product.regularPrice = product.regularPrice || product.salePrice;
       product.salePrice = finalPrice;
     }
-    // Calculate GST and final totals
     const taxCalculation = calculateTotalWithGST(totalAmount);
 
 
@@ -128,7 +121,6 @@ const getCart = async (req, res) => {
       wishlistCount,
       user: userId ? { id: userId } : null,
       isAuthenticated: true,
-      // GST calculation data
       subtotalBeforeGST: taxCalculation.subtotal,
       gstAmount: taxCalculation.gst,
       gstPercentage: taxCalculation.gstPercentage,
@@ -227,7 +219,6 @@ const addToCart = async (req, res) => {
     const cartCount = cart.items.length;
     res.json({ success: true, message: 'Added to cart', cartCount });
   } catch (error) {
-    console.log('Error adding to cart:', error);
     res
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: 'Server error' });
@@ -298,7 +289,6 @@ const updateCartItem = async (req, res) => {
       cartCount: cart.items.length,
     });
   } catch (error) {
-    console.log('Error updating cart item:', error);
     res
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: 'Server error' });
