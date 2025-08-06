@@ -605,6 +605,25 @@ body {
   transform: rotate(180deg);
 }
 
+/* Disabled state for resend button */
+.btn-resend[style*="pointer-events: none"] {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  background: rgba(27, 60, 83, 0.05) !important;
+  border-color: rgba(27, 60, 83, 0.1) !important;
+  color: rgba(27, 60, 83, 0.4) !important;
+}
+
+.btn-resend[style*="pointer-events: none"]:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  background: rgba(27, 60, 83, 0.05) !important;
+}
+
+.btn-resend[style*="pointer-events: none"] .resend-icon {
+  transform: none !important;
+}
+
 /* Footer */
 .footer-text {
   text-align: center;

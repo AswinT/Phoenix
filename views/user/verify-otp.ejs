@@ -169,6 +169,11 @@
         timerExpiredElement.style.display = "none";
         submitBtn.disabled = false;
 
+        // Disable resend button during timer
+        resendBtn.style.pointerEvents = "none";
+        resendBtn.style.opacity = "0.5";
+        resendBtn.style.cursor = "not-allowed";
+
         // Clear any existing timer
         if (timerId) {
           clearInterval(timerId);
@@ -213,6 +218,12 @@
         timerDisplay.style.display = "none";
         timerExpiredElement.style.display = "flex";
         submitBtn.disabled = true;
+        
+        // Enable resend button when timer expires
+        resendBtn.style.pointerEvents = "auto";
+        resendBtn.style.opacity = "1";
+        resendBtn.style.cursor = "pointer";
+        
         showStatus("OTP has expired. Please request a new one.", "error");
       }
 
