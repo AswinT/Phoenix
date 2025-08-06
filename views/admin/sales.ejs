@@ -144,7 +144,7 @@
           </div>
         </div>
 
-        <div class="table-responsive">
+        <div class="table-container">
           <table class="table table-hover align-middle" id="salesTable">
             <thead class="table-light">
               <tr>
@@ -161,7 +161,7 @@
             </thead>
             <tbody id="salesTableBody">
               <% if (salesTableData && salesTableData.orders && salesTableData.orders.length > 0) { %>
-                <% salesTableData.orders.forEach(order => { %>
+                <% salesTableData.orders.forEach((order, index) => { %>
                   <tr>
                     <td>
                       <div><%= order.date %></div>
@@ -500,7 +500,7 @@ function changeLimit(newLimit) {
 .chart-card {
   background: #fff;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
   margin-bottom: 1.5rem;
 }
@@ -521,8 +521,18 @@ function changeLimit(newLimit) {
   color: #212529;
 }
 
+/* Table container - no scrolling, full height */
+.table-container {
+  overflow: visible !important;
+  max-height: none !important;
+  height: auto !important;
+  width: 100%;
+}
+
 .table {
   margin-bottom: 0;
+  width: 100% !important;
+  table-layout: auto !important;
 }
 
 .table th {
@@ -540,6 +550,19 @@ function changeLimit(newLimit) {
 
 .table tr:hover {
   background-color: rgba(67, 97, 238, 0.05);
+}
+
+.table tbody {
+  display: table-row-group !important;
+  visibility: visible !important;
+  height: auto !important;
+}
+
+.table tbody tr {
+  display: table-row !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
 }
 
 .badge {
@@ -586,6 +609,12 @@ function changeLimit(newLimit) {
 
   .chart-header .d-flex {
     margin-top: 0.5rem;
+  }
+
+  /* On mobile, allow horizontal scroll only if needed */
+  .table-container {
+    overflow-x: auto;
+    overflow-y: visible;
   }
 }
 </style>
