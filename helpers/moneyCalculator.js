@@ -1,25 +1,30 @@
 const calculateRefundAmount = (refundType, order, targetItemId = null) => {
   try {
     if (!order || !order.total || order.total <= 0) {
-      console.error('Invalid order data for refund calculation');
       return { success: false, amount: 0, reason: 'Invalid order data' };
     }
+    
     let relevantItems;
     if (refundType === 'REMAINING_ORDER') {
       const returnedItems = order.items.filter(item => item.status === 'Returned');
+      const cancelledItems = order.items.filter(item => item.status === 'Cancelled');
       const activeItems = order.items.filter(item =>
         item.status === 'Active' || item.status === 'Placed' || !item.status
       );
+      
       if (returnedItems.length > 0) {
         relevantItems = returnedItems;
+      } else if (cancelledItems.length > 0) {
+        relevantItems = cancelledItems;
       } else {
         relevantItems = activeItems;
       }
     } else {
       relevantItems = order.items.filter(item =>
-        item.status === 'Active' || item.status === 'Placed' || !item.status
+        item.status === 'Active' || item.status === 'Placed' || item.status === 'Cancelled' || !item.status
       );
     }
+    
     if (refundType === 'INDIVIDUAL_ITEM') {
       return calculateIndividualItemRefund(targetItemId, order, order.items);
     } else if (refundType === 'REMAINING_ORDER') {
@@ -28,7 +33,6 @@ const calculateRefundAmount = (refundType, order, targetItemId = null) => {
       return { success: false, amount: 0, reason: 'Invalid refund type' };
     }
   } catch (error) {
-    console.error('Error in refund calculation:', error.message);
     return { success: false, amount: 0, reason: 'Calculation error' };
   }
 };
@@ -83,14 +87,15 @@ const calculateReturnRefund = (order, returnedItems) => {
     items: refundedItems
   };
 };
-const calculateCancellationRefund = (order, activeItems, allItems) => {
-  const recentlyCancelledItems = allItems.filter(item => item.status === 'Cancelled');
-  if (recentlyCancelledItems.length === 0) {
-    return { success: false, amount: 0, reason: 'No cancelled items to refund' };
+const calculateCancellationRefund = (order, relevantItems, allItems) => {
+  if (relevantItems.length === 0) {
+    return { success: false, amount: 0, reason: 'No items to refund' };
   }
+  
   let totalRefund = 0;
   const refundedItems = [];
-  for (const item of recentlyCancelledItems) {
+  
+  for (const item of relevantItems) {
     const itemRefund = calculateItemProportion(item, order, allItems);
     totalRefund += itemRefund;
     refundedItems.push({
@@ -98,10 +103,13 @@ const calculateCancellationRefund = (order, activeItems, allItems) => {
       amount: itemRefund
     });
   }
+  
+  const itemType = relevantItems[0].status === 'Cancelled' ? 'cancelled' : 'active';
+  
   return {
     success: true,
     amount: totalRefund,
-    reason: `Refund for ${recentlyCancelledItems.length} cancelled item(s)`,
+    reason: `Refund for ${relevantItems.length} ${itemType} item(s)`,
     items: refundedItems
   };
 };
@@ -116,14 +124,12 @@ const calculateItemProportion = (item, order, allActiveItems) => {
       return sum + originalItemPrice;
     }, 0);
     if (totalOriginalValue <= 0) {
-      console.error('Invalid total original value for proportion calculation');
       return 0;
     }
     const itemProportion = itemFinalPrice / totalOriginalValue;
     const itemRefund = order.total * itemProportion;
     return Number(itemRefund.toFixed(2));
   } catch (error) {
-    console.error('Error calculating item proportion:', error.message);
     return 0;
   }
 };
@@ -150,7 +156,6 @@ const validateRefundCalculation = (items, order) => {
       difference: Number((totalRefund - expectedTotal).toFixed(2))
     };
   } catch (error) {
-    console.error('Error validating refund calculation:', error.message);
     return {
       totalRefund: 0,
       expectedTotal: 0,
@@ -174,7 +179,6 @@ const getRefundBreakdown = (item, order) => {
         : 'Proportional share of order total'
     };
   } catch (error) {
-    console.error('Error getting refund breakdown:', error.message);
     return {
       itemTitle: 'Unknown Item',
       originalPrice: 0,
@@ -194,7 +198,6 @@ const calculateTotalRefund = (items, order) => {
     });
     return Number(totalRefund.toFixed(2));
   } catch (error) {
-    console.error('Error calculating total refund:', error.message);
     return 0;
   }
 };
@@ -211,9 +214,23 @@ const validateRefundForPaymentMethod = (order, refundAmount) => {
         };
       }
     }
+    
     if (order.paymentMethod !== 'COD') {
-      const isPaid = ['Paid', 'Partially Refunded'].includes(order.paymentStatus);
-      if (!isPaid) {
+      const paidStatuses = [
+        'Paid', 
+        'Partially Refunded', 
+        'Refund Initiated', 
+        'Refund Processing',
+        'Pending Payment'
+      ];
+      
+      const isPaid = paidStatuses.includes(order.paymentStatus);
+      
+      const isOnlinePaymentMade = order.paymentMethod !== 'COD' && 
+                                  (order.razorpayPaymentId || order.razorpayOrderId) &&
+                                  order.paymentStatus !== 'Failed';
+      
+      if (!isPaid && !isOnlinePaymentMade) {
         return {
           isValid: true,
           shouldRefund: false,
@@ -222,6 +239,7 @@ const validateRefundForPaymentMethod = (order, refundAmount) => {
         };
       }
     }
+    
     return {
       isValid: true,
       shouldRefund: true,
@@ -229,7 +247,6 @@ const validateRefundForPaymentMethod = (order, refundAmount) => {
       refundAmount: Number(refundAmount.toFixed(2))
     };
   } catch (error) {
-    console.error('Error validating refund for payment method:', error.message);
     return {
       isValid: false,
       shouldRefund: false,

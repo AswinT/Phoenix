@@ -1001,7 +1001,9 @@ const cancelOrder = async (req, res) => {
         );
       }
     }
+    // Handle refunds based on payment method and status
     if (order.paymentMethod === 'COD') {
+      // For COD, only refund if order was delivered and payment was collected
       const wasDeliveredAndPaid = order.paymentStatus === 'Paid' ||
                                   order.orderStatus === 'Delivered' ||
                                   order.deliveredAt ||
@@ -1010,6 +1012,7 @@ const cancelOrder = async (req, res) => {
                                     item.status === 'Returned' ||
                                     (item.status === 'Active' && order.orderStatus === 'Delivered')
                                   );
+      
       if (wasDeliveredAndPaid) {
         const refundSuccess = await processCancelRefund(userId, order);
         if (refundSuccess) {
@@ -1020,15 +1023,23 @@ const cancelOrder = async (req, res) => {
       } else {
         order.paymentStatus = 'Failed';
       }
-    } else if (order.paymentStatus === 'Paid' || order.paymentStatus === 'Partially Refunded') {
-      const refundSuccess = await processCancelRefund(userId, order);
-      if (refundSuccess) {
-        order.paymentStatus = 'Refunded';
-      } else {
-        order.paymentStatus = 'Refund Failed';
-      }
     } else {
-      order.paymentStatus = 'Failed';
+      // For online payment methods (Razorpay, UPI, Card, Wallet)
+      // Check if payment was made and should be refunded
+      const paidStatuses = ['Paid', 'Partially Refunded', 'Refund Initiated', 'Refund Processing', 'Pending Payment'];
+      const isOnlinePaymentMade = paidStatuses.includes(order.paymentStatus) || 
+                                  (order.razorpayPaymentId || order.razorpayOrderId);
+      
+      if (isOnlinePaymentMade && order.paymentStatus !== 'Failed') {
+        const refundSuccess = await processCancelRefund(userId, order);
+        if (refundSuccess) {
+          order.paymentStatus = 'Refunded';
+        } else {
+          order.paymentStatus = 'Refund Failed';
+        }
+      } else {
+        order.paymentStatus = 'Failed';
+      }
     }
     await order.save();
     return res.status(200).json({
@@ -1114,7 +1125,9 @@ const cancelOrderItem = async (req, res) => {
         }
       }
     }
+    // Handle refunds based on payment method and status
     if (order.paymentMethod === 'COD') {
+      // For COD, only refund if order was delivered and payment was collected
       const wasDeliveredAndPaid = order.paymentStatus === 'Paid' ||
                                   order.orderStatus === 'Delivered' ||
                                   order.deliveredAt ||
@@ -1139,16 +1152,24 @@ const cancelOrderItem = async (req, res) => {
           order.paymentStatus = 'Failed';
         }
       }
-    } else if (order.paymentStatus === 'Paid' || order.paymentStatus === 'Partially Refunded') {
-      const refundSuccess = await processCancelRefund(userId, order, productId);
-      if (refundSuccess) {
-        if (!hasActiveItems) {
-          order.paymentStatus = 'Refunded';
+    } else {
+      // For online payment methods (Razorpay, UPI, Card, Wallet)
+      // Check if payment was made and should be refunded
+      const paidStatuses = ['Paid', 'Partially Refunded', 'Refund Initiated', 'Refund Processing', 'Pending Payment'];
+      const isOnlinePaymentMade = paidStatuses.includes(order.paymentStatus) || 
+                                  (order.razorpayPaymentId || order.razorpayOrderId);
+      
+      if (isOnlinePaymentMade && order.paymentStatus !== 'Failed') {
+        const refundSuccess = await processCancelRefund(userId, order, productId);
+        if (refundSuccess) {
+          if (!hasActiveItems) {
+            order.paymentStatus = 'Refunded';
+          } else {
+            order.paymentStatus = 'Partially Refunded';
+          }
         } else {
-          order.paymentStatus = 'Partially Refunded';
+          order.paymentStatus = 'Refund Failed';
         }
-      } else {
-        order.paymentStatus = 'Refund Failed';
       }
     }
     await order.save();

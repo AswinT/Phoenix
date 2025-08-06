@@ -82,7 +82,6 @@ const getWallet = async (req, res) => {
 const processCancelRefund = async (userId, order, productId = null) => {
   try {
     if (!userId || !order) {
-      console.error('Invalid userId or order for cancel refund');
       return false;
     }
     const existingWallet = await Wallet.findOne({ userId });
@@ -140,10 +139,13 @@ const processCancelRefund = async (userId, order, productId = null) => {
     } else {
       refundResult = calculateRefundAmount('REMAINING_ORDER', order);
     }
+    
     if (!refundResult.success) {
       return true;
     }
+    
     const validation = validateRefundForPaymentMethod(order, refundResult.amount);
+    
     if (!validation.shouldRefund) {
       return true;
     }
@@ -171,14 +173,12 @@ const processCancelRefund = async (userId, order, productId = null) => {
     await wallet.save();
     return true;
   } catch (error) {
-    console.error('Error processing cancel refund:', error);
     return false;
   }
 };
 const processReturnRefund = async (userId, order, productId = null) => {
   try {
     if (!userId || !order) {
-      console.error('Invalid userId or order for return refund');
       return false;
     }
     const existingWallet = await Wallet.findOne({ userId });
@@ -238,7 +238,6 @@ const processReturnRefund = async (userId, order, productId = null) => {
     await wallet.save();
     return true;
   } catch (error) {
-    console.error('Error processing return refund:', error);
     return false;
   }
 };
