@@ -49,6 +49,122 @@
   width: 100%;
 }
 
+/* Enhanced Mobile Navigation */
+@media (max-width: 991.98px) {
+  .navbar-collapse {
+    background: linear-gradient(135deg, rgba(27, 60, 83, 0.98), rgba(69, 104, 130, 0.98));
+    margin-top: 1rem;
+    padding: 1.5rem;
+    border-radius: 0 0 16px 16px;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+
+  .navbar-nav {
+    margin-bottom: 1rem;
+  }
+
+  .navbar-nav .nav-link {
+    padding: 0.75rem 1rem !important;
+    margin: 0.25rem 0;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  .navbar-nav .nav-link:hover {
+    background: rgba(249, 243, 239, 0.15);
+    transform: translateX(5px);
+  }
+
+  .navbar-right-section {
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .search-input {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+
+  .search-input input {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .header-icons {
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .icon-btn {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Tablet Responsive Design */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .navbar-brand {
+    font-size: 1.6rem !important;
+  }
+
+  .navbar-brand img {
+    height: 38px;
+  }
+
+  .navbar-nav .nav-link {
+    padding: 0.6rem 0.8rem !important;
+    font-size: 0.95rem;
+  }
+
+  .search-input input {
+    width: 200px;
+  }
+
+  .icon-btn {
+    padding: 0.7rem;
+    font-size: 1.1rem;
+  }
+}
+
+/* Small Mobile Devices */
+@media (max-width: 575.98px) {
+  .navbar-brand {
+    font-size: 1.4rem !important;
+  }
+
+  .navbar-brand img {
+    height: 32px;
+  }
+
+  .navbar-collapse {
+    padding: 1rem;
+  }
+
+  .navbar-nav .nav-link {
+    font-size: 0.9rem;
+    padding: 0.6rem 0.8rem !important;
+  }
+
+  .icon-btn {
+    padding: 0.5rem;
+    font-size: 1rem;
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .header-icons {
+    gap: 0.75rem;
+  }
+}
+
 /* Fix for navbar user menu */
 .navbar .user-menu {
   position: relative;
