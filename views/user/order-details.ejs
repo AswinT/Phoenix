@@ -1340,7 +1340,7 @@ async function cancelOrder(orderId) {
   try {
     showNotification('Processing your cancellation request...', 'info');
     
-    const response = await fetch(`/orders/${orderId}/cancel`, {
+    const response = await fetch(`/api/orders/${orderId}/cancel`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ reason })
@@ -1660,7 +1660,7 @@ async function returnOrder(orderId) {
   try {
     showNotification('Processing your return request...', 'info');
     
-    const response = await fetch(`/orders/${orderId}/return`, {
+    const response = await fetch(`/api/orders/${orderId}/return`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ reason })
