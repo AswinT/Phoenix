@@ -1463,7 +1463,7 @@ const reorder = async (req, res) => {
         }
         const quantityToAdd = Math.min(item.quantity, product.stock);
         if (quantityToAdd > 0) {
-          const offer = await getActiveOfferForProduct(product._id, product.category);
+          const offer = await getActiveOfferForProduct(product._id, product.category, product.regularPrice);
           const { finalPrice } = calculateDiscount(offer, product.regularPrice);
           cart.items.push({
             product: product._id,

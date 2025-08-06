@@ -119,26 +119,29 @@ const getCheckout = async (req, res) => {
     let appliedCoupon = null;
     const itemDetails = {};
     for (const item of cartItems) {
+      const originalPrice = item.product.regularPrice;
+      const currentPrice = item.priceAtAddition || item.product.regularPrice;
+      
       const offer = await getActiveOfferForProduct(
         item.product._id,
         item.product.category,
-        item.priceAtAddition
+        originalPrice
       );
+      
+      item.originalPrice = originalPrice;
+      item.discountedPrice = currentPrice;
+      item.offerDiscount = (originalPrice - currentPrice) * item.quantity;
+      
       if (offer) {
-        const { discountAmount, discountPercentage, finalPrice } = calculateDiscount(offer, item.priceAtAddition);
-        item.originalPrice = item.priceAtAddition;
-        item.discountedPrice = finalPrice;
-        item.offerDiscount = discountAmount * item.quantity;
         item.offerTitle = offer.title;
+        const { discountPercentage } = calculateDiscount(offer, originalPrice);
         item.discountPercentage = discountPercentage;
-        offerDiscount += discountAmount * item.quantity;
       } else {
-        item.originalPrice = item.priceAtAddition;
-        item.discountedPrice = item.priceAtAddition;
-        item.offerDiscount = 0;
         item.offerTitle = null;
         item.discountPercentage = 0;
       }
+      
+      offerDiscount += (originalPrice - currentPrice) * item.quantity;
     }
     subtotal = cartItems.reduce((sum, item) => sum + item.quantity * item.discountedPrice, 0);
     if (req.session.appliedCoupon) {
@@ -454,64 +457,44 @@ const createRazorpayOrder = async (req, res) => {
     let subtotalAfterOffers = 0;
     let totalOfferDiscount = 0;
     for (const item of cartItems) {
-      const originalItemTotal = item.priceAtAddition * item.quantity;
+      const originalPrice = item.product.regularPrice;
+      const currentPrice = item.priceAtAddition || item.product.regularPrice;
+      const originalItemTotal = originalPrice * item.quantity;
+      const currentItemTotal = currentPrice * item.quantity;
+      
       originalSubtotal += originalItemTotal;
+      subtotalAfterOffers += currentItemTotal;
+      
+      const itemDiscount = (originalPrice - currentPrice) * item.quantity;
+      totalOfferDiscount += itemDiscount;
+      
       const offer = await getActiveOfferForProduct(
         item.product._id,
         item.product.category,
-        item.priceAtAddition
+        originalPrice
       );
-      if (offer) {
-        const { discountAmount, finalPrice } = calculateDiscount(offer, item.priceAtAddition);
-        const itemDiscount = discountAmount * item.quantity;
-        const itemTotalAfterOffer = finalPrice * item.quantity;
-        totalOfferDiscount += itemDiscount;
-        subtotalAfterOffers += itemTotalAfterOffer;
-        const orderItem = {
-          product: item.product._id,
-          model: item.product.model,
-          image: item.product.mainImage,
-          price: item.priceAtAddition,
-          discountedPrice: finalPrice,
-          quantity: item.quantity,
+      
+      const orderItem = {
+        product: item.product._id,
+        model: item.product.model,
+        image: item.product.mainImage,
+        price: originalPrice,
+        discountedPrice: currentPrice,
+        quantity: item.quantity,
+        offerDiscount: itemDiscount,
+        offerTitle: offer ? offer.title : null,
+        priceBreakdown: {
+          originalPrice: originalPrice,
+          subtotal: originalItemTotal,
           offerDiscount: itemDiscount,
-          offerTitle: offer.title,
-          priceBreakdown: {
-            originalPrice: item.priceAtAddition,
-            subtotal: originalItemTotal,
-            offerDiscount: itemDiscount,
-            offerTitle: offer.title,
-            priceAfterOffer: itemTotalAfterOffer,
-            couponDiscount: 0,
-            couponProportion: 0,
-            finalPrice: itemTotalAfterOffer
-          }
-        };
-        orderItems.push(orderItem);
-      } else {
-        subtotalAfterOffers += originalItemTotal;
-        const orderItem = {
-          product: item.product._id,
-          model: item.product.model,
-          image: item.product.mainImage,
-          price: item.priceAtAddition,
-          discountedPrice: item.priceAtAddition,
-          quantity: item.quantity,
-          offerDiscount: 0,
-          offerTitle: null,
-          priceBreakdown: {
-            originalPrice: item.priceAtAddition,
-            subtotal: originalItemTotal,
-            offerDiscount: 0,
-            offerTitle: null,
-            priceAfterOffer: originalItemTotal,
-            couponDiscount: 0,
-            couponProportion: 0,
-            finalPrice: originalItemTotal
-          }
-        };
-        orderItems.push(orderItem);
-      }
+          offerTitle: offer ? offer.title : null,
+          priceAfterOffer: currentItemTotal,
+          couponDiscount: 0,
+          couponProportion: 0,
+          finalPrice: currentItemTotal
+        }
+      };
+      orderItems.push(orderItem);
     }
     const checkoutSubtotal = originalSubtotal;
     const checkoutOfferDiscount = totalOfferDiscount;
@@ -849,39 +832,36 @@ const placeOrder = async (req, res) => {
     let couponDiscount = 0;
     const orderItems = [];
     for (const item of cartItems) {
-      const offer = await getActiveOfferForProduct(item.product._id, item.product.category, item.priceAtAddition);
-      let itemPrice = item.priceAtAddition;
-      let itemDiscount = 0;
-      let offerTitle = null;
-      if (offer) {
-        const { discountAmount, finalPrice } = calculateDiscount(offer, item.priceAtAddition);
-        itemPrice = finalPrice;
-        itemDiscount = discountAmount * item.quantity;
-        offerTitle = offer.title;
-        offerDiscount += itemDiscount;
-      }
+      const originalPrice = item.product.regularPrice;
+      const currentPrice = item.priceAtAddition || item.product.regularPrice;
+      
+      const itemDiscount = (originalPrice - currentPrice) * item.quantity;
+      offerDiscount += itemDiscount;
+      
+      const offer = await getActiveOfferForProduct(item.product._id, item.product.category, originalPrice);
+      
       const orderItem = {
         product: item.product._id,
         model: item.product.model,
         image: item.product.mainImage,
-        price: item.priceAtAddition,
-        discountedPrice: itemPrice,
+        price: originalPrice,
+        discountedPrice: currentPrice,
         quantity: item.quantity,
         offerDiscount: itemDiscount,
-        offerTitle: offerTitle,
+        offerTitle: offer ? offer.title : null,
         priceBreakdown: {
-          originalPrice: item.priceAtAddition,
-          subtotal: item.priceAtAddition * item.quantity,
+          originalPrice: originalPrice,
+          subtotal: originalPrice * item.quantity,
           offerDiscount: itemDiscount,
-          offerTitle: offerTitle,
-          priceAfterOffer: itemPrice * item.quantity,
+          offerTitle: offer ? offer.title : null,
+          priceAfterOffer: currentPrice * item.quantity,
           couponDiscount: 0,
           couponProportion: 0,
-          finalPrice: itemPrice * item.quantity
+          finalPrice: currentPrice * item.quantity
         }
       };
       orderItems.push(orderItem);
-      subtotal += itemPrice * item.quantity;
+      subtotal += currentPrice * item.quantity;
     }
     if (req.session.appliedCoupon) {
       const coupon = await Coupon.findById(req.session.appliedCoupon);

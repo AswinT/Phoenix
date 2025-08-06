@@ -37,29 +37,31 @@ const getCart = async (req, res) => {
                   item.product.category.isListed
       );
       for (const item of cartItems) {
-        const basePrice = item.priceAtAddition || item.product.regularPrice;
+        const originalPrice = item.product.regularPrice;
+        const currentPrice = item.priceAtAddition || item.product.regularPrice;
+        
         const offer = await getActiveOfferForProduct(
           item.product._id,
           item.product.category,
-          basePrice
+          originalPrice
         );
         const { discountPercentage, discountAmount, finalPrice } =
-          calculateDiscount(offer, basePrice);
+          calculateDiscount(offer, originalPrice);
 
-        item.originalPrice = basePrice;
-        item.discountedPrice = finalPrice;
-        item.offerDiscount = discountAmount * item.quantity;
+        item.originalPrice = originalPrice;
+        item.discountedPrice = currentPrice;
+        item.offerDiscount = (originalPrice - currentPrice) * item.quantity;
 
         item.product.activeOffer = offer;
         item.product.discountPercentage = discountPercentage;
         item.product.discountAmount = discountAmount;
         item.product.finalPrice = finalPrice;
-        item.product.regularPrice = basePrice;
-        item.product.salePrice = finalPrice;
+        item.product.regularPrice = originalPrice;
+        item.product.salePrice = currentPrice;
 
-        totalAmount += item.quantity * finalPrice;
+        totalAmount += item.quantity * currentPrice;
 
-        const itemTotalDiscount = item.quantity * discountAmount;
+        const itemTotalDiscount = item.quantity * (originalPrice - currentPrice);
         totalDiscount += itemTotalDiscount;
 
         if (offer && itemTotalDiscount > 0) {
