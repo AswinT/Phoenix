@@ -10,45 +10,114 @@ const getManageOrders = async (req, res) => {
     const limit = 10;
     const skip = (page - 1) * limit;
     const query = { isDeleted: false };
-    const validStatuses = ['Placed', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Returned', 'Pending Payment'];
+
+    // Validate and process filters
+    const filterErrors = [];
+
+    // Status filter
+    const validStatuses = [
+      'Placed', 'Processing', 'Shipped', 'Delivered', 'Cancelled',
+      'Returned', 'Pending Payment', 'Partially Cancelled',
+      'Partially Returned', 'Return Requested', 'Partially Return Requested'
+    ];
     let status = req.query.status || '';
-    if (status === 'Pending') status = 'Placed';
-    if (status && validStatuses.includes(status)) {
+    if (status && !validStatuses.includes(status)) {
+      filterErrors.push('Invalid order status');
+    } else if (status) {
       query.orderStatus = status;
     }
+
+    // Payment method filter
     const validPaymentMethods = ['COD', 'UPI', 'Card', 'Wallet'];
     let payment = req.query.payment || '';
-    if (payment === 'CARD') payment = 'Card';
-    if (payment === 'UPI') payment = 'UPI';
-    if (payment && validPaymentMethods.includes(payment)) {
+    if (payment && !validPaymentMethods.includes(payment)) {
+      filterErrors.push('Invalid payment method');
+    } else if (payment) {
       query.paymentMethod = payment;
     }
-    const minAmount = Number.parseFloat(req.query.min_amount) || 0;
-    const maxAmount = Number.parseFloat(req.query.max_amount) || Number.POSITIVE_INFINITY;
-    if (minAmount > 0 || maxAmount < Number.POSITIVE_INFINITY) {
-      query.total = {};
-      if (minAmount > 0) query.total.$gte = minAmount;
-      if (maxAmount < Number.POSITIVE_INFINITY) query.total.$lte = maxAmount;
+
+    // Amount range filter with validation
+    const minAmount = req.query.min_amount ? Number.parseFloat(req.query.min_amount) : null;
+    const maxAmount = req.query.max_amount ? Number.parseFloat(req.query.max_amount) : null;
+
+    if (minAmount !== null && (isNaN(minAmount) || minAmount < 0)) {
+      filterErrors.push('Invalid minimum amount');
     }
+    if (maxAmount !== null && (isNaN(maxAmount) || maxAmount < 0)) {
+      filterErrors.push('Invalid maximum amount');
+    }
+    if (minAmount !== null && maxAmount !== null && minAmount > maxAmount) {
+      filterErrors.push('Minimum amount cannot be greater than maximum amount');
+    }
+
+    if (minAmount !== null || maxAmount !== null) {
+      query.total = {};
+      if (minAmount !== null && minAmount > 0) query.total.$gte = minAmount;
+      if (maxAmount !== null) query.total.$lte = maxAmount;
+    }
+
+    // Date range filter with validation
     const startDate = req.query.start_date ? new Date(req.query.start_date) : null;
     const endDate = req.query.end_date ? new Date(req.query.end_date) : null;
-    if (startDate && !isNaN(startDate)) {
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+
+    if (startDate && isNaN(startDate.getTime())) {
+      filterErrors.push('Invalid start date');
+    }
+    if (endDate && isNaN(endDate.getTime())) {
+      filterErrors.push('Invalid end date');
+    }
+    if (startDate && endDate && startDate > endDate) {
+      filterErrors.push('Start date cannot be after end date');
+    }
+    if (startDate && startDate > today) {
+      filterErrors.push('Start date cannot be in the future');
+    }
+    if (endDate && endDate > today) {
+      filterErrors.push('End date cannot be in the future');
+    }
+
+    if (startDate && !isNaN(startDate.getTime())) {
+      startDate.setHours(0, 0, 0, 0);
       query.createdAt = query.createdAt || {};
       query.createdAt.$gte = startDate;
     }
-    if (endDate && !isNaN(endDate)) {
+    if (endDate && !isNaN(endDate.getTime())) {
       endDate.setHours(23, 59, 59, 999);
       query.createdAt = query.createdAt || {};
       query.createdAt.$lte = endDate;
     }
+
+    // If there are filter errors, return with error message
+    if (filterErrors.length > 0) {
+      return res.render('manage-orders', {
+        orders: [],
+        pagination: { currentPage: 1, totalPages: 0, hasPrev: false, hasNext: false, pages: [] },
+        title: 'Manage Orders',
+        filters: {
+          status: status || '',
+          payment: payment || '',
+          min_amount: req.query.min_amount || '',
+          max_amount: req.query.max_amount || '',
+          start_date: req.query.start_date || '',
+          end_date: req.query.end_date || '',
+        },
+        filterErrors
+      });
+    }
+    // Execute query and get results
     const totalOrders = await Order.countDocuments(query);
     const orders = await Order.find(query)
-      .populate('user', 'fullName')
+      .populate('user', 'fullName email')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean();
+
     const totalPages = Math.ceil(totalOrders / limit);
+
+    // Format order data
     orders.forEach((order) => {
       order.formattedDate = new Date(order.createdAt).toLocaleDateString('en-US', {
         year: 'numeric',
@@ -57,7 +126,13 @@ const getManageOrders = async (req, res) => {
       });
       order.formattedTotal = `₹${order.total.toFixed(2)}`;
       order.customerName = order.user ? order.user.fullName : 'Unknown';
+      order.customerEmail = order.user ? order.user.email : 'N/A';
+
+      // Add status badge class for styling
+      order.statusClass = getStatusClass(order.orderStatus);
     });
+
+    // Build pagination
     const pagination = {
       currentPage: page,
       totalPages,
@@ -66,7 +141,10 @@ const getManageOrders = async (req, res) => {
       prevPage: page - 1,
       nextPage: page + 1,
       pages: Array.from({ length: totalPages }, (_, i) => i + 1),
+      totalOrders
     };
+
+    // Prepare filter data
     const filters = {
       status: status || '',
       payment: payment || '',
@@ -75,16 +153,57 @@ const getManageOrders = async (req, res) => {
       start_date: req.query.start_date || '',
       end_date: req.query.end_date || '',
     };
+
+    // Check if any filters are applied
+    const hasActiveFilters = Object.values(filters).some(value => value !== '');
+
     res.render('manage-orders', {
       orders,
       pagination,
       title: 'Manage Orders',
       filters,
+      hasActiveFilters,
+      totalOrders,
+      filterErrors: []
     });
+
   } catch (error) {
     console.error('Error fetching orders:', error);
-    res.redirect('/admin/dashboard');
+    res.render('manage-orders', {
+      orders: [],
+      pagination: { currentPage: 1, totalPages: 0, hasPrev: false, hasNext: false, pages: [], totalOrders: 0 },
+      title: 'Manage Orders',
+      filters: {
+        status: '',
+        payment: '',
+        min_amount: '',
+        max_amount: '',
+        start_date: '',
+        end_date: '',
+      },
+      hasActiveFilters: false,
+      totalOrders: 0,
+      filterErrors: ['An error occurred while fetching orders. Please try again.']
+    });
   }
+};
+
+// Helper function to get status class for styling
+const getStatusClass = (status) => {
+  const statusClasses = {
+    'Placed': 'badge-warning',
+    'Processing': 'badge-info',
+    'Shipped': 'badge-primary',
+    'Delivered': 'badge-success',
+    'Cancelled': 'badge-danger',
+    'Returned': 'badge-secondary',
+    'Pending Payment': 'badge-warning',
+    'Partially Cancelled': 'badge-warning',
+    'Partially Returned': 'badge-warning',
+    'Return Requested': 'badge-info',
+    'Partially Return Requested': 'badge-info'
+  };
+  return statusClasses[status] || 'badge-secondary';
 };
 const getOrderDetails = async (req, res) => {
   try {
@@ -1066,11 +1185,143 @@ const approveReturnRequest = async (req, res) => {
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
   }
 };
+const exportOrders = async (req, res) => {
+  try {
+    const XLSX = require('xlsx');
+
+    // Build query based on filters
+    const query = { isDeleted: false };
+
+    // Apply filters from query parameters
+    if (req.query.status && req.query.status !== '') {
+      let status = req.query.status;
+      if (status === 'Pending') status = 'Placed';
+      query.orderStatus = status;
+    }
+
+    if (req.query.payment && req.query.payment !== '') {
+      query.paymentStatus = req.query.payment;
+    }
+
+    if (req.query.min_amount && req.query.max_amount) {
+      const minAmount = parseFloat(req.query.min_amount);
+      const maxAmount = parseFloat(req.query.max_amount);
+      if (!isNaN(minAmount) && !isNaN(maxAmount)) {
+        query.total = { $gte: minAmount, $lte: maxAmount };
+      }
+    } else if (req.query.min_amount) {
+      const minAmount = parseFloat(req.query.min_amount);
+      if (!isNaN(minAmount)) {
+        query.total = { $gte: minAmount };
+      }
+    } else if (req.query.max_amount) {
+      const maxAmount = parseFloat(req.query.max_amount);
+      if (!isNaN(maxAmount)) {
+        query.total = { $lte: maxAmount };
+      }
+    }
+
+    if (req.query.start_date && req.query.end_date) {
+      const startDate = new Date(req.query.start_date);
+      const endDate = new Date(req.query.end_date);
+      endDate.setHours(23, 59, 59, 999);
+
+      if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+        query.createdAt = { $gte: startDate, $lte: endDate };
+      }
+    }
+
+    // Fetch orders with populated data
+    const orders = await Order.find(query)
+      .populate('user', 'fullName email phone')
+      .populate('items.product', 'model brand')
+      .sort({ createdAt: -1 })
+      .limit(10000) // Limit to prevent memory issues
+      .lean();
+
+    if (!orders || orders.length === 0) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'No orders found for the selected criteria'
+      });
+    }
+
+    // Prepare data for Excel export
+    const excelData = orders.map(order => {
+      const itemsDetails = order.items.map(item =>
+        `${item.product?.brand || 'N/A'} ${item.product?.model || 'N/A'} (Qty: ${item.quantity})`
+      ).join('; ');
+
+      return {
+        'Order Number': order.orderNumber,
+        'Date': new Date(order.createdAt).toLocaleDateString('en-US'),
+        'Customer Name': order.user?.fullName || 'Unknown',
+        'Customer Email': order.user?.email || 'N/A',
+        'Customer Phone': order.user?.phone || 'N/A',
+        'Items': itemsDetails,
+        'Total Items': order.items.reduce((sum, item) => sum + item.quantity, 0),
+        'Subtotal': order.subtotal?.toFixed(2) || '0.00',
+        'Offer Discount': order.offerDiscount?.toFixed(2) || '0.00',
+        'Coupon Discount': order.couponDiscount?.toFixed(2) || '0.00',
+        'Coupon Code': order.couponCode || 'N/A',
+        'Total Amount': order.total?.toFixed(2) || '0.00',
+        'Payment Method': order.paymentMethod || 'N/A',
+        'Payment Status': order.paymentStatus || 'N/A',
+        'Order Status': order.orderStatus || 'N/A',
+        'Shipping Address': order.shippingAddress ?
+          `${order.shippingAddress.street}, ${order.shippingAddress.city}, ${order.shippingAddress.state} - ${order.shippingAddress.pincode}` : 'N/A'
+      };
+    });
+
+    // Create workbook and worksheet
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+    // Auto-size columns
+    const colWidths = Object.keys(excelData[0] || {}).map(key => ({
+      wch: Math.max(key.length, 15)
+    }));
+    worksheet['!cols'] = colWidths;
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Orders');
+
+    // Generate filename with current date and filters
+    const now = new Date();
+    const dateStr = now.toISOString().split('T')[0];
+    let filename = `orders-export-${dateStr}`;
+
+    if (req.query.status) filename += `-${req.query.status}`;
+    if (req.query.start_date && req.query.end_date) {
+      filename += `-${req.query.start_date}-to-${req.query.end_date}`;
+    }
+    filename += '.xlsx';
+
+    // Set headers and send file
+    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Length', buffer.length);
+
+    res.send(buffer);
+
+  } catch (error) {
+    console.error('Error exporting orders:', error);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to export orders: ' + error.message
+    });
+  }
+};
+
+
+
 module.exports = {
   getManageOrders,
   getOrderDetails,
   updateOrderStatus,
   updateItemStatus,
   downloadInvoice,
-  approveReturnRequest
+  approveReturnRequest,
+  exportOrders
 };

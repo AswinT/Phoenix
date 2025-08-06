@@ -892,6 +892,53 @@ h6 {
   }
 }
 
+@media (min-width: 1024px) and (max-width: 1199px) {
+  .product-container {
+    max-width: 1000px;
+    padding: 0 2rem;
+  }
+
+  .product-image-section {
+    max-width: 450px;
+  }
+
+  .product-details {
+    padding: 2rem;
+  }
+
+  .zoom-result {
+    width: 320px;
+    height: 320px;
+    margin-left: 15px;
+  }
+
+  .related-products-row {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .action-buttons {
+    gap: 1rem;
+  }
+
+  .btn-add-to-cart,
+  .btn-wishlist {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 1023px) {
+  .product-container {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .product-details {
+    order: -1;
+  }
+}
+
 @media (max-width: 991px) {
   .product-details {
     position: static;

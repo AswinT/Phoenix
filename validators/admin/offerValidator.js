@@ -28,43 +28,10 @@ const validateDiscountValue = (req, res, next) => {
   }
   next();
 };
-const validateOfferDates = (req, res, next) => {
-  const { startDate, endDate } = req.body;
-  const isEdit = req.method === 'PUT';
-  if (!startDate) {
-    return res.status(400).json({
-      success: false,
-      message: 'Validation failed',
-      errors: ['Start date is required']
-    });
-  }
-  if (!endDate) {
-    return res.status(400).json({
-      success: false,
-      message: 'Validation failed',
-      errors: ['End date is required']
-    });
-  }
-  const startDateObj = new Date(startDate);
-  const endDateObj = new Date(endDate);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  if (!isEdit && startDateObj < today) {
-    return res.status(400).json({
-      success: false,
-      message: 'Validation failed',
-      errors: ['Start date cannot be in the past']
-    });
-  }
-  if (startDateObj >= endDateObj) {
-    return res.status(400).json({
-      success: false,
-      message: 'Validation failed',
-      errors: ['End date must be after start date']
-    });
-  }
-  next();
-};
+const { validateOfferDatesMiddleware } = require('../../middlewares/dateValidationMiddleware');
+
+// Use the new date validation middleware
+const validateOfferDates = validateOfferDatesMiddleware;
 const validateApplicableItems = (req, res, next) => {
   const { appliesTo, applicableProducts, applicableCategories } = req.body;
   if (appliesTo === 'specific_products') {

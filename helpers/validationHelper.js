@@ -182,6 +182,12 @@ const createValidationMiddleware = (validationRules) => {
           case 'select':
             result = validateText(value, rules, rules.fieldName || field);
             break;
+          case 'date':
+            result = validateDate(value, rules, rules.fieldName || field);
+            break;
+          case 'dateOfBirth':
+            result = validateDateOfBirth(value, rules.fieldName || field);
+            break;
           default:
             result = { isValid: true, sanitized: value };
         }
@@ -203,6 +209,188 @@ const createValidationMiddleware = (validationRules) => {
     next();
   };
 };
+const validateDate = (dateValue, options = {}, fieldName = 'Date') => {
+  const {
+    required = false,
+    allowFuture = true,
+    allowPast = true,
+    minAge = null,
+    maxAge = null,
+    minDate = null,
+    maxDate = null,
+    format = 'YYYY-MM-DD'
+  } = options;
+
+  if (!dateValue && !required) {
+    return { isValid: true, sanitized: null };
+  }
+
+  if (!dateValue && required) {
+    return { isValid: false, message: `${fieldName} is required` };
+  }
+
+  // Validate date format and parse
+  const parsedDate = new Date(dateValue);
+  if (isNaN(parsedDate.getTime())) {
+    return { isValid: false, message: `${fieldName} must be a valid date` };
+  }
+
+  // Check if the date string matches expected format
+  if (format === 'YYYY-MM-DD' && !/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+    return { isValid: false, message: `${fieldName} must be in YYYY-MM-DD format` };
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  parsedDate.setHours(0, 0, 0, 0);
+
+  // Check future/past restrictions
+  if (!allowFuture && parsedDate > today) {
+    return { isValid: false, message: `${fieldName} cannot be in the future` };
+  }
+
+  if (!allowPast && parsedDate < today) {
+    return { isValid: false, message: `${fieldName} cannot be in the past` };
+  }
+
+  // Check age restrictions (for date of birth)
+  if (minAge !== null || maxAge !== null) {
+    const age = calculateAge(parsedDate);
+
+    if (minAge !== null && age < minAge) {
+      return { isValid: false, message: `Age must be at least ${minAge} years` };
+    }
+
+    if (maxAge !== null && age > maxAge) {
+      return { isValid: false, message: `Age cannot exceed ${maxAge} years` };
+    }
+  }
+
+  // Check date range
+  if (minDate) {
+    const minDateObj = new Date(minDate);
+    minDateObj.setHours(0, 0, 0, 0);
+    if (parsedDate < minDateObj) {
+      return { isValid: false, message: `${fieldName} must be after ${formatDate(minDateObj)}` };
+    }
+  }
+
+  if (maxDate) {
+    const maxDateObj = new Date(maxDate);
+    maxDateObj.setHours(0, 0, 0, 0);
+    if (parsedDate > maxDateObj) {
+      return { isValid: false, message: `${fieldName} must be before ${formatDate(maxDateObj)}` };
+    }
+  }
+
+  return { isValid: true, sanitized: dateValue };
+};
+
+const validateDateRange = (startDate, endDate, options = {}) => {
+  const {
+    allowSameDate = false,
+    maxRangeDays = null,
+    minRangeDays = null,
+    startFieldName = 'Start date',
+    endFieldName = 'End date'
+  } = options;
+
+  // Validate individual dates first
+  const startValidation = validateDate(startDate, { ...options, required: true }, startFieldName);
+  const endValidation = validateDate(endDate, { ...options, required: true }, endFieldName);
+
+  if (!startValidation.isValid) {
+    return { isValid: false, message: startValidation.message };
+  }
+
+  if (!endValidation.isValid) {
+    return { isValid: false, message: endValidation.message };
+  }
+
+  const startDateObj = new Date(startDate);
+  const endDateObj = new Date(endDate);
+
+  startDateObj.setHours(0, 0, 0, 0);
+  endDateObj.setHours(0, 0, 0, 0);
+
+  // Check date order
+  if (allowSameDate ? startDateObj > endDateObj : startDateObj >= endDateObj) {
+    return { isValid: false, message: `${endFieldName} must be after ${startFieldName}` };
+  }
+
+  // Check range constraints
+  if (maxRangeDays || minRangeDays) {
+    const rangeDays = Math.ceil((endDateObj - startDateObj) / (1000 * 60 * 60 * 24));
+
+    if (maxRangeDays && rangeDays > maxRangeDays) {
+      return { isValid: false, message: `Date range cannot exceed ${maxRangeDays} days` };
+    }
+
+    if (minRangeDays && rangeDays < minRangeDays) {
+      return { isValid: false, message: `Date range must be at least ${minRangeDays} days` };
+    }
+  }
+
+  return { isValid: true, sanitized: { startDate, endDate } };
+};
+
+const calculateAge = (birthDate) => {
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+
+  return age;
+};
+
+const formatDate = (date) => {
+  return date.toISOString().split('T')[0];
+};
+
+const validateDateOfBirth = (dateValue, fieldName = 'Date of birth') => {
+  return validateDate(dateValue, {
+    required: false,
+    allowFuture: false,
+    minAge: 13,
+    maxAge: 120
+  }, fieldName);
+};
+
+const validateOfferDates = (startDate, endDate, isEdit = false) => {
+  return validateDateRange(startDate, endDate, {
+    allowPast: isEdit, // Allow past dates for editing existing offers
+    allowSameDate: false,
+    minRangeDays: 1,
+    maxRangeDays: 365, // Maximum 1 year
+    startFieldName: 'Start date',
+    endFieldName: 'End date'
+  });
+};
+
+const validateCouponDates = (startDate, expiryDate, isEdit = false) => {
+  return validateDateRange(startDate, expiryDate, {
+    allowPast: isEdit, // Allow past dates for editing existing coupons
+    allowSameDate: false,
+    minRangeDays: 1,
+    maxRangeDays: 730, // Maximum 2 years
+    startFieldName: 'Start date',
+    endFieldName: 'Expiry date'
+  });
+};
+
+const validateSalesReportDates = (fromDate, toDate) => {
+  return validateDateRange(fromDate, toDate, {
+    allowFuture: false, // Sales reports can't include future dates
+    allowSameDate: true,
+    maxRangeDays: 365, // Maximum 1 year range
+    startFieldName: 'From date',
+    endFieldName: 'To date'
+  });
+};
+
 module.exports = {
   VALIDATION_PATTERNS,
   VALIDATION_RULES,
@@ -215,5 +403,13 @@ module.exports = {
   validatePrice,
   validateQuantity,
   validateText,
+  validateDate,
+  validateDateRange,
+  validateDateOfBirth,
+  validateOfferDates,
+  validateCouponDates,
+  validateSalesReportDates,
+  calculateAge,
+  formatDate,
   createValidationMiddleware
 };

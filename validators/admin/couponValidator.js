@@ -81,51 +81,10 @@ const validateMinOrderAmount = (req, res, next) => {
   }
   next();
 };
-const validateCouponDates = (req, res, next) => {
-  const { startDate, expiryDate } = req.body;
-  const isEdit = req.method === 'PUT';
-  if (!startDate) {
-    return res.status(400).json({
-      success: false,
-      message: 'Validation failed',
-      errors: ['Start date is required']
-    });
-  }
-  if (!expiryDate) {
-    return res.status(400).json({
-      success: false,
-      message: 'Validation failed',
-      errors: ['End date is required']
-    });
-  }
-  const startDateObj = new Date(startDate);
-  const endDateObj = new Date(expiryDate);
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  if (!isEdit && startDateObj < now) {
-    return res.status(400).json({
-      success: false,
-      message: 'Validation failed',
-      errors: ['Start date cannot be in the past']
-    });
-  }
-  if (startDateObj >= endDateObj) {
-    return res.status(400).json({
-      success: false,
-      message: 'Validation failed',
-      errors: ['End date must be after start date']
-    });
-  }
-  const oneYear = 365 * 24 * 60 * 60 * 1000;
-  if (endDateObj - startDateObj > oneYear) {
-    return res.status(400).json({
-      success: false,
-      message: 'Validation failed',
-      errors: ['Coupon duration cannot exceed 1 year']
-    });
-  }
-  next();
-};
+const { validateCouponDatesMiddleware } = require('../../middlewares/dateValidationMiddleware');
+
+// Use the new date validation middleware
+const validateCouponDates = validateCouponDatesMiddleware;
 const validateUsageLimits = (req, res, next) => {
   const { usageLimitGlobal, usageLimitPerUser } = req.body;
   if (usageLimitGlobal) {

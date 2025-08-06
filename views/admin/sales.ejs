@@ -59,13 +59,38 @@
               <option value="thisyear" <%= quickFilter === 'thisyear' ? 'selected' : '' %>>This Year</option>
             </select>
           </div>
-          <% if (reportType === 'custom') { %>
-          <div class="col-md-12 mt-3 text-end">
-            <button type="button" class="btn btn-primary btn-sm" onclick="applyDateFilter()">
-              <i class="ri-filter-3-line me-1"></i>Apply Filter
-            </button>
+          <div class="col-md-12 mt-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="filter-status" id="filterStatus">
+                <% if (reportType === 'custom' && fromDate && toDate) { %>
+                  <span class="badge bg-info">
+                    <i class="ri-filter-3-line me-1"></i>
+                    Custom Range: <%= fromDate %> to <%= toDate %>
+                  </span>
+                <% } else if (quickFilter) { %>
+                  <span class="badge bg-info">
+                    <i class="ri-filter-3-line me-1"></i>
+                    Quick Filter: <%= quickFilter.charAt(0).toUpperCase() + quickFilter.slice(1) %>
+                  </span>
+                <% } else if (reportType && reportType !== 'monthly') { %>
+                  <span class="badge bg-info">
+                    <i class="ri-filter-3-line me-1"></i>
+                    Report Type: <%= reportType.charAt(0).toUpperCase() + reportType.slice(1) %>
+                  </span>
+                <% } %>
+              </div>
+              <div class="filter-actions">
+                <% if (reportType === 'custom') { %>
+                  <button type="button" class="btn btn-primary btn-sm me-2" onclick="applyDateFilter()">
+                    <i class="ri-filter-3-line me-1"></i>Apply Filter
+                  </button>
+                <% } %>
+                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetFilters()">
+                  <i class="ri-refresh-line me-1"></i>Reset Filters
+                </button>
+              </div>
+            </div>
           </div>
-          <% } %>
         </div>
       </div>
     </div>
@@ -360,6 +385,40 @@ function applyDateFilter() {
   const reportType = document.getElementById('reportType').value;
   const currentLimit = document.getElementById('entriesPerPage').value;
 
+  // Validate dates if custom range is selected
+  if (reportType === 'custom') {
+    if (!fromDate || !toDate) {
+      showFilterError('Please select both start and end dates for custom range.');
+      return;
+    }
+
+    // Validate date range
+    const startDate = new Date(fromDate);
+    const endDate = new Date(toDate);
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+
+    if (startDate > endDate) {
+      showFilterError('End date must be after start date.');
+      return;
+    }
+
+    if (startDate > today || endDate > today) {
+      showFilterError('Dates cannot be in the future.');
+      return;
+    }
+
+    // Check if range is too large (more than 1 year)
+    const oneYear = 365 * 24 * 60 * 60 * 1000;
+    if (endDate - startDate > oneYear) {
+      showFilterError('Date range cannot exceed 1 year.');
+      return;
+    }
+  }
+
+  // Clear any previous error messages
+  clearFilterError();
+
   // Build query parameters
   const params = new URLSearchParams();
   params.set('page', '1'); // Reset to first page on filter change
@@ -378,8 +437,69 @@ function applyDateFilter() {
     params.append('reportType', reportType);
   }
 
+  // Show loading state
+  showFilterLoading(true);
+
   // Reload page with new parameters
   window.location.href = window.location.pathname + '?' + params.toString();
+}
+
+// Function to reset all filters
+function resetFilters() {
+  const params = new URLSearchParams();
+  params.set('page', '1');
+  params.set('limit', document.getElementById('entriesPerPage').value);
+  params.set('reportType', 'monthly'); // Default to monthly report
+
+  // Show loading state
+  showFilterLoading(true);
+
+  // Reload page with reset parameters
+  window.location.href = window.location.pathname + '?' + params.toString();
+}
+
+// Function to show filter error
+function showFilterError(message) {
+  clearFilterError();
+  const filterActions = document.querySelector('.filter-actions');
+  const errorDiv = document.createElement('div');
+  errorDiv.className = 'alert alert-danger alert-sm mt-2 filter-error';
+  errorDiv.innerHTML = `<i class="ri-error-warning-line me-1"></i>${message}`;
+  filterActions.parentElement.appendChild(errorDiv);
+}
+
+// Function to clear filter error
+function clearFilterError() {
+  const existingError = document.querySelector('.filter-error');
+  if (existingError) {
+    existingError.remove();
+  }
+}
+
+// Function to show/hide loading state
+function showFilterLoading(show) {
+  const applyBtn = document.querySelector('button[onclick="applyDateFilter()"]');
+  const resetBtn = document.querySelector('button[onclick="resetFilters()"]');
+
+  if (show) {
+    if (applyBtn) {
+      applyBtn.disabled = true;
+      applyBtn.innerHTML = '<i class="ri-loader-4-line me-1 spin"></i>Applying...';
+    }
+    if (resetBtn) {
+      resetBtn.disabled = true;
+      resetBtn.innerHTML = '<i class="ri-loader-4-line me-1 spin"></i>Resetting...';
+    }
+  } else {
+    if (applyBtn) {
+      applyBtn.disabled = false;
+      applyBtn.innerHTML = '<i class="ri-filter-3-line me-1"></i>Apply Filter';
+    }
+    if (resetBtn) {
+      resetBtn.disabled = false;
+      resetBtn.innerHTML = '<i class="ri-refresh-line me-1"></i>Reset Filters';
+    }
+  }
 }
 
 // PDF Download functionality
@@ -401,9 +521,34 @@ document.getElementById('downloadPdf').addEventListener('click', function() {
     params.append('reportType', reportType);
   }
 
-  // Open PDF export in new window
-  const exportUrl = '/admin/sales/export/pdf?' + params.toString();
-  window.open(exportUrl, '_blank');
+  // Check if user wants browser PDF generation or direct download
+  Swal.fire({
+    title: 'PDF Export Options',
+    text: 'Choose your preferred PDF export method',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Direct Download',
+    cancelButtonText: 'Browser Print',
+    confirmButtonColor: '#4361EE',
+    cancelButtonColor: '#6c757d'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Direct PDF download
+      const exportUrl = '/admin/sales/export/pdf?' + params.toString();
+      const link = document.createElement('a');
+      link.href = exportUrl;
+      link.download = `sales-report-${new Date().toISOString().split('T')[0]}.pdf`;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else if (result.dismiss === Swal.DismissReason.cancel) {
+      // Browser print to PDF
+      params.append('format', 'html');
+      const exportUrl = '/admin/sales/export/pdf?' + params.toString();
+      window.open(exportUrl, '_blank');
+    }
+  });
 });
 
 // Excel Download functionality
@@ -503,6 +648,38 @@ function changeLimit(newLimit) {
   overflow: visible;
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
   margin-bottom: 1.5rem;
+}
+
+/* Filter enhancements */
+.filter-status .badge {
+  font-size: 0.85rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.filter-error {
+  font-size: 0.875rem;
+  margin-bottom: 0;
+  padding: 0.5rem 0.75rem;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.filter-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.alert-sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
 }
 
 .chart-header {

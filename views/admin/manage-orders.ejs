@@ -15,14 +15,20 @@
   </div>
 
   <div class="content-card">
-    <h2 class="chart-title">Filter Orders</h2>
-    <form id="filter-form" action="/admin/getOrders" method="GET">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="chart-title">Filter Orders</h2>
+      <div id="filter-status" class="filter-status">
+        <!-- Filter status badges will be displayed here -->
+      </div>
+    </div>
+
+    <form id="filter-form" action="/admin/orders" method="GET">
       <div class="filters">
         <div class="filter-group">
           <label class="form-label">Order Status</label>
-          <select class="form-select" name="status">
+          <select class="form-select" name="status" id="status-filter">
             <option value="" <%= filters.status === '' ? 'selected' : '' %>>All Statuses</option>
-            <option value="Pending" <%= filters.status === 'Placed' ? 'selected' : '' %>>Pending</option>
+            <option value="Placed" <%= filters.status === 'Placed' ? 'selected' : '' %>>Pending</option>
             <option value="Processing" <%= filters.status === 'Processing' ? 'selected' : '' %>>Processing</option>
             <option value="Shipped" <%= filters.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
             <option value="Delivered" <%= filters.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
@@ -34,17 +40,19 @@
             <option value="Partially Return Requested" <%= filters.status === 'Partially Return Requested' ? 'selected' : '' %>>Partially Return Requested</option>
             <option value="Pending Payment" <%= filters.status === 'Pending Payment' ? 'selected' : '' %>>Pending Payment</option>
           </select>
+          <div class="invalid-feedback" id="status-error"></div>
         </div>
 
         <div class="filter-group">
           <label class="form-label">Payment Method</label>
-          <select class="form-select" name="payment">
+          <select class="form-select" name="payment" id="payment-filter">
             <option value="" <%= filters.payment === '' ? 'selected' : '' %>>All Methods</option>
             <option value="COD" <%= filters.payment === 'COD' ? 'selected' : '' %>>Cash on Delivery</option>
-            <option value="CARD" <%= filters.payment === 'Card' ? 'selected' : '' %>>Credit/Debit Card</option>
-            <option value="WALLET" <%= filters.payment === 'Wallet' ? 'selected' : '' %>>Wallet</option>
+            <option value="Card" <%= filters.payment === 'Card' ? 'selected' : '' %>>Credit/Debit Card</option>
+            <option value="Wallet" <%= filters.payment === 'Wallet' ? 'selected' : '' %>>Wallet</option>
             <option value="UPI" <%= filters.payment === 'UPI' ? 'selected' : '' %>>UPI/Net Banking</option>
           </select>
+          <div class="invalid-feedback" id="payment-error"></div>
         </div>
 
         <div class="filter-group">
@@ -55,16 +63,23 @@
               placeholder="Min ₹"
               class="form-control"
               name="min_amount"
+              id="min-amount"
               value="<%= filters.min_amount %>"
+              min="0"
+              step="0.01"
             />
             <input
               type="number"
               placeholder="Max ₹"
               class="form-control"
               name="max_amount"
+              id="max-amount"
               value="<%= filters.max_amount %>"
+              min="0"
+              step="0.01"
             />
           </div>
+          <div class="invalid-feedback" id="amount-error"></div>
         </div>
 
         <div class="filter-group">
@@ -74,23 +89,59 @@
               type="date"
               class="form-control"
               name="start_date"
+              id="start-date"
               value="<%= filters.start_date %>"
             />
             <input
               type="date"
               class="form-control"
               name="end_date"
+              id="end-date"
               value="<%= filters.end_date %>"
             />
           </div>
+          <div class="invalid-feedback" id="date-error"></div>
         </div>
       </div>
 
-      <div class="d-flex justify-content-end gap-2 mt-3">
-        <button type="reset" class="btn-secondary">Reset Filters</button>
-        <button type="submit" class="btn-primary">Apply Filters</button>
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <div class="filter-info">
+          <small class="text-muted" id="filter-info">
+            <% if (typeof filterErrors !== 'undefined' && filterErrors.length > 0) { %>
+              <span class="text-danger">
+                <i class="ri-error-warning-line me-1"></i>
+                <%= filterErrors.join(', ') %>
+              </span>
+            <% } else if (orders && orders.length > 0) { %>
+              Showing <%= orders.length %> of <%= totalOrders || 0 %> orders
+              <% if (hasActiveFilters) { %>
+                <span class="text-info">(filtered)</span>
+              <% } %>
+            <% } else if (hasActiveFilters) { %>
+              <span class="text-warning">No orders match the current filters</span>
+            <% } else { %>
+              No orders found
+            <% } %>
+          </small>
+        </div>
+        <div class="filter-actions d-flex gap-2">
+          <button type="button" id="reset-filters" class="btn-secondary">
+            <i class="ri-refresh-line me-1"></i>Reset Filters
+          </button>
+          <button type="submit" id="apply-filters" class="btn-primary">
+            <i class="ri-filter-3-line me-1"></i>Apply Filters
+          </button>
+        </div>
       </div>
     </form>
+
+    <!-- Loading overlay -->
+    <div id="filter-loading" class="filter-loading" style="display: none;">
+      <div class="loading-spinner">
+        <i class="ri-loader-4-line spin"></i>
+        <span>Applying filters...</span>
+      </div>
+    </div>
   </div>
 
   <div class="table-container">
@@ -254,9 +305,44 @@
             <% }) %>
           <% } else { %>
             <tr>
-              <td colspan="7" class="text-center py-4">
-                <i class="ri-inbox-line fs-1 d-block mb-2 text-muted"></i>
-                <span class="text-muted">No orders found</span>
+              <td colspan="7" class="text-center py-5">
+                <div class="no-results">
+                  <% if (typeof filterErrors !== 'undefined' && filterErrors.length > 0) { %>
+                    <i class="ri-error-warning-line text-danger"></i>
+                    <h5 class="text-danger mb-2">Filter Error</h5>
+                    <p class="text-muted mb-3">
+                      <%= filterErrors.join('. ') %>
+                    </p>
+                    <button type="button" onclick="window.location.href='/admin/orders'" class="btn btn-outline-primary">
+                      <i class="ri-refresh-line me-1"></i>Clear Filters
+                    </button>
+                  <% } else if (hasActiveFilters) { %>
+                    <i class="ri-search-line text-warning"></i>
+                    <h5 class="text-muted mb-2">No Matching Orders</h5>
+                    <p class="text-muted mb-3">
+                      No orders match your current filter criteria.<br>
+                      Try adjusting your filters or clearing them to see all orders.
+                    </p>
+                    <div class="d-flex gap-2 justify-content-center">
+                      <button type="button" onclick="window.location.href='/admin/orders'" class="btn btn-outline-primary">
+                        <i class="ri-refresh-line me-1"></i>Clear Filters
+                      </button>
+                      <button type="button" onclick="document.getElementById('reset-filters').click()" class="btn btn-outline-secondary">
+                        <i class="ri-filter-off-line me-1"></i>Reset Filters
+                      </button>
+                    </div>
+                  <% } else { %>
+                    <i class="ri-inbox-line text-muted"></i>
+                    <h5 class="text-muted mb-2">No Orders Yet</h5>
+                    <p class="text-muted mb-3">
+                      There are no orders in the system yet.<br>
+                      Orders will appear here once customers start placing them.
+                    </p>
+                    <a href="/admin/dashboard" class="btn btn-outline-primary">
+                      <i class="ri-dashboard-line me-1"></i>Go to Dashboard
+                    </a>
+                  <% } %>
+                </div>
               </td>
             </tr>
           <% } %>
@@ -311,25 +397,161 @@
   </div>
 </div>
 
+<style>
+  .filter-status {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-badge {
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .filter-badge .remove-filter {
+    cursor: pointer;
+    margin-left: 0.25rem;
+    opacity: 0.7;
+  }
+
+  .filter-badge .remove-filter:hover {
+    opacity: 1;
+  }
+
+  .filter-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-radius: 0.5rem;
+  }
+
+  .loading-spinner {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #4361EE;
+    font-weight: 500;
+  }
+
+  .spin {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .content-card {
+    position: relative;
+  }
+
+  .invalid-feedback {
+    display: none;
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+
+  .form-control.is-invalid,
+  .form-select.is-invalid {
+    border-color: #dc3545;
+  }
+
+  .form-control.is-invalid ~ .invalid-feedback,
+  .form-select.is-invalid ~ .invalid-feedback {
+    display: block;
+  }
+
+  .filter-info {
+    color: #6c757d;
+    font-size: 0.875rem;
+  }
+
+  .no-results {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+  }
+
+  .no-results i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+</style>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
+    // Initialize filter functionality
+    initializeFilters();
+
+    // Display current filter status
+    updateFilterStatus();
+
     // Filter form submission
     const filterForm = document.getElementById('filter-form');
-    
+    const applyButton = document.getElementById('apply-filters');
+    const resetButton = document.getElementById('reset-filters');
+
+    // Form validation and submission
+    filterForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      if (validateFilters()) {
+        showLoading(true);
+
+        // Build query parameters
+        const formData = new FormData(filterForm);
+        const params = new URLSearchParams();
+
+        for (let [key, value] of formData.entries()) {
+          if (value.trim() !== '') {
+            params.append(key, value.trim());
+          }
+        }
+
+        // Always start from page 1 when applying filters
+        params.set('page', '1');
+
+        // Navigate to filtered results
+        window.location.href = '/admin/orders?' + params.toString();
+      }
+    });
+
     // Reset filters
-    filterForm.addEventListener('reset', function(e) {
+    resetButton.addEventListener('click', function(e) {
       e.preventDefault();
 
       Swal.fire({
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 1500,
-        icon: 'info',
-        title: 'Filters have been reset',
-      }).then(() => {
-        window.location.href = '/admin/orders?page=1';
+        title: 'Reset Filters',
+        text: 'Are you sure you want to clear all filters?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#4361EE',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, reset filters',
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          showLoading(true);
+          window.location.href = '/admin/orders?page=1';
+        }
       });
     });
     
@@ -394,22 +616,253 @@
     // Export Orders
     document.querySelector('.btn-primary[href*="export"]').addEventListener('click', function(e) {
       e.preventDefault();
-      
+
       Swal.fire({
         title: 'Export Orders',
-        text: 'Exporting orders data as CSV',
+        text: 'Exporting orders data as Excel file with current filters applied',
         icon: 'info',
         confirmButtonColor: '#4361EE',
         showCancelButton: true,
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Export',
+        confirmButtonText: 'Export Excel',
         cancelButtonText: 'Cancel',
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+          return new Promise((resolve) => {
+            // Build export URL with current filters
+            const params = new URLSearchParams(window.location.search);
+            const exportUrl = '/admin/orders/export?' + params.toString();
+
+            // Create a temporary link to trigger download
+            const link = document.createElement('a');
+            link.href = exportUrl;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Resolve after a short delay to show success
+            setTimeout(() => {
+              resolve();
+            }, 1000);
+          });
+        }
       }).then((result) => {
         if (result.isConfirmed) {
-          window.location.href = '/admin/orders/export';
+          Swal.fire({
+            title: 'Export Started!',
+            text: 'Your file download should begin shortly.',
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false
+          });
         }
+      }).catch((error) => {
+        Swal.fire({
+          title: 'Export Failed',
+          text: 'There was an error exporting the orders. Please try again.',
+          icon: 'error',
+          confirmButtonColor: '#4361EE'
+        });
       });
     });
+
+    // Initialize filter functionality
+    function initializeFilters() {
+      // Set max date for date inputs to today
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('start-date').setAttribute('max', today);
+      document.getElementById('end-date').setAttribute('max', today);
+
+      // Add real-time validation
+      document.getElementById('min-amount').addEventListener('input', validateAmountRange);
+      document.getElementById('max-amount').addEventListener('input', validateAmountRange);
+      document.getElementById('start-date').addEventListener('change', validateDateRange);
+      document.getElementById('end-date').addEventListener('change', validateDateRange);
+    }
+
+    // Validate all filters
+    function validateFilters() {
+      let isValid = true;
+
+      // Clear previous errors
+      clearValidationErrors();
+
+      // Validate amount range
+      if (!validateAmountRange()) isValid = false;
+
+      // Validate date range
+      if (!validateDateRange()) isValid = false;
+
+      return isValid;
+    }
+
+    // Validate amount range
+    function validateAmountRange() {
+      const minAmount = parseFloat(document.getElementById('min-amount').value) || 0;
+      const maxAmount = parseFloat(document.getElementById('max-amount').value) || Infinity;
+
+      if (minAmount < 0) {
+        showValidationError('min-amount', 'Minimum amount cannot be negative');
+        return false;
+      }
+
+      if (maxAmount < 0) {
+        showValidationError('max-amount', 'Maximum amount cannot be negative');
+        return false;
+      }
+
+      if (minAmount > 0 && maxAmount < Infinity && minAmount > maxAmount) {
+        showValidationError('amount-error', 'Minimum amount cannot be greater than maximum amount');
+        return false;
+      }
+
+      return true;
+    }
+
+    // Validate date range
+    function validateDateRange() {
+      const startDate = document.getElementById('start-date').value;
+      const endDate = document.getElementById('end-date').value;
+
+      if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const today = new Date();
+        today.setHours(23, 59, 59, 999);
+
+        if (start > end) {
+          showValidationError('date-error', 'Start date cannot be after end date');
+          return false;
+        }
+
+        if (start > today || end > today) {
+          showValidationError('date-error', 'Dates cannot be in the future');
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    // Show validation error
+    function showValidationError(elementId, message) {
+      const element = document.getElementById(elementId);
+      if (element) {
+        if (element.classList.contains('form-control') || element.classList.contains('form-select')) {
+          element.classList.add('is-invalid');
+        }
+
+        const errorElement = document.getElementById(elementId.replace('-', '-') + (elementId.includes('-error') ? '' : '-error'));
+        if (errorElement) {
+          errorElement.textContent = message;
+          errorElement.style.display = 'block';
+        }
+      }
+    }
+
+    // Clear validation errors
+    function clearValidationErrors() {
+      document.querySelectorAll('.form-control, .form-select').forEach(el => {
+        el.classList.remove('is-invalid');
+      });
+      document.querySelectorAll('.invalid-feedback').forEach(el => {
+        el.style.display = 'none';
+        el.textContent = '';
+      });
+    }
+
+    // Show/hide loading state
+    function showLoading(show) {
+      const loadingElement = document.getElementById('filter-loading');
+      const applyButton = document.getElementById('apply-filters');
+      const resetButton = document.getElementById('reset-filters');
+
+      if (show) {
+        loadingElement.style.display = 'flex';
+        applyButton.disabled = true;
+        resetButton.disabled = true;
+        applyButton.innerHTML = '<i class="ri-loader-4-line spin me-1"></i>Applying...';
+      } else {
+        loadingElement.style.display = 'none';
+        applyButton.disabled = false;
+        resetButton.disabled = false;
+        applyButton.innerHTML = '<i class="ri-filter-3-line me-1"></i>Apply Filters';
+      }
+    }
+
+    // Update filter status display
+    function updateFilterStatus() {
+      const filterStatus = document.getElementById('filter-status');
+      const urlParams = new URLSearchParams(window.location.search);
+      const badges = [];
+
+      // Status filter
+      const status = urlParams.get('status');
+      if (status) {
+        const statusText = status === 'Placed' ? 'Pending' : status;
+        badges.push(createFilterBadge('Status', statusText, 'status'));
+      }
+
+      // Payment filter
+      const payment = urlParams.get('payment');
+      if (payment) {
+        badges.push(createFilterBadge('Payment', payment, 'payment'));
+      }
+
+      // Amount filter
+      const minAmount = urlParams.get('min_amount');
+      const maxAmount = urlParams.get('max_amount');
+      if (minAmount || maxAmount) {
+        const amountText = `₹${minAmount || '0'} - ₹${maxAmount || '∞'}`;
+        badges.push(createFilterBadge('Amount', amountText, 'amount'));
+      }
+
+      // Date filter
+      const startDate = urlParams.get('start_date');
+      const endDate = urlParams.get('end_date');
+      if (startDate || endDate) {
+        const dateText = `${startDate || '...'} to ${endDate || '...'}`;
+        badges.push(createFilterBadge('Date', dateText, 'date'));
+      }
+
+      filterStatus.innerHTML = badges.join('');
+    }
+
+    // Create filter badge
+    function createFilterBadge(label, value, type) {
+      return `
+        <span class="filter-badge">
+          <strong>${label}:</strong> ${value}
+          <i class="ri-close-line remove-filter" onclick="removeFilter('${type}')" title="Remove filter"></i>
+        </span>
+      `;
+    }
+
+    // Remove individual filter
+    window.removeFilter = function(type) {
+      const urlParams = new URLSearchParams(window.location.search);
+
+      switch(type) {
+        case 'status':
+          urlParams.delete('status');
+          break;
+        case 'payment':
+          urlParams.delete('payment');
+          break;
+        case 'amount':
+          urlParams.delete('min_amount');
+          urlParams.delete('max_amount');
+          break;
+        case 'date':
+          urlParams.delete('start_date');
+          urlParams.delete('end_date');
+          break;
+      }
+
+      urlParams.set('page', '1');
+      window.location.href = '/admin/orders?' + urlParams.toString();
+    };
 
     // Preserve filter parameters in pagination links
     document.querySelectorAll('.pagination a').forEach(link => {

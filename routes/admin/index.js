@@ -201,8 +201,10 @@ router.put('/products/:id/toggle', productController.toggleProductStatus);
 router.put('/products/:id/soft-delete', productController.softDeleteProduct);
 
 router.get('/orders', manageOrderController.getManageOrders);
+router.get('/orders/export', manageOrderController.exportOrders);
 router.get('/orders/:id', manageOrderController.getOrderDetails);
 router.put('/orders/:id/status', manageOrderController.updateOrderStatus);
+router.put('/orders/:id/items/:itemId/status', manageOrderController.updateItemStatus);
 router.get('/orders/:id/invoice', manageOrderController.downloadInvoice);
 router.put('/orders/:id/return-request', manageOrderController.approveReturnRequest);
 

@@ -276,6 +276,7 @@
   line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   transition: var(--transition-smooth);
@@ -514,19 +515,91 @@
   .modern-products-grid.home-layout {
     grid-template-columns: repeat(4, 1fr);
   }
-  
+
   .modern-products-grid.shop-layout {
     grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Price adjustments for small laptops */
+  .modern-current-price {
+    font-size: 1.05rem;
+  }
+
+  .modern-original-price {
+    font-size: 0.8rem;
+  }
+
+  .modern-discount-badge {
+    font-size: 0.65rem;
+    padding: 2px 5px;
+  }
+
+  .modern-price-group {
+    gap: 6px;
   }
 }
 
-@media (min-width: 992px) and (max-width: 1199px) {
+@media (min-width: 1024px) and (max-width: 1199px) {
   .modern-products-grid.home-layout {
     grid-template-columns: repeat(3, 1fr);
   }
-  
+
   .modern-products-grid.shop-layout {
     grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Enhanced price display for small laptops */
+  .modern-product-info {
+    padding: 14px;
+  }
+
+  .modern-current-price {
+    font-size: 1rem;
+    line-height: 1.2;
+  }
+
+  .modern-original-price {
+    font-size: 0.75rem;
+  }
+
+  .modern-discount-badge {
+    font-size: 0.6rem;
+    padding: 1px 4px;
+    white-space: nowrap;
+  }
+
+  .modern-price-group {
+    gap: 5px;
+    align-items: baseline;
+    flex-wrap: wrap;
+  }
+
+  .modern-product-price {
+    margin: 4px 0;
+  }
+
+  /* Ensure price elements don't overflow */
+  .modern-price-group > * {
+    flex-shrink: 0;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1023px) {
+  .modern-products-grid.home-layout {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .modern-products-grid.shop-layout {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Price adjustments for tablets */
+  .modern-current-price {
+    font-size: 0.95rem;
+  }
+
+  .modern-original-price {
+    font-size: 0.7rem;
   }
 }
 
@@ -822,6 +895,7 @@
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   transition: var(--transition-smooth);
@@ -952,7 +1026,72 @@
 }
 
 /* Responsive Design for Standard Cards */
-@media (max-width: 1024px) {
+@media (min-width: 1200px) and (max-width: 1399px) {
+  .standard-products-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    max-width: 1200px;
+  }
+
+  /* Price adjustments for standard cards on small laptops */
+  .current-price {
+    font-size: 1.25rem;
+  }
+
+  .original-price {
+    font-size: 0.95rem;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1199px) {
+  .standard-products-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 1000px;
+  }
+
+  /* Enhanced price display for standard cards on small laptops */
+  .card-content {
+    padding: 18px;
+  }
+
+  .current-price {
+    font-size: 1.2rem;
+    line-height: 1.2;
+  }
+
+  .original-price {
+    font-size: 0.9rem;
+  }
+
+  .card-price {
+    gap: 8px;
+    margin: 8px 0;
+  }
+
+  .card-title a {
+    font-size: 1.05rem;
+    line-height: 1.3;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1023px) {
+  .standard-products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+    max-width: 800px;
+  }
+
+  .current-price {
+    font-size: 1.15rem;
+  }
+
+  .original-price {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 991px) {
   .standard-products-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 25px;
@@ -967,20 +1106,20 @@
     max-width: 400px;
     padding: 0 15px;
   }
-  
+
   .card-image-container {
     height: 250px;
   }
-  
+
   .card-content {
     padding: 16px;
     gap: 10px;
   }
-  
+
   .card-title a {
     font-size: 1rem;
   }
-  
+
   .current-price {
     font-size: 1.2rem;
   }

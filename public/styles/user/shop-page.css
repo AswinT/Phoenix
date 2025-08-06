@@ -892,16 +892,50 @@ h6 {
   }
 }
 
-/* Medium-large screens - 3 columns */
-@media (min-width: 992px) and (max-width: 1399px) {
+/* Large desktop screens - 3 columns */
+@media (min-width: 1200px) and (max-width: 1399px) {
   .products-grid {
     grid-template-columns: repeat(3, 1fr);
     max-width: 1200px;
     gap: 2.5rem;
   }
-  
+
   .product-card {
     max-width: 360px;
+  }
+}
+
+/* Small laptops - 3 columns with tighter spacing */
+@media (min-width: 1024px) and (max-width: 1199px) {
+  .products-grid {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 1000px;
+    gap: 2rem;
+  }
+
+  .product-card {
+    max-width: 320px;
+  }
+
+  .filters-container {
+    padding: 1.5rem;
+  }
+
+  .filter-group {
+    margin-bottom: 1.25rem;
+  }
+}
+
+/* Medium screens - 2-3 columns */
+@media (min-width: 992px) and (max-width: 1023px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 800px;
+    gap: 2rem;
+  }
+
+  .product-card {
+    max-width: 380px;
   }
 }
 

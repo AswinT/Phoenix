@@ -32,6 +32,10 @@
     <link rel="stylesheet" href="/styles/user/contacts.css" />
     <link rel="stylesheet" href="/styles/user/navbar-fix.css" />
 
+    <!-- Date Validation Scripts -->
+    <script src="/js/dateValidation.js"></script>
+    <script src="/js/dateValidationHelper.js"></script>
+
     <style>
       /* Root variables for consistent color scheme */
       :root {
@@ -255,7 +259,7 @@
         color: var(--text-dark);
         font-family: var(--font-body);
         border-radius: 12px;
-        padding: 0.75rem 1rem 0.75rem 2.75rem;
+        padding: 0.75rem 2.75rem 0.75rem 2.75rem;
         transition: all 0.3s ease;
         backdrop-filter: blur(10px);
       }
@@ -276,6 +280,36 @@
       .search-input input:focus + .search-icon {
         color: var(--primary-color);
         transform: translateY(-50%) scale(1.1);
+      }
+
+      .clear-search-btn {
+        position: absolute;
+        top: 50%;
+        right: 1rem;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        z-index: 3;
+        padding: 0;
+        width: 20px;
+        height: 20px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+      }
+
+      .clear-search-btn:hover {
+        color: var(--danger-color);
+        background: rgba(239, 68, 68, 0.1);
+        transform: translateY(-50%) scale(1.1);
+      }
+
+      .clear-search-btn.show {
+        display: flex;
       }
 
       /* Header Icons - Properly Aligned */
@@ -492,6 +526,38 @@
         display: none;
         width: 100%;
         margin-bottom: 1rem;
+      }
+
+      /* Small Laptops - Optimize spacing */
+      @media (min-width: 1024px) and (max-width: 1199px) {
+        .search-input input {
+          width: 180px;
+        }
+
+        .navbar-elegant-theme .navbar-brand {
+          font-size: 1.4rem;
+        }
+
+        .navbar-elegant-theme .nav-link {
+          padding: 0.5rem 0.6rem;
+          font-size: 0.9rem;
+        }
+
+        .header-icons .icon-btn {
+          padding: 0.4rem;
+          margin: 0 0.2rem;
+        }
+      }
+
+      /* Tablet Responsive */
+      @media (max-width: 1023px) {
+        .search-input input {
+          width: 160px;
+        }
+
+        .navbar-elegant-theme .nav-link {
+          padding: 0.5rem 0.5rem;
+        }
       }
 
       /* Mobile Responsive */
@@ -729,6 +795,9 @@
               <div class="search-icon">
                 <i class="ri-search-line"></i>
               </div>
+              <button type="button" class="clear-search-btn" title="Clear search">
+                <i class="ri-close-line"></i>
+              </button>
               <div class="search-results" id="mobileSearchResults"></div>
             </div>
           </div>
@@ -745,6 +814,9 @@
               <div class="search-icon">
                 <i class="ri-search-line"></i>
               </div>
+              <button type="button" class="clear-search-btn" title="Clear search">
+                <i class="ri-close-line"></i>
+              </button>
               <div class="search-results" id="desktopSearchResults"></div>
             </div>
 
@@ -1110,6 +1182,16 @@
                 ? mobileResults
                 : desktopResults;
 
+              // Show/hide clear button based on input
+              const clearBtn = this.parentElement.querySelector('.clear-search-btn');
+              if (clearBtn) {
+                if (query.length > 0) {
+                  clearBtn.classList.add('show');
+                } else {
+                  clearBtn.classList.remove('show');
+                }
+              }
+
               if (query.length < 2) {
                 resultsContainer.classList.remove("show");
                 resultsContainer.innerHTML = "";
@@ -1145,6 +1227,26 @@
         [desktopResults, mobileResults].forEach((container) => {
           container.addEventListener("mousedown", function (e) {
             e.preventDefault();
+          });
+        });
+
+        // Clear search functionality
+        const clearSearchButtons = document.querySelectorAll('.clear-search-btn');
+        clearSearchButtons.forEach((clearBtn) => {
+          clearBtn.addEventListener('click', function() {
+            const searchInput = this.parentElement.querySelector('.search-field');
+            const resultsContainer = this.parentElement.querySelector('.search-results');
+
+            if (searchInput) {
+              searchInput.value = '';
+              searchInput.focus();
+              this.classList.remove('show');
+            }
+
+            if (resultsContainer) {
+              resultsContainer.classList.remove('show');
+              resultsContainer.innerHTML = '';
+            }
           });
         });
 

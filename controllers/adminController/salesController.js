@@ -8,6 +8,42 @@ const getSales = async (req, res) => {
     let reportType = req.query.reportType || 'monthly';
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 25;
+
+    // Validate date parameters if provided
+    if (req.query.fromDate && req.query.toDate) {
+      const fromDateObj = new Date(req.query.fromDate);
+      const toDateObj = new Date(req.query.toDate);
+
+      if (isNaN(fromDateObj.getTime()) || isNaN(toDateObj.getTime())) {
+        return res.render('admin/sales', {
+          title: 'Sales Report',
+          error: 'Invalid date format provided',
+          summaryStats: {},
+          salesTableData: { orders: [], pagination: {} },
+          currentPage: 1,
+          limit: 25,
+          fromDate: '',
+          toDate: '',
+          quickFilter: '',
+          reportType: 'monthly'
+        });
+      }
+
+      if (fromDateObj > toDateObj) {
+        return res.render('admin/sales', {
+          title: 'Sales Report',
+          error: 'End date must be after start date',
+          summaryStats: {},
+          salesTableData: { orders: [], pagination: {} },
+          currentPage: 1,
+          limit: 25,
+          fromDate: req.query.fromDate,
+          toDate: req.query.toDate,
+          quickFilter: '',
+          reportType: 'custom'
+        });
+      }
+    }
     if (req.query.fromDate && req.query.toDate) {
       startDate = new Date(req.query.fromDate);
       startDate.setHours(0, 0, 0, 0);
@@ -325,21 +361,37 @@ const exportToExcel = async (req, res) => {
       endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
     }
     try {
+      // Check date range to prevent excessive data export
+      const daysDiff = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+      if (daysDiff > 365) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: 'Export range cannot exceed 1 year. Please select a smaller date range.'
+        });
+      }
+
       const salesData = await getSalesTableData(startDate, endDate, 1, 10000);
       if (!salesData || !salesData.orders) {
         throw new Error('Failed to get sales data for export');
       }
+
+      if (salesData.orders.length === 0) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: 'No sales data found for the selected period'
+        });
+      }
       const excelData = salesData.orders.map(order => ({
-        'Date': order.date,
-        'Order Number': order.orderNumber,
-        'Customer Name': order.customerName,
-        'Total Items': order.totalItems,
-        'Gross Amount': order.grossAmountRaw,
-        'Discount': order.discountRaw,
-        'Coupon Code': order.couponCode,
-        'Net Amount': order.netAmountRaw,
-        'Payment Method': order.paymentMethod,
-        'Status': order.status.replace(/<[^>]*>/g, '')
+        'Date': order.date || 'N/A',
+        'Order Number': order.orderNumber || 'N/A',
+        'Customer Name': order.customerName || 'Unknown',
+        'Total Items': order.totalItems || 0,
+        'Gross Amount': typeof order.grossAmountRaw === 'number' ? order.grossAmountRaw.toFixed(2) : '0.00',
+        'Discount': typeof order.discountRaw === 'number' ? order.discountRaw.toFixed(2) : '0.00',
+        'Coupon Code': order.couponCode || 'N/A',
+        'Net Amount': typeof order.netAmountRaw === 'number' ? order.netAmountRaw.toFixed(2) : '0.00',
+        'Payment Method': order.paymentMethod || 'N/A',
+        'Status': order.status ? order.status.replace(/<[^>]*>/g, '') : 'Unknown'
       }));
       const workbook = XLSX.utils.book_new();
       const worksheet = XLSX.utils.json_to_sheet(excelData);
@@ -390,9 +442,32 @@ const exportToPDF = async (req, res) => {
         throw new Error('Failed to get sales data for export');
       }
       const summaryStats = await calculateSummaryStats(startDate, endDate);
-      const htmlContent = generatePDFHTML(salesData, summaryStats, startDate, endDate);
-      res.setHeader('Content-Type', 'text/html');
-      res.send(htmlContent);
+
+      // Check if client wants HTML for print (browser PDF generation)
+      if (req.query.format === 'html') {
+        const htmlContent = generatePDFHTML(salesData, summaryStats, startDate, endDate);
+        res.setHeader('Content-Type', 'text/html');
+        res.send(htmlContent);
+        return;
+      }
+
+      // Generate actual PDF using PDFKit
+      const PDFDocument = require('pdfkit');
+      const filename = `sales-report-${startDate.toISOString().split('T')[0]}-to-${endDate.toISOString().split('T')[0]}.pdf`;
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+
+      const doc = new PDFDocument({ margin: 50, size: 'A4' });
+      doc.pipe(res);
+
+      // Generate PDF content
+      generateSalesReportPDF(doc, salesData, summaryStats, startDate, endDate);
+
+      doc.end();
     } catch (error) {
       console.error('Error in PDF processing:', error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).render('admin/error', {
@@ -565,6 +640,99 @@ const generatePDFHTML = (salesData, summaryStats, startDate, endDate) => {
     </html>
   `;
 };
+
+const generateSalesReportPDF = (doc, salesData, summaryStats, startDate, endDate) => {
+  const colors = {
+    primary: '#4361EE',
+    secondary: '#6B7280',
+    dark: '#111827',
+    light: '#F8FAFC'
+  };
+
+  // Header
+  doc.fontSize(24).fillColor(colors.primary).text('Sales Report', 50, 50);
+  doc.fontSize(12).fillColor(colors.secondary)
+     .text(`Period: ${startDate.toLocaleDateString()} to ${endDate.toLocaleDateString()}`, 50, 80)
+     .text(`Generated on: ${new Date().toLocaleString()}`, 50, 95);
+
+  // Summary Stats
+  let yPos = 130;
+  doc.fontSize(16).fillColor(colors.dark).text('Summary Statistics', 50, yPos);
+  yPos += 30;
+
+  const stats = [
+    ['Total Sales', summaryStats.totalSales],
+    ['Total Orders', summaryStats.totalOrders],
+    ['Completed Orders', summaryStats.completedOrders],
+    ['Cancelled Orders', summaryStats.cancelledOrders]
+  ];
+
+  stats.forEach((stat, index) => {
+    const xPos = 50 + (index % 2) * 250;
+    if (index % 2 === 0 && index > 0) yPos += 25;
+
+    doc.fontSize(10).fillColor(colors.secondary).text(stat[0], xPos, yPos);
+    doc.fontSize(14).fillColor(colors.primary).text(stat[1].toString(), xPos, yPos + 12);
+  });
+
+  // Orders Table
+  yPos += 60;
+  doc.fontSize(16).fillColor(colors.dark).text('Order Details', 50, yPos);
+  yPos += 30;
+
+  // Table headers
+  const headers = ['Date', 'Order #', 'Customer', 'Amount', 'Status'];
+  const colWidths = [80, 100, 120, 80, 80];
+  let xPos = 50;
+
+  doc.fontSize(10).fillColor(colors.dark);
+  headers.forEach((header, index) => {
+    doc.text(header, xPos, yPos, { width: colWidths[index], align: 'left' });
+    xPos += colWidths[index];
+  });
+
+  // Draw header line
+  yPos += 15;
+  doc.moveTo(50, yPos).lineTo(550, yPos).stroke();
+  yPos += 10;
+
+  // Table rows
+  doc.fontSize(9).fillColor(colors.secondary);
+  salesData.orders.slice(0, 30).forEach((order, index) => { // Limit to 30 orders for PDF
+    if (yPos > 700) { // New page if needed
+      doc.addPage();
+      yPos = 50;
+    }
+
+    xPos = 50;
+    const rowData = [
+      order.date,
+      order.orderNumber,
+      order.customerName.substring(0, 15) + (order.customerName.length > 15 ? '...' : ''),
+      order.netAmount,
+      order.status.replace(/<[^>]*>/g, '').substring(0, 10)
+    ];
+
+    rowData.forEach((data, colIndex) => {
+      doc.text(data.toString(), xPos, yPos, { width: colWidths[colIndex], align: 'left' });
+      xPos += colWidths[colIndex];
+    });
+
+    yPos += 20;
+  });
+
+  // Footer
+  if (salesData.orders.length > 30) {
+    yPos += 20;
+    doc.fontSize(10).fillColor(colors.secondary)
+       .text(`Showing first 30 orders of ${salesData.orders.length} total orders`, 50, yPos);
+  }
+
+  yPos += 30;
+  doc.fontSize(8).fillColor(colors.secondary)
+     .text('Generated by Phoenix Admin Dashboard', 50, yPos);
+};
+
 module.exports = {
   getSales,
   exportToExcel,
