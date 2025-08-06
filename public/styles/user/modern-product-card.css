@@ -26,7 +26,7 @@
   --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-/* Modern Product Card Container - Compact 3:4 Aspect Ratio */
+/* Modern Product Card Container - Comfortable 3:4.5 Aspect Ratio */
 .modern-product-card {
   background: var(--white);
   border-radius: var(--border-radius-card);
@@ -38,9 +38,9 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  aspect-ratio: 3/3.8;
+  aspect-ratio: 3/4.5;
   margin: 0 auto;
-  max-height: 320px;
+  min-height: 380px;
 }
 
 .modern-product-card:hover {
@@ -54,10 +54,10 @@
   box-shadow: var(--shadow-card-active);
 }
 
-/* Product Image Section - Compact layout */
+/* Product Image Section - Balanced layout for better content space */
 .modern-product-image-section {
   position: relative;
-  height: 65%;
+  height: 60%;
   overflow: hidden;
   border-radius: var(--border-radius-card) var(--border-radius-card) 0 0;
   display: flex;
@@ -72,7 +72,7 @@
   object-fit: contain;
   object-position: center;
   transition: var(--transition-smooth);
-  padding: 8px;
+  padding: 12px;
   background: transparent;
 }
 
@@ -241,33 +241,33 @@
   transform: scale(1.05);
 }
 
-/* Product Info Section - Compact layout */
+/* Product Info Section - Spacious layout for better readability */
 .modern-product-info {
-  min-height: 35%;
+  min-height: 40%;
   height: auto;
-  padding: 6px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 2px;
+  gap: 6px;
   flex: 1;
 }
 
 /* Brand Section */
 .modern-product-brand {
   font-family: "Montserrat", sans-serif;
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.3px;
-  margin: 0 0 1px 0;
-  line-height: 1;
+  letter-spacing: 0.5px;
+  margin: 0 0 4px 0;
+  line-height: 1.2;
 }
 
-/* Title Section with Ellipsis */
+/* Title Section with Better Spacing */
 .modern-product-title {
-  margin: 0;
+  margin: 0 0 4px 0;
   flex: 1;
   display: flex;
   align-items: flex-start;
@@ -275,14 +275,14 @@
 
 .modern-product-title a {
   font-family: "Raleway", sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--text-dark);
   text-decoration: none;
-  line-height: 1.2;
+  line-height: 1.4;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   transition: var(--transition-smooth);
@@ -297,18 +297,18 @@
 .modern-product-rating {
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin: 1px 0;
+  gap: 6px;
+  margin: 4px 0;
 }
 
 .modern-rating-stars {
   display: flex;
-  gap: 0.5px;
+  gap: 1px;
 }
 
 .modern-rating-star {
   color: #fbbf24;
-  font-size: 0.6rem;
+  font-size: 0.75rem;
 }
 
 .modern-rating-star.empty {
@@ -317,62 +317,62 @@
 
 .modern-rating-count {
   font-family: "Montserrat", sans-serif;
-  font-size: 0.55rem;
+  font-size: 0.7rem;
   color: var(--text-muted);
   font-weight: 500;
 }
 
 /* Price Section */
 .modern-product-price {
-  margin: 1px 0;
+  margin: 6px 0;
 }
 
 .modern-price-group {
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin-bottom: 1px;
+  gap: 8px;
+  margin-bottom: 4px;
   flex-wrap: wrap;
 }
 
 .modern-current-price {
   font-family: "Montserrat", sans-serif;
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: 1rem;
   color: var(--primary-color);
-  line-height: 1.1;
+  line-height: 1.3;
 }
 
 .modern-original-price {
   font-family: "Montserrat", sans-serif;
-  font-size: 0.65rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
   text-decoration: line-through;
   font-weight: 500;
-  line-height: 1.1;
+  line-height: 1.3;
 }
 
 .modern-discount-badge {
   background: linear-gradient(135deg, var(--success-color), #059669);
   color: var(--white);
-  padding: 0.5px 3px;
-  border-radius: 2px;
-  font-size: 0.5rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.65rem;
   font-weight: 600;
   font-family: "Montserrat", sans-serif;
   white-space: nowrap;
 }
 
 .modern-offer-text {
-  font-size: 0.55rem;
+  font-size: 0.7rem;
   color: var(--success-color);
   font-weight: 600;
   font-family: "Montserrat", sans-serif;
-  margin: 0;
-  line-height: 1;
+  margin: 2px 0;
+  line-height: 1.2;
 }
 
-/* Stock Status */
+/* Stock Status - Show only warnings */
 .modern-stock-status {
   margin: 1px 0;
 }
@@ -388,9 +388,9 @@
   display: inline-block;
 }
 
+/* Stock status classes - Hide only "In Stock", keep warnings visible */
 .modern-stock-in-stock {
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--success-color);
+  display: none;
 }
 
 .modern-stock-low-stock {
@@ -406,33 +406,33 @@
 /* Action Buttons Section */
 .modern-product-actions {
   display: flex;
-  gap: 4px;
+  gap: 8px;
   align-items: center;
   margin-top: auto;
-  padding-top: 2px;
+  padding-top: 8px;
 }
 
 .modern-add-to-cart-btn {
   flex: 1;
   background: var(--white);
   color: var(--primary-color);
-  border: 1.5px solid var(--primary-color);
-  padding: 4px 8px;
+  border: 2px solid var(--primary-color);
+  padding: 10px 16px;
   border-radius: var(--border-radius-button);
   font-family: "Montserrat", sans-serif;
   font-weight: 600;
-  font-size: 0.6rem;
+  font-size: 0.8rem;
   cursor: pointer;
   transition: var(--transition-smooth);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 6px;
   position: relative;
   overflow: hidden;
   text-transform: uppercase;
-  letter-spacing: 0.2px;
-  min-height: 24px;
+  letter-spacing: 0.5px;
+  min-height: 40px;
 }
 
 .modern-add-to-cart-btn::before {
@@ -511,7 +511,7 @@
 }
 
 /* Responsive Design */
-/* Extra Large Desktops (1400px+) - Compact Four Column Layout */
+/* Extra Large Desktops (1400px+) - Comfortable Four Column Layout */
 @media (min-width: 1400px) {
   .modern-products-grid.home-layout {
     grid-template-columns: repeat(4, 1fr);
@@ -523,63 +523,58 @@
   }
 
   .modern-product-card {
-    height: 360px;
+    height: 460px;
   }
 
   .modern-product-info {
-    padding: 8px;
-    gap: 3px;
+    padding: 14px;
+    gap: 7px;
   }
 
   .modern-product-brand {
-    font-size: 0.65rem;
-    margin-bottom: 2px;
+    font-size: 0.8rem;
+    margin-bottom: 5px;
   }
 
   .modern-product-title a {
-    font-size: 0.8rem;
-    line-height: 1.2;
+    font-size: 1rem;
+    line-height: 1.4;
   }
 
   .modern-rating-star {
-    font-size: 0.65rem;
+    font-size: 0.8rem;
   }
 
   .modern-rating-count {
-    font-size: 0.6rem;
+    font-size: 0.75rem;
   }
 
   .modern-current-price {
-    font-size: 0.85rem;
+    font-size: 1.1rem;
   }
 
   .modern-original-price {
-    font-size: 0.7rem;
+    font-size: 0.85rem;
   }
 
   .modern-discount-badge {
-    font-size: 0.55rem;
-    padding: 1px 3px;
+    font-size: 0.7rem;
+    padding: 2px 6px;
   }
 
   .modern-offer-text {
-    font-size: 0.6rem;
-  }
-
-  .modern-stock-indicator {
-    font-size: 0.6rem;
-    padding: 1px 4px;
+    font-size: 0.75rem;
   }
 
   .modern-add-to-cart-btn {
-    font-size: 0.65rem;
-    padding: 5px 8px;
-    min-height: 26px;
-    gap: 3px;
+    font-size: 0.85rem;
+    padding: 10px 14px;
+    min-height: 42px;
+    gap: 6px;
   }
 }
 
-/* Ultra Wide Screens (1600px+) - Compact Four Column Layout */
+/* Ultra Wide Screens (1600px+) - Spacious Four Column Layout */
 @media (min-width: 1600px) {
   .modern-products-grid.home-layout {
     grid-template-columns: repeat(4, 1fr);
@@ -592,64 +587,59 @@
   }
 
   .modern-product-card {
-    height: 380px;
-    max-width: 320px;
+    height: 480px;
+    max-width: 380px;
   }
 
   .modern-product-info {
-    padding: 10px;
-    gap: 3px;
+    padding: 16px;
+    gap: 8px;
   }
 
   .modern-product-brand {
-    font-size: 0.7rem;
-    margin-bottom: 2px;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
   }
 
   .modern-product-title a {
-    font-size: 0.85rem;
-    line-height: 1.25;
+    font-size: 1.1rem;
+    line-height: 1.5;
   }
 
   .modern-rating-star {
-    font-size: 0.7rem;
-  }
-
-  .modern-rating-count {
-    font-size: 0.65rem;
-  }
-
-  .modern-current-price {
     font-size: 0.9rem;
   }
 
+  .modern-rating-count {
+    font-size: 0.8rem;
+  }
+
+  .modern-current-price {
+    font-size: 1.2rem;
+  }
+
   .modern-original-price {
-    font-size: 0.75rem;
+    font-size: 0.95rem;
   }
 
   .modern-discount-badge {
-    font-size: 0.6rem;
-    padding: 1px 4px;
+    font-size: 0.75rem;
+    padding: 3px 8px;
   }
 
   .modern-offer-text {
-    font-size: 0.65rem;
-  }
-
-  .modern-stock-indicator {
-    font-size: 0.65rem;
-    padding: 1px 5px;
+    font-size: 0.8rem;
   }
 
   .modern-add-to-cart-btn {
-    font-size: 0.7rem;
-    padding: 6px 10px;
-    min-height: 28px;
-    gap: 4px;
+    font-size: 0.9rem;
+    padding: 12px 18px;
+    min-height: 44px;
+    gap: 8px;
   }
 }
 
-/* Large Laptops (1200px - 1399px) - Compact Four/Three Column Layout */
+/* Large Laptops (1200px - 1399px) - Balanced Four/Three Column Layout */
 @media (min-width: 1200px) and (max-width: 1399px) {
   .modern-products-grid.home-layout {
     grid-template-columns: repeat(4, 1fr);
@@ -660,67 +650,62 @@
   }
 
   .modern-product-card {
-    height: 340px;
+    height: 440px;
   }
 
   .modern-product-info {
-    padding: 7px;
-    gap: 2px;
+    padding: 12px;
+    gap: 6px;
   }
 
   .modern-product-brand {
-    font-size: 0.6rem;
-    margin-bottom: 1px;
+    font-size: 0.75rem;
+    margin-bottom: 4px;
   }
 
   .modern-product-title a {
-    font-size: 0.75rem;
-    line-height: 1.2;
+    font-size: 0.95rem;
+    line-height: 1.4;
   }
 
   .modern-rating-star {
-    font-size: 0.6rem;
+    font-size: 0.75rem;
   }
 
   .modern-rating-count {
-    font-size: 0.55rem;
+    font-size: 0.7rem;
   }
 
   .modern-current-price {
-    font-size: 0.8rem;
+    font-size: 1.05rem;
   }
 
   .modern-original-price {
-    font-size: 0.65rem;
+    font-size: 0.8rem;
   }
 
   .modern-discount-badge {
-    font-size: 0.5rem;
-    padding: 0.5px 2px;
+    font-size: 0.65rem;
+    padding: 2px 5px;
   }
 
   .modern-offer-text {
-    font-size: 0.55rem;
-  }
-
-  .modern-stock-indicator {
-    font-size: 0.55rem;
-    padding: 0.5px 3px;
+    font-size: 0.7rem;
   }
 
   .modern-price-group {
-    gap: 3px;
+    gap: 6px;
   }
 
   .modern-add-to-cart-btn {
-    font-size: 0.6rem;
-    padding: 4px 6px;
-    min-height: 24px;
-    gap: 2px;
+    font-size: 0.8rem;
+    padding: 9px 12px;
+    min-height: 38px;
+    gap: 5px;
   }
 }
 
-/* Small Laptops (1024px - 1199px) - Compact Three Column Layout */
+/* Small Laptops (1024px - 1199px) - Comfortable Three Column Layout */
 @media (min-width: 1024px) and (max-width: 1199px) {
   .modern-products-grid.home-layout {
     grid-template-columns: repeat(3, 1fr);
@@ -731,71 +716,66 @@
   }
 
   .modern-product-card {
-    height: 320px;
+    height: 420px;
   }
 
   .modern-product-info {
-    padding: 6px;
-    gap: 2px;
+    padding: 10px;
+    gap: 5px;
   }
 
   .modern-product-brand {
-    font-size: 0.55rem;
-    margin-bottom: 1px;
+    font-size: 0.7rem;
+    margin-bottom: 3px;
   }
 
   .modern-product-title a {
-    font-size: 0.7rem;
-    line-height: 1.2;
+    font-size: 0.85rem;
+    line-height: 1.3;
   }
 
   .modern-rating-star {
-    font-size: 0.55rem;
+    font-size: 0.7rem;
   }
 
   .modern-rating-count {
-    font-size: 0.5rem;
+    font-size: 0.65rem;
   }
 
   .modern-current-price {
-    font-size: 0.75rem;
-    line-height: 1.1;
+    font-size: 0.95rem;
+    line-height: 1.3;
   }
 
   .modern-original-price {
-    font-size: 0.6rem;
+    font-size: 0.75rem;
   }
 
   .modern-discount-badge {
-    font-size: 0.45rem;
-    padding: 0.5px 2px;
+    font-size: 0.6rem;
+    padding: 2px 4px;
     white-space: nowrap;
   }
 
   .modern-offer-text {
-    font-size: 0.5rem;
-  }
-
-  .modern-stock-indicator {
-    font-size: 0.5rem;
-    padding: 0.5px 3px;
+    font-size: 0.65rem;
   }
 
   .modern-price-group {
-    gap: 3px;
+    gap: 6px;
     align-items: baseline;
     flex-wrap: wrap;
   }
 
   .modern-product-price {
-    margin: 1px 0;
+    margin: 4px 0;
   }
 
   .modern-add-to-cart-btn {
-    font-size: 0.55rem;
-    padding: 3px 5px;
-    min-height: 22px;
-    gap: 2px;
+    font-size: 0.75rem;
+    padding: 8px 10px;
+    min-height: 36px;
+    gap: 4px;
   }
 
   /* Ensure price elements don't overflow */
@@ -823,7 +803,7 @@
   }
 }
 
-/* Tablets Landscape (768px - 991px) - Compact Two Column Layout */
+/* Tablets Landscape (768px - 991px) - Comfortable Two Column Layout */
 @media (min-width: 768px) and (max-width: 991px) {
   .modern-products-grid.home-layout,
   .modern-products-grid.shop-layout {
@@ -833,62 +813,58 @@
   }
 
   .modern-product-card {
-    height: 300px;
+    height: 400px;
   }
 
   .modern-product-info {
-    padding: 6px;
-    gap: 2px;
+    padding: 10px;
+    gap: 5px;
   }
 
   .modern-product-brand {
-    font-size: 0.55rem;
+    font-size: 0.7rem;
+    margin-bottom: 3px;
   }
 
   .modern-product-title a {
-    font-size: 0.7rem;
-    line-height: 1.2;
+    font-size: 0.85rem;
+    line-height: 1.3;
   }
 
   .modern-rating-star {
-    font-size: 0.55rem;
+    font-size: 0.7rem;
   }
 
   .modern-rating-count {
-    font-size: 0.5rem;
+    font-size: 0.65rem;
   }
 
   .modern-current-price {
-    font-size: 0.75rem;
+    font-size: 0.95rem;
   }
 
   .modern-original-price {
-    font-size: 0.6rem;
+    font-size: 0.75rem;
   }
 
   .modern-discount-badge {
-    font-size: 0.5rem;
-    padding: 0.5px 2px;
+    font-size: 0.6rem;
+    padding: 2px 4px;
   }
 
   .modern-offer-text {
-    font-size: 0.5rem;
-  }
-
-  .modern-stock-indicator {
-    font-size: 0.5rem;
-    padding: 0.5px 3px;
+    font-size: 0.65rem;
   }
 
   .modern-add-to-cart-btn {
-    font-size: 0.55rem;
-    padding: 3px 5px;
-    min-height: 22px;
-    gap: 2px;
+    font-size: 0.75rem;
+    padding: 8px 10px;
+    min-height: 36px;
+    gap: 4px;
   }
 }
 
-/* Small Tablets (576px - 767px) - Compact Two Column Layout */
+/* Small Tablets (576px - 767px) - Balanced Two Column Layout */
 @media (min-width: 576px) and (max-width: 767px) {
   .modern-products-grid.home-layout,
   .modern-products-grid.shop-layout {
@@ -898,63 +874,59 @@
   }
 
   .modern-product-card {
-    height: 280px;
+    height: 380px;
   }
 
   .modern-product-info {
-    padding: 5px;
-    gap: 1px;
-    min-height: 35%;
+    padding: 8px;
+    gap: 4px;
+    min-height: 40%;
   }
 
   .modern-product-brand {
-    font-size: 0.5rem;
+    font-size: 0.65rem;
+    margin-bottom: 2px;
   }
 
   .modern-product-title a {
-    font-size: 0.65rem;
-    line-height: 1.15;
+    font-size: 0.8rem;
+    line-height: 1.3;
   }
 
   .modern-rating-star {
-    font-size: 0.5rem;
+    font-size: 0.65rem;
   }
 
   .modern-rating-count {
-    font-size: 0.45rem;
+    font-size: 0.6rem;
   }
 
   .modern-current-price {
-    font-size: 0.7rem;
+    font-size: 0.9rem;
   }
 
   .modern-original-price {
-    font-size: 0.55rem;
+    font-size: 0.7rem;
   }
 
   .modern-discount-badge {
-    font-size: 0.45rem;
-    padding: 0.5px 2px;
+    font-size: 0.55rem;
+    padding: 1px 3px;
   }
 
   .modern-offer-text {
-    font-size: 0.45rem;
-  }
-
-  .modern-stock-indicator {
-    font-size: 0.45rem;
-    padding: 0.5px 2px;
+    font-size: 0.6rem;
   }
 
   .modern-add-to-cart-btn {
-    font-size: 0.5rem;
-    padding: 3px 4px;
-    min-height: 20px;
-    gap: 1px;
+    font-size: 0.7rem;
+    padding: 7px 8px;
+    min-height: 32px;
+    gap: 3px;
   }
 }
 
-/* Mobile Devices (320px - 575px) - Ultra Compact Optimization */
+/* Mobile Devices (320px - 575px) - Comfortable Mobile Layout */
 @media (max-width: 575px) {
   .modern-products-grid.home-layout,
   .modern-products-grid.shop-layout {
@@ -964,160 +936,146 @@
   }
 
   .modern-product-card {
-    height: 260px;
+    height: 360px;
     max-width: 100%;
   }
 
   .modern-product-image-section {
-    height: 65%;
+    height: 60%;
   }
 
   .modern-product-info {
-    padding: 4px;
-    gap: 1px;
-    min-height: 35%;
+    padding: 8px;
+    gap: 4px;
+    min-height: 40%;
   }
 
   .modern-product-brand {
-    font-size: 0.45rem;
-    margin-bottom: 0.5px;
-    letter-spacing: 0.2px;
+    font-size: 0.6rem;
+    margin-bottom: 2px;
+    letter-spacing: 0.3px;
   }
 
   .modern-product-title {
-    margin: 0.5px 0;
+    margin: 2px 0;
   }
 
   .modern-product-title a {
-    font-size: 0.6rem;
-    line-height: 1.1;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
+    font-size: 0.75rem;
+    line-height: 1.3;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
   }
 
   .modern-product-rating {
-    margin: 0.5px 0;
-    gap: 2px;
+    margin: 2px 0;
+    gap: 4px;
   }
 
   .modern-rating-star {
-    font-size: 0.45rem;
-  }
-
-  .modern-rating-count {
-    font-size: 0.4rem;
-  }
-
-  .modern-product-price {
-    margin: 1px 0;
-  }
-
-  .modern-price-group {
-    gap: 2px;
-    margin-bottom: 0.5px;
-  }
-
-  .modern-current-price {
     font-size: 0.65rem;
   }
 
-  .modern-original-price {
-    font-size: 0.5rem;
-  }
-
-  .modern-discount-badge {
-    font-size: 0.4rem;
-    padding: 0.5px 1px;
-  }
-
-  .modern-offer-text {
-    font-size: 0.4rem;
-  }
-
-  .modern-stock-status {
-    margin: 0.5px 0;
-  }
-
-  .modern-stock-indicator {
-    font-size: 0.4rem;
-    padding: 0.5px 2px;
-    border-radius: 4px;
-  }
-
-  .modern-product-actions {
-    gap: 2px;
-    padding-top: 1px;
-  }
-
-  .modern-add-to-cart-btn {
-    font-size: 0.45rem;
-    padding: 2px 4px;
-    min-height: 18px;
-    gap: 1px;
-    letter-spacing: 0.1px;
-  }
-}
-
-/* Extra Small Mobile Devices (320px - 480px) - Maximum Compact */
-@media (max-width: 480px) {
-  .modern-product-card {
-    height: 240px;
-  }
-
-  .modern-product-image-section {
-    height: 63%;
-  }
-
-  .modern-product-info {
-    padding: 3px;
-    gap: 0.5px;
-    min-height: 37%;
-  }
-
-  .modern-product-brand {
-    font-size: 0.4rem;
-  }
-
-  .modern-product-title a {
-    font-size: 0.55rem;
-    line-height: 1.1;
-  }
-
-  .modern-rating-star {
-    font-size: 0.4rem;
-  }
-
   .modern-rating-count {
-    font-size: 0.35rem;
-  }
-
-  .modern-current-price {
     font-size: 0.6rem;
   }
 
+  .modern-product-price {
+    margin: 4px 0;
+  }
+
+  .modern-price-group {
+    gap: 4px;
+    margin-bottom: 2px;
+  }
+
+  .modern-current-price {
+    font-size: 0.85rem;
+  }
+
   .modern-original-price {
-    font-size: 0.45rem;
+    font-size: 0.65rem;
   }
 
   .modern-discount-badge {
-    font-size: 0.35rem;
-    padding: 0.5px 1px;
+    font-size: 0.55rem;
+    padding: 1px 3px;
   }
 
   .modern-offer-text {
-    font-size: 0.35rem;
+    font-size: 0.6rem;
   }
 
-  .modern-stock-indicator {
-    font-size: 0.35rem;
-    padding: 0.5px 1px;
+  .modern-product-actions {
+    gap: 6px;
+    padding-top: 6px;
   }
 
   .modern-add-to-cart-btn {
-    font-size: 0.4rem;
+    font-size: 0.65rem;
+    padding: 6px 8px;
+    min-height: 30px;
+    gap: 3px;
+    letter-spacing: 0.3px;
+  }
+}
+
+/* Extra Small Mobile Devices (320px - 480px) - Compact but Readable */
+@media (max-width: 480px) {
+  .modern-product-card {
+    height: 340px;
+  }
+
+  .modern-product-image-section {
+    height: 60%;
+  }
+
+  .modern-product-info {
+    padding: 6px;
+    gap: 3px;
+    min-height: 40%;
+  }
+
+  .modern-product-brand {
+    font-size: 0.55rem;
+    margin-bottom: 1px;
+  }
+
+  .modern-product-title a {
+    font-size: 0.7rem;
+    line-height: 1.2;
+  }
+
+  .modern-rating-star {
+    font-size: 0.6rem;
+  }
+
+  .modern-rating-count {
+    font-size: 0.55rem;
+  }
+
+  .modern-current-price {
+    font-size: 0.8rem;
+  }
+
+  .modern-original-price {
+    font-size: 0.6rem;
+  }
+
+  .modern-discount-badge {
+    font-size: 0.5rem;
     padding: 1px 2px;
-    min-height: 16px;
-    gap: 0.5px;
+  }
+
+  .modern-offer-text {
+    font-size: 0.55rem;
+  }
+
+  .modern-add-to-cart-btn {
+    font-size: 0.6rem;
+    padding: 5px 6px;
+    min-height: 28px;
+    gap: 2px;
   }
 }
 
@@ -1140,32 +1098,32 @@
   justify-content: space-between;
 }
 
-/* Compact landscape orientation support */
+/* Comfortable landscape orientation support */
 @media (max-height: 600px) and (orientation: landscape) {
   .modern-product-card {
     height: auto;
-    min-height: 200px;
+    min-height: 280px;
   }
 
   .modern-product-image-section {
-    height: 58%;
+    height: 55%;
   }
 
   .modern-product-info {
-    min-height: 42%;
-    padding: 4px;
-    gap: 1px;
+    min-height: 45%;
+    padding: 8px;
+    gap: 3px;
   }
 
   .modern-product-title a {
-    font-size: 0.6rem;
-    line-height: 1.1;
+    font-size: 0.75rem;
+    line-height: 1.3;
   }
 
   .modern-add-to-cart-btn {
-    font-size: 0.5rem;
-    padding: 2px 4px;
-    min-height: 18px;
+    font-size: 0.7rem;
+    padding: 6px 8px;
+    min-height: 30px;
   }
 }
 
