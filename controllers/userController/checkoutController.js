@@ -827,18 +827,28 @@ const placeOrder = async (req, res) => {
     if (!cartItems.length) {
       throw new Error('No valid items in cart');
     }
-    let subtotal = 0;
-    let offerDiscount = 0;
-    let couponDiscount = 0;
     const orderItems = [];
+    let originalSubtotal = 0;
+    let subtotalAfterOffers = 0;
+    let totalOfferDiscount = 0;
+    
     for (const item of cartItems) {
       const originalPrice = item.product.regularPrice;
       const currentPrice = item.priceAtAddition || item.product.regularPrice;
+      const originalItemTotal = originalPrice * item.quantity;
+      const currentItemTotal = currentPrice * item.quantity;
+      
+      originalSubtotal += originalItemTotal;
+      subtotalAfterOffers += currentItemTotal;
       
       const itemDiscount = (originalPrice - currentPrice) * item.quantity;
-      offerDiscount += itemDiscount;
+      totalOfferDiscount += itemDiscount;
       
-      const offer = await getActiveOfferForProduct(item.product._id, item.product.category, originalPrice);
+      const offer = await getActiveOfferForProduct(
+        item.product._id,
+        item.product.category,
+        originalPrice
+      );
       
       const orderItem = {
         product: item.product._id,
@@ -851,17 +861,16 @@ const placeOrder = async (req, res) => {
         offerTitle: offer ? offer.title : null,
         priceBreakdown: {
           originalPrice: originalPrice,
-          subtotal: originalPrice * item.quantity,
+          subtotal: originalItemTotal,
           offerDiscount: itemDiscount,
           offerTitle: offer ? offer.title : null,
-          priceAfterOffer: currentPrice * item.quantity,
+          priceAfterOffer: currentItemTotal,
           couponDiscount: 0,
           couponProportion: 0,
-          finalPrice: currentPrice * item.quantity
+          finalPrice: currentItemTotal
         }
       };
       orderItems.push(orderItem);
-      subtotal += currentPrice * item.quantity;
     }
     if (req.session.appliedCoupon) {
       const coupon = await Coupon.findById(req.session.appliedCoupon);
@@ -875,7 +884,7 @@ const placeOrder = async (req, res) => {
       if (now < coupon.startDate || now > coupon.expiryDate) {
         throw new Error('Applied coupon has expired or is not yet active');
       }
-      if (subtotal < coupon.minOrderAmount) {
+      if (subtotalAfterOffers < coupon.minOrderAmount) {
         throw new Error(`Minimum order amount of ₹${coupon.minOrderAmount} required for coupon ${coupon.code}`);
       }
       if (coupon.usageLimitGlobal && coupon.usedCount >= coupon.usageLimitGlobal) {
@@ -915,8 +924,16 @@ const placeOrder = async (req, res) => {
       await coupon.save();
       delete req.session.appliedCoupon;
     }
-    const tax = calculateGST(subtotal - offerDiscount - couponDiscount);
-    total = subtotal - offerDiscount - couponDiscount + tax;
+    const amountAfterAllDiscounts = subtotalAfterOffers - couponDiscount;
+    const tax = calculateGST(amountAfterAllDiscounts);
+    total = Math.round((amountAfterAllDiscounts + tax) * 100) / 100;
+
+    // Validate total calculation consistency
+    const itemFinalPriceSum = orderItems.reduce((sum, item) => sum + (item.priceBreakdown?.finalPrice || 0), 0);
+    const expectedTotal = itemFinalPriceSum + tax;
+    if (Math.abs(expectedTotal - total) > 0.01) {
+      total = expectedTotal;
+    }
     if (paymentMethod === 'COD' && total > 1000) {
       throw new Error('Cash on Delivery is not available for orders above ₹1,000. Please choose an online payment method.');
     }
@@ -992,10 +1009,10 @@ const placeOrder = async (req, res) => {
       paymentMethod: paymentMethod,
       paymentStatus: getInitialPaymentStatus(paymentMethod),
       orderStatus: 'Placed',
-      subtotal,
+      subtotal: originalSubtotal,
       shipping: 0,
       tax,
-      discount: offerDiscount,
+      discount: totalOfferDiscount,
       couponCode: appliedCoupon ? appliedCoupon.code : null,
       couponDiscount,
       total,
@@ -1245,40 +1262,57 @@ const getCurrentCartTotal = async (req, res) => {
     if (!cartItems.length) {
       return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: 'No valid items in cart' });
     }
-    let subtotal = 0;
-    let offerDiscount = 0;
+    let originalSubtotal = 0;
+    let subtotalAfterOffers = 0;
+    let totalOfferDiscount = 0;
+    
     for (const item of cartItems) {
-      const originalItemTotal = item.priceAtAddition * item.quantity;
-      subtotal += originalItemTotal;
-      const offer = await getActiveOfferForProduct(item.product._id, item.product.category, item.priceAtAddition);
+      const originalPrice = item.product.regularPrice;
+      const currentPrice = item.priceAtAddition || item.product.regularPrice;
+      const originalItemTotal = originalPrice * item.quantity;
+      const currentItemTotal = currentPrice * item.quantity;
+      
+      originalSubtotal += originalItemTotal;
+      subtotalAfterOffers += currentItemTotal;
+      
+      const itemDiscount = (originalPrice - currentPrice) * item.quantity;
+      totalOfferDiscount += itemDiscount;
+      
+      const offer = await getActiveOfferForProduct(
+        item.product._id,
+        item.product.category,
+        originalPrice
+      );
+      
       if (offer) {
-        const { discountAmount, finalPrice } = calculateDiscount(offer, item.priceAtAddition);
-        offerDiscount += discountAmount * item.quantity;
+        const { discountAmount, finalPrice } = calculateDiscount(offer, originalPrice);
         item.discountedPrice = finalPrice;
       } else {
-        item.discountedPrice = item.priceAtAddition;
+        item.discountedPrice = currentPrice;
       }
     }
+    
     let couponDiscount = 0;
     if (req.session.appliedCoupon) {
       const coupon = await Coupon.findById(req.session.appliedCoupon);
       if (coupon && coupon.isActive && new Date() <= coupon.expiryDate) {
-        const amountAfterOffers = subtotal - offerDiscount;
-        if (amountAfterOffers >= coupon.minOrderAmount) {
+        if (subtotalAfterOffers >= coupon.minOrderAmount) {
           const couponResult = calculateProportionalCouponDiscount(coupon, cartItems);
           couponDiscount = couponResult.totalDiscount;
         }
       }
     }
-    const tax = calculateGST(subtotal - offerDiscount - couponDiscount);
-    const total = subtotal - offerDiscount - couponDiscount + tax;
+    
+    const amountAfterAllDiscounts = subtotalAfterOffers - couponDiscount;
+    const tax = calculateGST(amountAfterAllDiscounts);
+    const total = Math.round((amountAfterAllDiscounts + tax) * 100) / 100;
     const wallet = await Wallet.findOne({ userId });
     const walletBalance = wallet ? wallet.balance : 0;
     res.status(HttpStatus.OK).json({
       success: true,
       data: {
-        subtotal,
-        offerDiscount,
+        subtotal: originalSubtotal,
+        offerDiscount: totalOfferDiscount,
         couponDiscount,
         tax,
         total,

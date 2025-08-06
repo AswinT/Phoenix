@@ -342,9 +342,9 @@
             <div class="payment-methods">
               <!-- Online Payment -->
               <div class="payment-option">
-                <div class="payment-card" data-payment="razorpay">
+                <div class="payment-card" data-payment="Razorpay">
                   <div class="payment-radio">
-                    <input type="radio" name="paymentMethod" id="razorpay" value="razorpay" checked />
+                    <input type="radio" name="paymentMethod" id="razorpay" value="Razorpay" checked />
                     <label for="razorpay"></label>
                   </div>
                   <div class="payment-icon">
@@ -370,9 +370,9 @@
 
               <!-- Cash on Delivery -->
               <div class="payment-option <%= !isCodEligible ? 'disabled' : '' %>">
-                <div class="payment-card" data-payment="cod">
+                <div class="payment-card" data-payment="COD">
                   <div class="payment-radio">
-                    <input type="radio" name="paymentMethod" id="cod" value="cod" <%= !isCodEligible ? 'disabled' : '' %> />
+                    <input type="radio" name="paymentMethod" id="cod" value="COD" <%= !isCodEligible ? 'disabled' : '' %> />
                     <label for="cod"></label>
                   </div>
                   <div class="payment-icon">
@@ -399,9 +399,9 @@
 
               <!-- Wallet -->
               <div class="payment-option <%= !isWalletEligible ? 'disabled' : '' %>">
-                <div class="payment-card" data-payment="wallet">
+                <div class="payment-card" data-payment="Wallet">
                   <div class="payment-radio">
-                    <input type="radio" name="paymentMethod" id="wallet" value="wallet" <%= !isWalletEligible ? 'disabled' : '' %> />
+                    <input type="radio" name="paymentMethod" id="wallet" value="Wallet" <%= !isWalletEligible ? 'disabled' : '' %> />
                     <label for="wallet"></label>
                   </div>
                   <div class="payment-icon">
@@ -992,7 +992,7 @@ function validateCheckoutForm() {
 
   // Validate payment method value
   const paymentMethod = selectedPayment.value;
-  const validPaymentMethods = ['cod', 'razorpay', 'wallet'];
+  const validPaymentMethods = ['COD', 'Razorpay', 'Wallet'];
   if (!validPaymentMethods.includes(paymentMethod)) {
     return {
       isValid: false,
@@ -1131,7 +1131,7 @@ async function placeOrder(paymentMethod) {
   };
   
   try {
-    if (paymentMethod === 'razorpay') {
+    if (paymentMethod === 'Razorpay') {
       // Handle Razorpay payment
       await processRazorpayPayment(orderData);
     } else {
