@@ -714,14 +714,27 @@
               method: 'POST',
               headers: { 'Content-Type': 'application/json' }
             });
+            
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
             const apiResult = await response.json();
 
             if (apiResult.success) {
-              emptyWishlist.classList.remove('d-none');
-              wishlistItemsContainer.classList.add('d-none');
-              wishlistSummary.classList.add('d-none');
-              wishlistCountElement.textContent = apiResult.wishlistCount;
-              wishlistCountElement.dataset.count = apiResult.wishlistCount;
+              // Update UI elements safely
+              try {
+                if (emptyWishlist) emptyWishlist.classList.remove('d-none');
+                if (wishlistItemsContainer) wishlistItemsContainer.classList.add('d-none');
+                if (wishlistSummary) wishlistSummary.classList.add('d-none');
+                if (wishlistCountElement) {
+                  wishlistCountElement.textContent = apiResult.wishlistCount;
+                  wishlistCountElement.dataset.count = apiResult.wishlistCount;
+                }
+              } catch (uiError) {
+                console.warn('UI update error after successful clear:', uiError);
+                // Don't show error to user since the operation was successful
+              }
 
               Swal.fire({
                 toast: true,
@@ -736,7 +749,7 @@
                 toast: true,
                 position: 'top-end',
                 icon: 'error',
-                title: apiResult.message,
+                title: apiResult.message || 'Failed to clear wishlist',
                 showConfirmButton: false,
                 timer: 1500
               });
@@ -747,7 +760,7 @@
               toast: true,
               position: 'top-end',
               icon: 'error',
-              title: 'Error clearing wishlist',
+              title: 'Network error while clearing wishlist',
               showConfirmButton: false,
               timer: 1500
             });
