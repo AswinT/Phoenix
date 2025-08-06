@@ -1,7 +1,3 @@
-/**
- * Real-time Product Form Validation
- * Provides immediate inline validation feedback for product creation/editing
- */
 
 class ProductRealTimeValidator {
   constructor() {
@@ -10,9 +6,6 @@ class ProductRealTimeValidator {
     this.debounceTimers = new Map();
   }
 
-  /**
-   * Initialize real-time validation for product forms
-   */
   init() {
     document.addEventListener('DOMContentLoaded', () => {
       const productForm = document.getElementById('addProductForm') || document.getElementById('editProductForm');
@@ -22,10 +15,6 @@ class ProductRealTimeValidator {
     });
   }
 
-  /**
-   * Setup validation for product form
-   * @param {HTMLFormElement} form - The product form element
-   */
   setupProductValidation(form) {
     this.errorHandler.addRealTimeValidation(form, this.validationRules);
     
@@ -34,10 +23,6 @@ class ProductRealTimeValidator {
     this.addCharacterCounters(form);
   }
 
-  /**
-   * Create validation rules for product fields
-   * @returns {Object} Validation rules object
-   */
   createValidationRules() {
     return {
       model: (field, value) => {
@@ -141,10 +126,6 @@ class ProductRealTimeValidator {
     };
   }
 
-  /**
-   * Setup cross-field validation (e.g., sale price vs regular price)
-   * @param {HTMLFormElement} form - The form element
-   */
   setupCrossFieldValidation(form) {
     const regularPriceField = form.querySelector('[name="regularPrice"]');
     const salePriceField = form.querySelector('[name="salePrice"]');
@@ -166,10 +147,6 @@ class ProductRealTimeValidator {
     }
   }
 
-  /**
-   * Add character counters to text fields
-   * @param {HTMLFormElement} form - The form element
-   */
   addCharacterCounters(form) {
     const fieldsWithCounters = [
       { name: 'model', max: 100 },
@@ -186,11 +163,6 @@ class ProductRealTimeValidator {
     });
   }
 
-  /**
-   * Add character counter to a specific field
-   * @param {HTMLElement} field - The input field
-   * @param {number} maxLength - Maximum character length
-   */
   addCharacterCounter(field, maxLength) {
     const formGroup = field.closest('.mb-3') || field.parentElement;
     if (!formGroup) return;
@@ -221,12 +193,6 @@ class ProductRealTimeValidator {
     field.addEventListener('input', updateCounter);
   }
 
-  /**
-   * Debounce validation to improve performance
-   * @param {string} key - Unique key for the timer
-   * @param {Function} callback - Function to execute
-   * @param {number} delay - Delay in milliseconds
-   */
   debounceValidation(key, callback, delay = 300) {
     if (this.debounceTimers.has(key)) {
       clearTimeout(this.debounceTimers.get(key));
@@ -236,11 +202,6 @@ class ProductRealTimeValidator {
     this.debounceTimers.set(key, timer);
   }
 
-  /**
-   * Validate entire form and return result
-   * @param {HTMLFormElement} form - The form to validate
-   * @returns {Object} Validation result
-   */
   validateForm(form) {
     const errors = {};
     let isValid = true;

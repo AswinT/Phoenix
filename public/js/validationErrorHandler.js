@@ -1,7 +1,3 @@
-/**
- * Unified Frontend Error Handling System
- * Handles backend validation errors and provides consistent error display
- */
 
 class ValidationErrorHandler {
   constructor() {
@@ -10,11 +6,6 @@ class ValidationErrorHandler {
     this.errorMessageClass = 'invalid-feedback';
   }
 
-  /**
-   * Display field-specific errors from backend validation
-   * @param {Object} errors - Error object from backend response
-   * @param {string} formSelector - CSS selector for the form
-   */
   displayFieldErrors(errors, formSelector = 'form') {
     const form = document.querySelector(formSelector);
     if (!form) return;
@@ -34,11 +25,6 @@ class ValidationErrorHandler {
     }
   }
 
-  /**
-   * Show error for a specific field
-   * @param {HTMLElement} field - The input field element
-   * @param {string} message - Error message to display
-   */
   showFieldError(field, message) {
     field.classList.add(this.errorClass);
     field.classList.remove(this.validClass);
@@ -79,10 +65,6 @@ class ValidationErrorHandler {
     }
   }
 
-  /**
-   * Clear error for a specific field
-   * @param {HTMLElement} field - The input field element
-   */
   clearFieldError(field) {
     field.classList.remove(this.errorClass);
 
@@ -107,10 +89,6 @@ class ValidationErrorHandler {
     }
   }
 
-  /**
-   * Clear all errors in a form
-   * @param {HTMLElement} form - The form element
-   */
   clearAllErrors(form) {
     const inputs = form.querySelectorAll('input, select, textarea');
     inputs.forEach(input => {
@@ -131,10 +109,6 @@ class ValidationErrorHandler {
     });
   }
 
-  /**
-   * Display general errors (not field-specific)
-   * @param {Array} errors - Array of error messages
-   */
   displayGeneralErrors(errors) {
     if (typeof Swal !== 'undefined') {
       Swal.fire({
@@ -148,12 +122,6 @@ class ValidationErrorHandler {
     }
   }
 
-  /**
-   * Handle AJAX form submission with validation
-   * @param {HTMLFormElement} form - The form element
-   * @param {string} url - Submit URL
-   * @param {Object} options - Additional options
-   */
   async handleFormSubmission(form, url, options = {}) {
     const formData = new FormData(form);
     const submitButton = form.querySelector('[type="submit"]') || form.querySelector('.btn-primary');
@@ -253,11 +221,6 @@ class ValidationErrorHandler {
     }
   }
 
-  /**
-   * Add real-time validation to form fields
-   * @param {HTMLFormElement} form - The form element
-   * @param {Object} customValidators - Custom validation rules for specific forms
-   */
   addRealTimeValidation(form, customValidators = {}) {
     const inputs = form.querySelectorAll('input, select, textarea');
 
@@ -290,11 +253,6 @@ class ValidationErrorHandler {
     });
   }
 
-  /**
-   * Enhanced field validation with custom rules
-   * @param {HTMLElement} field - The input field
-   * @param {Object} customValidators - Custom validation rules
-   */
   validateField(field, customValidators = {}) {
     const value = field.value.trim();
     const fieldName = field.name || field.id;
@@ -357,11 +315,6 @@ class ValidationErrorHandler {
     return true;
   }
 
-  /**
-   * Get field label for error messages
-   * @param {HTMLElement} field - The input field
-   * @returns {string} Field label
-   */
   getFieldLabel(field) {
     const label = document.querySelector(`label[for="${field.id}"]`);
     if (label) {

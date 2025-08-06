@@ -1,8 +1,3 @@
-/**
- * Global Blocked User Handler
- * Automatically handles blocked user responses from AJAX requests
- * Shows SweetAlert popup and redirects them to login page
- */
 
 (function() {
   'use strict';

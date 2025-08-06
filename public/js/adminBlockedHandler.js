@@ -1,8 +1,3 @@
-/**
- * Admin Blocked Handler
- * Handles blocked admin responses from AJAX requests
- * and redirects them to admin login page with appropriate error message
- */
 
 (function() {
   'use strict';

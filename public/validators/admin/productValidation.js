@@ -1,6 +1,3 @@
-/**
- * Product Validation Script - Enhanced with Real-time Validation
- */
 
 document.addEventListener('DOMContentLoaded', function() {
   const form = document.getElementById('addProductForm');

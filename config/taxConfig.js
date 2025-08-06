@@ -1,8 +1,3 @@
-/**
- * Tax Configuration for Indian E-commerce
- * Centralized GST rate management
- */
-
 const TAX_CONFIG = {
   GST: {
     STANDARD_RATE: 0.18,      // 18% - Standard GST rate for most products
@@ -23,12 +18,6 @@ const TAX_CONFIG = {
   }
 };
 
-/**
- * Calculate GST amount for given subtotal
- * @param {number} subtotal - Amount before tax
- * @param {number} rate - GST rate (default: current rate)
- * @returns {number} GST amount
- */
 const calculateGST = (subtotal, rate = TAX_CONFIG.GST.CURRENT_RATE) => {
   if (!subtotal || subtotal <= 0) return 0;
   
@@ -41,12 +30,6 @@ const calculateGST = (subtotal, rate = TAX_CONFIG.GST.CURRENT_RATE) => {
   return parseFloat(gstAmount.toFixed(TAX_CONFIG.CALCULATION.PRECISION));
 };
 
-/**
- * Calculate total amount including GST
- * @param {number} subtotal - Amount before tax
- * @param {number} rate - GST rate (default: current rate)
- * @returns {object} Breakdown of amounts
- */
 const calculateTotalWithGST = (subtotal, rate = TAX_CONFIG.GST.CURRENT_RATE) => {
   const gstAmount = calculateGST(subtotal, rate);
   const total = subtotal + gstAmount;
@@ -60,16 +43,8 @@ const calculateTotalWithGST = (subtotal, rate = TAX_CONFIG.GST.CURRENT_RATE) => 
   };
 };
 
-/**
- * Get current GST rate
- * @returns {number} Current GST rate
- */
 const getCurrentGSTRate = () => TAX_CONFIG.GST.CURRENT_RATE;
 
-/**
- * Get GST percentage as string
- * @returns {string} GST percentage (e.g., "8%")
- */
 const getGSTPercentageString = () => `${(TAX_CONFIG.GST.CURRENT_RATE * 100).toFixed(0)}%`;
 
 module.exports = {

@@ -1,8 +1,3 @@
-/**
- * Generate user initials from full name
- * @param {string} fullName - User's full name
- * @returns {string} - User initials (max 2 characters)
- */
 function generateInitials(fullName) {
   if (!fullName || typeof fullName !== 'string') {
     return 'U'; // Default fallback

@@ -6,10 +6,6 @@ document.addEventListener('DOMContentLoaded', function() {
   initProductTabs();
 });
 
-/**
- * Professional Image Magnifier with enhanced lens effect
- * Optimized for performance and modern UX patterns
- */
 function initImageMagnifier() {
   const mainImage = document.getElementById('mainImage');
   const zoomContainer = document.getElementById('zoomContainer');
@@ -533,9 +529,6 @@ function initImageMagnifier() {
   };
 }
 
-/**
- * Enhanced Thumbnail Gallery Functionality with Preloading
- */
 function initThumbnailGallery() {
   const thumbnails = document.querySelectorAll('.thumbnail');
 
@@ -621,9 +614,6 @@ function changeImageWithTransition(thumbnail, imageSrc) {
   newImg.src = imageSrc;
 }
 
-/**
- * Product Tabs Initialization
- */
 function initProductTabs() {
   const tabEls = document.querySelectorAll('button[data-bs-toggle="tab"]');
   
@@ -654,9 +644,6 @@ function initProductTabs() {
   }
 }
 
-/**
- * Image Change Function
- */
 function changeImage(thumbnail, imageSrc) {
   document.getElementById('mainImage').src = imageSrc;
   const thumbnails = document.querySelectorAll('.thumbnail');
@@ -664,9 +651,6 @@ function changeImage(thumbnail, imageSrc) {
   thumbnail.classList.add('active');
 }
 
-/**
- * Quantity Selector Functions 
- */
 function incrementQuantity() {
   const quantityInput = document.getElementById('quantity');
   const currentValue = parseInt(quantityInput.value);

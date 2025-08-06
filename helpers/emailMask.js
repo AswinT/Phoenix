@@ -1,9 +1,3 @@
-/**
- * Creates a masked email and OTP message for different purposes
- * @param {string} email - The email address to mask
- * @param {string} purpose - The purpose of the OTP (forgot-password, resend, email-update, etc.)
- * @returns {object} - Object containing maskedEmail, message, and fullMessage
- */
 const createOtpMessage = (email, purpose = 'forgot-password') => {
   const maskEmail = (email) => {
     if (!email || !email.includes('@')) {
