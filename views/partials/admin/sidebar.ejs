@@ -31,6 +31,7 @@
     <link rel="stylesheet" href="/styles/admin/enhanced-dashboard.css" />
     <link rel="stylesheet" href="/styles/admin/unified-layout.css" />
     <link rel="stylesheet" href="/styles/admin/button-system.css" />
+    <link rel="stylesheet" href="/styles/admin/admin-responsive-utilities.css" />
 
     <!-- Date Validation Scripts -->
     <script src="/js/dateValidation.js"></script>
@@ -146,32 +147,95 @@
         const mobileOverlay = document.getElementById('mobileOverlay');
         const sidebar = document.querySelector('.sidebar');
 
-        // Toggle sidebar on mobile
+        // Enhanced toggle sidebar on mobile
         function toggleSidebar() {
+          const isActive = sidebar.classList.contains('active');
+
           sidebar.classList.toggle('active');
           mobileOverlay.classList.toggle('active');
+          mobileToggle.classList.toggle('active');
 
-          // Update toggle icon
+          // Update toggle icon with animation
           const icon = mobileToggle.querySelector('i');
-          if (sidebar.classList.contains('active')) {
-            icon.className = 'ri-close-line';
+          if (!isActive) {
+            // Opening sidebar
+            icon.style.transform = 'rotate(90deg)';
+            setTimeout(() => {
+              icon.className = 'ri-close-line';
+              icon.style.transform = 'rotate(0deg)';
+            }, 150);
             mobileOverlay.style.display = 'block';
-            document.body.style.overflow = 'hidden'; // Prevent background scroll
+            document.body.style.overflow = 'hidden';
+
+            // Add haptic feedback on mobile devices
+            if ('vibrate' in navigator) {
+              navigator.vibrate(50);
+            }
           } else {
-            icon.className = 'ri-menu-line';
+            // Closing sidebar
+            icon.style.transform = 'rotate(-90deg)';
+            setTimeout(() => {
+              icon.className = 'ri-menu-line';
+              icon.style.transform = 'rotate(0deg)';
+            }, 150);
             mobileOverlay.style.display = 'none';
             document.body.style.overflow = 'auto';
           }
         }
 
-        // Close sidebar
+        // Enhanced close sidebar
         function closeSidebar() {
           sidebar.classList.remove('active');
           mobileOverlay.classList.remove('active');
-          mobileToggle.querySelector('i').className = 'ri-menu-line';
+          mobileToggle.classList.remove('active');
+
+          const icon = mobileToggle.querySelector('i');
+          icon.style.transform = 'rotate(-90deg)';
+          setTimeout(() => {
+            icon.className = 'ri-menu-line';
+            icon.style.transform = 'rotate(0deg)';
+          }, 150);
+
           mobileOverlay.style.display = 'none';
           document.body.style.overflow = 'auto';
         }
+
+        // Add swipe gesture support for closing sidebar
+        let startX = 0;
+        let currentX = 0;
+        let isDragging = false;
+
+        sidebar.addEventListener('touchstart', function(e) {
+          startX = e.touches[0].clientX;
+          isDragging = true;
+        });
+
+        sidebar.addEventListener('touchmove', function(e) {
+          if (!isDragging) return;
+          currentX = e.touches[0].clientX;
+          const diffX = startX - currentX;
+
+          // If swiping left and moved more than 50px
+          if (diffX > 50) {
+            e.preventDefault();
+            sidebar.style.transform = `translateX(-${diffX}px)`;
+          }
+        });
+
+        sidebar.addEventListener('touchend', function(e) {
+          if (!isDragging) return;
+          isDragging = false;
+
+          const diffX = startX - currentX;
+
+          // If swiped left more than 100px, close sidebar
+          if (diffX > 100) {
+            closeSidebar();
+          }
+
+          // Reset transform
+          sidebar.style.transform = '';
+        });
 
         // Event listeners
         if (mobileToggle) {

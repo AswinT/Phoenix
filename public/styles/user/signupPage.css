@@ -718,32 +718,78 @@ body {
   box-shadow: 0 8px 25px rgba(27, 60, 83, 0.3);
 }
 
-/* Responsive design */
+/* Enhanced Responsive Design */
 @media (max-width: 768px) {
   .signup-card {
     grid-template-columns: 1fr;
     margin: 1rem;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(27, 60, 83, 0.3);
   }
 
   .brand-section {
-    padding: 2rem;
-    min-height: 250px;
+    padding: 2.5rem 2rem;
+    min-height: 270px;
+    text-align: center;
   }
 
   .brand-title {
-    font-size: 2.5rem;
+    font-size: 2.8rem;
+    margin-top: 1rem;
   }
 
   .logo-img {
-    height: 80px;
+    height: 90px;
+    transition: transform 0.3s ease;
+  }
+
+  .logo-img:hover {
+    transform: scale(1.1);
   }
 
   .form-section {
-    padding: 2rem;
+    padding: 2.5rem 2rem;
   }
 
   .form-title {
-    font-size: 1.6rem;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+  }
+
+  .form-subtitle {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .form-input-custom {
+    min-height: 56px;
+    font-size: 1rem;
+    padding: 1rem 1.25rem 1rem 3rem;
+    border-radius: 12px;
+  }
+
+  .input-wrapper .form-input-custom[type="password"] {
+    padding-right: 3.5rem;
+  }
+
+  .btn-signup {
+    min-height: 56px;
+    font-size: 1.1rem;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+  }
+
+  .social-login-btn {
+    min-height: 52px;
+    font-size: 1rem;
+    padding: 1rem;
+    border-radius: 12px;
+  }
+
+  .login-link {
+    font-size: 1rem;
+    padding: 0.75rem;
   }
 }
 

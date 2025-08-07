@@ -1,0 +1,319 @@
+/* ===================================
+   RESPONSIVE UTILITIES CSS
+   Global responsive utility classes and improvements
+   =================================== */
+
+/* CSS Custom Properties for Responsive Design */
+:root {
+  /* Responsive breakpoints */
+  --breakpoint-xs: 320px;
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
+  --breakpoint-xxl: 1400px;
+
+  /* Fluid typography scale */
+  --font-size-xs: clamp(0.75rem, 2vw, 0.875rem);
+  --font-size-sm: clamp(0.875rem, 2.5vw, 1rem);
+  --font-size-base: clamp(1rem, 3vw, 1.125rem);
+  --font-size-lg: clamp(1.125rem, 3.5vw, 1.25rem);
+  --font-size-xl: clamp(1.25rem, 4vw, 1.5rem);
+  --font-size-2xl: clamp(1.5rem, 5vw, 2rem);
+  --font-size-3xl: clamp(2rem, 6vw, 2.5rem);
+  --font-size-4xl: clamp(2.5rem, 7vw, 3rem);
+
+  /* Fluid spacing scale */
+  --space-xs: clamp(0.25rem, 1vw, 0.5rem);
+  --space-sm: clamp(0.5rem, 2vw, 1rem);
+  --space-md: clamp(1rem, 3vw, 1.5rem);
+  --space-lg: clamp(1.5rem, 4vw, 2rem);
+  --space-xl: clamp(2rem, 5vw, 3rem);
+  --space-2xl: clamp(3rem, 6vw, 4rem);
+  --space-3xl: clamp(4rem, 8vw, 6rem);
+
+  /* Container max-widths */
+  --container-sm: 540px;
+  --container-md: 720px;
+  --container-lg: 960px;
+  --container-xl: 1140px;
+  --container-xxl: 1320px;
+
+  /* Touch target sizes */
+  --touch-target-min: 44px;
+  --touch-target-comfortable: 48px;
+  --touch-target-large: 56px;
+}
+
+/* ===================================
+   RESPONSIVE TYPOGRAPHY UTILITIES
+   =================================== */
+
+.text-responsive-xs { font-size: var(--font-size-xs); }
+.text-responsive-sm { font-size: var(--font-size-sm); }
+.text-responsive-base { font-size: var(--font-size-base); }
+.text-responsive-lg { font-size: var(--font-size-lg); }
+.text-responsive-xl { font-size: var(--font-size-xl); }
+.text-responsive-2xl { font-size: var(--font-size-2xl); }
+.text-responsive-3xl { font-size: var(--font-size-3xl); }
+.text-responsive-4xl { font-size: var(--font-size-4xl); }
+
+/* Line height utilities */
+.leading-tight { line-height: 1.25; }
+.leading-snug { line-height: 1.375; }
+.leading-normal { line-height: 1.5; }
+.leading-relaxed { line-height: 1.625; }
+.leading-loose { line-height: 2; }
+
+/* ===================================
+   RESPONSIVE SPACING UTILITIES
+   =================================== */
+
+.p-responsive-xs { padding: var(--space-xs); }
+.p-responsive-sm { padding: var(--space-sm); }
+.p-responsive-md { padding: var(--space-md); }
+.p-responsive-lg { padding: var(--space-lg); }
+.p-responsive-xl { padding: var(--space-xl); }
+.p-responsive-2xl { padding: var(--space-2xl); }
+.p-responsive-3xl { padding: var(--space-3xl); }
+
+.m-responsive-xs { margin: var(--space-xs); }
+.m-responsive-sm { margin: var(--space-sm); }
+.m-responsive-md { margin: var(--space-md); }
+.m-responsive-lg { margin: var(--space-lg); }
+.m-responsive-xl { margin: var(--space-xl); }
+.m-responsive-2xl { margin: var(--space-2xl); }
+.m-responsive-3xl { margin: var(--space-3xl); }
+
+/* ===================================
+   TOUCH-FRIENDLY UTILITIES
+   =================================== */
+
+.touch-target {
+  min-width: var(--touch-target-min);
+  min-height: var(--touch-target-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.touch-target-comfortable {
+  min-width: var(--touch-target-comfortable);
+  min-height: var(--touch-target-comfortable);
+}
+
+.touch-target-large {
+  min-width: var(--touch-target-large);
+  min-height: var(--touch-target-large);
+}
+
+/* ===================================
+   RESPONSIVE GRID UTILITIES
+   =================================== */
+
+.grid-responsive {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.grid-cols-1 { grid-template-columns: 1fr; }
+.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+.grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+
+.grid-auto-fit-sm { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.grid-auto-fit-md { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+.grid-auto-fit-lg { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+
+/* ===================================
+   RESPONSIVE FLEXBOX UTILITIES
+   =================================== */
+
+.flex-responsive {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.flex-wrap-responsive {
+  flex-wrap: wrap;
+}
+
+.flex-col-mobile {
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .flex-col-mobile {
+    flex-direction: row;
+  }
+}
+
+/* ===================================
+   RESPONSIVE VISIBILITY UTILITIES
+   =================================== */
+
+/* Hide on mobile */
+@media (max-width: 767px) {
+  .hidden-mobile { display: none !important; }
+}
+
+/* Hide on tablet */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hidden-tablet { display: none !important; }
+}
+
+/* Hide on desktop */
+@media (min-width: 1024px) {
+  .hidden-desktop { display: none !important; }
+}
+
+/* Show only on mobile */
+@media (min-width: 768px) {
+  .mobile-only { display: none !important; }
+}
+
+/* Show only on tablet and up */
+@media (max-width: 767px) {
+  .tablet-up { display: none !important; }
+}
+
+/* Show only on desktop */
+@media (max-width: 1023px) {
+  .desktop-only { display: none !important; }
+}
+
+/* ===================================
+   RESPONSIVE CONTAINER UTILITIES
+   =================================== */
+
+.container-responsive {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-md);
+  padding-right: var(--space-md);
+}
+
+@media (min-width: 576px) {
+  .container-responsive { max-width: var(--container-sm); }
+}
+
+@media (min-width: 768px) {
+  .container-responsive { max-width: var(--container-md); }
+}
+
+@media (min-width: 992px) {
+  .container-responsive { max-width: var(--container-lg); }
+}
+
+@media (min-width: 1200px) {
+  .container-responsive { max-width: var(--container-xl); }
+}
+
+@media (min-width: 1400px) {
+  .container-responsive { max-width: var(--container-xxl); }
+}
+
+/* ===================================
+   RESPONSIVE IMAGE UTILITIES
+   =================================== */
+
+.img-responsive {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.img-cover {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+.img-contain {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+}
+
+/* ===================================
+   RESPONSIVE ASPECT RATIO UTILITIES
+   =================================== */
+
+.aspect-square { aspect-ratio: 1 / 1; }
+.aspect-video { aspect-ratio: 16 / 9; }
+.aspect-photo { aspect-ratio: 4 / 3; }
+.aspect-portrait { aspect-ratio: 3 / 4; }
+
+/* ===================================
+   RESPONSIVE BORDER RADIUS UTILITIES
+   =================================== */
+
+.rounded-responsive-sm { border-radius: clamp(4px, 1vw, 8px); }
+.rounded-responsive-md { border-radius: clamp(8px, 2vw, 12px); }
+.rounded-responsive-lg { border-radius: clamp(12px, 3vw, 16px); }
+.rounded-responsive-xl { border-radius: clamp(16px, 4vw, 24px); }
+
+/* ===================================
+   RESPONSIVE ANIMATION UTILITIES
+   =================================== */
+
+.transition-responsive {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift {
+  transition: transform 0.3s ease;
+}
+
+@media (hover: hover) {
+  .hover-lift:hover {
+    transform: translateY(-4px);
+  }
+}
+
+@media (hover: none) {
+  .hover-lift:active {
+    transform: translateY(-2px);
+  }
+}
+
+/* ===================================
+   RESPONSIVE SCROLL UTILITIES
+   =================================== */
+
+.scroll-smooth {
+  scroll-behavior: smooth;
+}
+
+.overflow-x-auto {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.overflow-y-auto {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Custom scrollbar for webkit browsers */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.5);
+}

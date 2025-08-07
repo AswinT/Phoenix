@@ -1,0 +1,400 @@
+/* ===================================
+   ADMIN RESPONSIVE UTILITIES
+   Comprehensive utility classes for admin interface
+   =================================== */
+
+/* CSS Custom Properties for Admin */
+:root {
+  /* Admin-specific breakpoints */
+  --admin-breakpoint-sm: 576px;
+  --admin-breakpoint-md: 768px;
+  --admin-breakpoint-lg: 992px;
+  --admin-breakpoint-xl: 1200px;
+
+  /* Admin touch targets */
+  --admin-touch-min: 44px;
+  --admin-touch-comfortable: 48px;
+  --admin-touch-large: 56px;
+
+  /* Admin spacing scale */
+  --admin-space-xs: 0.25rem;
+  --admin-space-sm: 0.5rem;
+  --admin-space-md: 1rem;
+  --admin-space-lg: 1.5rem;
+  --admin-space-xl: 2rem;
+  --admin-space-2xl: 3rem;
+
+  /* Admin colors */
+  --admin-primary: #4361EE;
+  --admin-secondary: #6b7280;
+  --admin-success: #22c55e;
+  --admin-warning: #f59e0b;
+  --admin-danger: #ef4444;
+  --admin-info: #3b82f6;
+
+  /* Admin surfaces */
+  --admin-bg-primary: #ffffff;
+  --admin-bg-secondary: #f9fafb;
+  --admin-bg-tertiary: #f3f4f6;
+  --admin-border: #e5e7eb;
+  --admin-border-light: #f3f4f6;
+}
+
+/* ===================================
+   ADMIN LAYOUT UTILITIES
+   =================================== */
+
+.admin-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--admin-space-md);
+}
+
+.admin-grid {
+  display: grid;
+  gap: var(--admin-space-md);
+}
+
+.admin-grid-1 { grid-template-columns: 1fr; }
+.admin-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.admin-grid-3 { grid-template-columns: repeat(3, 1fr); }
+.admin-grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+.admin-flex {
+  display: flex;
+  gap: var(--admin-space-md);
+}
+
+.admin-flex-col { flex-direction: column; }
+.admin-flex-wrap { flex-wrap: wrap; }
+.admin-flex-center { align-items: center; justify-content: center; }
+.admin-flex-between { justify-content: space-between; }
+.admin-flex-end { justify-content: flex-end; }
+
+/* ===================================
+   ADMIN SPACING UTILITIES
+   =================================== */
+
+.admin-p-xs { padding: var(--admin-space-xs); }
+.admin-p-sm { padding: var(--admin-space-sm); }
+.admin-p-md { padding: var(--admin-space-md); }
+.admin-p-lg { padding: var(--admin-space-lg); }
+.admin-p-xl { padding: var(--admin-space-xl); }
+.admin-p-2xl { padding: var(--admin-space-2xl); }
+
+.admin-m-xs { margin: var(--admin-space-xs); }
+.admin-m-sm { margin: var(--admin-space-sm); }
+.admin-m-md { margin: var(--admin-space-md); }
+.admin-m-lg { margin: var(--admin-space-lg); }
+.admin-m-xl { margin: var(--admin-space-xl); }
+.admin-m-2xl { margin: var(--admin-space-2xl); }
+
+.admin-mb-xs { margin-bottom: var(--admin-space-xs); }
+.admin-mb-sm { margin-bottom: var(--admin-space-sm); }
+.admin-mb-md { margin-bottom: var(--admin-space-md); }
+.admin-mb-lg { margin-bottom: var(--admin-space-lg); }
+.admin-mb-xl { margin-bottom: var(--admin-space-xl); }
+.admin-mb-2xl { margin-bottom: var(--admin-space-2xl); }
+
+/* ===================================
+   ADMIN COMPONENT UTILITIES
+   =================================== */
+
+.admin-card {
+  background: var(--admin-bg-primary);
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  padding: var(--admin-space-lg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.admin-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.admin-card-compact {
+  padding: var(--admin-space-md);
+}
+
+.admin-card-header {
+  padding-bottom: var(--admin-space-md);
+  margin-bottom: var(--admin-space-md);
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-card-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.admin-card-subtitle {
+  font-size: 0.9rem;
+  color: var(--admin-secondary);
+  margin: 0.25rem 0 0 0;
+}
+
+/* ===================================
+   ADMIN BUTTON UTILITIES
+   =================================== */
+
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  min-height: var(--admin-touch-min);
+}
+
+.admin-btn-primary {
+  background: var(--admin-primary);
+  color: white;
+}
+
+.admin-btn-primary:hover {
+  background: #3730a3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+}
+
+.admin-btn-secondary {
+  background: var(--admin-bg-secondary);
+  color: var(--admin-secondary);
+  border: 1px solid var(--admin-border);
+}
+
+.admin-btn-secondary:hover {
+  background: var(--admin-bg-tertiary);
+}
+
+.admin-btn-success {
+  background: var(--admin-success);
+  color: white;
+}
+
+.admin-btn-warning {
+  background: var(--admin-warning);
+  color: white;
+}
+
+.admin-btn-danger {
+  background: var(--admin-danger);
+  color: white;
+}
+
+.admin-btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  min-height: 36px;
+}
+
+.admin-btn-lg {
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  min-height: var(--admin-touch-large);
+}
+
+.admin-btn-block {
+  width: 100%;
+}
+
+.admin-btn-icon-only {
+  padding: 0.75rem;
+  min-width: var(--admin-touch-min);
+}
+
+/* ===================================
+   ADMIN FORM UTILITIES
+   =================================== */
+
+.admin-form-group {
+  margin-bottom: var(--admin-space-lg);
+}
+
+.admin-form-label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.admin-form-label.required::after {
+  content: ' *';
+  color: var(--admin-danger);
+  font-weight: 700;
+}
+
+.admin-form-control {
+  width: 100%;
+  min-height: var(--admin-touch-comfortable);
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 2px solid var(--admin-border);
+  border-radius: 8px;
+  background: var(--admin-bg-primary);
+  transition: all 0.3s ease;
+}
+
+.admin-form-control:focus {
+  border-color: var(--admin-primary);
+  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+  outline: none;
+}
+
+.admin-form-control.error {
+  border-color: var(--admin-danger);
+}
+
+.admin-form-control.error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.admin-form-help {
+  font-size: 0.875rem;
+  color: var(--admin-secondary);
+  margin-top: 0.25rem;
+}
+
+.admin-form-error {
+  font-size: 0.875rem;
+  color: var(--admin-danger);
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* ===================================
+   ADMIN TABLE UTILITIES
+   =================================== */
+
+.admin-table-wrapper {
+  background: var(--admin-bg-primary);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--admin-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--admin-border-light);
+}
+
+.admin-table th {
+  background: var(--admin-bg-secondary);
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.admin-table tbody tr:hover {
+  background: var(--admin-bg-secondary);
+}
+
+.admin-table-compact th,
+.admin-table-compact td {
+  padding: 0.75rem;
+}
+
+/* ===================================
+   ADMIN RESPONSIVE VISIBILITY
+   =================================== */
+
+/* Hide on mobile */
+@media (max-width: 767px) {
+  .admin-hide-mobile { display: none !important; }
+}
+
+/* Hide on tablet */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .admin-hide-tablet { display: none !important; }
+}
+
+/* Hide on desktop */
+@media (min-width: 1024px) {
+  .admin-hide-desktop { display: none !important; }
+}
+
+/* Show only on mobile */
+@media (min-width: 768px) {
+  .admin-mobile-only { display: none !important; }
+}
+
+/* Show only on tablet and up */
+@media (max-width: 767px) {
+  .admin-tablet-up { display: none !important; }
+}
+
+/* Show only on desktop */
+@media (max-width: 1023px) {
+  .admin-desktop-only { display: none !important; }
+}
+
+/* ===================================
+   ADMIN RESPONSIVE BREAKPOINTS
+   =================================== */
+
+@media (max-width: 768px) {
+  .admin-grid-2,
+  .admin-grid-3,
+  .admin-grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-flex {
+    flex-direction: column;
+  }
+
+  .admin-flex-mobile-row {
+    flex-direction: row;
+  }
+
+  .admin-btn-block-mobile {
+    width: 100%;
+  }
+
+  .admin-text-center-mobile {
+    text-align: center;
+  }
+}
+
+@media (max-width: 576px) {
+  .admin-container {
+    padding: 0 var(--admin-space-sm);
+  }
+
+  .admin-card {
+    padding: var(--admin-space-md);
+  }
+
+  .admin-btn {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .admin-form-control {
+    font-size: 1rem;
+  }
+}
