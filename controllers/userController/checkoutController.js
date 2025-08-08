@@ -56,11 +56,29 @@ const getCheckout = async (req, res) => {
     const unavailableItems = [];
 
     for (const item of cart.items) {
-      if (!item.product || !item.product.isListed || item.product.isDeleted) {
+      if (!item.product) {
         unavailableItems.push({
-          productId: item.product?._id,
-          model: item.product?.model || 'Unknown Product',
-          reason: 'Product no longer available'
+          productId: item.product?._id || 'Unknown',
+          model: 'Unknown Product',
+          reason: 'Product not found'
+        });
+        continue;
+      }
+
+      if (!item.product.isListed) {
+        unavailableItems.push({
+          productId: item.product._id,
+          model: item.product.model,
+          reason: 'Product is currently unlisted'
+        });
+        continue;
+      }
+
+      if (item.product.isDeleted) {
+        unavailableItems.push({
+          productId: item.product._id,
+          model: item.product.model,
+          reason: 'Product has been removed'
         });
         continue;
       }
@@ -80,11 +98,15 @@ const getCheckout = async (req, res) => {
     }
 
     if (unavailableItems.length > 0) {
+      // Remove unavailable items from cart
       cart.items = validItems.concat(stockConflicts.map(conflict =>
         cart.items.find(item => item.product._id.toString() === conflict.productId.toString())
       ));
       await cart.save();
-      req.session.errorMessage = 'Some items were removed from your cart as they are no longer available.';
+
+      // Create detailed error message
+      const removedItemsDetails = unavailableItems.map(item => `${item.model} (${item.reason})`).join(', ');
+      req.session.errorMessage = `${unavailableItems.length} item(s) were removed from your cart: ${removedItemsDetails}`;
       return res.redirect('/cart');
     }
 
@@ -447,7 +469,102 @@ const createRazorpayOrder = async (req, res) => {
     if (!cart || !cart.items.length) {
       return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: 'Cart is empty' });
     }
-    const cartItems = cart.items.filter((item) => item.product && item.product.isListed && !item.product.isDeleted);
+
+    // Comprehensive product availability validation for Razorpay order
+    const validItems = [];
+    const unavailableItems = [];
+    const stockIssues = [];
+    const blockedItems = [];
+
+    for (const item of cart.items) {
+      // Check if product exists
+      if (!item.product) {
+        unavailableItems.push({
+          productId: item.product?._id || 'Unknown',
+          model: 'Unknown Product',
+          reason: 'Product not found'
+        });
+        continue;
+      }
+
+      // Check if product is listed and not deleted
+      if (!item.product.isListed) {
+        blockedItems.push({
+          productId: item.product._id,
+          model: item.product.model,
+          reason: 'Product is currently unlisted'
+        });
+        continue;
+      }
+
+      if (item.product.isDeleted) {
+        unavailableItems.push({
+          productId: item.product._id,
+          model: item.product.model,
+          reason: 'Product has been removed'
+        });
+        continue;
+      }
+
+      // Check stock availability
+      if (item.product.stock < item.quantity) {
+        stockIssues.push({
+          productId: item.product._id,
+          model: item.product.model,
+          requestedQuantity: item.quantity,
+          availableStock: item.product.stock,
+          reason: `Only ${item.product.stock} units available, but ${item.quantity} requested`
+        });
+        continue;
+      }
+
+      // If all checks pass, add to valid items
+      validItems.push(item);
+    }
+
+    // Handle validation errors
+    if (unavailableItems.length > 0 || blockedItems.length > 0 || stockIssues.length > 0) {
+      let errorDetails = [];
+
+      if (unavailableItems.length > 0) {
+        unavailableItems.forEach(item => {
+          errorDetails.push(`${item.model}: ${item.reason}`);
+        });
+      }
+
+      if (blockedItems.length > 0) {
+        blockedItems.forEach(item => {
+          errorDetails.push(`${item.model}: ${item.reason}`);
+        });
+      }
+
+      if (stockIssues.length > 0) {
+        stockIssues.forEach(item => {
+          errorDetails.push(`${item.model}: ${item.reason}`);
+        });
+      }
+
+      // Optionally remove unavailable items from cart automatically
+      if (unavailableItems.length > 0 || blockedItems.length > 0) {
+        const validItemIds = validItems.map(item => item.product._id.toString());
+
+        // Update cart to remove unavailable/blocked items
+        cart.items = cart.items.filter(item =>
+          item.product && validItemIds.includes(item.product._id.toString())
+        );
+        await cart.save();
+      }
+
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'Some items in your cart are no longer available',
+        details: errorDetails,
+        removedItems: unavailableItems.length + blockedItems.length,
+        stockIssues: stockIssues.length
+      });
+    }
+
+    const cartItems = validItems;
     if (!cartItems.length) {
       return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: 'No valid items in cart' });
     }
@@ -823,7 +940,104 @@ const placeOrder = async (req, res) => {
     if (!cart || !cart.items.length) {
       throw new Error('Cart is empty');
     }
-    const cartItems = cart.items.filter((item) => item.product && item.product.isListed && !item.product.isDeleted);
+
+    // Comprehensive product availability validation
+    const validItems = [];
+    const unavailableItems = [];
+    const stockIssues = [];
+    const blockedItems = [];
+
+    for (const item of cart.items) {
+      // Check if product exists
+      if (!item.product) {
+        unavailableItems.push({
+          productId: item.product?._id || 'Unknown',
+          model: 'Unknown Product',
+          reason: 'Product not found'
+        });
+        continue;
+      }
+
+      // Check if product is listed and not deleted
+      if (!item.product.isListed) {
+        blockedItems.push({
+          productId: item.product._id,
+          model: item.product.model,
+          reason: 'Product is currently unlisted'
+        });
+        continue;
+      }
+
+      if (item.product.isDeleted) {
+        unavailableItems.push({
+          productId: item.product._id,
+          model: item.product.model,
+          reason: 'Product has been removed'
+        });
+        continue;
+      }
+
+      // Check stock availability
+      if (item.product.stock < item.quantity) {
+        stockIssues.push({
+          productId: item.product._id,
+          model: item.product.model,
+          requestedQuantity: item.quantity,
+          availableStock: item.product.stock,
+          reason: `Only ${item.product.stock} units available, but ${item.quantity} requested`
+        });
+        continue;
+      }
+
+      // If all checks pass, add to valid items
+      validItems.push(item);
+    }
+
+    // Handle validation errors
+    if (unavailableItems.length > 0 || blockedItems.length > 0 || stockIssues.length > 0) {
+      let errorMessage = 'Cannot proceed with checkout due to the following issues:\n';
+
+      if (unavailableItems.length > 0) {
+        errorMessage += '\nUnavailable Products:\n';
+        unavailableItems.forEach(item => {
+          errorMessage += `• ${item.model}: ${item.reason}\n`;
+        });
+      }
+
+      if (blockedItems.length > 0) {
+        errorMessage += '\nBlocked Products:\n';
+        blockedItems.forEach(item => {
+          errorMessage += `• ${item.model}: ${item.reason}\n`;
+        });
+      }
+
+      if (stockIssues.length > 0) {
+        errorMessage += '\nStock Issues:\n';
+        stockIssues.forEach(item => {
+          errorMessage += `• ${item.model}: ${item.reason}\n`;
+        });
+      }
+
+      errorMessage += '\nPlease update your cart and try again.';
+
+      // Optionally remove unavailable items from cart automatically
+      if (unavailableItems.length > 0 || blockedItems.length > 0) {
+        const itemsToRemove = [...unavailableItems, ...blockedItems];
+        const validItemIds = validItems.map(item => item.product._id.toString());
+
+        // Update cart to remove unavailable/blocked items
+        cart.items = cart.items.filter(item =>
+          item.product && validItemIds.includes(item.product._id.toString())
+        );
+        await cart.save();
+
+        errorMessage += `\n${itemsToRemove.length} unavailable item(s) have been automatically removed from your cart.`;
+      }
+
+      throw new Error(errorMessage);
+    }
+
+    const cartItems = validItems;
     if (!cartItems.length) {
       throw new Error('No valid items in cart');
     }

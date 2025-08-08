@@ -677,10 +677,10 @@
               if (result.success) {
                 Swal.fire({
                   icon: "success",
-                  title: "Signup Successful",
-                  text: "Welcome to Phoenix!",
+                  title: "Registration Complete!",
+                  text: "Please check your email for the OTP verification code to complete your account setup.",
                   confirmButtonColor: "#1B3C53",
-                  confirmButtonText: "Proceed to Login",
+                  confirmButtonText: "Verify Email",
                 }).then(() => {
                   window.location.href = "/verify-otp";
                 });
