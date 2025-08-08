@@ -1,8 +1,5 @@
 <%- include("../partials/user/header") %>
 
-<!-- Include Phoenix Design System CSS -->
-<link rel="stylesheet" href="/styles/phoenix-design-system.css">
-
 <style>
       /* ════════════════════════════════════════════════════════════════════════════════════════ */
       /* PHOENIX PROFILE PAGE SPECIFIC STYLES */
@@ -570,6 +567,38 @@
         font-weight: 500;
       }
 
+      /* ═══ PASSWORD REQUIREMENTS ═══ */
+      .phoenix-password-requirements {
+        background: rgba(249, 243, 239, 0.3);
+        border: 1px solid rgba(210, 193, 182, 0.3);
+        border-radius: var(--phoenix-radius-sm);
+        padding: 0.75rem;
+        margin-top: 0.5rem;
+      }
+
+      .phoenix-password-requirements .requirement-item {
+        font-size: 0.75rem;
+        line-height: 1.4;
+        margin-bottom: 0.25rem;
+        transition: all 0.2s ease;
+      }
+
+      .phoenix-password-requirements .requirement-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .phoenix-password-requirements .requirement-item.met {
+        color: var(--phoenix-success) !important;
+      }
+
+      .phoenix-password-requirements .requirement-item.met i {
+        color: var(--phoenix-success) !important;
+      }
+
+      .phoenix-password-requirements .requirement-item.met i:before {
+        content: "\f2bd"; /* ri-check-circle-line */
+      }
+
       /* ═══ PROFILE IMAGE UPLOAD ═══ */
       .phoenix-image-upload {
         position: relative;
@@ -756,6 +785,331 @@
         font-weight: 500;
         margin-top: 0.25rem;
       }
+
+      /* ═══ CHANGE EMAIL BUTTON STYLING ═══ */
+      .phoenix-change-email-btn {
+        background: var(--phoenix-gradient-main);
+        border: none;
+        color: var(--phoenix-white);
+        padding: 0.5rem 1rem;
+        border-radius: var(--phoenix-radius-sm);
+        font-family: var(--phoenix-font-heading);
+        font-weight: 500;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(27, 60, 83, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 120px;
+        justify-content: center;
+      }
+
+      .phoenix-change-email-btn:hover {
+        background: linear-gradient(135deg, var(--phoenix-secondary) 0%, var(--phoenix-primary) 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(27, 60, 83, 0.2);
+        color: var(--phoenix-white);
+      }
+
+      .phoenix-change-email-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(27, 60, 83, 0.15);
+      }
+
+      .phoenix-change-email-btn:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(27, 60, 83, 0.2);
+      }
+
+      .phoenix-change-email-btn i {
+        font-size: 1rem;
+      }
+
+      /* ═══ EMAIL CHANGE MODAL STYLING ═══ */
+      .phoenix-email-modal .modal-dialog {
+        max-width: 600px;
+      }
+
+      .phoenix-modal-content {
+        border: none;
+        border-radius: var(--phoenix-radius-lg);
+        box-shadow: 0 20px 40px rgba(27, 60, 83, 0.15);
+        overflow: hidden;
+        animation: modalSlideIn 0.3s ease-out;
+      }
+
+      @keyframes modalSlideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-30px) scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      .phoenix-modal-header {
+        background: var(--phoenix-gradient-main);
+        color: var(--phoenix-white);
+        border-bottom: none;
+        padding: 1.5rem 2rem;
+      }
+
+      .phoenix-modal-title {
+        font-family: var(--phoenix-font-heading);
+        font-weight: 600;
+        font-size: 1.25rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+      }
+
+      .phoenix-modal-close {
+        background: none;
+        border: none;
+        color: var(--phoenix-white);
+        opacity: 0.8;
+        font-size: 1.2rem;
+        transition: all 0.2s ease;
+      }
+
+      .phoenix-modal-close:hover {
+        opacity: 1;
+        transform: scale(1.1);
+      }
+
+      .phoenix-modal-body {
+        padding: 2rem;
+        background: var(--phoenix-white);
+      }
+
+      /* Progress Bar Styling */
+      .phoenix-progress-container {
+        margin-bottom: 2rem;
+      }
+
+      .phoenix-progress-bar {
+        width: 100%;
+        height: 8px;
+        background: var(--phoenix-light-gray);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+      }
+
+      .phoenix-progress-fill {
+        height: 100%;
+        background: var(--phoenix-gradient-main);
+        border-radius: 4px;
+        transition: width 0.4s ease;
+        width: 0%;
+      }
+
+      .phoenix-progress-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 0.5rem;
+      }
+
+      .phoenix-progress-label {
+        font-size: 0.8rem;
+        color: var(--phoenix-text-muted);
+        font-family: var(--phoenix-font-body);
+        font-weight: 500;
+      }
+
+      .phoenix-progress-label.active {
+        color: var(--phoenix-primary);
+        font-weight: 600;
+      }
+
+      /* Modal Form Styling */
+      .phoenix-step {
+        padding: 1.5rem 0;
+      }
+
+      .phoenix-step-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .phoenix-step-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--phoenix-gradient-main);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        color: var(--phoenix-white);
+        font-size: 1.2rem;
+      }
+
+      .phoenix-step-title {
+        font-family: var(--phoenix-font-heading);
+        font-weight: 600;
+        color: var(--phoenix-text-dark);
+        margin: 0;
+        font-size: 1.1rem;
+      }
+
+      .phoenix-form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .phoenix-form-label {
+        font-family: var(--phoenix-font-heading);
+        font-weight: 500;
+        color: var(--phoenix-text-dark);
+        margin-bottom: 0.5rem;
+        display: block;
+      }
+
+      .phoenix-form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid var(--phoenix-light-gray);
+        border-radius: var(--phoenix-radius-sm);
+        font-family: var(--phoenix-font-body);
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background: var(--phoenix-white);
+      }
+
+      .phoenix-form-control:focus {
+        outline: none;
+        border-color: var(--phoenix-primary);
+        box-shadow: 0 0 0 3px rgba(27, 60, 83, 0.1);
+      }
+
+      .phoenix-form-control::placeholder {
+        color: var(--phoenix-text-muted);
+      }
+
+      .phoenix-alert {
+        padding: 1rem;
+        border-radius: var(--phoenix-radius-sm);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .phoenix-alert-info {
+        background: rgba(27, 60, 83, 0.1);
+        color: var(--phoenix-primary);
+        border: 1px solid rgba(27, 60, 83, 0.2);
+      }
+
+      .phoenix-button-group {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .phoenix-btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: var(--phoenix-radius-sm);
+        font-family: var(--phoenix-font-heading);
+        font-weight: 500;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        min-width: 120px;
+        justify-content: center;
+      }
+
+      .phoenix-btn-primary {
+        background: var(--phoenix-gradient-main);
+        color: var(--phoenix-white);
+        box-shadow: 0 2px 4px rgba(27, 60, 83, 0.1);
+      }
+
+      .phoenix-btn-primary:hover {
+        background: linear-gradient(135deg, var(--phoenix-secondary) 0%, var(--phoenix-primary) 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(27, 60, 83, 0.2);
+      }
+
+      .phoenix-btn-secondary {
+        background: var(--phoenix-white);
+        color: var(--phoenix-primary);
+        border: 2px solid var(--phoenix-primary);
+      }
+
+      .phoenix-btn-secondary:hover {
+        background: var(--phoenix-primary);
+        color: var(--phoenix-white);
+      }
+
+      /* Success Step Styling */
+      .phoenix-success-container {
+        text-align: center;
+        padding: 2rem 1rem;
+      }
+
+      .phoenix-success-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--phoenix-gradient-main);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        color: var(--phoenix-white);
+        font-size: 2.5rem;
+        animation: successPulse 0.6s ease-out;
+      }
+
+      @keyframes successPulse {
+        0% {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        50% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .phoenix-success-title {
+        font-family: var(--phoenix-font-heading);
+        font-weight: 600;
+        color: var(--phoenix-primary);
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+      }
+
+      .phoenix-success-message {
+        color: var(--phoenix-text-muted);
+        margin-bottom: 1.5rem;
+        font-size: 1rem;
+      }
+
+      .phoenix-success-details {
+        background: var(--phoenix-light-gray);
+        padding: 1rem;
+        border-radius: var(--phoenix-radius-sm);
+        margin-top: 1rem;
+      }
+
+      .phoenix-success-details p {
+        margin: 0;
+        color: var(--phoenix-text-dark);
+      }
     </style>
   </head>
 
@@ -847,7 +1201,6 @@
                             id="fullName"
                             name="fullName"
                             value="<%= user.fullName %>"
-                            required
                           />
                           <div id="fullNameError" class="phoenix-error-message"></div>
                         </div>
@@ -855,16 +1208,21 @@
                       <div class="col-md-6">
                         <div class="phoenix-form-group">
                           <label for="email" class="phoenix-form-label">Email Address</label>
-                          <input
-                            type="email"
-                            class="form-control phoenix-form-control"
-                            id="email"
-                            name="email"
-                            value="<%= user.email %>"
-                            readonly
-                          />
+                          <div class="input-group">
+                            <input
+                              type="email"
+                              class="form-control phoenix-form-control"
+                              id="email"
+                              name="email"
+                              value="<%= user.email %>"
+                              readonly
+                            />
+                            <button type="button" class="phoenix-change-email-btn" id="changeEmailBtn">
+                              <i class="ri-edit-line"></i> Change Email
+                            </button>
+                          </div>
                           <small class="text-muted">
-                            Email cannot be changed. Contact support if needed.
+                            Click "Change Email" to update your email address with current email verification.
                           </small>
                         </div>
                       </div>
@@ -885,39 +1243,10 @@
                           <div id="phoneError" class="phoenix-error-message"></div>
                         </div>
                       </div>
-                      <div class="col-md-6">
-                        <div class="phoenix-form-group">
-                          <label for="dateOfBirth" class="phoenix-form-label">Date of Birth</label>
-                          <input
-                            type="date"
-                            class="form-control phoenix-form-control"
-                            id="dateOfBirth"
-                            name="dateOfBirth"
-                            value="<%= user.dateOfBirth ? user.dateOfBirth.toISOString().split('T')[0] : '' %>"
-                          />
-                          <div id="dateOfBirthError" class="phoenix-error-message"></div>
-                        </div>
-                      </div>
+
                     </div>
 
-                    <div class="row">
-                      <div class="col-md-6">
-                        <div class="phoenix-form-group">
-                          <label for="gender" class="phoenix-form-label">Gender</label>
-                          <select
-                            class="form-control phoenix-form-control"
-                            id="gender"
-                            name="gender"
-                          >
-                            <option value="">Select Gender</option>
-                            <option value="male" <%= user.gender === 'male' ? 'selected' : '' %>>Male</option>
-                            <option value="female" <%= user.gender === 'female' ? 'selected' : '' %>>Female</option>
-                            <option value="other" <%= user.gender === 'other' ? 'selected' : '' %>>Other</option>
-                            <option value="prefer_not_to_say" <%= user.gender === 'prefer_not_to_say' ? 'selected' : '' %>>Prefer not to say</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
+
 
                     <div class="text-end">
                       <button
@@ -937,140 +1266,92 @@
       </div>
     </div>
 
-    <!-- PASSWORD CHANGE MODAL -->
-    <div
-      class="modal fade phoenix-modal"
-      id="phoenixPasswordModal"
-      tabindex="-1"
-      aria-labelledby="phoenixPasswordModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="phoenixPasswordModalLabel">
-              <i class="ri-shield-keyhole-line me-2"></i>
-              Change Password
+
+
+    <!-- Simplified Email Change Modal -->
+    <div class="modal fade" id="emailChangeModal" tabindex="-1" aria-labelledby="emailChangeModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg phoenix-email-modal">
+        <div class="modal-content phoenix-modal-content">
+          <div class="modal-header phoenix-modal-header">
+            <h5 class="modal-title phoenix-modal-title" id="emailChangeModalLabel">
+              <i class="ri-mail-line me-2"></i>Change Email Address
             </h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
+            <button type="button" class="btn-close phoenix-modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
-            <form id="phoenixPasswordForm">
-              <div class="mb-3">
-                <label for="phoenixCurrentPassword" class="phoenix-form-label"
-                  >Current Password</label
-                >
-                <div class="input-group">
-                  <input
-                    type="password"
-                    class="form-control phoenix-form-control"
-                    id="phoenixCurrentPassword"
-                    name="currentPassword"
-                    placeholder="Enter your current password"
-                    required
-                  />
-                  <button
-                    class="btn phoenix-btn-secondary phoenix-toggle-password"
-                    type="button"
-                  >
-                    <i class="ri-eye-off-line"></i>
-                  </button>
-                </div>
-                <div
-                  id="phoenixCurrentPasswordError"
-                  class="phoenix-error-message"
-                ></div>
+          <div class="modal-body phoenix-modal-body">
+            <!-- Progress Indicator -->
+            <div class="phoenix-progress-container mb-4">
+              <div class="phoenix-progress-bar">
+                <div class="phoenix-progress-fill" id="emailChangeProgress"></div>
               </div>
+              <div class="phoenix-progress-labels">
+                <span class="phoenix-progress-label">New Email</span>
+                <span class="phoenix-progress-label">Verify Current</span>
+                <span class="phoenix-progress-label">Complete</span>
+              </div>
+            </div>
 
-              <div class="mb-3">
-                <label for="phoenixNewPassword" class="phoenix-form-label"
-                  >New Password</label
-                >
-                <div class="input-group">
-                  <input
-                    type="password"
-                    class="form-control phoenix-form-control"
-                    id="phoenixNewPassword"
-                    name="newPassword"
-                    placeholder="Enter your new password"
-                    required
-                  />
-                  <button
-                    class="btn phoenix-btn-secondary phoenix-toggle-password"
-                    type="button"
-                  >
-                    <i class="ri-eye-off-line"></i>
-                  </button>
+            <!-- Step 1: New Email Input -->
+            <div id="step1" class="email-change-step phoenix-step">
+              <div class="phoenix-step-header">
+                <div class="phoenix-step-icon">
+                  <i class="ri-mail-add-line"></i>
                 </div>
-                <div
-                  id="phoenixNewPasswordError"
-                  class="phoenix-error-message"
-                ></div>
-                <div class="phoenix-password-strength mt-2 d-none">
-                  <div class="progress" style="height: 6px; border-radius: 3px">
-                    <div
-                      class="progress-bar"
-                      role="progressbar"
-                      style="width: 0%"
-                      aria-valuenow="0"
-                      aria-valuemin="0"
-                      aria-valuemax="100"
-                    ></div>
-                  </div>
-                  <small
-                    class="phoenix-password-feedback text-muted mt-1 d-block"
-                  ></small>
-                </div>
+                <h6 class="phoenix-step-title">Enter New Email Address</h6>
               </div>
+              <div class="phoenix-form-group">
+                <label for="newEmailInput" class="phoenix-form-label">New Email Address</label>
+                <input type="email" class="phoenix-form-control" id="newEmailInput" placeholder="Enter your new email address">
+                <div id="newEmailError" class="phoenix-error-message"></div>
+              </div>
+              <button type="button" class="phoenix-btn phoenix-btn-primary" id="proceedToOtpBtn">
+                <i class="ri-arrow-right-line"></i> Proceed to Verification
+              </button>
+            </div>
 
-              <div class="mb-3">
-                <label for="phoenixConfirmPassword" class="phoenix-form-label"
-                  >Confirm New Password</label
-                >
-                <div class="input-group">
-                  <input
-                    type="password"
-                    class="form-control phoenix-form-control"
-                    id="phoenixConfirmPassword"
-                    name="confirmPassword"
-                    placeholder="Confirm your new password"
-                    required
-                  />
-                  <button
-                    class="btn phoenix-btn-secondary phoenix-toggle-password"
-                    type="button"
-                  >
-                    <i class="ri-eye-off-line"></i>
-                  </button>
+            <!-- Step 2: Current Email OTP -->
+            <div id="step2" class="email-change-step phoenix-step" style="display: none;">
+              <div class="phoenix-step-header">
+                <div class="phoenix-step-icon">
+                  <i class="ri-shield-check-line"></i>
                 </div>
-                <div
-                  id="phoenixConfirmPasswordError"
-                  class="phoenix-error-message"
-                ></div>
+                <h6 class="phoenix-step-title">Verify Current Email</h6>
               </div>
-            </form>
+              <div class="phoenix-alert phoenix-alert-info">
+                <i class="ri-information-line"></i>
+                We've sent a verification code to your current email: <strong><%= user.email %></strong>
+              </div>
+              <div class="phoenix-form-group">
+                <label for="currentEmailOtp" class="phoenix-form-label">Enter OTP from Current Email</label>
+                <input type="text" class="phoenix-form-control" id="currentEmailOtp" placeholder="Enter 6-digit OTP" maxlength="6">
+                <div id="currentEmailOtpError" class="phoenix-error-message"></div>
+              </div>
+              <div class="phoenix-button-group">
+                <button type="button" class="phoenix-btn phoenix-btn-secondary" id="resendCurrentOtpBtn">
+                  <i class="ri-refresh-line"></i> Resend OTP
+                </button>
+                <button type="button" class="phoenix-btn phoenix-btn-primary" id="verifyCurrentOtpBtn">
+                  <i class="ri-check-line"></i> Complete Email Change
+                </button>
+              </div>
+            </div>
+
+            <!-- Step 3: Success -->
+            <div id="step3" class="email-change-step phoenix-step" style="display: none;">
+              <div class="phoenix-success-container">
+                <div class="phoenix-success-icon">
+                  <i class="ri-check-circle-line"></i>
+                </div>
+                <h5 class="phoenix-success-title">Email Changed Successfully!</h5>
+                <p class="phoenix-success-message">Your email address has been updated successfully.</p>
+                <div class="phoenix-success-details">
+                  <p><strong>New Email:</strong> <span id="newEmailDisplay"></span></p>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="modal-footer">
-            <button
-              type="button"
-              class="btn phoenix-btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              form="phoenixPasswordForm"
-              class="btn phoenix-btn-primary"
-              id="phoenixPasswordBtn"
-            >
-              <i class="ri-check-circle-line me-2"></i>Update Password
-            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
           </div>
         </div>
       </div>
@@ -1201,38 +1482,148 @@
           const formData = new FormData();
           formData.append("profileImage", file);
 
+          // Show loading indicator
+          Swal.fire({
+            title: 'Uploading...',
+            text: 'Please wait while we upload your profile image',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: () => {
+              Swal.showLoading();
+            }
+          });
+
           try {
             const response = await fetch("/users/profile/image", {
               method: "POST",
               body: formData,
             });
 
-            const result = await response.json();
+            let result;
+            try {
+              result = await response.json();
+            } catch (parseError) {
+              console.error("Failed to parse JSON response:", parseError);
+              throw new Error("Server returned an invalid response. Please try again.");
+            }
 
-            if (result.success) {
+            if (response.ok && result.success) {
+              // Close loading and show success
+              Swal.close();
+
               Swal.fire({
                 icon: "success",
                 title: "Success!",
-                text: "Profile image updated successfully",
+                text: result.message || "Profile image updated successfully",
                 toast: true,
                 position: "top-end",
                 showConfirmButton: false,
                 timer: 3000,
                 timerProgressBar: true,
               });
+
+              // Update the image preview with the new URL if provided
+              if (result.profileImage) {
+                const imageUpload = document.querySelector('.phoenix-image-upload');
+                imageUpload.innerHTML = `
+                  <img
+                    id="profileImagePreview"
+                    src="${result.profileImage}"
+                    alt="Profile Preview"
+                    class="phoenix-image-preview"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                  />
+                  <div class="phoenix-image-overlay" onclick="document.getElementById('profileImageInput').click()">
+                    <i class="ri-camera-line"></i>
+                  </div>
+                  <input
+                    type="file"
+                    id="profileImageInput"
+                    class="phoenix-file-input"
+                    accept="image/*"
+                    style="display: none;"
+                  />
+                `;
+                removeImageBtn.style.display = "inline-block";
+
+                // Re-attach event listener to new input
+                document.getElementById("profileImageInput").addEventListener("change", handleImageChange);
+              }
             } else {
-              throw new Error(result.message || "Failed to upload image");
+              // Close loading and show error
+              Swal.close();
+              throw new Error(result.message || `Server error: ${response.status} ${response.statusText}`);
             }
           } catch (error) {
             console.error("Image upload error:", error);
+
+            // Close loading if still open
+            Swal.close();
+
+            // Provide more specific error messages
+            let errorMessage = "Failed to upload image";
+            if (error.message.includes("Server error")) {
+              errorMessage = "Server error occurred. Please try again.";
+            } else if (error.message.includes("invalid response")) {
+              errorMessage = "Server configuration error. Please contact support.";
+            } else if (error.message) {
+              errorMessage = error.message;
+            }
+
             Swal.fire({
               icon: "error",
               title: "Upload Failed",
-              text: error.message || "Failed to upload image",
+              text: errorMessage,
             });
-            
+
             // Reset image preview on error
-            profileImagePreview.src = "<%= user.profileImage || '/api/placeholder/120/120' %>";
+            const currentImageSrc = "<%= user.profileImage || '' %>";
+            if (currentImageSrc) {
+              const imageUpload = document.querySelector('.phoenix-image-upload');
+              imageUpload.innerHTML = `
+                <img
+                  id="profileImagePreview"
+                  src="${currentImageSrc}"
+                  alt="Profile Preview"
+                  class="phoenix-image-preview"
+                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                />
+                <div class="phoenix-image-overlay" onclick="document.getElementById('profileImageInput').click()">
+                  <i class="ri-camera-line"></i>
+                </div>
+                <input
+                  type="file"
+                  id="profileImageInput"
+                  class="phoenix-file-input"
+                  accept="image/*"
+                  style="display: none;"
+                />
+              `;
+              // Re-attach event listener
+              document.getElementById("profileImageInput").addEventListener("change", handleImageChange);
+            } else {
+              // Reset to initials if no current image
+              const imageUpload = document.querySelector('.phoenix-image-upload');
+              const userInitials = '<%= user.fullName ? user.fullName.trim().split(" ").filter(n => n.length > 0).map(n => n.charAt(0)).slice(0, 2).join("").toUpperCase() : "U" %>';
+              imageUpload.innerHTML = `
+                <div class="phoenix-image-initials-preview" id="profileImagePreview">
+                  ${userInitials}
+                </div>
+                <div class="phoenix-image-overlay" onclick="document.getElementById('profileImageInput').click()">
+                  <i class="ri-camera-line"></i>
+                </div>
+                <input
+                  type="file"
+                  id="profileImageInput"
+                  class="phoenix-file-input"
+                  accept="image/*"
+                  style="display: none;"
+                />
+              `;
+              // Re-attach event listener
+              document.getElementById("profileImageInput").addEventListener("change", handleImageChange);
+            }
             profileImageInput.value = "";
           }
         }
@@ -1242,6 +1633,19 @@
             const response = await fetch("/users/profile/image", {
               method: "DELETE",
             });
+
+            // Check if response is ok first
+            if (!response.ok) {
+              throw new Error(`Server error: ${response.status} ${response.statusText}`);
+            }
+
+            // Check content type to ensure we're getting JSON
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+              const text = await response.text();
+              console.error("Non-JSON response received:", text);
+              throw new Error("Server returned an invalid response. Please try again.");
+            }
 
             const result = await response.json();
 
@@ -1261,10 +1665,21 @@
             }
           } catch (error) {
             console.error("Image removal error:", error);
+
+            // Provide more specific error messages
+            let errorMessage = "Failed to remove image";
+            if (error.message.includes("Server error")) {
+              errorMessage = "Server error occurred. Please try again.";
+            } else if (error.message.includes("invalid response")) {
+              errorMessage = "Server configuration error. Please contact support.";
+            } else if (error.message) {
+              errorMessage = error.message;
+            }
+
             Swal.fire({
               icon: "error",
               title: "Removal Failed",
-              text: error.message || "Failed to remove image",
+              text: errorMessage,
             });
           }
         }
@@ -1273,63 +1688,450 @@
         const profileForm = document.getElementById("profileForm");
         const fullNameInput = document.getElementById("fullName");
         const phoneInput = document.getElementById("phone");
-        const dateOfBirthInput = document.getElementById("dateOfBirth");
 
-        // Validation functions
+
+        // Enhanced validation functions
         function validateFullName(name) {
-          return name.trim().length >= 2 && /^[a-zA-Z\s]+$/.test(name.trim());
+          if (!name || typeof name !== 'string' || !name.trim()) {
+            return { isValid: false, message: "Full name is required" };
+          }
+
+          const trimmedName = name.trim();
+
+          // Maximum length validation
+          if (trimmedName.length > 50) {
+            return { isValid: false, message: "Full name cannot exceed 50 characters" };
+          }
+
+          // Enhanced character validation - include periods for titles
+          if (!/^[A-Za-z\s'.-]+$/.test(trimmedName)) {
+            return { isValid: false, message: "Name can only contain letters, spaces, hyphens, apostrophes, and periods" };
+          }
+
+          // Check for consecutive spaces
+          if (/\s{2,}/.test(trimmedName)) {
+            return { isValid: false, message: "Full name cannot have consecutive spaces" };
+          }
+
+          // Check for leading/trailing special characters
+          if (/^[\s'.-]+|[\s'.-]+$/.test(trimmedName)) {
+            return { isValid: false, message: "Full name cannot start or end with special characters" };
+          }
+
+          const nameWords = trimmedName.split(/\s+/).filter(word => word.length > 0);
+          if (nameWords.length < 2) {
+            return { isValid: false, message: "Please provide both first and last name" };
+          }
+
+          // Enhanced word validation with specific rules for first and last name
+          // First name must be at least 2 characters, last name can be 1 character (for initials)
+          const firstName = nameWords[0];
+          const lastName = nameWords[nameWords.length - 1];
+
+          if (firstName.length < 2) {
+            return { isValid: false, message: "First name must be at least 2 characters long" };
+          }
+
+          if (lastName.length < 1) {
+            return { isValid: false, message: "Last name must be at least 1 character long" };
+          }
+
+          // Check all words for maximum length
+          const hasValidLength = nameWords.every(word => word.length <= 20);
+          if (!hasValidLength) {
+            return { isValid: false, message: "Each name part cannot exceed 20 characters" };
+          }
+
+          // Middle names/initials (if any) can be 1-20 characters
+          for (let i = 1; i < nameWords.length - 1; i++) {
+            if (nameWords[i].length < 1 || nameWords[i].length > 20) {
+              return { isValid: false, message: "Middle names must be between 1-20 characters" };
+            }
+          }
+
+          // Check for repeated characters in a single word
+          for (const word of nameWords) {
+            if (/(.)\1{2,}/.test(word)) {
+              return { isValid: false, message: "Names cannot contain more than 2 consecutive identical characters" };
+            }
+          }
+
+          return { isValid: true, message: "Valid name" };
         }
 
         function validatePhone(phone) {
-          if (!phone.trim()) return true; // Optional field
-          return /^[\+]?[1-9][\d]{0,15}$/.test(phone.replace(/[\s\-\(\)]/g, ""));
+          if (!phone || !phone.trim()) {
+            return { isValid: false, message: "Phone number is required" }; // Mandatory field
+          }
+
+          const cleanPhone = phone.replace(/[\s\-\(\)]/g, "");
+
+          // Check for minimum length
+          if (cleanPhone.length < 10) {
+            return { isValid: false, message: "Phone number must be at least 10 digits" };
+          }
+
+          // Check for maximum length
+          if (cleanPhone.length > 15) {
+            return { isValid: false, message: "Phone number cannot exceed 15 digits" };
+          }
+
+          // Check for valid format (optional country code + digits)
+          if (!/^[\+]?[1-9][\d]{9,14}$/.test(cleanPhone)) {
+            return { isValid: false, message: "Please enter a valid phone number" };
+          }
+
+          // Check for repeated digits (like 1111111111)
+          if (/^(.)\1{9,}$/.test(cleanPhone.replace(/^\+/, ""))) {
+            return { isValid: false, message: "Phone number cannot have all identical digits" };
+          }
+
+          return { isValid: true, message: "" };
         }
 
-        function validateDateOfBirth(date) {
-          if (!date) return true; // Optional field
-          const birthDate = new Date(date);
-          const today = new Date();
-          const age = today.getFullYear() - birthDate.getFullYear();
-          return age >= 13 && age <= 120;
+        function validateEmail(email) {
+          if (!email || !email.trim()) {
+            return { isValid: false, message: "Email address is required" };
+          }
+
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(email)) {
+            return { isValid: false, message: "Please enter a valid email address" };
+          }
+
+          if (email.length > 254) {
+            return { isValid: false, message: "Email address is too long" };
+          }
+
+          return { isValid: true, message: "" };
         }
 
-        // Real-time validation
+        // Email is now handled through modal with dual OTP verification
+
+        // Real-time validation with enhanced feedback
         fullNameInput.addEventListener("input", function () {
           const fullNameError = document.getElementById("fullNameError");
-          const name = this.value.trim();
+          const name = this.value;
 
-          if (!name) {
+          if (!name || !name.trim()) {
             clearValidation(this, fullNameError);
-          } else if (!validateFullName(name)) {
-            setInvalid(this, fullNameError, "Please enter a valid full name (letters and spaces only, minimum 2 characters)");
           } else {
-            setValid(this, fullNameError);
+            const validation = validateFullName(name);
+            if (!validation.isValid) {
+              setInvalid(this, fullNameError, validation.message);
+            } else {
+              setValid(this, fullNameError);
+            }
+          }
+        });
+
+        // Also validate on blur to catch edge cases and require field
+        fullNameInput.addEventListener("blur", function () {
+          const fullNameError = document.getElementById("fullNameError");
+          const name = this.value;
+
+          if (!name || !name.trim()) {
+            setInvalid(this, fullNameError, "Full name is required");
+          } else {
+            const validation = validateFullName(name);
+            if (!validation.isValid) {
+              setInvalid(this, fullNameError, validation.message);
+            } else {
+              setValid(this, fullNameError);
+            }
           }
         });
 
         phoneInput.addEventListener("input", function () {
           const phoneError = document.getElementById("phoneError");
-          const phone = this.value.trim();
+          const phone = this.value;
 
-          if (!phone) {
-            clearValidation(this, phoneError);
-          } else if (!validatePhone(phone)) {
-            setInvalid(this, phoneError, "Please enter a valid phone number");
+          const validation = validatePhone(phone);
+          if (!validation.isValid) {
+            setInvalid(this, phoneError, validation.message);
           } else {
             setValid(this, phoneError);
           }
         });
 
-        dateOfBirthInput.addEventListener("change", function () {
-          const dateOfBirthError = document.getElementById("dateOfBirthError");
-          const date = this.value;
+        phoneInput.addEventListener("blur", function () {
+          const phoneError = document.getElementById("phoneError");
+          const phone = this.value;
 
-          if (!date) {
-            clearValidation(this, dateOfBirthError);
-          } else if (!validateDateOfBirth(date)) {
-            setInvalid(this, dateOfBirthError, "Please enter a valid date of birth (age must be between 13-120)");
+          const validation = validatePhone(phone);
+          if (!validation.isValid) {
+            setInvalid(this, phoneError, validation.message);
+          }
+        });
+
+        // Dual OTP Email Change System
+        const emailInput = document.getElementById("email");
+        const changeEmailBtn = document.getElementById("changeEmailBtn");
+        const emailChangeModal = new bootstrap.Modal(document.getElementById('emailChangeModal'));
+
+        // Modal elements
+        const newEmailInput = document.getElementById('newEmailInput');
+        const currentEmailOtp = document.getElementById('currentEmailOtp');
+        const newEmailDisplay = document.getElementById('newEmailDisplay');
+        const emailChangeProgress = document.getElementById('emailChangeProgress');
+
+        // Step elements
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const step3 = document.getElementById('step3');
+
+        // Button elements
+        const proceedToOtpBtn = document.getElementById('proceedToOtpBtn');
+        const verifyCurrentOtpBtn = document.getElementById('verifyCurrentOtpBtn');
+        const resendCurrentOtpBtn = document.getElementById('resendCurrentOtpBtn');
+
+        // Simplified state management
+        let currentStep = 1;
+        let newEmailAddress = '';
+
+        // Open email change modal
+        changeEmailBtn.addEventListener('click', function() {
+          resetEmailChangeModal();
+          emailChangeModal.show();
+        });
+
+        function resetEmailChangeModal() {
+          currentStep = 1;
+          newEmailAddress = '';
+
+          // Reset form
+          newEmailInput.value = '';
+          currentEmailOtp.value = '';
+
+          // Reset steps
+          step1.style.display = 'block';
+          step2.style.display = 'none';
+          step3.style.display = 'none';
+
+          // Reset progress
+          updateProgress(0);
+          updateProgressLabels(1);
+
+          // Clear errors
+          clearValidation(newEmailInput, document.getElementById('newEmailError'));
+          clearValidation(currentEmailOtp, document.getElementById('currentEmailOtpError'));
+        }
+
+        function updateProgress(percentage) {
+          emailChangeProgress.style.width = percentage + '%';
+        }
+
+        function updateProgressLabels(activeStep) {
+          const labels = document.querySelectorAll('.phoenix-progress-label');
+          labels.forEach((label, index) => {
+            if (index + 1 <= activeStep) {
+              label.classList.add('active');
+            } else {
+              label.classList.remove('active');
+            }
+          });
+        }
+
+        function showStep(stepNumber) {
+          // Hide all steps
+          step1.style.display = 'none';
+          step2.style.display = 'none';
+          step3.style.display = 'none';
+
+          // Show current step
+          document.getElementById('step' + stepNumber).style.display = 'block';
+          currentStep = stepNumber;
+
+          // Update progress (simplified: 0%, 50%, 100%)
+          const progressPercentage = stepNumber === 1 ? 0 : stepNumber === 2 ? 50 : 100;
+          updateProgress(progressPercentage);
+          updateProgressLabels(stepNumber);
+        }
+
+        // Step 1: Proceed to OTP verification
+        proceedToOtpBtn.addEventListener('click', async function() {
+          const newEmail = newEmailInput.value.trim();
+          const emailValidation = validateEmail(newEmail);
+
+          if (!emailValidation.isValid) {
+            setInvalid(newEmailInput, document.getElementById('newEmailError'), emailValidation.message);
+            return;
+          }
+
+          if (newEmail === '<%= user.email %>') {
+            setInvalid(newEmailInput, document.getElementById('newEmailError'), 'New email must be different from current email');
+            return;
+          }
+
+          try {
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
+
+            // Send OTP to current email
+            const response = await fetch('/profile/send-current-email-otp', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ newEmail: newEmail })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+              newEmailAddress = newEmail;
+              showStep(2);
+              updateProgress(25);
+              showNotification('OTP sent to your current email address', 'success');
+            } else {
+              setInvalid(newEmailInput, document.getElementById('newEmailError'), result.message);
+              showNotification(result.message, 'error');
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            showNotification('Failed to send OTP. Please try again.', 'error');
+          } finally {
+            this.disabled = false;
+            this.innerHTML = '<i class="ri-arrow-right-line"></i> Proceed to Verification';
+          }
+        });
+
+        // Step 2: Verify current email OTP and complete email change
+        verifyCurrentOtpBtn.addEventListener('click', async function() {
+          const otp = currentEmailOtp.value.trim();
+
+          if (!otp || otp.length !== 6) {
+            setInvalid(currentEmailOtp, document.getElementById('currentEmailOtpError'), 'Please enter a valid 6-digit OTP');
+            return;
+          }
+
+          try {
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Completing Email Change...';
+
+            const response = await fetch('/profile/verify-current-email-otp', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ otp: otp })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+              // Email change completed successfully
+              newEmailDisplay.textContent = result.newEmail || newEmailAddress;
+              showStep(3);
+              updateProgress(100);
+              showNotification('Email changed successfully!', 'success');
+
+              // Update the email field in the main form
+              emailInput.value = result.newEmail || newEmailAddress;
+
+              // Close modal after 3 seconds
+              setTimeout(() => {
+                emailChangeModal.hide();
+                // Refresh page to update all email references
+                window.location.reload();
+              }, 3000);
+            } else {
+              setInvalid(currentEmailOtp, document.getElementById('currentEmailOtpError'), result.message);
+              showNotification(result.message, 'error');
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            showNotification('Failed to verify OTP. Please try again.', 'error');
+          } finally {
+            this.disabled = false;
+            this.innerHTML = '<i class="ri-check-line"></i> Complete Email Change';
+          }
+        });
+
+        // Simplified email change - no Step 3 needed
+
+        // Resend OTP functionality
+        resendCurrentOtpBtn.addEventListener('click', async function() {
+          try {
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Sending...';
+
+            const response = await fetch('/profile/send-current-email-otp', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ newEmail: newEmailAddress })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+              showNotification('OTP resent to your current email', 'success');
+            } else {
+              showNotification(result.message, 'error');
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            showNotification('Failed to resend OTP', 'error');
+          } finally {
+            this.disabled = false;
+            this.innerHTML = '<i class="ri-refresh-line"></i> Resend OTP';
+          }
+        });
+
+        resendNewOtpBtn.addEventListener('click', async function() {
+          try {
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Sending...';
+
+            await sendOtpToNewEmail();
+            showNotification('OTP resent to your new email', 'success');
+          } catch (error) {
+            console.error('Error:', error);
+            showNotification('Failed to resend OTP', 'error');
+          } finally {
+            this.disabled = false;
+            this.innerHTML = '<i class="ri-refresh-line"></i> Resend OTP';
+          }
+        });
+
+        // OTP input validation and formatting
+        [currentEmailOtp, newEmailOtp].forEach(otpInput => {
+          otpInput.addEventListener('input', function() {
+            // Only allow numbers
+            this.value = this.value.replace(/[^0-9]/g, '');
+
+            // Limit to 6 digits
+            if (this.value.length > 6) {
+              this.value = this.value.slice(0, 6);
+            }
+
+            // Clear validation errors when user types
+            const errorElement = document.getElementById(this.id + 'Error');
+            if (this.value.length === 6) {
+              clearValidation(this, errorElement);
+            }
+          });
+
+          otpInput.addEventListener('keypress', function(e) {
+            // Only allow numbers
+            if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) {
+              e.preventDefault();
+            }
+          });
+        });
+
+        // Email input validation
+        newEmailInput.addEventListener('input', function() {
+          const emailError = document.getElementById('newEmailError');
+          const email = this.value.trim();
+
+          if (email) {
+            const validation = validateEmail(email);
+            if (!validation.isValid) {
+              setInvalid(this, emailError, validation.message);
+            } else if (email === '<%= user.email %>') {
+              setInvalid(this, emailError, 'New email must be different from current email');
+            } else {
+              setValid(this, emailError);
+            }
           } else {
-            setValid(this, dateOfBirthError);
+            clearValidation(this, emailError);
           }
         });
 
@@ -1343,20 +2145,21 @@
           // Validate all fields
           let isValid = true;
 
-          if (!validateFullName(data.fullName)) {
-            setInvalid(fullNameInput, document.getElementById("fullNameError"), "Please enter a valid full name");
+          // Enhanced full name validation
+          const nameValidation = validateFullName(data.fullName);
+          if (!nameValidation.isValid) {
+            setInvalid(fullNameInput, document.getElementById("fullNameError"), nameValidation.message);
             isValid = false;
           }
 
-          if (data.phone && !validatePhone(data.phone)) {
-            setInvalid(phoneInput, document.getElementById("phoneError"), "Please enter a valid phone number");
+          // Phone validation (now mandatory)
+          const phoneValidation = validatePhone(data.phone);
+          if (!phoneValidation.isValid) {
+            setInvalid(phoneInput, document.getElementById("phoneError"), phoneValidation.message);
             isValid = false;
           }
 
-          if (data.dateOfBirth && !validateDateOfBirth(data.dateOfBirth)) {
-            setInvalid(dateOfBirthInput, document.getElementById("dateOfBirthError"), "Please enter a valid date of birth");
-            isValid = false;
-          }
+          // Email is readonly and changed through modal, so no validation needed here
 
           if (!isValid) return;
 
@@ -1425,32 +2228,26 @@
             });
           });
 
-        // Password strength checker
-        const newPasswordInput = document.getElementById("phoenixNewPassword");
-        const passwordStrengthBar = document.querySelector(
-          ".phoenix-password-strength .progress-bar"
-        );
-        const passwordFeedback = document.querySelector(
-          ".phoenix-password-feedback"
-        );
-        const passwordStrength = document.querySelector(
-          ".phoenix-password-strength"
-        );
-
+        // Password functionality is handled in the account sidebar
         if (newPasswordInput) {
           newPasswordInput.addEventListener("input", function () {
             const password = this.value;
+            const newPasswordError = document.getElementById("phoenixNewPasswordError");
 
             if (password.length > 0) {
               passwordStrength.classList.remove("d-none");
+              if (passwordRequirements) {
+                passwordRequirements.classList.remove("d-none");
+              }
 
+              // Enhanced strength calculation
               let strength = 0;
               let feedback = "";
+              const validation = validatePassword(password);
 
-              if (password.length >= 8) strength += 25;
-              if (/[a-z]/.test(password)) strength += 25;
-              if (/[A-Z]/.test(password)) strength += 25;
-              if (/[0-9!@#$%^&*(),.?":{}|<>]/.test(password)) strength += 25;
+              // Calculate strength based on requirements met
+              const metRequirements = Object.values(validation.requirements).filter(req => req.met).length;
+              strength = (metRequirements / Object.keys(validation.requirements).length) * 100;
 
               passwordStrengthBar.style.width = strength + "%";
 
@@ -1466,17 +2263,149 @@
               }
 
               passwordFeedback.textContent = feedback;
+
+              // Update requirements display
+              if (passwordRequirements) {
+                Object.entries(validation.requirements).forEach(([key, requirement]) => {
+                  const requirementElement = passwordRequirements.querySelector(`[data-requirement="${key}"]`);
+                  if (requirementElement) {
+                    const icon = requirementElement.querySelector('i');
+                    if (requirement.met) {
+                      requirementElement.classList.add('met');
+                      icon.className = 'ri-check-circle-line text-success me-1';
+                    } else {
+                      requirementElement.classList.remove('met');
+                      icon.className = 'ri-close-circle-line text-danger me-1';
+                    }
+                  }
+                });
+              }
+
+              // Show inline validation only for serious errors
+              if (!validation.isValid && password.length >= 3) {
+                // Only show error after user has typed a few characters
+                setInvalid(this, newPasswordError, validation.message);
+              } else if (validation.isValid) {
+                setValid(this, newPasswordError);
+              } else {
+                clearValidation(this, newPasswordError);
+              }
             } else {
               passwordStrength.classList.add("d-none");
+              if (passwordRequirements) {
+                passwordRequirements.classList.add("d-none");
+              }
+              clearValidation(this, newPasswordError);
+            }
+          });
+
+          newPasswordInput.addEventListener("blur", function () {
+            const password = this.value;
+            const newPasswordError = document.getElementById("phoenixNewPasswordError");
+
+            if (password) {
+              const validation = validatePassword(password);
+              if (!validation.isValid) {
+                setInvalid(this, newPasswordError, validation.message);
+              }
             }
           });
         }
 
-        // Password validation
+        // Confirm password validation
+        if (confirmPasswordInput) {
+          confirmPasswordInput.addEventListener("input", function () {
+            const confirmPasswordError = document.getElementById("phoenixConfirmPasswordError");
+            const confirmPassword = this.value;
+            const newPassword = newPasswordInput ? newPasswordInput.value : '';
+
+            if (!confirmPassword.trim()) {
+              clearValidation(this, confirmPasswordError);
+            } else if (confirmPassword !== newPassword) {
+              setInvalid(this, confirmPasswordError, "Passwords do not match");
+            } else {
+              setValid(this, confirmPasswordError);
+            }
+          });
+
+          confirmPasswordInput.addEventListener("blur", function () {
+            const confirmPasswordError = document.getElementById("phoenixConfirmPasswordError");
+            const confirmPassword = this.value;
+            const newPassword = newPasswordInput ? newPasswordInput.value : '';
+
+            if (!confirmPassword.trim()) {
+              setInvalid(this, confirmPasswordError, "Please confirm your new password");
+            } else if (confirmPassword !== newPassword) {
+              setInvalid(this, confirmPasswordError, "Passwords do not match");
+            }
+          });
+        }
+
+        // Enhanced password validation function
         function validatePassword(password) {
-          return /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9!@#$%^&*(),.?":{}|<>]).{8,}$/.test(
-            password
-          );
+          const requirements = {
+            minLength: { met: false, description: 'At least 8 characters long' },
+            hasLowercase: { met: false, description: 'Contains lowercase letter (a-z)' },
+            hasUppercase: { met: false, description: 'Contains uppercase letter (A-Z)' },
+            hasNumber: { met: false, description: 'Contains at least one number (0-9)' },
+            hasSpecialChar: { met: false, description: 'Contains special character (!@#$%^&*(),.?":{}|<>)' },
+            noCommonPatterns: { met: true, description: 'Does not contain common patterns' }
+          };
+
+          if (!password) {
+            return {
+              isValid: false,
+              message: 'Password is required',
+              requirements: requirements
+            };
+          }
+
+          // Check minimum length
+          requirements.minLength.met = password.length >= 8;
+
+          // Check for lowercase
+          requirements.hasLowercase.met = /[a-z]/.test(password);
+
+          // Check for uppercase
+          requirements.hasUppercase.met = /[A-Z]/.test(password);
+
+          // Check for numbers
+          requirements.hasNumber.met = /[0-9]/.test(password);
+
+          // Check for special characters
+          requirements.hasSpecialChar.met = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+          // Check for common patterns
+          const commonPatterns = [
+            /123456/,
+            /password/i,
+            /qwerty/i,
+            /(.)\1{2,}/, // Three or more consecutive identical characters
+            /012345/,
+            /abcdef/i
+          ];
+
+          requirements.noCommonPatterns.met = !commonPatterns.some(pattern => pattern.test(password));
+
+          const allRequirementsMet = Object.values(requirements).every(req => req.met);
+
+          if (!allRequirementsMet) {
+            const unmetRequirements = Object.entries(requirements)
+              .filter(([key, req]) => !req.met)
+              .map(([key, req]) => req.description);
+
+            return {
+              isValid: false,
+              message: `Password requirements not met: ${unmetRequirements.join(', ')}`,
+              requirements: requirements
+            };
+          }
+
+          return {
+            isValid: true,
+            message: 'Password meets all requirements',
+            requirements: requirements
+          };
         }
 
         // Password form submission
@@ -1507,6 +2436,8 @@
 
             let isValid = true;
 
+            // Enhanced validation with specific error messages
+
             // Validate current password
             if (!currentPassword) {
               setInvalid(
@@ -1517,7 +2448,7 @@
               isValid = false;
             }
 
-            // Validate new password
+            // Validate new password with enhanced validation
             if (!newPassword) {
               setInvalid(
                 document.getElementById("phoenixNewPassword"),
@@ -1525,13 +2456,16 @@
                 "New password is required"
               );
               isValid = false;
-            } else if (!validatePassword(newPassword)) {
-              setInvalid(
-                document.getElementById("phoenixNewPassword"),
-                newPasswordError,
-                "Password must be at least 8 characters with uppercase, lowercase, and number/special character"
-              );
-              isValid = false;
+            } else {
+              const passwordValidation = validatePassword(newPassword);
+              if (!passwordValidation.isValid) {
+                setInvalid(
+                  document.getElementById("phoenixNewPassword"),
+                  newPasswordError,
+                  passwordValidation.message
+                );
+                isValid = false;
+              }
             }
 
             // Validate confirm password
@@ -1547,6 +2481,16 @@
                 document.getElementById("phoenixConfirmPassword"),
                 confirmPasswordError,
                 "Passwords do not match"
+              );
+              isValid = false;
+            }
+
+            // Additional check: ensure new password is different from current
+            if (currentPassword && newPassword && currentPassword === newPassword) {
+              setInvalid(
+                document.getElementById("phoenixNewPassword"),
+                newPasswordError,
+                "New password must be different from current password"
               );
               isValid = false;
             }

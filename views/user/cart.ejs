@@ -580,8 +580,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
   async function removeCartItem(productId, item) {
     try {
+      // Store scroll position
+      const scrollPosition = window.pageYOffset;
+
+      // Add loading state
       item.style.opacity = '0.5';
-      
+      item.style.pointerEvents = 'none';
+
+      // Add loading spinner to the item
+      const loadingSpinner = document.createElement('div');
+      loadingSpinner.className = 'loading-overlay';
+      loadingSpinner.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Removing...</span></div>';
+      loadingSpinner.style.cssText = `
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 10;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 10px;
+        border-radius: 5px;
+      `;
+      item.style.position = 'relative';
+      item.appendChild(loadingSpinner);
+
       const response = await fetch('/api/cart/remove', {
         method: 'DELETE',
         headers: {
@@ -591,26 +613,65 @@ document.addEventListener('DOMContentLoaded', function () {
         credentials: 'same-origin',
         body: JSON.stringify({ productId })
       });
-      
+
       if (!response.ok) {
         throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
       }
-      
+
       const result = await response.json();
 
       if (result.success) {
+        // Remove loading spinner
+        loadingSpinner.remove();
+
+        // Animate item removal
+        item.style.transition = 'all 0.3s ease-out';
         item.style.opacity = '0';
+        item.style.transform = 'translateX(-100%)';
+        item.style.height = '0';
+        item.style.marginBottom = '0';
+        item.style.paddingTop = '0';
+        item.style.paddingBottom = '0';
+
+        // Update cart count and totals without page reload
+        updateCartCount(result.cartCount);
+        updateCartTotals(result.totalAmount);
+
+        // Remove item from DOM after animation
         setTimeout(() => {
-          window.location.reload();
+          item.remove();
+
+          // Check if cart is empty and show empty state
+          const remainingItems = document.querySelectorAll('.cart-item');
+          if (remainingItems.length === 0) {
+            showEmptyCartState();
+          }
+
+          // Restore scroll position
+          window.scrollTo(0, scrollPosition);
         }, 300);
+
+        showNotification('success', 'Item removed from cart');
       } else {
+        // Remove loading spinner and restore item state
+        loadingSpinner.remove();
         item.style.opacity = '1';
+        item.style.pointerEvents = 'auto';
         showNotification('error', result.message || 'Failed to remove item');
       }
     } catch (error) {
       console.error('Remove item error:', error);
+
+      // Remove loading spinner if it exists
+      const loadingSpinner = item.querySelector('.loading-overlay');
+      if (loadingSpinner) {
+        loadingSpinner.remove();
+      }
+
+      // Restore item state
       item.style.opacity = '1';
-      showNotification('error', 'Error removing item');
+      item.style.pointerEvents = 'auto';
+      showNotification('error', 'Error removing item from cart');
     }
   }
 
@@ -649,6 +710,65 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cartCountElement) {
       cartCountElement.textContent = count;
       cartCountElement.dataset.count = count;
+    }
+
+    // Also update other cart count elements
+    const cartCountElements = document.querySelectorAll('.cart-count, .cart-badge');
+    cartCountElements.forEach(element => {
+      element.textContent = count;
+      if (count === 0) {
+        element.style.display = 'none';
+      } else {
+        element.style.display = 'inline-block';
+      }
+    });
+  }
+
+  function updateCartTotals(totalAmount) {
+    // Update subtotal
+    const subtotalElements = document.querySelectorAll('.subtotal-amount, .cart-subtotal');
+    subtotalElements.forEach(element => {
+      element.textContent = `₹${totalAmount.toLocaleString('en-IN')}`;
+    });
+
+    // Update total (including GST if applicable)
+    const gstRate = 0.18; // 18% GST
+    const gstAmount = totalAmount * gstRate;
+    const finalTotal = totalAmount + gstAmount;
+
+    const totalElements = document.querySelectorAll('.total-amount, .cart-total');
+    totalElements.forEach(element => {
+      element.textContent = `₹${finalTotal.toLocaleString('en-IN')}`;
+    });
+
+    // Update GST amount if element exists
+    const gstElements = document.querySelectorAll('.gst-amount');
+    gstElements.forEach(element => {
+      element.textContent = `₹${gstAmount.toLocaleString('en-IN')}`;
+    });
+  }
+
+  function showEmptyCartState() {
+    const cartContainer = document.querySelector('.cart-items-container, .cart-content');
+    if (cartContainer) {
+      cartContainer.innerHTML = `
+        <div class="empty-cart-state text-center py-5">
+          <div class="empty-cart-icon mb-3">
+            <i class="ri-shopping-cart-line" style="font-size: 4rem; color: #ccc;"></i>
+          </div>
+          <h3 class="mb-3">Your cart is empty</h3>
+          <p class="text-muted mb-4">Looks like you haven't added any items to your cart yet.</p>
+          <a href="/products" class="btn btn-primary">
+            <i class="ri-shopping-bag-line me-2"></i>Continue Shopping
+          </a>
+        </div>
+      `;
+    }
+
+    // Hide order summary
+    const orderSummary = document.querySelector('.order-summary, .cart-summary');
+    if (orderSummary) {
+      orderSummary.style.display = 'none';
     }
   }
 

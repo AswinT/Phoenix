@@ -53,14 +53,28 @@ const postAdminLogin = async (req, res) => {
 };
 const logoutAdminDashboard = async (req, res) => {
   try {
-    req.session.destroy((error) => {
-      if (error) {
-        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Logout Failed');
-      }
+    // Only clear admin-specific session data, not the entire session
+    // This prevents user sessions from being destroyed when admins log out
+    if (req.session.admin_id) {
+      delete req.session.admin_id;
+
+      // Save the session after clearing admin data
+      req.session.save((err) => {
+        if (err) {
+          console.error('Error saving session after admin logout:', err);
+          return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Logout Failed');
+        }
+
+        res.clearCookie('connect.sid');
+        res.redirect('/admin/auth/login');
+      });
+    } else {
+      // If no admin session exists, just redirect
       res.clearCookie('connect.sid');
       res.redirect('/admin/auth/login');
-    });
-  } catch {
+    }
+  } catch (error) {
+    console.error('Admin logout error:', error);
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Internal Server Error' });
   }
 };

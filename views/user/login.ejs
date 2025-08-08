@@ -439,6 +439,47 @@
             }
           }
         });
+
+        // Handle logout success/error messages
+        document.addEventListener('DOMContentLoaded', function() {
+          const urlParams = new URLSearchParams(window.location.search);
+          const message = urlParams.get('message');
+          const error = urlParams.get('error');
+
+          if (message === 'logged_out') {
+            Swal.fire({
+              icon: 'success',
+              title: 'Logged Out Successfully',
+              text: 'You have been successfully logged out.',
+              confirmButtonText: 'OK',
+              confirmButtonColor: '#28a745',
+              timer: 3000,
+              timerProgressBar: true
+            });
+            // Clean URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+          } else if (error === 'logout_partial') {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Logout Completed',
+              text: 'You have been logged out, but some session data may persist.',
+              confirmButtonText: 'OK',
+              confirmButtonColor: '#ffc107'
+            });
+            // Clean URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+          } else if (error === 'logout_error') {
+            Swal.fire({
+              icon: 'info',
+              title: 'Logout Completed',
+              text: 'You have been logged out due to a session error.',
+              confirmButtonText: 'OK',
+              confirmButtonColor: '#17a2b8'
+            });
+            // Clean URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+        });
     </script>
   </body>
 </html>

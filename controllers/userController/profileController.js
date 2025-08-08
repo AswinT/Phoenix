@@ -42,64 +42,63 @@ const updateProfile = async (req, res) => {
       });
     }
     const { fullName, phone } = req.body;
-    if (!fullName || fullName.trim().length < 3) {
+    // Use the enhanced full name validation from validator
+    const { validateProfileFullName } = require('../../validators/user/profileValidator');
+    const nameValidation = validateProfileFullName(fullName);
+
+    if (!nameValidation.isValid) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message: 'Full name must be at least 3 characters',
+        message: nameValidation.message,
+        field: 'fullName'
       });
     }
-    const nameWords = fullName.trim().split(/\s+/);
-    if (nameWords.length < 2) {
+
+    // Prepare update data with sanitized values
+    const updateData = {
+      fullName: nameValidation.sanitized,
+    };
+
+    // Handle phone number update (now mandatory)
+    if (!phone || !phone.trim()) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message: 'Please provide both first and last name',
+        message: 'Phone number is required',
+        field: 'phone'
       });
     }
-    if (!/^[A-Za-z\s'-]+$/.test(fullName.trim())) {
+
+    // Use the enhanced phone validation from validator
+    const { validateProfilePhone } = require('../../validators/user/profileValidator');
+    const phoneValidation = validateProfilePhone(phone);
+
+    if (!phoneValidation.isValid) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message: 'Full name contains invalid characters',
+        message: phoneValidation.message,
+        field: 'phone'
       });
     }
-    if (phone) {
-      const cleanPhone = phone.replace(/\D/g, '');
-      if (
-        cleanPhone.length !== 10 &&
-        (cleanPhone.length < 11 || cleanPhone.length > 15)
-      ) {
-        return res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message:
-            'Phone number must be 10 digits or include a valid country code',
-        });
-      }
-      if (
-        /^(.)\1+$/.test(cleanPhone) ||
-        /^0{10}$/.test(cleanPhone) ||
-        /^1{10}$/.test(cleanPhone)
-      ) {
-        return res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message: 'Invalid phone number format',
-        });
-      }
-      const existingPhone = await User.findOne({
-        phone: phone.trim(),
-        _id: { $ne: req.session.user_id },
+
+    // Check if phone number is already in use by another user
+    const existingPhone = await User.findOne({
+      phone: phoneValidation.sanitized,
+      _id: { $ne: req.session.user_id },
+    });
+
+    if (existingPhone) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'This phone number is already registered with another account',
+        field: 'phone'
       });
-      if (existingPhone) {
-        return res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message: 'Phone number already in use',
-        });
-      }
     }
+
+    updateData.phone = phoneValidation.sanitized;
+
     const updatedUser = await User.findByIdAndUpdate(
       req.session.user_id,
-      {
-        fullName: fullName.trim(),
-        phone: phone ? phone.trim() : undefined,
-      },
+      updateData,
       { new: true, runValidators: true }
     ).lean();
     if (!updatedUser) {
@@ -141,91 +140,193 @@ const uploadProfileImage = async (req, res) => {
     }
     upload.single('profileImage')(req, res, async (err) => {
       if (err) {
+        console.error('Multer upload error:', err);
+        let errorMessage = 'Failed to upload image';
+
+        // Provide specific error messages based on error type
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          errorMessage = 'File size too large. Please choose an image smaller than 5MB.';
+        } else if (err.message && err.message.includes('Images only')) {
+          errorMessage = 'Invalid file type. Please upload a JPEG, JPG, or PNG image.';
+        } else if (err.message) {
+          errorMessage = err.message;
+        }
+
         return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          message: err.message || 'Failed to upload image',
+          message: errorMessage,
+          errorType: 'UPLOAD_ERROR'
         });
       }
+
       if (!req.file) {
         return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          message: 'No image file provided',
+          message: 'No image file provided. Please select an image to upload.',
+          errorType: 'NO_FILE'
         });
       }
+
       const tempFilePath = path.join(
         __dirname,
-        '../../Uploads',
+        '../../uploads',
         req.file.filename
       );
+
+      // Verify file exists before attempting upload
+      if (!fs.existsSync(tempFilePath)) {
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: 'Uploaded file not found. Please try again.',
+          errorType: 'FILE_NOT_FOUND'
+        });
+      }
+
       let cloudinaryResult;
       try {
+        // Enhanced Cloudinary upload with better error handling
         cloudinaryResult = await cloudinary.uploader.upload(tempFilePath, {
           folder: 'profile_images',
           transformation: [
             { width: 300, height: 300, crop: 'fill', gravity: 'face' },
             { quality: 'auto', fetch_format: 'auto' },
           ],
+          resource_type: 'image',
+          timeout: 60000, // 60 second timeout
         });
+
+        // Verify upload was successful
+        if (!cloudinaryResult || !cloudinaryResult.secure_url) {
+          throw new Error('Cloudinary upload completed but no URL returned');
+        }
+
       } catch (uploadError) {
         console.error('Cloudinary upload error:', uploadError);
+
+        // Clean up temp file
         if (fs.existsSync(tempFilePath)) {
-          fs.unlinkSync(tempFilePath);
-        }
-        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-          success: false,
-          message: 'Failed to upload image to Cloudinary',
-        });
-      }
-      if (fs.existsSync(tempFilePath)) {
-        fs.unlinkSync(tempFilePath);
-      }
-      const user = await User.findById(req.session.user_id);
-      if (user.profileImage) {
-        const publicId = user.profileImage
-          .split('/')
-          .pop()
-          .split('.')[0]
-          .split('profile_images/')[1];
-        if (publicId) {
           try {
-            await cloudinary.uploader.destroy(`profile_images/${publicId}`);
-          } catch (deleteError) {
-            console.error(
-              'Error deleting previous Cloudinary image:',
-              deleteError
-            );
+            fs.unlinkSync(tempFilePath);
+          } catch (cleanupError) {
+            console.error('Error cleaning up temp file:', cleanupError);
           }
         }
+
+        // Provide specific error messages based on Cloudinary error
+        let errorMessage = 'Failed to upload image to cloud storage';
+        let errorType = 'CLOUDINARY_ERROR';
+
+        if (uploadError.message) {
+          if (uploadError.message.includes('timeout')) {
+            errorMessage = 'Upload timeout. Please check your internet connection and try again.';
+            errorType = 'TIMEOUT_ERROR';
+          } else if (uploadError.message.includes('Invalid image')) {
+            errorMessage = 'Invalid image format. Please upload a valid JPEG, JPG, or PNG image.';
+            errorType = 'INVALID_FORMAT';
+          } else if (uploadError.message.includes('File size')) {
+            errorMessage = 'Image file is too large. Please compress your image and try again.';
+            errorType = 'SIZE_ERROR';
+          } else if (uploadError.http_code === 401) {
+            errorMessage = 'Image upload service configuration error. Please contact support.';
+            errorType = 'CONFIG_ERROR';
+          }
+        }
+
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: errorMessage,
+          errorType: errorType,
+          details: process.env.NODE_ENV === 'development' ? uploadError.message : undefined
+        });
       }
-      const imageUrl = cloudinaryResult.secure_url;
-      const updatedUser = await User.findByIdAndUpdate(
-        req.session.user_id,
-        { profileImage: imageUrl },
-        { new: true }
-      ).lean();
-      if (!updatedUser) {
+      // Clean up temp file after successful upload
+      if (fs.existsSync(tempFilePath)) {
+        try {
+          fs.unlinkSync(tempFilePath);
+        } catch (cleanupError) {
+          console.error('Error cleaning up temp file after upload:', cleanupError);
+        }
+      }
+
+      // Get user and handle previous image deletion
+      const user = await User.findById(req.session.user_id);
+      if (!user) {
         return res.status(HttpStatus.NOT_FOUND).json({
           success: false,
           message: 'User not found',
+          errorType: 'USER_NOT_FOUND'
         });
       }
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: 'Profile image uploaded successfully',
-        profileImage: imageUrl,
-      });
+
+      // Delete previous profile image from Cloudinary if exists
+      if (user.profileImage) {
+        try {
+          // Extract public ID from Cloudinary URL
+          const urlParts = user.profileImage.split('/');
+          const publicIdWithExtension = urlParts[urlParts.length - 1];
+          const publicId = publicIdWithExtension.split('.')[0];
+
+          if (publicId && publicId !== 'default') {
+            await cloudinary.uploader.destroy(`profile_images/${publicId}`);
+          }
+        } catch (deleteError) {
+          console.error('Error deleting previous Cloudinary image:', deleteError);
+          // Don't fail the upload if we can't delete the old image
+        }
+      }
+
+      const imageUrl = cloudinaryResult.secure_url;
+
+      // Update user with new profile image
+      try {
+        const updatedUser = await User.findByIdAndUpdate(
+          req.session.user_id,
+          { profileImage: imageUrl },
+          { new: true }
+        ).lean();
+
+        if (!updatedUser) {
+          return res.status(HttpStatus.NOT_FOUND).json({
+            success: false,
+            message: 'User not found during update',
+            errorType: 'UPDATE_FAILED'
+          });
+        }
+
+        res.status(HttpStatus.OK).json({
+          success: true,
+          message: 'Profile image uploaded successfully',
+          profileImage: imageUrl,
+        });
+
+      } catch (updateError) {
+        console.error('Error updating user profile image:', updateError);
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: 'Failed to save profile image. Please try again.',
+          errorType: 'DATABASE_ERROR'
+        });
+      }
     });
   } catch (error) {
     console.error('Error uploading profile image:', error);
+
+    // Clean up temp file if it exists
     const tempFilePath = req.file
-      ? path.join(__dirname, '../../Uploads', req.file.filename)
+      ? path.join(__dirname, '../../uploads', req.file.filename)
       : null;
     if (tempFilePath && fs.existsSync(tempFilePath)) {
-      fs.unlinkSync(tempFilePath);
+      try {
+        fs.unlinkSync(tempFilePath);
+      } catch (cleanupError) {
+        console.error('Error cleaning up temp file in catch block:', cleanupError);
+      }
     }
+
     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: 'Failed to upload profile image',
+      message: 'An unexpected error occurred while uploading your profile image. Please try again.',
+      errorType: 'UNEXPECTED_ERROR'
     });
   }
 };
@@ -458,11 +559,517 @@ const resendEmailOtp = async (req, res) => {
     });
   }
 };
+
+const removeProfileImage = async (req, res) => {
+  try {
+    if (!req.session.user_id) {
+      return res.status(HttpStatus.UNAUTHORIZED).json({
+        success: false,
+        message: 'Please login to remove image',
+        errorType: 'UNAUTHORIZED'
+      });
+    }
+
+    // Get user to check if they have a profile image
+    const user = await User.findById(req.session.user_id);
+    if (!user) {
+      return res.status(HttpStatus.NOT_FOUND).json({
+        success: false,
+        message: 'User not found',
+        errorType: 'USER_NOT_FOUND'
+      });
+    }
+
+    // If user has a profile image, delete it from Cloudinary
+    if (user.profileImage) {
+      try {
+        // Extract public ID from Cloudinary URL
+        const urlParts = user.profileImage.split('/');
+        const publicIdWithExtension = urlParts[urlParts.length - 1];
+        const publicId = publicIdWithExtension.split('.')[0];
+
+        if (publicId && publicId !== 'default') {
+          await cloudinary.uploader.destroy(`profile_images/${publicId}`);
+        }
+      } catch (deleteError) {
+        console.error('Error deleting Cloudinary image:', deleteError);
+        // Continue with database update even if Cloudinary deletion fails
+      }
+    }
+
+    // Remove profile image from user record
+    const updatedUser = await User.findByIdAndUpdate(
+      req.session.user_id,
+      { $unset: { profileImage: 1 } },
+      { new: true }
+    ).lean();
+
+    if (!updatedUser) {
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Failed to remove profile image',
+        errorType: 'UPDATE_FAILED'
+      });
+    }
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Profile image removed successfully',
+    });
+
+  } catch (error) {
+    console.error('Error removing profile image:', error);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'An unexpected error occurred while removing your profile image. Please try again.',
+      errorType: 'UNEXPECTED_ERROR'
+    });
+  }
+};
+
+// Send OTP for email change
+const sendEmailOtp = async (req, res) => {
+  try {
+    const { newEmail } = req.body;
+    const userId = req.session.user_id;
+
+    if (!newEmail || !newEmail.trim()) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'New email address is required'
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newEmail)) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'Please enter a valid email address'
+      });
+    }
+
+    // Check if email is already in use
+    const existingUser = await User.findOne({
+      email: newEmail.toLowerCase(),
+      _id: { $ne: userId }
+    });
+
+    if (existingUser) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'This email address is already registered with another account'
+      });
+    }
+
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    // Store OTP in session
+    req.session.emailChangeOtp = {
+      otp: otp,
+      newEmail: newEmail.toLowerCase(),
+      expiry: otpExpiry,
+      userId: userId
+    };
+
+    // Send OTP email using enhanced email service
+    try {
+      await sendOtpEmail(newEmail, req.session.user.fullName || 'User', otp, 'Phoenix - Email Change Verification', 'email-update');
+      console.log(`✅ Email change OTP sent successfully to: ${newEmail}`);
+    } catch (emailError) {
+      console.log(`❌ Failed to send email change OTP: ${emailError.message}`);
+
+      // In development mode, continue without sending email
+      if (process.env.NODE_ENV === 'development') {
+        console.log("Development mode: Continuing without sending email");
+        console.log(`Development OTP for ${newEmail} : ${otp}`);
+      } else {
+        // In production, fail the email change if email can't be sent
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: 'Failed to send verification email. Please try again later.',
+        });
+      }
+    }
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'OTP sent to your new email address'
+    });
+
+  } catch (error) {
+    console.error('Error sending email OTP:', error);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to send OTP. Please try again.'
+    });
+  }
+};
+
+// Verify OTP for email change
+const verifyEmailOtpNew = async (req, res) => {
+  try {
+    const { newEmail, otp } = req.body;
+    const userId = req.session.user_id;
+
+    if (!newEmail || !otp) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'Email and OTP are required'
+      });
+    }
+
+    // Check if OTP exists in session
+    const storedOtpData = req.session.emailChangeOtp;
+    if (!storedOtpData) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'No OTP found. Please request a new OTP.'
+      });
+    }
+
+    // Verify OTP details
+    if (storedOtpData.userId !== userId ||
+        storedOtpData.newEmail !== newEmail.toLowerCase() ||
+        storedOtpData.otp !== otp.trim()) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'Invalid OTP. Please check and try again.'
+      });
+    }
+
+    // Check if OTP has expired
+    if (new Date() > new Date(storedOtpData.expiry)) {
+      delete req.session.emailChangeOtp;
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'OTP has expired. Please request a new OTP.'
+      });
+    }
+
+    // Update user's email
+    await User.findByIdAndUpdate(userId, {
+      email: newEmail.toLowerCase()
+    });
+
+    // Clear OTP from session
+    delete req.session.emailChangeOtp;
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Email address updated successfully'
+    });
+
+  } catch (error) {
+    console.error('Error verifying email OTP:', error);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to verify OTP. Please try again.'
+    });
+  }
+};
+
+// Dual OTP Email Change System
+
+// Simplified email change - Send OTP to current email for verification
+const sendCurrentEmailOtp = async (req, res) => {
+  try {
+    const { newEmail } = req.body;
+    const userId = req.session.user_id;
+
+    if (!newEmail || !newEmail.trim()) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'New email address is required'
+      });
+    }
+
+    // Validate new email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newEmail)) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'Please enter a valid email address'
+      });
+    }
+
+    // Get current user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(HttpStatus.NOT_FOUND).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Check if new email is already in use
+    const existingUser = await User.findOne({
+      email: newEmail.toLowerCase(),
+      _id: { $ne: userId }
+    });
+
+    if (existingUser) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'This email address is already registered with another account'
+      });
+    }
+
+    // Generate 6-digit OTP for current email verification
+    const currentEmailOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    // Store simplified OTP data in session (only current email verification needed)
+    req.session.simplifiedEmailChange = {
+      currentEmailOtp: currentEmailOtp,
+      newEmail: newEmail.toLowerCase(),
+      expiry: otpExpiry,
+      userId: userId
+    };
+
+    // Send OTP to current email using enhanced email service
+    try {
+      await sendOtpEmail(user.email, user.fullName || 'User', currentEmailOtp, 'Phoenix - Email Change Verification', 'email-update');
+      console.log(`✅ Current email OTP sent successfully to: ${user.email}`);
+    } catch (emailError) {
+      console.log(`❌ Failed to send current email OTP: ${emailError.message}`);
+
+      // In development mode, continue without sending email
+      if (process.env.NODE_ENV === 'development') {
+        console.log("Development mode: Continuing without sending email");
+        console.log(`Development OTP for ${user.email} : ${currentEmailOtp}`);
+      } else {
+        // In production, fail the email change if email can't be sent
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: 'Failed to send verification email. Please try again later.',
+        });
+      }
+    }
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'OTP sent to your current email address for verification'
+    });
+
+  } catch (error) {
+    console.error('Error sending current email OTP:', error);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to send OTP. Please try again.'
+    });
+  }
+};
+
+// Simplified email change - Verify current email OTP and complete email change
+const verifyCurrentEmailOtp = async (req, res) => {
+  try {
+    const { otp } = req.body;
+    const userId = req.session.user_id;
+
+    if (!otp) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'OTP is required'
+      });
+    }
+
+    // Check if OTP data exists in session
+    const otpData = req.session.simplifiedEmailChange;
+    if (!otpData) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'No OTP found. Please start the email change process again.'
+      });
+    }
+
+    // Verify OTP details
+    if (otpData.userId !== userId ||
+        otpData.currentEmailOtp !== otp.trim()) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'Invalid OTP. Please check and try again.'
+      });
+    }
+
+    // Check if OTP has expired
+    if (new Date() > new Date(otpData.expiry)) {
+      delete req.session.simplifiedEmailChange;
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'OTP has expired. Please start the process again.'
+      });
+    }
+
+    // Update user's email in database (simplified - no new email verification needed)
+    await User.findByIdAndUpdate(userId, {
+      email: otpData.newEmail
+    });
+
+    // Update session email
+    req.session.user_email = otpData.newEmail;
+
+    // Clear OTP data from session
+    delete req.session.simplifiedEmailChange;
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Email address updated successfully',
+      newEmail: otpData.newEmail
+    });
+
+  } catch (error) {
+    console.error('Error verifying current email OTP:', error);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to verify OTP. Please try again.'
+    });
+  }
+};
+
+// Send OTP to new email for verification
+const sendNewEmailOtp = async (req, res) => {
+  try {
+    const { newEmail } = req.body;
+    const userId = req.session.user_id;
+
+    // Check if current email is verified first
+    const otpData = req.session.dualEmailOtp;
+    if (!otpData || !otpData.currentEmailVerified) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'Please verify your current email first'
+      });
+    }
+
+    if (otpData.newEmail !== newEmail.toLowerCase()) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'Email mismatch. Please start the process again.'
+      });
+    }
+
+    // Generate 6-digit OTP for new email
+    const newEmailOtp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Update session with new email OTP
+    req.session.dualEmailOtp.newEmailOtp = newEmailOtp;
+
+    // Send OTP to new email using enhanced email service
+    try {
+      await sendOtpEmail(newEmail, req.session.user.fullName || 'User', newEmailOtp, 'Phoenix - Email Change Verification (New Email)', 'email-update');
+      console.log(`✅ New email OTP sent successfully to: ${newEmail}`);
+    } catch (emailError) {
+      console.log(`❌ Failed to send new email OTP: ${emailError.message}`);
+
+      // In development mode, continue without sending email
+      if (process.env.NODE_ENV === 'development') {
+        console.log("Development mode: Continuing without sending email");
+        console.log(`Development OTP for ${newEmail} : ${newEmailOtp}`);
+      } else {
+        // In production, fail the email change if email can't be sent
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: 'Failed to send verification email. Please try again later.',
+        });
+      }
+    }
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'OTP sent to your new email address'
+    });
+
+  } catch (error) {
+    console.error('Error sending new email OTP:', error);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to send OTP. Please try again.'
+    });
+  }
+};
+
+// Verify new email OTP and complete email change
+const verifyNewEmailOtp = async (req, res) => {
+  try {
+    const { newEmail, otp } = req.body;
+    const userId = req.session.user_id;
+
+    if (!newEmail || !otp) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'Email and OTP are required'
+      });
+    }
+
+    // Check if OTP data exists in session
+    const otpData = req.session.dualEmailOtp;
+    if (!otpData) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'No OTP found. Please start the email change process again.'
+      });
+    }
+
+    // Verify all conditions
+    if (otpData.userId !== userId ||
+        otpData.newEmail !== newEmail.toLowerCase() ||
+        otpData.newEmailOtp !== otp.trim() ||
+        !otpData.currentEmailVerified) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'Invalid OTP or verification incomplete. Please check and try again.'
+      });
+    }
+
+    // Check if OTP has expired
+    if (new Date() > new Date(otpData.expiry)) {
+      delete req.session.dualEmailOtp;
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'OTP has expired. Please start the process again.'
+      });
+    }
+
+    // Update user's email in database
+    await User.findByIdAndUpdate(userId, {
+      email: newEmail.toLowerCase()
+    });
+
+    // Update session email
+    req.session.user_email = newEmail.toLowerCase();
+
+    // Clear OTP data from session
+    delete req.session.dualEmailOtp;
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Email address updated successfully'
+    });
+
+  } catch (error) {
+    console.error('Error verifying new email OTP:', error);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to verify OTP. Please try again.'
+    });
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
   uploadProfileImage,
+  removeProfileImage,
   requestEmailUpdate,
   verifyEmailOtp,
   resendEmailOtp,
+  sendEmailOtp,
+  verifyEmailOtpNew,
+  sendCurrentEmailOtp,
+  verifyCurrentEmailOtp,
+  sendNewEmailOtp,
+  verifyNewEmailOtp,
 };

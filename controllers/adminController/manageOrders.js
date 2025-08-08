@@ -764,295 +764,313 @@ const downloadInvoice = async (req, res) => {
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     doc.pipe(res);
     const colors = {
-      primary: '#2563EB',
-      secondary: '#6B7280',
-      dark: '#111827',
-      light: '#F8FAFC',
-      success: '#059669',
+      primary: '#000000',
+      secondary: '#666666',
+      dark: '#000000',
+      light: '#FFFFFF',
+      success: '#155724',
       danger: '#DC2626',
-      border: '#E5E7EB',
-      accent: '#7C3AED'
+      border: '#E0E0E0',
+      accent: '#000000'
     };
     const pageWidth = doc.page.width;
     const contentWidth = pageWidth - 100;
     const leftMargin = 50;
     const rightMargin = pageWidth - 50;
-    try {
-      doc.image(path.join(__dirname, '../../public/assets/phoenix-logo.png'), leftMargin, 50, { width: 50 });
-    } catch {
-    }
+    // Company branding (no logo, just text like web view)
     doc.font('Helvetica-Bold')
       .fontSize(28)
       .fillColor(colors.primary)
-      .text('PHOENIX', leftMargin + 70, 50);
-    doc.font('Helvetica-Oblique')
+      .text('Phoenix', leftMargin, 50);
+
+    doc.font('Helvetica')
       .fontSize(11)
       .fillColor(colors.secondary)
-      .text('Premium Headphone Experience', leftMargin + 70, 82);
+      .text('Premium Headphone Experience', leftMargin, 82);
+
     doc.font('Helvetica')
       .fontSize(9)
       .fillColor(colors.secondary)
-      .text('Email: support@phoenix.com | Phone: +91 1234567890', leftMargin + 70, 98)
-      .text('Website: www.phoenix.com', leftMargin + 70, 110);
+      .text('Email: support@phoenix.com | Phone: +91 1234567890', leftMargin, 98)
+      .text('Website: www.phoenix.com', leftMargin, 110);
+
+    // Clean line separator
     doc.strokeColor(colors.primary)
       .lineWidth(2)
-      .moveTo(leftMargin + 70, 125)
-      .lineTo(leftMargin + 250, 125)
+      .moveTo(leftMargin, 125)
+      .lineTo(pageWidth - 50, 125)
       .stroke();
-    const invoiceBoxX = rightMargin - 180;
+    // Invoice title (right-aligned like web view)
+    const invoiceBoxX = rightMargin - 150;
     const invoiceBoxY = 50;
-    const invoiceBoxWidth = 170;
-    const invoiceBoxHeight = 100;
-    doc.fillColor(colors.light)
-      .rect(invoiceBoxX, invoiceBoxY, invoiceBoxWidth, invoiceBoxHeight)
-      .fill();
+
+    doc.font('Helvetica-Bold')
+      .fontSize(24)
+      .fillColor(colors.primary)
+      .text('INVOICE', invoiceBoxX, invoiceBoxY, { align: 'right', width: 150 });
+    // Invoice number below title
+    doc.font('Helvetica')
+      .fontSize(12)
+      .fillColor(colors.secondary)
+      .text(`Invoice #${order.orderNumber}`, invoiceBoxX, invoiceBoxY + 30, { align: 'right', width: 150 });
+
+    // Invoice Details Section (like web view)
+    const detailsStartY = 160;
+    const leftColumnX = leftMargin;
+    const rightColumnX = leftMargin + (contentWidth / 2) + 20;
+
+    // Bill To section
+    doc.font('Helvetica-Bold')
+      .fontSize(12)
+      .fillColor(colors.primary)
+      .text('BILL TO', leftColumnX, detailsStartY);
+
+    let currentY = detailsStartY + 20;
+    doc.font('Helvetica')
+      .fontSize(10)
+      .fillColor(colors.secondary)
+      .text('Name:', leftColumnX, currentY, { continued: true })
+      .fillColor(colors.dark)
+      .text(` ${order.shippingAddress.fullName || 'N/A'}`);
+
+    currentY += 15;
+    doc.fillColor(colors.secondary)
+      .text('Email:', leftColumnX, currentY, { continued: true })
+      .fillColor(colors.dark)
+      .text(` ${user.email || ''}`);
+
+    currentY += 15;
+    doc.fillColor(colors.secondary)
+      .text('Address:', leftColumnX, currentY);
+
+    currentY += 15;
+    const addressLines = [];
+    if (order.shippingAddress.street) addressLines.push(order.shippingAddress.street);
+    if (order.shippingAddress.landmark) addressLines.push(order.shippingAddress.landmark);
+    if (order.shippingAddress.city || order.shippingAddress.state || order.shippingAddress.pinCode) {
+      addressLines.push(`${order.shippingAddress.city || ''}, ${order.shippingAddress.state || ''} ${order.shippingAddress.pinCode || ''}`);
+    }
+    if (order.shippingAddress.country) addressLines.push(order.shippingAddress.country);
+
+    addressLines.forEach(line => {
+      doc.fillColor(colors.dark)
+        .text(line, leftColumnX + 10, currentY);
+      currentY += 12;
+    });
+
+    // Invoice Details section (right column)
+    doc.font('Helvetica-Bold')
+      .fontSize(12)
+      .fillColor(colors.primary)
+      .text('INVOICE DETAILS', rightColumnX, detailsStartY);
+
+    currentY = detailsStartY + 20;
+    doc.font('Helvetica')
+      .fontSize(10)
+      .fillColor(colors.secondary)
+      .text('Date:', rightColumnX, currentY, { continued: true })
+      .fillColor(colors.dark)
+      .text(` ${order.formattedDate}`);
+
+    currentY += 15;
+    doc.fillColor(colors.secondary)
+      .text('Payment Status:', rightColumnX, currentY, { continued: true });
+
+    const statusColor = order.paymentStatus === 'Paid' || order.orderStatus === 'Delivered' ? colors.success : colors.secondary;
+    doc.fillColor(statusColor)
+      .text(` ${order.paymentStatus || 'Pending'}`);
+
+    if (order.orderStatus) {
+      currentY += 15;
+      doc.fillColor(colors.secondary)
+        .text('Order Status:', rightColumnX, currentY, { continued: true })
+        .fillColor(colors.dark)
+        .text(` ${order.orderStatus}`);
+    }
+
+    currentY += 15;
+    doc.fillColor(colors.secondary)
+      .text('Payment Method:', rightColumnX, currentY, { continued: true })
+      .fillColor(colors.dark)
+      .text(` ${order.paymentMethod === 'COD' ? 'Cash on Delivery' :
+              order.paymentMethod === 'Razorpay' ? 'Online Payment' :
+              order.paymentMethod || 'Cash on Delivery'}`);
+    // Table starts after the details section
+    const tableTop = Math.max(currentY + 30, 300);
+    // Add border around table like web view
     doc.strokeColor(colors.primary)
-      .lineWidth(2)
-      .rect(invoiceBoxX, invoiceBoxY, invoiceBoxWidth, invoiceBoxHeight)
-      .stroke();
-    doc.font('Helvetica-Bold')
-      .fontSize(26)
-      .fillColor(colors.primary)
-      .text('INVOICE', invoiceBoxX + 10, invoiceBoxY + 15, { align: 'center', width: invoiceBoxWidth - 20 });
-    const detailsStartY = invoiceBoxY + 40;
-    const lineHeight = 18;
-    doc.fontSize(9)
-      .font('Helvetica')
-      .fillColor(colors.secondary)
-      .text('Invoice Number: ', invoiceBoxX + 10, detailsStartY, { continued: true })
-      .font('Helvetica-Bold')
-      .fillColor(colors.dark)
-      .text(`#${order.orderNumber}`);
-    doc.font('Helvetica')
-      .fontSize(9)
-      .fillColor(colors.secondary)
-      .text('Date: ', invoiceBoxX + 10, detailsStartY + lineHeight, { continued: true })
-      .font('Helvetica-Bold')
-      .fillColor(colors.dark)
-      .text(`${order.formattedDate}`);
-    const orderStatusColor = order.orderStatus === 'Delivered' ? colors.success :
-      order.orderStatus === 'Returned' ? colors.danger :
-        order.orderStatus === 'Cancelled' ? colors.danger : colors.primary;
-    doc.font('Helvetica')
-      .fontSize(9)
-      .fillColor(colors.secondary)
-      .text('Status: ', invoiceBoxX + 10, detailsStartY + (lineHeight * 2), { continued: true })
-      .font('Helvetica-Bold')
-      .fillColor(orderStatusColor)
-      .text(`${order.orderStatus}`);
-    doc.strokeColor(colors.border)
       .lineWidth(1)
-      .moveTo(leftMargin, 160)
-      .lineTo(rightMargin, 160)
+      .rect(leftMargin, tableTop, contentWidth, 25)
       .stroke();
-    const billingStartY = 180;
-    const billingBoxWidth = 250;
-    const billingBoxHeight = 120;
-    doc.fillColor('#FAFBFC')
-      .rect(leftMargin, billingStartY, billingBoxWidth, billingBoxHeight)
-      .fill();
-    doc.strokeColor(colors.border)
-      .lineWidth(1)
-      .rect(leftMargin, billingStartY, billingBoxWidth, billingBoxHeight)
-      .stroke();
-    doc.font('Helvetica-Bold')
-      .fontSize(14)
-      .fillColor(colors.primary)
-      .text('BILL TO', leftMargin + 10, billingStartY + 10);
-    doc.font('Helvetica-Bold')
-      .fontSize(11)
-      .fillColor(colors.dark)
-      .text(order.shippingAddress.fullName || user.fullName || 'N/A', leftMargin + 10, billingStartY + 30);
-    doc.font('Helvetica')
-      .fontSize(10)
-      .fillColor(colors.dark)
-      .text(order.shippingAddress.street || '', leftMargin + 10, billingStartY + 45)
-      .text(`${order.shippingAddress.district || ''}, ${order.shippingAddress.state || ''} - ${order.shippingAddress.pincode || ''}`, leftMargin + 10, billingStartY + 60)
-      .text(`Phone: ${order.shippingAddress.phone || 'N/A'}`, leftMargin + 10, billingStartY + 75)
-      .text(`Email: ${user.email || 'N/A'}`, leftMargin + 10, billingStartY + 90);
-    const paymentBoxX = rightMargin - 200;
-    const paymentBoxWidth = 190;
-    const paymentBoxHeight = 80;
-    doc.fillColor('#F0F9FF')
-      .rect(paymentBoxX, billingStartY, paymentBoxWidth, paymentBoxHeight)
-      .fill();
-    doc.strokeColor(colors.primary)
-      .lineWidth(1)
-      .rect(paymentBoxX, billingStartY, paymentBoxWidth, paymentBoxHeight)
-      .stroke();
-    doc.font('Helvetica-Bold')
-      .fontSize(14)
-      .fillColor(colors.primary)
-      .text('PAYMENT DETAILS', paymentBoxX + 10, billingStartY + 10);
-    doc.font('Helvetica')
-      .fontSize(10)
-      .fillColor(colors.secondary)
-      .text('Method:', paymentBoxX + 10, billingStartY + 35)
-      .font('Helvetica-Bold')
-      .fillColor(colors.dark)
-      .text(`${order.paymentMethod || 'Cash on Delivery'}`, paymentBoxX + 10, billingStartY + 50);
-    doc.font('Helvetica')
-      .fontSize(10)
-      .fillColor(colors.secondary)
-      .text('Status:', paymentBoxX + 100, billingStartY + 35);
-    const paymentStatusColor = order.paymentStatus === 'Paid' ? colors.success :
-      order.paymentStatus === 'Pending' ? '#F59E0B' : colors.danger;
-    doc.font('Helvetica-Bold')
-      .fillColor(paymentStatusColor)
-      .text(`${order.paymentStatus || 'Pending'}`, paymentBoxX + 100, billingStartY + 50);
-    doc.strokeColor(colors.border)
-      .lineWidth(1)
-      .moveTo(leftMargin, billingStartY + 140)
-      .lineTo(rightMargin, billingStartY + 140)
-      .stroke();
-    const tableTop = billingStartY + 160;
-    const tableHeaders = ['Headphone', 'Price', 'Quantity', 'Discount', 'Total'];
-    const colWidths = [0.40, 0.15, 0.15, 0.15, 0.15];
+    const tableHeaders = ['Product', 'Qty', 'Unit Price', 'Total'];
+    const colWidths = [0.50, 0.15, 0.20, 0.15];
     const colPositions = [];
     let currentPosition = leftMargin;
     colWidths.forEach(width => {
       colPositions.push(currentPosition);
       currentPosition += width * contentWidth;
     });
-    doc.fillColor(colors.light)
+
+    // Black header background (matching web view)
+    doc.fillColor(colors.primary)
       .rect(leftMargin, tableTop, contentWidth, 25)
       .fill();
+
+    // White text on black background
     doc.font('Helvetica-Bold')
       .fontSize(10)
-      .fillColor(colors.dark);
-    tableHeaders.forEach((header, i) => {
-      const align = i === 0 ? 'left' : 'right';
-      const x = colPositions[i];
-      const width = colWidths[i] * contentWidth;
-      doc.text(header, x + 5, tableTop + 8, { width: width - 10, align });
-    });
+      .fillColor(colors.light);
+
+    // Product header (left-aligned)
+    doc.text(tableHeaders[0], colPositions[0] + 5, tableTop + 8, { width: colWidths[0] * contentWidth - 10, align: 'left' });
+
+    // Qty header (center-aligned)
+    doc.text(tableHeaders[1], colPositions[1] + 5, tableTop + 8, { width: colWidths[1] * contentWidth - 10, align: 'center' });
+
+    // Unit Price header (right-aligned)
+    doc.text(tableHeaders[2], colPositions[2] + 5, tableTop + 8, { width: colWidths[2] * contentWidth - 10, align: 'right' });
+
+    // Total header (right-aligned)
+    doc.text(tableHeaders[3], colPositions[3] + 5, tableTop + 8, { width: colWidths[3] * contentWidth - 10, align: 'right' });
     let y = tableTop + 25;
     order.items.forEach((item, index) => {
+      // Clean alternating row colors
       if (index % 2 === 1) {
-        doc.fillColor('#F9FAFB')
-          .rect(leftMargin, y, contentWidth, 35)
+        doc.fillColor('#F8F9FA')
+          .rect(leftMargin, y, contentWidth, 40)
           .fill();
       }
+
       doc.fillColor(colors.dark)
         .font('Helvetica')
         .fontSize(10);
+
+      // Product name and details
       let itemTitle = item.model || item.title || 'Unknown Product';
       if (item.status !== 'Active') {
         itemTitle += ` (${item.status})`;
       }
-      doc.text(itemTitle, colPositions[0] + 5, y + 5, {
+      doc.text(itemTitle, colPositions[0] + 5, y + 8, {
         width: colWidths[0] * contentWidth - 10,
         align: 'left'
       });
-      if (item.offerTitle) {
-        doc.fillColor(colors.success)
-          .fontSize(8)
-          .text(item.offerTitle, colPositions[0] + 5, y + 20, {
-            width: colWidths[0] * contentWidth - 10,
-            align: 'left'
-          });
+
+      // Product details (brand, type, etc.)
+      if (item.brand || item.connectivity) {
+        doc.fillColor(colors.secondary)
+          .fontSize(8);
+        let details = [];
+        if (item.brand) details.push(`Brand: ${item.brand}`);
+        if (item.connectivity) details.push(`Type: ${item.connectivity}`);
+        doc.text(details.join(' | '), colPositions[0] + 5, y + 22, {
+          width: colWidths[0] * contentWidth - 10,
+          align: 'left'
+        });
       }
+
+      // Quantity
       doc.fillColor(colors.dark)
         .fontSize(10)
-        .text(`₹${item.price.toFixed(2)}`, colPositions[1] + 5, y + 12, {
+        .text(item.quantity.toString(), colPositions[1] + 5, y + 15, {
           width: colWidths[1] * contentWidth - 10,
-          align: 'right'
+          align: 'center'
         });
-      doc.text(item.quantity.toString(), colPositions[2] + 5, y + 12, {
+
+      // Unit Price (after discounts)
+      const unitPrice = item.discountedPrice || item.price;
+      doc.text(`₹${unitPrice.toFixed(2)}`, colPositions[2] + 5, y + 15, {
         width: colWidths[2] * contentWidth - 10,
-        align: 'right'
+        align: 'center'
       });
-      const itemDiscount = (item.offerDiscount || 0) * item.quantity;
-      doc.fillColor(colors.success)
-        .text(`₹${itemDiscount.toFixed(2)}`, colPositions[3] + 5, y + 12, {
+
+      // Total
+      const itemTotal = unitPrice * item.quantity;
+      doc.font('Helvetica-Bold')
+        .text(`₹${itemTotal.toFixed(2)}`, colPositions[3] + 5, y + 15, {
           width: colWidths[3] * contentWidth - 10,
-          align: 'right'
+          align: 'center'
         });
-      const itemTotal = (item.discountedPrice || item.price) * item.quantity;
-      doc.fillColor(colors.dark)
-        .text(`₹${itemTotal.toFixed(2)}`, colPositions[4] + 5, y + 12, {
-          width: colWidths[4] * contentWidth - 10,
-          align: 'right'
-        });
-      y += 35;
+
+      y += 40;
     });
-    doc.strokeColor(colors.border)
+
+    // Add table border like web view
+    doc.strokeColor(colors.primary)
       .lineWidth(1)
       .rect(leftMargin, tableTop, contentWidth, y - tableTop)
       .stroke();
-    let lineY = tableTop + 25;
-    for (let i = 0; i < order.items.length; i++) {
-      doc.moveTo(leftMargin, lineY)
-        .lineTo(rightMargin, lineY)
-        .stroke();
-      lineY += 35;
-    }
-    colPositions.forEach((x, i) => {
-      if (i === 0) return;
-      doc.moveTo(x, tableTop)
-        .lineTo(x, y)
-        .stroke();
-    });
-    const summaryStartY = y + 20;
-    const summaryWidth = 200;
+    // Summary section (matching web view)
+    const summaryStartY = y + 30;
+    const summaryWidth = 250;
     const summaryX = rightMargin - summaryWidth;
+
+    let summaryCurrentY = summaryStartY;
+
+    // Subtotal
     doc.font('Helvetica')
       .fontSize(10)
       .fillColor(colors.secondary)
-      .text('Subtotal:', summaryX, summaryStartY, { width: 100, align: 'left' })
+      .text('Subtotal:', summaryX, summaryCurrentY, { width: 120, align: 'left' })
       .fillColor(colors.dark)
-      .text(`₹${displaySubtotal.toFixed(2)}`, summaryX + 100, summaryStartY, { width: 100, align: 'right' });
-    doc.fillColor(colors.secondary)
-      .text('Tax (8%):', summaryX, summaryStartY + 20, { width: 100, align: 'left' })
-      .fillColor(colors.dark)
-      .text(`₹${(order.tax || 0).toFixed(2)}`, summaryX + 100, summaryStartY + 20, { width: 100, align: 'right' });
+      .text(`₹${displaySubtotal.toFixed(2)}`, summaryX + 120, summaryCurrentY, { width: 120, align: 'right' });
+    summaryCurrentY += 20;
+
+    // Discounts
     if (order.discount > 0) {
       doc.fillColor(colors.secondary)
-        .text('Offer Discount:', summaryX, summaryStartY + 40, { width: 100, align: 'left' })
-        .fillColor(colors.success)
-        .text(`- ₹${order.discount.toFixed(2)}`, summaryX + 100, summaryStartY + 40, { width: 100, align: 'right' });
+        .text('Offer Discount:', summaryX, summaryCurrentY, { width: 120, align: 'left' })
+        .fillColor(colors.dark)
+        .text(`-₹${order.discount.toFixed(2)}`, summaryX + 120, summaryCurrentY, { width: 120, align: 'right' });
+      summaryCurrentY += 20;
     }
+
     if (order.couponDiscount && order.couponDiscount > 0) {
-      const yPos = order.discount > 0 ? summaryStartY + 60 : summaryStartY + 40;
       doc.fillColor(colors.secondary)
-        .text(`Coupon Discount${order.couponCode ? ` (${order.couponCode})` : ''}:`, summaryX, yPos, { width: 100, align: 'left' })
-        .fillColor(colors.success)
-        .text(`- ₹${order.couponDiscount.toFixed(2)}`, summaryX + 100, yPos, { width: 100, align: 'right' });
+        .text(`Coupon Discount${order.couponCode ? ` (${order.couponCode})` : ''}:`, summaryX, summaryCurrentY, { width: 120, align: 'left' })
+        .fillColor(colors.dark)
+        .text(`-₹${order.couponDiscount.toFixed(2)}`, summaryX + 120, summaryCurrentY, { width: 120, align: 'right' });
+      summaryCurrentY += 20;
     }
-    const totalY = summaryStartY + (order.discount > 0 ? 80 : 60);
-    doc.strokeColor(colors.border)
-      .lineWidth(1)
-      .moveTo(summaryX, totalY - 10)
-      .lineTo(rightMargin, totalY - 10)
+
+    // Tax
+    doc.fillColor(colors.secondary)
+      .text('Tax:', summaryX, summaryCurrentY, { width: 120, align: 'left' })
+      .fillColor(colors.dark)
+      .text(`₹${(order.tax || 0).toFixed(2)}`, summaryX + 120, summaryCurrentY, { width: 120, align: 'right' });
+    summaryCurrentY += 25;
+    // Total with black line separator
+    doc.strokeColor(colors.primary)
+      .lineWidth(2)
+      .moveTo(summaryX, summaryCurrentY - 5)
+      .lineTo(summaryX + 240, summaryCurrentY - 5)
       .stroke();
+
     doc.font('Helvetica-Bold')
       .fontSize(12)
       .fillColor(colors.primary)
-      .text('Total:', summaryX, totalY, { width: 100, align: 'left' })
-      .text(`₹${order.total.toFixed(2)}`, summaryX + 100, totalY, { width: 100, align: 'right' });
-    const footerY = Math.max(y + 200, totalY + 100);
+      .text('Total Amount:', summaryX, summaryCurrentY, { width: 120, align: 'left' })
+      .text(`₹${order.total.toFixed(2)}`, summaryX + 120, summaryCurrentY, { width: 120, align: 'right' });
+    const footerY = Math.max(y + 150, summaryCurrentY + 80);
+
+    // Clean footer separator
     doc.strokeColor(colors.border)
       .lineWidth(1)
-      .moveTo(leftMargin, footerY - 30)
-      .lineTo(rightMargin, footerY - 30)
+      .moveTo(leftMargin, footerY - 20)
+      .lineTo(rightMargin, footerY - 20)
       .stroke();
-    const footerBoxHeight = 60;
-    doc.fillColor(colors.light)
-      .rect(leftMargin, footerY - 10, contentWidth, footerBoxHeight)
-      .fill();
-    doc.strokeColor(colors.border)
-      .lineWidth(1)
-      .rect(leftMargin, footerY - 10, contentWidth, footerBoxHeight)
-      .stroke();
+
+    // Footer content
     doc.font('Helvetica-Bold')
       .fontSize(12)
       .fillColor(colors.primary)
-      .text('Thank you for choosing Phoenix!', leftMargin, footerY + 5, { align: 'center', width: contentWidth });
+      .text('Thank you for your business!', leftMargin, footerY, { align: 'center', width: contentWidth });
+
     doc.font('Helvetica')
       .fontSize(9)
       .fillColor(colors.secondary)
-      .text('This is a computer-generated invoice and does not require a signature.', leftMargin, footerY + 25, { align: 'center', width: contentWidth })
-      .text('For any queries, contact us at support@phoenix.com or +91 9876543210', leftMargin, footerY + 38, { align: 'center', width: contentWidth });
+      .text('For any questions about this invoice, please contact us at support@phoenix.com or +91 1234567890', leftMargin, footerY + 20, { align: 'center', width: contentWidth })
+      .text('Phoenix - Premium Headphone Experience | www.phoenix.com', leftMargin, footerY + 35, { align: 'center', width: contentWidth })
+      .text('This is a computer-generated invoice and does not require a signature.', leftMargin, footerY + 50, { align: 'center', width: contentWidth });
     const pageCount = doc.bufferedPageRange().count;
     for (let i = 0; i < pageCount; i++) {
       doc.switchToPage(i);
@@ -1313,6 +1331,8 @@ const exportOrders = async (req, res) => {
     });
   }
 };
+
+
 
 
 

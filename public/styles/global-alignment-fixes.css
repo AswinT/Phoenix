@@ -1,0 +1,799 @@
+/* ===================================
+   ENHANCED GLOBAL ALIGNMENT FIXES FOR ADMIN INTERFACE
+   Comprehensive CSS to address alignment issues throughout the application
+   Updated with advanced admin interface consistency improvements
+   =================================== */
+
+/* ===================================
+   CONSISTENT SPACING UTILITIES
+   =================================== */
+
+/* Consistent margin and padding reset for common elements */
+.align-reset {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Consistent spacing for form elements */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-control {
+  margin-bottom: 0.5rem;
+}
+
+.form-label {
+  margin-bottom: 0.5rem;
+  display: block;
+  font-weight: 500;
+}
+
+/* ===================================
+   FLEXBOX ALIGNMENT UTILITIES
+   =================================== */
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-start {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.flex-end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.flex-column-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.flex-nowrap {
+  flex-wrap: nowrap;
+}
+
+/* ===================================
+   GRID ALIGNMENT UTILITIES
+   =================================== */
+
+.grid-center {
+  display: grid;
+  place-items: center;
+}
+
+.grid-auto-fit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.grid-auto-fill {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+/* ===================================
+   TEXT ALIGNMENT UTILITIES
+   =================================== */
+
+.text-align-center { text-align: center; }
+.text-align-left { text-align: left; }
+.text-align-right { text-align: right; }
+.text-align-justify { text-align: justify; }
+
+/* Vertical text alignment */
+.vertical-align-top { vertical-align: top; }
+.vertical-align-middle { vertical-align: middle; }
+.vertical-align-bottom { vertical-align: bottom; }
+.vertical-align-baseline { vertical-align: baseline; }
+
+/* ===================================
+   BUTTON ALIGNMENT FIXES
+   =================================== */
+
+.btn-group-aligned {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.btn-group-aligned .btn {
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+.btn-group-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.btn-group-vertical .btn {
+  width: 100%;
+  margin: 0;
+}
+
+/* ===================================
+   CARD ALIGNMENT FIXES
+   =================================== */
+
+.card-aligned {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.card-aligned .card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-aligned .card-footer {
+  margin-top: auto;
+}
+
+/* ===================================
+   TABLE ALIGNMENT FIXES
+   =================================== */
+
+.table-aligned {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-aligned th,
+.table-aligned td {
+  padding: 0.75rem;
+  vertical-align: middle;
+  border: 1px solid #dee2e6;
+}
+
+.table-aligned th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  text-align: left;
+}
+
+.table-aligned .text-center {
+  text-align: center;
+}
+
+.table-aligned .text-right {
+  text-align: right;
+}
+
+/* ===================================
+   NAVIGATION ALIGNMENT FIXES
+   =================================== */
+
+.nav-aligned {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-aligned .nav-item {
+  margin: 0;
+}
+
+.nav-aligned .nav-link {
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ===================================
+   FORM ALIGNMENT FIXES
+   =================================== */
+
+.form-aligned {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-row-aligned {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.form-row-aligned .form-group {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.form-inline-aligned {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.form-inline-aligned .form-control {
+  margin-bottom: 0;
+}
+
+/* ===================================
+   IMAGE ALIGNMENT FIXES
+   =================================== */
+
+.img-aligned {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.img-center {
+  display: block;
+  margin: 0 auto;
+}
+
+.img-container-aligned {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.img-container-aligned img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+}
+
+/* ===================================
+   MODAL ALIGNMENT FIXES
+   =================================== */
+
+.modal-aligned .modal-dialog {
+  display: flex;
+  align-items: center;
+  min-height: calc(100vh - 1rem);
+}
+
+.modal-aligned .modal-content {
+  width: 100%;
+}
+
+.modal-header-aligned {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.modal-footer-aligned {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-top: 1px solid #dee2e6;
+}
+
+/* ===================================
+   RESPONSIVE ALIGNMENT UTILITIES
+   =================================== */
+
+@media (max-width: 767px) {
+  .mobile-center {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .mobile-stack {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  
+  .mobile-stack > * {
+    width: 100% !important;
+    margin-bottom: 0.5rem;
+  }
+  
+  .mobile-stack > *:last-child {
+    margin-bottom: 0;
+  }
+  
+  .form-row-aligned {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .btn-group-aligned {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .tablet-center {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .tablet-flex-wrap {
+    flex-wrap: wrap;
+  }
+}
+
+@media (min-width: 1024px) {
+  .desktop-flex-nowrap {
+    flex-wrap: nowrap;
+  }
+  
+  .desktop-align-start {
+    align-items: flex-start;
+  }
+}
+
+/* ===================================
+   COMMON ELEMENT ALIGNMENT FIXES
+   =================================== */
+
+/* Fix for misaligned icons */
+.icon-aligned {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+/* Fix for misaligned badges */
+.badge-aligned {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  vertical-align: middle;
+}
+
+/* Fix for misaligned input groups */
+.input-group-aligned {
+  display: flex;
+  align-items: stretch;
+}
+
+.input-group-aligned .form-control {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+/* Fix for misaligned pagination */
+.pagination-aligned {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.pagination-aligned .page-item {
+  margin: 0;
+}
+
+/* ===================================
+   UTILITY CLASSES FOR QUICK FIXES
+   =================================== */
+
+.align-baseline { align-items: baseline !important; }
+.align-start { align-items: flex-start !important; }
+.align-center { align-items: center !important; }
+.align-end { align-items: flex-end !important; }
+.align-stretch { align-items: stretch !important; }
+
+.justify-start { justify-content: flex-start !important; }
+.justify-center { justify-content: center !important; }
+.justify-end { justify-content: flex-end !important; }
+.justify-between { justify-content: space-between !important; }
+.justify-around { justify-content: space-around !important; }
+.justify-evenly { justify-content: space-evenly !important; }
+
+.self-start { align-self: flex-start !important; }
+.self-center { align-self: center !important; }
+.self-end { align-self: flex-end !important; }
+.self-stretch { align-self: stretch !important; }
+
+/* Clear floats */
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Remove default margins and paddings */
+.no-margin { margin: 0 !important; }
+.no-padding { padding: 0 !important; }
+.no-gap { gap: 0 !important; }
+
+/* Consistent line heights */
+.line-height-1 { line-height: 1 !important; }
+.line-height-normal { line-height: 1.5 !important; }
+.line-height-relaxed { line-height: 1.75 !important; }
+
+/* ===================================
+   ENHANCED ADMIN INTERFACE ALIGNMENT FIXES
+   =================================== */
+
+/* Fix main content layout consistency */
+.main-content {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 1.5rem !important;
+  padding: 2rem !important;
+  margin-left: 260px !important;
+  min-height: 100vh !important;
+  width: calc(100% - 260px) !important;
+  max-width: calc(100% - 260px) !important;
+  transition: all 0.3s ease !important;
+  box-sizing: border-box !important;
+}
+
+/* Standardize admin page headers */
+.admin-page-header,
+.page-header,
+.main-content .header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: flex-start !important;
+  margin-bottom: 2rem !important;
+  padding: 0 !important;
+  flex-wrap: wrap !important;
+  gap: 1rem !important;
+  width: 100% !important;
+}
+
+.admin-page-header > div:first-child,
+.page-header > div:first-child,
+.main-content .header > div:first-child {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.admin-page-header .header-actions,
+.page-header .header-actions,
+.main-content .header .header-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  flex-wrap: wrap !important;
+  flex-shrink: 0 !important;
+}
+
+/* Fix admin table alignment issues */
+.admin-table-container,
+.table-container {
+  width: 100% !important;
+  overflow-x: auto !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+  background: white !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.admin-table-container .table-responsive,
+.table-container .table-responsive {
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+.admin-table-container .table,
+.table-container .table {
+  width: 100% !important;
+  margin-bottom: 0 !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+.admin-table-container .table th,
+.table-container .table th {
+  background: linear-gradient(135deg, #2D3142 0%, #4F5D75 100%) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  text-align: left !important;
+  padding: 1rem !important;
+  border: none !important;
+  vertical-align: middle !important;
+  white-space: nowrap !important;
+}
+
+.admin-table-container .table td,
+.table-container .table td {
+  padding: 1rem !important;
+  vertical-align: middle !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  background: white !important;
+}
+
+/* Fix admin form alignment */
+.admin-form-container,
+.form-container {
+  background: white !important;
+  border-radius: 12px !important;
+  padding: 2rem !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+  margin-bottom: 1.5rem !important;
+  width: 100% !important;
+}
+
+.admin-form-row,
+.form-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 1rem !important;
+  margin-bottom: 1.5rem !important;
+  align-items: flex-start !important;
+}
+
+.admin-form-group,
+.form-group {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.5rem !important;
+  flex: 1 !important;
+  min-width: 200px !important;
+}
+
+/* Fix admin button alignment */
+.admin-btn-group,
+.btn-group,
+.button-group {
+  display: flex !important;
+  gap: 0.75rem !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+}
+
+.admin-btn,
+.btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  padding: 0.75rem 1.5rem !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  text-decoration: none !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  white-space: nowrap !important;
+  min-height: 44px !important;
+  box-sizing: border-box !important;
+}
+
+/* Fix admin card alignment */
+.admin-card,
+.stat-card,
+.card {
+  background: white !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+  border: none !important;
+  overflow: hidden !important;
+  transition: all 0.3s ease !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.admin-card-body,
+.card-body {
+  padding: 1.5rem !important;
+}
+
+.admin-card-header,
+.card-header {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  padding: 1rem 1.5rem !important;
+  font-weight: 600 !important;
+}
+
+/* Fix admin grid alignment */
+.admin-stats-grid,
+.stats-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+  gap: 1.5rem !important;
+  margin-bottom: 2rem !important;
+  width: 100% !important;
+}
+
+/* Fix admin pagination alignment */
+.admin-pagination-container,
+.pagination-container {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin-top: 2rem !important;
+  padding: 1rem 0 !important;
+  width: 100% !important;
+}
+
+.admin-pagination,
+.pagination {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+  margin: 0 !important;
+}
+
+/* Fix admin search and filter alignment */
+.admin-search-container,
+.search-container {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  flex-wrap: wrap !important;
+  margin-bottom: 1.5rem !important;
+  width: 100% !important;
+}
+
+.admin-search-input,
+.search-input {
+  flex: 1 !important;
+  min-width: 250px !important;
+  padding: 0.75rem 1rem !important;
+  /* border: 1px solid #d1d5db !important; */
+  border-radius: 8px !important;
+  font-size: 1rem !important;
+}
+
+.admin-filters,
+.filters {
+  display: flex !important;
+  align-items: center !important;
+  gap: 1rem !important;
+  flex-wrap: wrap !important;
+  margin-bottom: 1.5rem !important;
+  width: 100% !important;
+}
+
+.admin-filter-group,
+.filter-group {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.5rem !important;
+  min-width: 150px !important;
+}
+
+/* ===================================
+   ADMIN RESPONSIVE ALIGNMENT FIXES
+   =================================== */
+
+@media (max-width: 992px) {
+  .main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 1rem !important;
+    padding-top: 3.5rem !important;
+  }
+
+  .admin-page-header,
+  .page-header,
+  .main-content .header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 1rem !important;
+  }
+
+  .admin-page-header .header-actions,
+  .page-header .header-actions,
+  .main-content .header .header-actions {
+    justify-content: flex-start !important;
+    width: 100% !important;
+  }
+
+  .admin-form-row,
+  .form-row {
+    flex-direction: column !important;
+  }
+
+  .admin-btn-group,
+  .btn-group {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .admin-btn,
+  .btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .admin-stats-grid,
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 0.75rem !important;
+    padding-top: 3.25rem !important;
+  }
+
+  .admin-stats-grid,
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  .admin-table-container .table th,
+  .table-container .table th,
+  .admin-table-container .table td,
+  .table-container .table td {
+    padding: 0.75rem 0.5rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  .admin-form-container,
+  .form-container {
+    padding: 1.5rem !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .main-content {
+    padding: 0.5rem !important;
+    padding-top: 3rem !important;
+  }
+
+  .page-title {
+    font-size: 1.5rem !important;
+  }
+
+  .admin-table-container .table th,
+  .table-container .table th,
+  .admin-table-container .table td,
+  .table-container .table td {
+    padding: 0.5rem 0.25rem !important;
+    font-size: 0.8rem !important;
+  }
+
+  .admin-btn,
+  .btn {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  .admin-form-container,
+  .form-container {
+    padding: 1rem !important;
+  }
+}

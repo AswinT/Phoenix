@@ -96,7 +96,7 @@ body {
 }
 
 .sidebar-content {
-  padding: 1rem 0;
+  padding: 0.75rem 0;
   flex: 1;
   overflow-y: auto;
   display: flex;
@@ -105,7 +105,7 @@ body {
 
 .nav-link {
   color: #ffffff;
-  padding: 0.75rem 1.5rem;
+  padding: 0.6rem 1.25rem;
   border-radius: 0;
   transition: all 0.3s;
   display: flex;
@@ -117,12 +117,12 @@ body {
   color: #f0f0f0;
   background-color: rgba(255, 255, 255, 0.1);
   border-left: 3px solid #4361EE; /* Blue accent border for active/hover */
-  padding-left: calc(1.5rem - 3px); /* Adjust padding to account for border */
+  padding-left: calc(1.25rem - 3px); /* Adjust padding to account for border */
 }
 
 .nav-link i {
-  margin-right: 0.75rem;
-  font-size: 1.2rem;
+  margin-right: 0.6rem;
+  font-size: 1.1rem;
   flex-shrink: 0;
   color: #ffffff; /* Ensure icons are white in dark theme */
 }

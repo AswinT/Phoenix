@@ -14,9 +14,16 @@ const { profileUpdateValidator } = require('../../validators/user/profileValidat
 router.get('/profile', isAuthenticated, profileController.getProfile);
 router.patch('/profile', isAuthenticated, profileUpdateValidator, profileController.updateProfile);
 router.post('/profile/image', isAuthenticated, profileController.uploadProfileImage);
+router.delete('/profile/image', isAuthenticated, profileController.removeProfileImage);
 router.post('/profile/email/request', isAuthenticated, profileController.requestEmailUpdate);
 router.post('/profile/email/verify', isAuthenticated, profileController.verifyEmailOtp);
 router.post('/profile/email/resend-otp', isAuthenticated, profileController.resendEmailOtp);
+router.post('/profile/send-email-otp', isAuthenticated, profileController.sendEmailOtp);
+router.post('/profile/verify-email-otp', isAuthenticated, profileController.verifyEmailOtpNew);
+router.post('/profile/send-current-email-otp', isAuthenticated, profileController.sendCurrentEmailOtp);
+router.post('/profile/verify-current-email-otp', isAuthenticated, profileController.verifyCurrentEmailOtp);
+router.post('/profile/send-new-email-otp', isAuthenticated, profileController.sendNewEmailOtp);
+router.post('/profile/verify-new-email-otp', isAuthenticated, profileController.verifyNewEmailOtp);
 
 router.get('/addresses', isAuthenticated, addressController.getAddress);
 router.post('/addresses', isAuthenticated, addressController.addAddress);

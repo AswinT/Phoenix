@@ -6,19 +6,19 @@
 .mobile-toggle {
   display: none;
   position: fixed;
-  top: 1rem;
-  left: 1rem;
+  top: 0.75rem;
+  left: 0.75rem;
   z-index: 1001;
   background: linear-gradient(135deg, #000000, #1a1a1a);
   color: white;
   border: none;
-  border-radius: 12px;
-  padding: 0.875rem;
-  font-size: 1.3rem;
+  border-radius: 8px;
+  padding: 0.5rem;
+  font-size: 1.1rem;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  min-width: 48px;
-  min-height: 48px;
+  min-width: 40px;
+  min-height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -181,7 +181,7 @@
   .main-content {
     margin-left: 0;
     padding: 1rem;
-    padding-top: 4rem; /* Space for mobile toggle */
+    padding-top: 3.5rem; /* Space for mobile toggle */
   }
   
   /* Page header adjustments */
@@ -206,7 +206,7 @@
   /* Main content padding */
   .main-content {
     padding: 0.75rem;
-    padding-top: 4rem;
+    padding-top: 3.25rem;
   }
   
   /* Stats cards - 1 per row */
@@ -282,7 +282,7 @@
   /* Enhanced compact main content */
   .main-content {
     padding: 0.75rem;
-    padding-top: 4rem;
+    padding-top: 3rem;
   }
 
   /* Compact stat cards */

@@ -19,7 +19,8 @@ router.post('/verify-otp', isNotAuthenticated, signupController.verifyOtp);
 router.post('/resend-otp', isNotAuthenticated, signupController.resendOtp);
 router.get('/login', isNotAuthenticated, preventBackButtonCache, loginController.getLogin);
 router.post('/login', isNotAuthenticated, loginValidator.loginValidator, loginController.postLogin);
-router.get('/logout', isAuthenticated, logoutController.logout);
+router.get('/logout', logoutController.logout);
+router.post('/logout', logoutController.logout);
 
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 router.get('/google/callback', googleController.googleController);

@@ -135,6 +135,24 @@ router.post('/profile/image', (req, res) => {
 router.post('/request-email-update', (req, res) => {
   res.redirect(307, '/users/profile/email/request');
 });
+router.post('/profile/send-email-otp', (req, res) => {
+  res.redirect(307, '/users/profile/send-email-otp');
+});
+router.post('/profile/verify-email-otp', (req, res) => {
+  res.redirect(307, '/users/profile/verify-email-otp');
+});
+router.post('/profile/send-current-email-otp', (req, res) => {
+  res.redirect(307, '/users/profile/send-current-email-otp');
+});
+router.post('/profile/verify-current-email-otp', (req, res) => {
+  res.redirect(307, '/users/profile/verify-current-email-otp');
+});
+router.post('/profile/send-new-email-otp', (req, res) => {
+  res.redirect(307, '/users/profile/send-new-email-otp');
+});
+router.post('/profile/verify-new-email-otp', (req, res) => {
+  res.redirect(307, '/users/profile/verify-new-email-otp');
+});
 
 router.get('/verify-otp', (req, res) => {
   res.redirect('/auth/verify-otp');
@@ -166,6 +184,9 @@ router.post('/login', (req, res) => {
 });
 router.get('/logout', (req, res) => {
   res.redirect('/auth/logout');
+});
+router.post('/logout', (req, res) => {
+  res.redirect(307, '/auth/logout');
 });
 router.get('/forgotPassword', (req, res) => {
   res.redirect('/password/forgot');

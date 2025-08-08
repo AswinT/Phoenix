@@ -93,11 +93,39 @@ const isAuthenticated = async (req, res, next) => {
   }
   return res.redirect('/login');
 };
-const isNotAuthenticated = (req, res, next) => {
-  if (req.session && req.session.user_id) {
-    return res.redirect('/');
+const isNotAuthenticated = async (req, res, next) => {
+  try {
+    if (req.session && req.session.user_id) {
+      // Verify the user still exists and is not blocked
+      const user = await User.findById(req.session.user_id).lean();
+      if (!user || user.isBlocked) {
+        // Clear invalid session
+        delete req.session.user_id;
+        delete req.session.user_email;
+        req.session.save((err) => {
+          if (err) {
+            console.error('Error saving session after clearing invalid user:', err);
+          }
+        });
+        return next();
+      }
+      return res.redirect('/');
+    }
+    return next();
+  } catch (error) {
+    console.error('Error in isNotAuthenticated middleware:', error);
+    // Clear session on error and continue
+    if (req.session) {
+      delete req.session.user_id;
+      delete req.session.user_email;
+      req.session.save((err) => {
+        if (err) {
+          console.error('Error saving session after error:', err);
+        }
+      });
+    }
+    return next();
   }
-  return next();
 };
 const preventBackButtonCache = (req, res, next) => {
   res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');

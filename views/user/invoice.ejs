@@ -5,318 +5,848 @@
   <title>Invoice - Phoenix</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
+    @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: 'Inter', 'Segoe UI', sans-serif;
-      margin: 40px;
-      color: #212529;
-      background-color: #f8f9fa;
+      font-family: "Inter", sans-serif;
+      background: #f8f9fa;
+      color: #1a1a1a;
+      line-height: 1.6;
+      font-size: 14px;
+      margin: 0;
+      padding: 20px;
     }
-    .invoice-box {
-      border: 2px solid #e9ecef;
-      padding: 40px;
-      border-radius: 12px;
-      background-color: #ffffff;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      max-width: 800px;
+
+    .invoice-container {
+      max-width: 850px;
       margin: 0 auto;
-    }
-    .logo-section {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .logo-img {
-      height: 60px;
-      margin-right: 15px;
-    }
-    .brand-name {
-      font-weight: 700;
-      font-size: 28px;
-      color: #6f42c1;
-      font-family: 'Montserrat', sans-serif;
-    }
-    .slogan {
-      text-transform: uppercase;
-      font-size: 12px;
-      color: #6c757d;
-      margin-left: 75px;
-      margin-top: -5px;
-      letter-spacing: 1px;
-      font-weight: 500;
-    }
-    .invoice-header {
-      border-bottom: 2px solid #6f42c1;
-      padding-bottom: 20px;
-      margin-bottom: 30px;
-    }
-    .invoice-details {
-      background-color: #f8f9fa;
-      padding: 15px;
-      border-radius: 8px;
-      border-left: 4px solid #6f42c1;
-    }
-    .billing-section h5 {
-      color: #6f42c1;
-      font-weight: 600;
-      margin-bottom: 15px;
-      border-bottom: 1px solid #e9ecef;
-      padding-bottom: 8px;
-    }
-    .table {
-      margin-top: 20px;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    }
-    .table th {
-      background-color: #6f42c1;
-      color: white;
-      font-weight: 600;
-      text-transform: uppercase;
-      font-size: 12px;
-      letter-spacing: 0.5px;
+      background: #ffffff;
       border: none;
-      padding: 15px 12px;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+      overflow: hidden;
+      position: relative;
     }
-    .table td {
+
+    .invoice-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #1B3C53 0%, #4361EE 50%, #1B3C53 100%);
+    }
+
+    /* Header with Company Branding */
+    .invoice-header {
+      background: linear-gradient(135deg, #1B3C53 0%, #4361EE 100%);
+      padding: 2.5rem 2rem;
+      color: #ffffff;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .invoice-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+      border-radius: 50%;
+      transform: translate(50%, -50%);
+    }
+
+    .company-branding {
+      display: flex;
+      align-items: flex-start;
+      position: relative;
+      z-index: 2;
+    }
+
+    .company-info h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 0;
+      letter-spacing: -0.02em;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .company-tagline {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1rem;
+      margin: 0.5rem 0 0 0;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    .company-contact {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.85rem;
+      margin: 1rem 0 0 0;
+      line-height: 1.6;
+      font-weight: 400;
+    }
+
+    .invoice-title {
+      text-align: right;
+      position: relative;
+      z-index: 2;
+    }
+
+    .invoice-title h2 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 0;
+      letter-spacing: -0.02em;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .invoice-number {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1rem;
+      margin: 0.5rem 0 0 0;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 0.5rem 1rem;
+      border-radius: 25px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: inline-block;
+    }
+
+    /* Invoice Details Section */
+    .invoice-details {
+      padding: 2.5rem 2rem;
+      background: #ffffff;
+      position: relative;
+    }
+
+    .invoice-details::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 2rem;
+      right: 2rem;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, #e0e0e0 50%, transparent 100%);
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      margin-bottom: 2rem;
+    }
+
+    .detail-section h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1B3C53;
+      margin-bottom: 1.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      position: relative;
+      padding-bottom: 0.75rem;
+    }
+
+    .detail-section h3::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 40px;
+      height: 3px;
+      background: linear-gradient(90deg, #1B3C53 0%, #4361EE 100%);
+      border-radius: 2px;
+    }
+
+    .detail-item {
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #f5f5f5;
+      transition: all 0.2s ease;
+    }
+
+    .detail-item:last-child {
+      border-bottom: none;
+    }
+
+    .detail-item:hover {
+      background: #f8f9fa;
+      margin: 0 -1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border-bottom: 1px solid transparent;
+    }
+
+    .detail-label {
+      font-weight: 500;
+      color: #6b7280;
+      font-size: 0.95rem;
+      letter-spacing: 0.01em;
+      min-width: 120px;
+    }
+
+    .detail-value {
+      color: #1a1a1a;
+      font-weight: 600;
+      text-align: right;
+      font-size: 0.95rem;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 25px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s ease;
+    }
+
+    .status-badge::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .status-paid {
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .status-paid::before {
+      background: #28a745;
+      box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.2);
+    }
+
+    .status-pending {
+      background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+      color: #856404;
+      border: 1px solid #ffeaa7;
+    }
+
+    .status-pending::before {
+      background: #ffc107;
+      box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.2);
+    }
+
+    /* Items Table */
+    .invoice-table {
+      margin: 2rem 0;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e5e7eb;
+    }
+
+    .table {
+      margin: 0;
+      border-collapse: separate;
+      border-spacing: 0;
+      width: 100%;
+      background: #ffffff;
+    }
+
+    .table thead th {
+      background: linear-gradient(135deg, #1B3C53 0%, #4361EE 100%);
+      color: #ffffff;
+      border: none;
+      font-weight: 700;
+      padding: 1.25rem 1rem;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      text-align: left;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      position: relative;
+    }
+
+    .table thead th:first-child {
+      border-top-left-radius: 12px;
+    }
+
+    .table thead th:last-child {
+      border-top-right-radius: 12px;
+    }
+
+    .table tbody td {
+      padding: 1.25rem 1rem;
+      border-bottom: 1px solid #f1f3f4;
       vertical-align: middle;
-      padding: 12px;
-      border-color: #e9ecef;
+      color: #1a1a1a;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
     }
+
+    .table tbody tr:hover {
+      background: #f8fafc;
+      transform: scale(1.001);
+    }
+
+    .table tbody tr:hover td {
+      border-bottom-color: #e2e8f0;
+    }
+
+    .table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .table tbody tr:last-child td:first-child {
+      border-bottom-left-radius: 12px;
+    }
+
+    .table tbody tr:last-child td:last-child {
+      border-bottom-right-radius: 12px;
+    }
+
+    .table tbody tr:nth-child(even) {
+      background: #fafbfc;
+    }
+
+    .table tbody tr:nth-child(even):hover {
+      background: #f1f5f9;
+    }
+
     .product-info {
       line-height: 1.4;
     }
+
     .product-name {
       font-weight: 600;
-      color: #212529;
-      margin-bottom: 4px;
-    }
-    .product-info small {
-      font-size: 11px;
-      color: #6c757d;
-      display: block;
-      margin-bottom: 2px;
-    }
-    .total {
-      font-weight: 700;
-      font-size: 18px;
-      color: #6f42c1;
-    }
-    .text-success {
-      color: #28a745 !important;
-    }
-    .text-primary {
-      color: #6f42c1 !important;
-    }
-    footer {
-      text-align: center;
-      margin-top: 40px;
-      font-size: 13px;
-      color: #6c757d;
-      padding: 20px;
-      background-color: #f8f9fa;
-      border-radius: 8px;
-      border-top: 2px solid #6f42c1;
+      color: #000000;
+      margin-bottom: 0.25rem;
+      font-size: 0.9rem;
     }
 
-    /* Print styles */
+    .product-details {
+      font-size: 0.8rem;
+      color: #666666;
+      margin: 0.25rem 0;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .text-right {
+      text-align: right;
+    }
+
+    .fw-bold {
+      font-weight: 600;
+    }
+
+    /* Summary Section */
+    .invoice-summary {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      padding: 2.5rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .invoice-summary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #1B3C53 0%, #4361EE 50%, #1B3C53 100%);
+    }
+
+    .summary-table {
+      width: 100%;
+      max-width: 450px;
+      margin-left: auto;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e5e7eb;
+      overflow: hidden;
+      padding: 1.5rem;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid #f1f3f4;
+      transition: all 0.2s ease;
+    }
+
+    .summary-row:hover {
+      background: #f8fafc;
+      margin: 0 -1.5rem;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      border-bottom: 1px solid transparent;
+    }
+
+    .summary-row:last-child {
+      border-bottom: none;
+      border-top: 3px solid #1B3C53;
+      padding-top: 1.25rem;
+      margin-top: 1rem;
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: #1B3C53;
+      position: relative;
+    }
+
+    .summary-row:last-child:hover {
+      background: #f1f5f9;
+      color: #1B3C53;
+    }
+
+    .summary-label {
+      color: #666666;
+      font-weight: 500;
+    }
+
+    .summary-value {
+      color: #000000;
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .total-row .summary-label,
+    .total-row .summary-value {
+      color: #000000;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    /* Footer */
+    .invoice-footer {
+      background: linear-gradient(135deg, #1B3C53 0%, #4361EE 100%);
+      padding: 2.5rem 2rem;
+      text-align: center;
+      color: #ffffff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .invoice-footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 2px;
+    }
+
+    .footer-note {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.8;
+      max-width: 650px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    .footer-note strong {
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 1.1rem;
+      display: block;
+      margin-bottom: 1rem;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-custom {
+      padding: 0.75rem 2rem;
+      border-radius: 4px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      border: 1px solid;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .btn-primary-custom {
+      background: #000000;
+      color: #ffffff;
+      border-color: #000000;
+    }
+
+    .btn-primary-custom:hover {
+      background: #333333;
+      border-color: #333333;
+      color: #ffffff;
+    }
+
+    .btn-secondary-custom {
+      background: #ffffff;
+      color: #000000;
+      border-color: #000000;
+    }
+
+    .btn-secondary-custom:hover {
+      background: #f8f9fa;
+      color: #000000;
+    }
+
+    /* Print Styles */
     @media print {
       body {
-        margin: 0;
-        background-color: white;
+        background: #ffffff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 12px !important;
       }
-      .invoice-box {
-        border: 1px solid #ddd;
-        box-shadow: none;
-        margin: 0;
-        max-width: none;
+
+      .invoice-container {
+        box-shadow: none !important;
+        border: 2px solid #1B3C53 !important;
+        border-radius: 0 !important;
+        max-width: none !important;
+        margin: 0 !important;
       }
-      .table th {
-        background-color: #6f42c1 !important;
-        -webkit-print-color-adjust: exact;
-        color-adjust: exact;
+
+      .invoice-container::before {
+        display: none !important;
+      }
+
+      .invoice-header {
+        background: #1B3C53 !important;
+        color: #ffffff !important;
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
+
+      .invoice-header::before {
+        display: none !important;
+      }
+
+      .action-buttons,
+      .btn-custom {
+        display: none !important;
+      }
+
+      .invoice-footer {
+        background: #1B3C53 !important;
+        color: #ffffff !important;
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
+
+      .invoice-footer::before {
+        display: none !important;
+      }
+
+      .footer-note {
+        color: #ffffff !important;
+      }
+
+      .table thead th {
+        background: #1B3C53 !important;
+        color: #ffffff !important;
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
+
+      .invoice-summary {
+        background: #f8f9fa !important;
+      }
+
+      .invoice-summary::before {
+        display: none !important;
+      }
+
+      .summary-table {
+        box-shadow: none !important;
+        border: 1px solid #e0e0e0 !important;
       }
     }
 
-    /* Dark theme support */
-    @media (prefers-color-scheme: dark) {
+    /* Responsive Design */
+    @media (max-width: 768px) {
       body {
-        background-color: #1a1a1a;
-        color: #e9ecef;
+        padding: 0.5rem;
       }
-      .invoice-box {
-        background-color: #2d3142;
-        border-color: #495057;
+
+      .invoice-container {
+        margin: 0.5rem auto;
       }
-      .invoice-details {
-        background-color: #343a40;
+
+      .invoice-header {
+        flex-direction: column;
+        gap: 1.5rem;
+        text-align: left;
       }
-      footer {
-        background-color: #343a40;
+
+      .invoice-title {
+        text-align: left;
+      }
+
+      .details-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .invoice-details,
+      .invoice-summary {
+        padding: 1.5rem;
+      }
+
+      .table-responsive {
+        font-size: 0.8rem;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .btn-custom {
+        width: 100%;
+        max-width: 250px;
+        justify-content: center;
+      }
+
+      .summary-table {
+        max-width: none;
       }
     }
   </style>
 </head>
 <body>
-  <div class="invoice-box">
-    <!-- Invoice Header -->
+  <div class="invoice-container">
+    <!-- Invoice Header with Company Branding -->
     <div class="invoice-header">
-      <!-- Logo, Brand & Slogan -->
-      <div class="d-flex justify-content-between align-items-start mb-3">
-        <div>
-          <div class="logo-section">
-            <img src="/assets/phoenix-logo.png" alt="Phoenix Logo" class="logo-img">
-            <div class="brand-name">Phoenix</div>
-          </div>
-          <div class="slogan">Premium Headphone Experience</div>
-          <div class="mt-2">
-            <small class="text-muted">
-              Email: support@phoenix.com | Phone: +91 1234567890<br>
-              Website: www.phoenix.com
-            </small>
+      <div class="company-branding">
+        <div class="company-info">
+          <h1>Phoenix</h1>
+          <div class="company-tagline">Premium Headphone Experience</div>
+          <div class="company-contact">
+            Email: support@phoenix.com | Phone: +91 1234567890<br>
+            Website: www.phoenix.com
           </div>
         </div>
+      </div>
 
-        <!-- Invoice Details -->
-        <div class="invoice-details text-end">
-          <h4 class="mb-3" style="color: #6f42c1; font-weight: 700;">INVOICE</h4>
-          <div><strong>Invoice #:</strong> <%= order.orderNumber %></div>
-          <div><strong>Date:</strong> <%= order.formattedDate %></div>
-          <div><strong>Status:</strong> <span class="badge bg-success">Paid</span></div>
-        </div>
+      <div class="invoice-title">
+        <h2>INVOICE</h2>
+        <div class="invoice-number">Invoice #<%= order.orderNumber || 'N/A' %></div>
       </div>
     </div>
 
-    <!-- Billing Details -->
-    <div class="billing-section mb-4">
-      <h5>🏠 Shipping Address</h5>
-      <div class="p-3 bg-light rounded">
-        <div class="fw-bold mb-2"><%= order.shippingAddress.fullName || 'N/A' %></div>
-        <div><%= order.shippingAddress.street || '' %></div>
-        <% if (order.shippingAddress.landmark) { %>
-          <div><%= order.shippingAddress.landmark %></div>
-        <% } %>
-        <div><%= order.shippingAddress.city || '' %>, <%= order.shippingAddress.state || '' %> <%= order.shippingAddress.pinCode || '' %></div>
-        <div><%= order.shippingAddress.country || '' %></div>
-        <div class="mt-2"><strong>Email:</strong> <%= user.email || '' %></div>
+    <!-- Invoice Details Section -->
+    <div class="invoice-details">
+      <div class="details-grid">
+        <div class="detail-section">
+          <h3>Bill To</h3>
+          <div class="detail-item">
+            <span class="detail-label">Name:</span>
+            <span class="detail-value"><%= order.shippingAddress.fullName || 'N/A' %></span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Email:</span>
+            <span class="detail-value"><%= user.email || '' %></span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Address:</span>
+            <span class="detail-value">
+              <%= order.shippingAddress.street || '' %><br>
+              <% if (order.shippingAddress.landmark) { %>
+                <%= order.shippingAddress.landmark %><br>
+              <% } %>
+              <%= order.shippingAddress.city || '' %>, <%= order.shippingAddress.state || '' %> <%= order.shippingAddress.pinCode || '' %><br>
+              <%= order.shippingAddress.country || '' %>
+            </span>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Invoice Details</h3>
+          <div class="detail-item">
+            <span class="detail-label">Date:</span>
+            <span class="detail-value"><%= order.formattedDate || new Date(order.createdAt).toLocaleDateString() %></span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Payment Status:</span>
+            <span class="detail-value">
+              <% if (order.paymentStatus === 'Paid' || order.orderStatus === 'Delivered') { %>
+                <span class="status-badge status-paid">Paid</span>
+              <% } else if (order.paymentStatus === 'Pending') { %>
+                <span class="status-badge status-pending">Pending</span>
+              <% } else { %>
+                <span class="status-badge"><%= order.paymentStatus || 'Unknown' %></span>
+              <% } %>
+            </span>
+          </div>
+          <% if (order.orderStatus) { %>
+            <div class="detail-item">
+              <span class="detail-label">Order Status:</span>
+              <span class="detail-value"><%= order.orderStatus %></span>
+            </div>
+          <% } %>
+          <div class="detail-item">
+            <span class="detail-label">Payment Method:</span>
+            <span class="detail-value">
+              <%= order.paymentMethod === 'COD' ? 'Cash on Delivery' :
+                  order.paymentMethod === 'Razorpay' ? 'Online Payment' :
+                  order.paymentMethod || 'Cash on Delivery' %>
+            </span>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Order Items Table -->
-    <table class="table table-bordered">
-      <thead class="table-light">
-        <tr>
-          <th>Product</th>
-          <th>Original Price</th>
-          <th>Discounted Price</th>
-          <th>Qty</th>
-          <th>Final Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% order.items.forEach(item => { %>
+    <div class="invoice-table">
+      <table class="table">
+        <thead>
           <tr>
-            <td>
-              <div class="product-info">
-                <div class="product-name"><%= item.model || item.title || 'Unknown Product' %></div>
-                <% if (item.brand) { %>
-                  <small class="text-muted">Brand: <%= item.brand %></small><br>
-                <% } %>
-                <% if (item.connectivity) { %>
-                  <small class="text-muted">Type: <%= item.connectivity %></small>
-                <% } %>
-                <% if (item.priceBreakdown && (item.priceBreakdown.offerDiscount > 0 || item.priceBreakdown.couponDiscount > 0)) { %>
-                  <div class="mt-1">
-                    <% if (item.priceBreakdown.offerDiscount > 0) { %>
-                      <small class="text-success">
-                        <i class="bi bi-tag-fill"></i>
-                        Offer: -₹<%= item.priceBreakdown.offerDiscount.toFixed(2) %>
-                      </small><br>
-                    <% } %>
-                    <% if (item.priceBreakdown.couponDiscount > 0) { %>
-                      <small class="text-primary">
-                        <i class="bi bi-ticket-perforated-fill"></i>
-                        Coupon: -₹<%= item.priceBreakdown.couponDiscount.toFixed(2) %>
-                      </small>
-                    <% } %>
+            <th>Product</th>
+            <th class="text-center">Qty</th>
+            <th class="text-right">Unit Price</th>
+            <th class="text-right">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% order.items.forEach(item => { %>
+            <tr>
+              <td>
+                <div class="product-info">
+                  <div class="product-name">
+                    <%= item.product?.model || item.model || item.title || 'Unknown Product' %>
                   </div>
-                <% } %>
-              </div>
-            </td>
-            <td>
-              <% if (item.formattedOriginalPrice) { %>
-                <%= item.formattedOriginalPrice %>
-              <% } else { %>
-                ₹<%= item.price.toFixed(2) %>
-              <% } %>
-            </td>
-            <td>
-              <% if (item.priceBreakdown && (item.priceBreakdown.offerDiscount > 0 || item.priceBreakdown.couponDiscount > 0)) { %>
-                <% if (item.formattedFinalPrice) { %>
-                  <%= item.formattedFinalPrice %>
+                  <% if (item.product?.brand || item.brand) { %>
+                    <div class="product-details">Brand: <%= item.product?.brand || item.brand %></div>
+                  <% } %>
+                  <% if (item.product?.connectivity || item.connectivity) { %>
+                    <div class="product-details">Type: <%= item.product?.connectivity || item.connectivity %></div>
+                  <% } %>
+                  <% if (item.product?.category?.name) { %>
+                    <div class="product-details">Category: <%= item.product.category.name %></div>
+                  <% } %>
+                  <% if (item.priceBreakdown && (item.priceBreakdown.offerDiscount > 0 || item.priceBreakdown.couponDiscount > 0)) { %>
+                    <div class="product-details">
+                      <% if (item.priceBreakdown.offerDiscount > 0) { %>
+                        Offer Discount: -₹<%= item.priceBreakdown.offerDiscount.toFixed(2) %><br>
+                      <% } %>
+                      <% if (item.priceBreakdown.couponDiscount > 0) { %>
+                        Coupon Discount: -₹<%= item.priceBreakdown.couponDiscount.toFixed(2) %>
+                      <% } %>
+                    </div>
+                  <% } %>
+                </div>
+              </td>
+              <td class="text-center"><%= item.quantity || 1 %></td>
+              <td class="text-right">
+                <% if (item.priceBreakdown && (item.priceBreakdown.offerDiscount > 0 || item.priceBreakdown.couponDiscount > 0)) { %>
+                  <% if (item.formattedFinalPrice) { %>
+                    <%= item.formattedFinalPrice %>
+                  <% } else { %>
+                    ₹<%= ((item.price - (item.priceBreakdown.offerDiscount || 0)) - ((item.priceBreakdown.couponDiscount || 0) / item.quantity)).toFixed(2) %>
+                  <% } %>
                 <% } else { %>
-                  ₹<%= ((item.price - (item.priceBreakdown.offerDiscount || 0)) - ((item.priceBreakdown.couponDiscount || 0) / item.quantity)).toFixed(2) %>
+                  <% if (item.formattedOriginalPrice) { %>
+                    <%= item.formattedOriginalPrice %>
+                  <% } else { %>
+                    ₹<%= item.price.toFixed(2) %>
+                  <% } %>
                 <% } %>
-              <% } else { %>
-                <% if (item.formattedOriginalPrice) { %>
-                  <%= item.formattedOriginalPrice %>
+              </td>
+              <td class="text-right fw-bold">
+                <% if (item.itemFinalTotal) { %>
+                  ₹<%= item.itemFinalTotal.toFixed(2) %>
                 <% } else { %>
-                  ₹<%= item.price.toFixed(2) %>
+                  ₹<%= (item.price * item.quantity).toFixed(2) %>
                 <% } %>
-              <% } %>
-            </td>
-            <td><%= item.quantity || 1 %></td>
-            <td>
-              <% if (item.itemFinalTotal) { %>
-                ₹<%= item.itemFinalTotal.toFixed(2) %>
-              <% } else { %>
-                ₹<%= (item.price * item.quantity).toFixed(2) %>
-              <% } %>
-            </td>
-          </tr>
-        <% }) %>
-        <tr>
-          <td colspan="4" class="text-end">Subtotal (Original Prices)</td>
-          <td><%= order.formattedSubtotal %></td>
-        </tr>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Invoice Summary -->
+    <div class="invoice-summary">
+      <div class="summary-table">
+        <div class="summary-row">
+          <span class="summary-label">Subtotal:</span>
+          <span class="summary-value"><%= order.formattedSubtotal || `₹${(order.subtotal || 0).toFixed(2)}` %></span>
+        </div>
         <% if (order.discount && order.discount > 0) { %>
-          <tr>
-            <td colspan="4" class="text-end text-success">Offer Discount</td>
-            <td class="text-success">-<%= order.formattedDiscount %></td>
-          </tr>
+          <div class="summary-row">
+            <span class="summary-label">Offer Discount:</span>
+            <span class="summary-value">-<%= order.formattedDiscount || `₹${order.discount.toFixed(2)}` %></span>
+          </div>
         <% } %>
         <% if (order.couponDiscount && order.couponDiscount > 0) { %>
-          <tr>
-            <td colspan="4" class="text-end text-primary">Coupon Discount <%= order.couponCode ? `(${order.couponCode})` : '' %></td>
-            <td class="text-primary">-<%= order.formattedCouponDiscount %></td>
-          </tr>
+          <div class="summary-row">
+            <span class="summary-label">Coupon Discount <%= order.couponCode ? `(${order.couponCode})` : '' %>:</span>
+            <span class="summary-value">-<%= order.formattedCouponDiscount || `₹${order.couponDiscount.toFixed(2)}` %></span>
+          </div>
         <% } %>
-        <tr>
-          <td colspan="4" class="text-end">Tax (GST)</td>
-          <td><%= order.formattedTax %></td>
-        </tr>
-        <tr>
-          <td colspan="4" class="text-end total">Total</td>
-          <td class="total"><%= order.formattedTotal %></td>
-        </tr>
-        <tr>
-          <td colspan="4" class="text-end">Payment Method</td>
-          <td><%= order.paymentMethod || 'Cash on Delivery' %></td>
-        </tr>
-      </tbody>
-    </table>
+        <div class="summary-row">
+          <span class="summary-label">Tax:</span>
+          <span class="summary-value"><%= order.formattedTax || `₹${(order.tax || 0).toFixed(2)}` %></span>
+        </div>
+        <div class="summary-row total-row">
+          <span class="summary-label">Total Amount:</span>
+          <span class="summary-value"><%= order.formattedTotal || `₹${(order.total || 0).toFixed(2)}` %></span>
+        </div>
+      </div>
+    </div>
 
-    <!-- Footer -->
-    <footer>
-      <div class="mb-2">
-        <strong>Thank you for choosing Phoenix for your premium headphone experience! 🎧</strong>
+    <!-- Invoice Footer -->
+    <div class="invoice-footer">
+      <div class="footer-note">
+        <strong>Thank you for your business!</strong><br>
+        For any questions about this invoice, please contact us at support@phoenix.com or +91 1234567890<br>
+        Phoenix - Premium Headphone Experience | www.phoenix.com<br>
+        <em>This is a computer-generated invoice and does not require a signature.</em>
       </div>
-      <div class="small">
-        This is a computer-generated invoice and does not require a signature.<br>
-        For support or returns, contact us at support@phoenix.com or visit www.phoenix.com<br>
-        <em>Experience the difference with Phoenix - Where Sound Meets Perfection</em>
-      </div>
-    </footer>
+
+
+    </div>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

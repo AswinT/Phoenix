@@ -37,51 +37,143 @@ const getUsers = async (req, res) => {
 const blockUser = async (req, res) => {
   try {
     const userId = req.params.id;
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { isBlocked: true },
-      { new: true }
-    );
-    if (!user) {
+
+    // Validate user ID format
+    if (!userId || !userId.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'Invalid user ID format',
+        errorType: 'INVALID_ID'
+      });
+    }
+
+    // Check if user exists first
+    const existingUser = await User.findById(userId);
+    if (!existingUser) {
       return res.status(HttpStatus.NOT_FOUND).json({
         success: false,
         message: 'User not found',
+        errorType: 'USER_NOT_FOUND'
       });
     }
+
+    // Check if user is already blocked
+    if (existingUser.isBlocked) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'User is already blocked',
+        errorType: 'ALREADY_BLOCKED'
+      });
+    }
+
+    // Check if trying to block an admin
+    if (existingUser.isAdmin) {
+      return res.status(HttpStatus.FORBIDDEN).json({
+        success: false,
+        message: 'Cannot block admin users',
+        errorType: 'ADMIN_BLOCK_FORBIDDEN'
+      });
+    }
+
+    // Update user status
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { isBlocked: true },
+      { new: true, runValidators: true }
+    );
+
+    if (!user) {
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Failed to update user status',
+        errorType: 'UPDATE_FAILED'
+      });
+    }
+
     return res.status(HttpStatus.OK).json({
       success: true,
-      message: 'User blocked successfully ',
-      user: { id: user._id, isBlocked: user.isBlocked },
+      message: 'User blocked successfully',
+      user: {
+        id: user._id,
+        isBlocked: user.isBlocked,
+        fullName: user.fullName,
+        email: user.email
+      },
     });
-  } catch {
-    return res.status(HttpStatus.BAD_REQUEST).json({
+  } catch (error) {
+    console.error('Error blocking user:', error);
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: 'server error',
+      message: 'An error occurred while blocking the user. Please try again.',
+      errorType: 'SERVER_ERROR',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
 const unblockUser = async (req, res) => {
   try {
     const userId = req.params.id;
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { isBlocked: false},
-      { new: true }
-    );
-    if (!user) {
+
+    // Validate user ID format
+    if (!userId || !userId.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'Invalid user ID format',
+        errorType: 'INVALID_ID'
+      });
+    }
+
+    // Check if user exists first
+    const existingUser = await User.findById(userId);
+    if (!existingUser) {
       return res.status(HttpStatus.NOT_FOUND).json({
         success: false,
         message: 'User not found',
+        errorType: 'USER_NOT_FOUND'
       });
     }
+
+    // Check if user is already unblocked
+    if (!existingUser.isBlocked) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: 'User is already unblocked',
+        errorType: 'ALREADY_UNBLOCKED'
+      });
+    }
+
+    // Update user status
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { isBlocked: false },
+      { new: true, runValidators: true }
+    );
+
+    if (!user) {
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Failed to update user status',
+        errorType: 'UPDATE_FAILED'
+      });
+    }
+
     return res.status(HttpStatus.OK).json({
       success: true,
       message: 'User unblocked successfully',
+      user: {
+        id: user._id,
+        isBlocked: user.isBlocked,
+        fullName: user.fullName,
+        email: user.email
+      },
     });
-  } catch {
-    res.status(HttpStatus.BAD_REQUEST).json({
+  } catch (error) {
+    console.error('Error unblocking user:', error);
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: 'Server Error',
+      message: 'An error occurred while unblocking the user. Please try again.',
+      errorType: 'SERVER_ERROR',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
