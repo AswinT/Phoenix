@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice - Phoenix</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      background: #ffffff;
+      color: #1a1a1a;
+      line-height: 1.6;
+      font-size: 14px;
+      margin: 0;
+      padding: 0;
+    }
+
+    .invoice-container {
+      max-width: 850px;
+      margin: 0 auto;
+      background: #ffffff;
+      border: none;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .invoice-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #1B3C53 0%, #4361EE 50%, #1B3C53 100%);
+    }
+
+    /* Header with Company Branding */
+    .invoice-header {
+      background: linear-gradient(135deg, #1B3C53 0%, #4361EE 100%);
+      padding: 2.5rem 2rem;
+      color: #ffffff;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .invoice-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+      border-radius: 50%;
+      transform: translate(50%, -50%);
+    }
+
+    .company-branding {
+      display: flex;
+      align-items: flex-start;
+      position: relative;
+      z-index: 2;
+    }
+
+    .company-info h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 0;
+      letter-spacing: -0.02em;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .company-tagline {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1rem;
+      margin: 0.5rem 0 0 0;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    .company-contact {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.85rem;
+      margin: 1rem 0 0 0;
+      line-height: 1.6;
+      font-weight: 400;
+    }
+
+    .invoice-title {
+      text-align: right;
+      position: relative;
+      z-index: 2;
+    }
+
+    .invoice-title h2 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 0;
+      letter-spacing: -0.02em;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .invoice-number {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1rem;
+      margin: 0.5rem 0 0 0;
+      font-weight: 500;
+    }
+
+    /* Invoice Details Section */
+    .invoice-details {
+      padding: 2rem;
+      background: #ffffff;
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      margin-bottom: 2rem;
+    }
+
+    .detail-section h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1B3C53;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #dee2e6;
+    }
+
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+      align-items: flex-start;
+    }
+
+    .detail-label {
+      font-weight: 500;
+      color: #6c757d;
+      min-width: 100px;
+      flex-shrink: 0;
+    }
+
+    .detail-value {
+      color: #1a1a1a;
+      font-weight: 400;
+      text-align: right;
+      flex: 1;
+      margin-left: 1rem;
+    }
+
+    /* Status badges */
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-paid {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    /* Items Table */
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 2rem 0;
+      background: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .items-table thead {
+      background: #1B3C53;
+      color: #ffffff;
+    }
+
+    .items-table th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 0.5px;
+    }
+
+    .items-table th:last-child,
+    .items-table td:last-child {
+      text-align: right;
+    }
+
+    .items-table tbody tr {
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    .items-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .items-table td {
+      padding: 1rem;
+      vertical-align: top;
+    }
+
+    .product-info {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .product-image {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+
+    .product-details h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin: 0 0 0.25rem 0;
+    }
+
+    .product-brand {
+      font-size: 0.8rem;
+      color: #6c757d;
+      margin: 0;
+    }
+
+    /* Summary Section */
+    .invoice-summary {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .summary-table {
+      min-width: 300px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    .summary-row:last-child {
+      border-bottom: 2px solid #1B3C53;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #1B3C53;
+      padding: 1rem 0 0.5rem 0;
+      margin-top: 0.5rem;
+    }
+
+    .summary-label {
+      color: #6c757d;
+    }
+
+    .summary-value {
+      font-weight: 500;
+      color: #1a1a1a;
+    }
+
+    /* Footer */
+    .invoice-footer {
+      background: #f8f9fa;
+      padding: 2rem;
+      text-align: center;
+      border-top: 1px solid #dee2e6;
+    }
+
+    .footer-note {
+      color: #6c757d;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .footer-note strong {
+      color: #1B3C53;
+    }
+
+    /* PDF-specific styles */
+    @media print {
+      body {
+        background: #ffffff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 12px !important;
+      }
+
+      .invoice-container {
+        box-shadow: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+        max-width: none !important;
+        margin: 0 !important;
+      }
+
+      .invoice-header {
+        background: #1B3C53 !important;
+        color: #ffffff !important;
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
+
+      .items-table thead {
+        background: #1B3C53 !important;
+        color: #ffffff !important;
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
+
+      .status-paid {
+        background: #d4edda !important;
+        color: #155724 !important;
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
+
+      .status-pending {
+        background: #fff3cd !important;
+        color: #856404 !important;
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
+
+      .invoice-footer {
+        background: #f8f9fa !important;
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
+
+      /* Hide any interactive elements for PDF */
+      button, .btn, .action-buttons {
+        display: none !important;
+      }
+
+      /* Ensure proper page breaks */
+      .invoice-header {
+        page-break-inside: avoid;
+      }
+
+      .items-table {
+        page-break-inside: auto;
+      }
+
+      .items-table tr {
+        page-break-inside: avoid;
+      }
+
+      .invoice-summary {
+        page-break-inside: avoid;
+      }
+
+      .invoice-footer {
+        page-break-inside: avoid;
+      }
+    }
+
+    /* PDF download trigger styles */
+    .pdf-download-trigger {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #1B3C53;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      z-index: 1000;
+    }
+
+    .pdf-download-trigger:hover {
+      background: #2c5aa0;
+    }
+  </style>
+</head>
+<body>
+  <% if (isPDF) { %>
+  <!-- PDF Download Trigger -->
+  <button class="pdf-download-trigger" onclick="downloadPDF()">Download PDF</button>
+  <% } %>
+
+  <div class="invoice-container">
+    <!-- Invoice Header with Company Branding -->
+    <div class="invoice-header">
+      <div class="company-branding">
+        <div class="company-info">
+          <h1>Phoenix</h1>
+          <div class="company-tagline">Premium Headphone Experience</div>
+          <div class="company-contact">
+            Email: support@phoenix.com | Phone: +91 1234567890<br>
+            Website: www.phoenix.com
+          </div>
+        </div>
+      </div>
+
+      <div class="invoice-title">
+        <h2>INVOICE</h2>
+        <div class="invoice-number">Invoice #<%= order.orderNumber || 'N/A' %></div>
+      </div>
+    </div>
+
+    <!-- Invoice Details Section -->
+    <div class="invoice-details">
+      <div class="details-grid">
+        <div class="detail-section">
+          <h3>Bill To</h3>
+          <div class="detail-item">
+            <span class="detail-label">Name:</span>
+            <span class="detail-value"><%= order.shippingAddress.fullName || 'N/A' %></span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Email:</span>
+            <span class="detail-value"><%= user.email || '' %></span>
+          </div>
+          <% if (order.shippingAddress.phone) { %>
+          <div class="detail-item">
+            <span class="detail-label">Phone:</span>
+            <span class="detail-value"><%= order.shippingAddress.phone %></span>
+          </div>
+          <% } %>
+          <div class="detail-item">
+            <span class="detail-label">Address:</span>
+            <span class="detail-value">
+              <%= order.shippingAddress.street || '' %><br>
+              <% if (order.shippingAddress.landmark) { %>
+                <%= order.shippingAddress.landmark %><br>
+              <% } %>
+              <%= order.shippingAddress.city || '' %>, <%= order.shippingAddress.state || '' %> <%= order.shippingAddress.pincode || '' %><br>
+              <%= order.shippingAddress.country || '' %>
+            </span>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Invoice Details</h3>
+          <div class="detail-item">
+            <span class="detail-label">Date:</span>
+            <span class="detail-value"><%= order.formattedDate || new Date(order.createdAt).toLocaleDateString() %></span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Payment Status:</span>
+            <span class="detail-value">
+              <% if (order.paymentStatus === 'Paid' || order.orderStatus === 'Delivered') { %>
+                <span class="status-badge status-paid">Paid</span>
+              <% } else if (order.paymentStatus === 'Pending') { %>
+                <span class="status-badge status-pending">Pending</span>
+              <% } else { %>
+                <span class="status-badge"><%= order.paymentStatus || 'Unknown' %></span>
+              <% } %>
+            </span>
+          </div>
+          <% if (order.orderStatus) { %>
+            <div class="detail-item">
+              <span class="detail-label">Order Status:</span>
+              <span class="detail-value"><%= order.orderStatus %></span>
+            </div>
+          <% } %>
+          <div class="detail-item">
+            <span class="detail-label">Payment Method:</span>
+            <span class="detail-value">
+              <%= order.paymentMethod === 'COD' ? 'Cash on Delivery' :
+                  order.paymentMethod === 'Razorpay' ? 'Online Payment' :
+                  order.paymentMethod || 'Cash on Delivery' %>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Items Table -->
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th style="text-align: center;">Qty</th>
+            <th style="text-align: right;">Unit Price</th>
+            <th style="text-align: right;">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% order.items.forEach(item => { %>
+            <tr>
+              <td>
+                <div class="product-info">
+                  <img src="<%= item.product.mainImage || '/api/placeholder/500/600' %>"
+                       alt="<%= item.product.model %>"
+                       class="product-image">
+                  <div class="product-details">
+                    <h4><%= item.product.model %></h4>
+                    <p class="product-brand"><%= item.product.brand %></p>
+                  </div>
+                </div>
+              </td>
+              <td style="text-align: center;"><%= item.quantity %></td>
+              <td style="text-align: right;">₹<%= (item.priceAtAddition || item.price || 0).toFixed(2) %></td>
+              <td style="text-align: right;">₹<%= ((item.priceAtAddition || item.price || 0) * item.quantity).toFixed(2) %></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+
+      <!-- Summary Section -->
+      <div class="invoice-summary">
+        <div class="summary-table">
+          <div class="summary-row">
+            <span class="summary-label">Subtotal:</span>
+            <span class="summary-value"><%= order.formattedSubtotal || '₹0.00' %></span>
+          </div>
+          <% if (order.discount && order.discount > 0) { %>
+            <div class="summary-row">
+              <span class="summary-label">Offer Discount:</span>
+              <span class="summary-value">-<%= order.formattedDiscount || '₹0.00' %></span>
+            </div>
+          <% } %>
+          <% if (order.couponDiscount && order.couponDiscount > 0) { %>
+            <div class="summary-row">
+              <span class="summary-label">Coupon Discount<%= order.couponCode ? ` (${order.couponCode})` : '' %>:</span>
+              <span class="summary-value">-<%= order.formattedCouponDiscount || '₹0.00' %></span>
+            </div>
+          <% } %>
+          <div class="summary-row">
+            <span class="summary-label">Tax:</span>
+            <span class="summary-value"><%= order.formattedTax || '₹0.00' %></span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Total Amount:</span>
+            <span class="summary-value"><%= order.formattedTotal || '₹0.00' %></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Invoice Footer -->
+    <div class="invoice-footer">
+      <div class="footer-note">
+        <strong>Thank you for your business!</strong><br>
+        For any questions about this invoice, please contact us at support@phoenix.com or +91 1234567890<br>
+        Phoenix - Premium Headphone Experience | www.phoenix.com<br>
+        <em>This is a computer-generated invoice and does not require a signature.</em>
+      </div>
+    </div>
+  </div>
+
+  <% if (isPDF) { %>
+  <script>
+    function downloadPDF() {
+      // Hide the download button
+      document.querySelector('.pdf-download-trigger').style.display = 'none';
+
+      // Trigger browser's print dialog which can save as PDF
+      window.print();
+
+      // Show the button again after a delay
+      setTimeout(() => {
+        document.querySelector('.pdf-download-trigger').style.display = 'block';
+      }, 1000);
+    }
+
+    // Auto-trigger download after page loads
+    window.addEventListener('load', function() {
+      setTimeout(() => {
+        downloadPDF();
+      }, 500);
+    });
+  </script>
+  <% } %>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
